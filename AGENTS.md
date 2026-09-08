@@ -30,7 +30,7 @@ behavior. State any interpretation in the delivery report.
 src/
   index.ts                 # public Roster, hook, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
-  rrule/index.ts           # empty adapter entry; recurrence expansion arrives in #4
+  rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
   components/              # Roster chassis, hook, zones, and rect rows; Schedule planned
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
@@ -80,7 +80,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   the framework-required exceptions. No subdirectory barrels except the three
   declared public entry points; a feature's `index.tsx` is its chassis.
 - Core imports only standard JavaScript and `Intl`. React, React Native, Expo, and
-  `@legendapp/list` are peers. The future rrule adapter alone owns Temporal and
+  `@legendapp/list` are peers. The rrule adapter alone owns Temporal and
   recurrence dependencies; root and core must never import them.
 - Work outside the render path: geometry for visible lanes, coverage for every
   lane. Preserve exact provenance by `(kind, id)` and end-exclusive epoch bounds.
@@ -159,7 +159,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-6. **Roster and the core are implemented; Schedule and recurrence are planned.**
+6. **Roster, the core, and the recurrence adapter are implemented; Schedule is planned.**
    Do not advertise planned surfaces as shipped. Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
@@ -205,3 +205,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
 16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
     renders; only on-screen counters sample every 500 ms. Fixture records own zones
     and showsEmptyExample, with visual fillers in test/fixtures/roster-zones.tsx.
+17. **Adapter caches retain occurrences only.** Every call nets and applies the total
+    cap fresh in rule id order, then date id order. Retained envelopes select bounds
+    by containment; only retained per-rule entries guarantee expanded 0. The default
+    LRUs retain 2000 occurrence entries and 4 envelopes per set; clear discarded sets
+    explicitly. Source identity and notes are attached during assembly.
+18. **The pinned recurrence engine needs two compatibility details.** 1.5.2 has a
+    CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
+    select matching polyfill instances. Its iterator can replay, so deduplicate local
+    dates before cap admission. Supply the implicit monthly day explicitly to avoid
+    a 31st drifting through February. Do not move COUNT anchors when skipping history.

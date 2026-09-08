@@ -2,7 +2,8 @@
 
 > A React Native read surface for layered intervals with provenance across lanes
 > and a shared time axis. API not yet shipped. Pure core types, geometry, coverage,
-> caches, axis helpers, Roster, and useRoster are implemented; Schedule and the adapter are planned.
+> caches, axis helpers, Roster, useRoster, and the recurrence adapter are implemented;
+> Schedule is planned.
 
 ## Vocabulary
 
@@ -31,13 +32,13 @@ horizontal (roster) or columns (schedule). Layout works only on visible lanes;
 coverage works on every lane. Target-warm means the exact requested cache keys
 already exist; target-cold means they do not. Rule, lane, and view timezones have
 separate jobs. The core uses standard JavaScript and `Intl`; recurrence expansion
-and Temporal belong exclusively to the future adapter.
+and Temporal belong exclusively to the rrule adapter.
 
 ## Entry points
 
 - `react-native-roster`: Roster, useRoster, default zone fillers, rendering types, and core re-exports.
 - `react-native-roster/core`: pure types, geometry, coverage, axis helpers, and counters.
-- `react-native-roster/rrule`: planned recurrence adapter; empty today.
+- `react-native-roster/rrule`: recurrence expansion, caps, provenance, and caches.
 - `react-native-roster/package.json`: package metadata.
 
 Metro resolves the `react-native` condition to TypeScript source. Other runtimes
@@ -73,6 +74,23 @@ No `.js` extensions on relative imports in src. No consumer-specific entities.
 - complete is lane.complete ?? true. incompleteLabel defaults to Availability may be incomplete; neverSetLabel defaults to No availability set.
 - The seven gallery routes use static test fixtures and offer span, step, view timezone, and sort controls. Expo SDK 54 experiments.reactCompiler is enabled. window.__roster exposes live layoutStats, coverageStats, resetStats, clearLayoutCache, and clearCoverageCache functions with stable bridge identity. Only on-screen counters sample every 500 ms. Fixture records own zones and showsEmptyExample.
 - iOS and Android scrolling and React DevTools LaneRow render counts still need the device pass.
+
+## Adapter usage constraints
+
+- Import expandRuleSet, envelopeFor, expandStats, resetExpandStats, and clearExpandCache only from react-native-roster/rrule.
+- RosterRule, RosterDate, RuleSet, ExpandOptions, ExpandResult, and ExpandStats live on that subpath; Weekday, Interval, Gap, Source, and Window come from core.
+- Local hours use the rule's IANA zone; the view zone is never an input. Hours are paired, end-exclusive, and between 0 and 24. Dates with no hours cover the whole day.
+- Plain dates and datetimes use the rule zone; offset datetimes represent instants. Date-only until includes the whole local day. Compatible disambiguation chooses the earlier repeat and advances skips.
+- One absolute envelope pads the window by 48 hours on each side. All includes, excludes, and dates share it, including spans that cross its bounds. Assembly clips to the display window.
+- Interval sources are includes only; gap sources are excludes only. Full subtraction retains a gap. A date note becomes Source.label.
+- Per-rule content keys exclude id and note, and include envelope bounds and the per-rule cap. Sources are assembled fresh. Only occurrence lists are cached.
+- maxEntries defaults to 2000; maxEnvelopes defaults to 4 per set. Both are LRUs. Histories are keyed by canonical set content; clear discarded sets explicitly with clearExpandCache.
+- caps.perRuleOccurrences defaults to 400; totalOccurrences defaults to 10000. Caps and cache limits accept nonnegative integers, including zero.
+- Total admission runs fresh in rule id order, then date id order. Drop the first list that cannot fit and all later lists whole. Fully enumerated drops have exact counts; per-rule truncation reports droppedAtLeast 1.
+- Caps count envelope occurrences. Propagate result.complete to Lane.complete; capped output is not definitive.
+- expandStats returns cumulative counters; result.stats describes the call. resetExpandStats clears counters only; clearExpandCache clears occurrence entries and envelope histories only.
+- Containment reuses bounds; retained occurrence entries yield expanded 0. Total-cap changes never invalidate per-rule lists; per-rule-cap changes do. LRU eviction can require re-expansion within retained bounds.
+- rrule-temporal 1.5.2 and @js-temporal/polyfill 0.5.1 are pinned runtime dependencies reachable only from src/rrule. Root/core emitted import graphs are tested for isolation.
 
 ## Key files
 

@@ -25,6 +25,9 @@
   "main": "./src/index.ts",
   "react-native": "./src/index.ts",
   "types": "./dist/src/index.d.ts",
+  "browser": {
+    "./dist/src/components/roster/press-point.js": "./dist/src/components/roster/press-point.web.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -79,6 +82,15 @@
     "react-native": ">=0.74.0",
     "react-native-reanimated": ">=3.19.0"
   },
+  "peerDependenciesMeta": {
+    "react-native-reanimated": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "0.5.1",
+    "rrule-temporal": "1.5.2"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.4.14",
     "@legendapp/list": "2.0.19",
@@ -117,13 +129,5 @@
   "packageManager": "bun@1.4.0",
   "workspaces": [
     "demo"
-  ],
-  "peerDependenciesMeta": {
-    "react-native-reanimated": {
-      "optional": true
-    }
-  },
-  "browser": {
-    "./dist/src/components/roster/press-point.js": "./dist/src/components/roster/press-point.web.js"
-  }
+  ]
 }

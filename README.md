@@ -11,8 +11,8 @@ on; scan a row to see whether someone set anything at all.
 
 **API not yet shipped.** The pure TypeScript core is implemented in this working tree:
 contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
-`Roster`, `useRoster`, replaceable zones, and the first seven gallery routes are
-implemented. `Schedule` and the recurrence adapter remain planned APIs.
+`Roster`, `useRoster`, replaceable zones, the first seven gallery routes, and the
+recurrence adapter are implemented. `Schedule` remains a planned API.
 
 ## Design
 
@@ -40,10 +40,10 @@ expansion belongs to an adapter. `Roster` projects many lanes horizontally;
 | --- | --- | --- |
 | `react-native-roster` | Roster, useRoster, default zones, and core re-exports | Implemented |
 | `react-native-roster/core` | Types, layout, coverage, axis helpers, and counters | Implemented |
-| `react-native-roster/rrule` | Recurrence expansion adapter | Empty module |
+| `react-native-roster/rrule` | Recurrence expansion, caps, provenance, and caches | Implemented |
 
-The core uses only the standard library and `Intl`. The adapter will own
-`rrule-temporal` and `@js-temporal/polyfill`; neither is a runtime dependency yet.
+The core uses only the standard library and `Intl`. Only the adapter imports
+`rrule-temporal` 1.5.2 and `@js-temporal/polyfill` 0.5.1, pinned runtime dependencies.
 React, React Native, Expo, and `@legendapp/list` are peers. Rendering also requires
 `react-native-reanimated` 3.19 or later, declared optional so pure-core consumers
 can omit it. Configure Reanimated in the consumer app. The demo uses 3.19.5.
@@ -173,6 +173,62 @@ Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks
 Tests enforce separate 16 ms target-cold layout and coverage budgets and print the
 measured baselines. Device performance remains an issue #9 acceptance item.
 
+## Recurrence adapter
+
+```ts
+import { expandRuleSet } from 'react-native-roster/rrule';
+import type { RuleSet } from 'react-native-roster/rrule';
+
+const set: RuleSet = {
+  rules: [{
+    id: 'weekday-hours', kind: 'include', frequency: 'WEEKLY',
+    dtstart: '2024-01-01', byweekday: [0, 1, 2, 3, 4],
+    hourstart: 9, hourend: 17, timezone: 'America/Chicago',
+  }],
+  dates: [],
+};
+const result = expandRuleSet(set, window);
+// Put result.intervals and result.gaps on a layer, and result.complete on its lane.
+```
+
+`RosterRule` supports DAILY, WEEKLY, and MONTHLY frequencies, count, until,
+interval, wkst, byweekday, bymonth, bymonthday, and bysetpos. Weekdays use the core's
+0 = Monday numbering. IDs supply provenance; content determines cache identity.
+`RosterDate` adds an included or excluded local date, optional paired hours, and
+an optional note displayed as its source label. No hours means the whole day.
+Hours satisfy `0 <= hourstart < hourend <= 24`; fractional hours retain millisecond
+precision. Hour 24 is next local midnight. Local dates and plain datetimes are
+interpreted in the rule's zone; offset datetimes represent instants converted to
+that zone. Date-only until includes the whole local date. Temporal's compatible
+policy chooses the earlier repeated hour and advances a nonexistent hour.
+
+`expandRuleSet` uses one absolute envelope padded 48 hours on each side, includes
+spans crossing its bounds, subtracts exclusions, and clips to the display window.
+Interval sources contain only includes; gap sources contain only exclusions that
+removed covered time. A completely removed day remains a gap. No view zone enters
+the adapter. A contained window reuses the retained envelope, including after a
+view-zone shift. `envelopeFor(window)` exposes the padding calculation.
+
+Options default to `cache.maxEntries: 2000`, `cache.maxEnvelopes: 4`,
+`caps.perRuleOccurrences: 400`, and `caps.totalOccurrences: 10000`. All accept
+nonnegative integers; zero disables retention or admits no occurrences. Per-rule
+entries retain only occurrence lists and their cap status. Retained envelopes
+are an LRU per set content key. Clear caches when discarding sets; the number of
+set histories is not bounded globally. Evicted occurrence entries must expand
+again even when their envelope is still retained.
+
+Total caps and netting run fresh on every call. Admission follows rules in id
+order, then dates in id order. The first list that does not fit and every later
+list are dropped whole. `truncated` reports exact counts for fully enumerated
+dropped lists and a lower bound of 1 for lists stopped by the per-rule cap.
+Any truncation sets `complete: false`; propagate it to the lane. Caps count the
+selected envelope's occurrences, including those outside the display window.
+
+`stats` describes the call; `expandStats()` returns cumulative counters.
+`resetExpandStats()` clears counters only, and `clearExpandCache()` clears both
+caches only. Changing the total cap reuses occurrence lists; changing the per-rule
+cap invalidates them. Returned intervals, sources, and envelope objects are fresh.
+
 ## Gallery and platforms
 
 The demo targets iOS, Android, and web using Expo SDK 54, Expo Router 6, React 19.1,
@@ -181,13 +237,13 @@ enabled through Expo SDK 54's `experiments.reactCompiler` app-config setting.
 The home route links to empty, single-lane, two-layers, full-day-gap, never-set,
 every-zone, and 200-lanes fixtures under `demo/app/gallery/`. Each has span, minute
 step, view timezone, and sort controls. Fixtures are static data from `test/fixtures`;
-they do not depend on the future recurrence adapter.
+they do not depend on the recurrence adapter.
 
 The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
 `resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
 is stable across renders and it is removed on unmount. Only the on-screen counters
-use a 500 ms snapshot. Optional expansion counter slots are reserved for the future
-adapter. These are cumulative core counters, not render counts.
+use a 500 ms snapshot. Optional expansion counter slots are reserved for future
+adapter integration. These are cumulative core counters, not render counts.
 
 The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/workflows/deploy-demo.yml)
 builds every pull request and deploys `main` to
