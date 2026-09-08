@@ -38,9 +38,11 @@ export function enumerate(
   }
   const original = dateTime(input.dtstart, input.timezone);
   const originalWall = plain(original);
+  // A cross-date rollback can leave the end on the preceding wall date.
+  // Include the following date completely; envelope clipping discards extra candidates.
   const upper = Temporal.Instant.fromEpochMilliseconds(envelope.end)
     .toZonedDateTimeISO(input.timezone)
-    .add({ days: 1 })
+    .add({ days: 2 })
     .startOfDay();
   const until =
     input.until === undefined

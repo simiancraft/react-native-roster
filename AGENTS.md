@@ -241,7 +241,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
     Explicit-offset UNTIL uses the end of the following local date instead; exact instant
     admission is its only UNTIL admission test. Clamp either bound to the corresponding
-    UTC calendar bound of the envelope query. Before cap admission,
+    UTC calendar bound of the envelope query.
+    The enumeration bound is conservative through the wall date after any cross-date rollback
+    at the envelope end, and envelope clipping discards the extra candidates. Before cap admission,
     compare each emitted date at the authored anchor's wall time against local
     datetime UNTIL in plain date-time space, without normalizing skipped hours.
     Only explicit-offset UNTIL compares exact instants, preferring an explicit-offset
