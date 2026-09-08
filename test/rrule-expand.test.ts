@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import type * as TemporalModule from '@js-temporal/polyfill';
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
-import type { Interval, Window } from '../src/core';
+import type { Interval, Weekday, Window } from '../src/core';
 import { windowFor } from '../src/core';
 import type { RosterDate, RosterRule, RuleSet } from '../src/rrule';
 import {
@@ -1377,5 +1377,235 @@ describe('validation', () => {
     expect(() => expandRuleSet(set([], [date({ timezone: 'Not/AZone' })]), window)).toThrow();
     expect(() => expandRuleSet(set([], [date({ date: '2024-02-30' })]), window)).toThrow();
     expect(() => expandRuleSet(set([rule({ dtstart: 'bad' })], []), window)).toThrow();
+  });
+});
+
+// Independent plain-date oracle: walk every date, filter, then select positions.
+// It never calls the recurrence engine or the adapter's period helpers.
+function positionalOracle(input: RosterRule, window: Window): Interval[] {
+  const anchor = Temporal.PlainDate.from(input.dtstart.slice(0, 10));
+  let cursor = anchor.with({ day: 1 }).subtract({ weeks: 1 });
+  const end = Temporal.Instant.fromEpochMilliseconds(window.end)
+    .toZonedDateTimeISO('UTC')
+    .toPlainDate()
+    .add({ months: 1 })
+    .with({ day: 1 })
+    .add({ weeks: 1 });
+  const weeksFromAnchor = (date: TemporalModule.Temporal.PlainDate) => {
+    const distance = anchor.until(date).days + ((anchor.dayOfWeek - 1 - (input.wkst ?? 0) + 7) % 7);
+    return Math.floor(distance / 7);
+  };
+  const groups = new Map<number, TemporalModule.Temporal.PlainDate[]>();
+  while (Temporal.PlainDate.compare(cursor, end) < 0) {
+    const period =
+      input.frequency === 'MONTHLY'
+        ? (cursor.year - anchor.year) * 12 + cursor.month - anchor.month
+        : input.frequency === 'WEEKLY'
+          ? weeksFromAnchor(cursor)
+          : anchor.until(cursor).days;
+    if (
+      period >= 0 &&
+      period % (input.interval ?? 1) === 0 &&
+      (!input.bymonth?.length || input.bymonth.includes(cursor.month)) &&
+      (!input.byweekday?.length || input.byweekday.includes((cursor.dayOfWeek - 1) as Weekday)) &&
+      (!input.bymonthday?.length ||
+        input.bymonthday.some(
+          (day) => cursor.day === (day > 0 ? day : cursor.daysInMonth + day + 1),
+        ))
+    ) {
+      const dates = groups.get(period) ?? [];
+      dates.push(cursor);
+      groups.set(period, dates);
+    }
+    cursor = cursor.add({ days: 1 });
+  }
+  return [...groups.values()]
+    .flatMap((dates) =>
+      dates.filter((_, index) =>
+        input.bysetpos?.some((position) =>
+          position > 0 ? index + 1 === position : index - dates.length === position,
+        ),
+      ),
+    )
+    .filter((date) => Temporal.PlainDate.compare(date, anchor) >= 0)
+    .slice(0, input.count)
+    .map((date) => span(`${date}T09:00Z`, `${date}T17:00Z`, 'rule', input.id))
+    .filter((interval) => interval.start < window.end && interval.end > window.start)
+    .map((interval) => ({
+      ...interval,
+      start: Math.max(interval.start, window.start),
+      end: Math.min(interval.end, window.end),
+    }));
+}
+
+describe('adapter positional selection and bounded periods', () => {
+  it('applies weekly BYMONTH before BYSETPOS directly and through a containing envelope', () => {
+    const input = set(
+      [
+        rule({
+          id: 'r',
+          frequency: 'WEEKLY',
+          dtstart: '2023-03-06',
+          byweekday: [0, 4],
+          bymonth: [3],
+          bysetpos: [1],
+        }),
+      ],
+      [],
+    );
+    const window = { start: epoch('2024-03-01T00:00Z'), end: epoch('2024-03-04T00:00Z') };
+    const expected = [span('2024-03-01T09:00Z', '2024-03-01T17:00Z', 'rule', 'r')];
+    expect(positionalOracle(input.rules[0] as RosterRule, window)).toEqual(expected);
+    expect(expandRuleSet(input, window).intervals).toEqual(expected);
+    clearExpandCache();
+    expandRuleSet(input, { start: epoch('2024-02-01T00:00Z'), end: epoch('2024-04-01T00:00Z') });
+    const retained = expandRuleSet(input, window);
+    expect(retained.intervals).toEqual(expected);
+    expect(retained.complete).toBe(true);
+    expect(retained.stats.expanded).toBe(0);
+  });
+
+  const emptyRules: Partial<RosterRule>[] = [
+    { frequency: 'WEEKLY', byweekday: [4], bysetpos: [2] },
+    { frequency: 'MONTHLY', bymonthday: [1], bysetpos: [2] },
+    { frequency: 'MONTHLY', bymonthday: [31], bymonth: [2] },
+    { frequency: 'MONTHLY', bymonthday: [30, 31], bymonth: [2], byweekday: [0] },
+    { frequency: 'MONTHLY', interval: 12, bymonth: [2], byweekday: [4] },
+    { frequency: 'DAILY', bymonthday: [31], bymonth: [2] },
+    { frequency: 'WEEKLY', bymonthday: [31], bymonth: [2] },
+  ];
+  for (const [index, sample] of emptyRules.entries()) {
+    it(`completes empty candidate set ${index} within 500 ms in a bounded subprocess`, () => {
+      const input = set([rule({ dtstart: '2024-03-01', ...sample })], []);
+      const started = performance.now();
+      const child = Bun.spawnSync(
+        [
+          process.execPath,
+          '-e',
+          `
+        const { expandRuleSet } = require('./src/rrule');
+        const input = ${JSON.stringify(input)};
+        const window = ${JSON.stringify(window)};
+        const fresh = expandRuleSet(input, window);
+        const retained = expandRuleSet(input, window);
+        console.log(JSON.stringify({ fresh, retained }));
+      `,
+        ],
+        { cwd: process.cwd(), timeout: 750 },
+      );
+      expect(child.exitCode).toBe(0);
+      expect(performance.now() - started).toBeLessThan(500);
+      const { fresh, retained } = JSON.parse(child.stdout.toString());
+      for (const output of [fresh, retained, expandRuleSet(input, window)]) {
+        expect(output.intervals).toEqual([]);
+        expect(output.gaps).toEqual([]);
+        expect(output.complete).toBe(true);
+        expect(output.truncated).toEqual([]);
+      }
+      expect(fresh.stats.expanded).toBe(1);
+      expect(retained.stats.expanded).toBe(0);
+    });
+  }
+
+  for (const frequency of ['WEEKLY', 'MONTHLY'] as const) {
+    for (const wkst of [0, 2, 6] as const) {
+      for (const bysetpos of [[1], [-1], [2, -1, 2]]) {
+        for (const interval of [1, 2]) {
+          it(`matches plain-date positions for ${frequency}, WKST ${wkst}, positions ${bysetpos}, interval ${interval}`, () => {
+            const input = rule({
+              frequency,
+              wkst,
+              bysetpos,
+              interval,
+              dtstart: '2023-03-06',
+              byweekday: [0, 4],
+              bymonth: [3],
+            });
+            const windows = [
+              { start: epoch('2024-03-01T00:00Z'), end: epoch('2024-03-04T00:00Z') },
+              { start: epoch('2024-03-13T00:00Z'), end: epoch('2024-03-30T00:00Z') },
+              { start: epoch('2023-03-06T00:00Z'), end: epoch('2023-04-01T00:00Z') },
+            ];
+            for (const window of windows) {
+              clearExpandCache();
+              const expected = positionalOracle(input, window);
+              expect(expandRuleSet(set([input], []), window).intervals).toEqual(expected);
+              for (const advance of [true, false]) {
+                expect(enumerate(input, window, 400, advance)).toEqual({
+                  spans: expected.map(({ start, end }) => ({ start, end })),
+                  capped: false,
+                });
+              }
+              clearExpandCache();
+              expandRuleSet(set([input], []), {
+                start: window.start - 40 * 24 * hour,
+                end: window.end + 40 * 24 * hour,
+              });
+              const retained = expandRuleSet(set([input], []), window);
+              expect(retained.intervals).toEqual(expected);
+              expect(retained.stats.expanded).toBe(0);
+            }
+          });
+        }
+      }
+    }
+    it(`selects exact last ${frequency} dates and counts only selected positions`, () => {
+      const input = rule({ frequency, dtstart: '2024-03-01', byweekday: [0, 4], bysetpos: [-1] });
+      const window = { start: epoch('2024-03-01T00:00Z'), end: epoch('2024-05-01T00:00Z') };
+      const dates =
+        frequency === 'WEEKLY' ? ['2024-03-01', '2024-03-08'] : ['2024-03-29', '2024-04-29'];
+      const expected = dates.map((date) => span(`${date}T09:00Z`, `${date}T17:00Z`, 'rule', 'a'));
+      const counted = { ...input, count: 2 };
+      expect(positionalOracle(counted, window)).toEqual(expected);
+      expect(expandRuleSet(set([counted], []), window).intervals).toEqual(expected);
+      clearExpandCache();
+      const capped = expandRuleSet(set([input], []), window, { caps: { perRuleOccurrences: 1 } });
+      expect(capped.intervals).toEqual(expected.slice(0, 1));
+      expect(capped.complete).toBe(false);
+      expect(capped.truncated).toEqual([{ id: 'a', droppedAtLeast: 1 }]);
+      clearExpandCache();
+      const exact = expandRuleSet(set([counted], []), window, { caps: { perRuleOccurrences: 2 } });
+      expect(exact.intervals).toEqual(expected);
+      expect(exact.complete).toBe(true);
+    });
+  }
+
+  it('selects daily positions, preserves implicit weekdays, and rejects positions before DTSTART', () => {
+    expect(enumerate(rule({ bysetpos: [2] }), window, 400)).toEqual({ spans: [], capped: false });
+    const input = rule({ frequency: 'WEEKLY', dtstart: '2024-03-06', bysetpos: [-1] });
+    expect(expandRuleSet(set([input], []), window).intervals).toEqual([
+      span('2024-03-06T09:00Z', '2024-03-06T17:00Z', 'rule', 'a'),
+    ]);
+    const before = rule({
+      frequency: 'MONTHLY',
+      dtstart: '2024-03-15',
+      bymonthday: [1, 20],
+      bysetpos: [1],
+    });
+    expect(
+      enumerate(before, { start: epoch('2024-03-01'), end: epoch('2024-04-01') }, 400).spans,
+    ).toEqual([]);
+  });
+
+  it('does not count replay as a second daily positional candidate', () => {
+    const input = rule({ dtstart: '2024-03-04', byweekday: [4], bysetpos: [2] });
+    const window = { start: epoch('2024-03-04'), end: epoch('2024-03-09') };
+    expect(enumerate(input, window, 400)).toEqual({ spans: [], capped: false });
+    expect(enumerate({ ...input, bysetpos: [-1] }, window, 400)).toEqual({
+      spans: [{ start: epoch('2024-03-08T09:00Z'), end: epoch('2024-03-08T17:00Z') }],
+      capped: false,
+    });
+  });
+
+  it('does not reinterpret an engine failure as complete enumeration', () => {
+    const failure = new Error('engine failure');
+    const all = spyOn(RRuleTemporal.prototype, 'all').mockImplementation(() => {
+      throw failure;
+    });
+    try {
+      expect(() => enumerate(rule(), window, 400)).toThrow(failure);
+    } finally {
+      all.mockRestore();
+    }
   });
 });
