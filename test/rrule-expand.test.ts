@@ -422,31 +422,42 @@ describe('caps', () => {
 describe('recurrence fields and local boundaries', () => {
   for (const frequency of ['DAILY', 'WEEKLY', 'MONTHLY'] as const) {
     const filters: Record<string, Partial<RosterRule>> = {
+      unfiltered: {},
       byweekday: { byweekday: [0, 4] },
       bymonthday: { bymonthday: [1, 4, 11, 18, 25, -1] },
       bysetpos: { bysetpos: [-1] },
       combined: { byweekday: [0, 4], bymonthday: [1, 4, 11, 18, 25, -1], bysetpos: [-1] },
     };
     for (const [name, filter] of Object.entries(filters)) {
-      it(`matches original-anchor enumeration for interval-1 ${frequency} with ${name}`, () => {
+      for (const [timezone, dtstart, starts, end] of [
+        [
+          'America/Chicago',
+          '2014-01-31T18:30',
+          ['2024-03-01T18:00Z', '2024-03-02T18:00Z', '2024-04-02T18:00Z'],
+          '2024-06-01',
+        ],
+        [
+          'America/Chicago',
+          '2024-03-03T02:30',
+          ['2024-03-16', '2024-03-17', '2024-04-02'],
+          '2024-06-01',
+        ],
+        ['Pacific/Apia', '2011-12-16', ['2012-01-06', '2012-01-07', '2012-02-07'], '2012-06-01'],
+        ['America/Chicago', '2024-03-03', ['2024-03-16', '2024-03-17', '2024-04-02'], '2024-06-01'],
+      ] as const) {
         for (const interval of [undefined, 1]) {
-          for (const start of ['2024-03-01T18:00Z', '2024-03-02T18:00Z', '2024-04-02T18:00Z']) {
-            const window = { start: epoch(start), end: epoch('2024-06-01') };
-            const input = rule({
-              frequency,
-              interval,
-              dtstart: '2014-01-31T18:30',
-              timezone: 'America/Chicago',
-              wkst: 6,
-              ...filter,
+          for (const start of starts) {
+            it(`matches original-anchor ${frequency} with ${name}, ${timezone}, ${dtstart}, interval ${interval}, and ${start}`, () => {
+              const window = { start: epoch(start), end: epoch(end) };
+              const input = rule({ frequency, interval, dtstart, timezone, wkst: 6, ...filter });
+              const reference = enumerate(input, window, 400, false);
+              expect(reference.capped).toBe(false);
+              expect(reference.spans.length).toBeGreaterThan(0);
+              expect(enumerate(input, window, 400)).toEqual(reference);
             });
-            const reference = enumerate(input, window, 400, false);
-            expect(reference.capped).toBe(false);
-            expect(reference.spans.length).toBeGreaterThan(0);
-            expect(enumerate(input, window, 400)).toEqual(reference);
           }
         }
-      });
+      }
     }
 
     it(`keeps the lifetime COUNT anchor for interval-1 ${frequency} rules`, () => {
@@ -456,6 +467,67 @@ describe('recurrence fields and local boundaries', () => {
         expect(reference).toEqual({ spans: [], capped: false });
         expect(enumerate(input, window, 400)).toEqual(reference);
       }
+    });
+  }
+
+  for (const [
+    timezone,
+    frequency,
+    dtstart,
+    until,
+    start,
+    end,
+    broadStart,
+    broadEnd,
+    expectedStart,
+    expectedEnd,
+  ] of [
+    [
+      'Pacific/Apia',
+      'WEEKLY',
+      '2011-12-16',
+      undefined,
+      '2012-01-08',
+      '2012-01-15',
+      '2011-12-16',
+      '2012-01-20',
+      '2012-01-12T19:00Z',
+      '2012-01-13T03:00Z',
+    ],
+    [
+      'America/Chicago',
+      'DAILY',
+      '2024-03-01T02:30',
+      '2024-03-17T02:30',
+      '2024-03-16',
+      '2024-03-23',
+      '2024-03-01',
+      '2024-03-23',
+      '2024-03-16T14:00Z',
+      '2024-03-16T22:00Z',
+    ],
+  ] as const) {
+    it(`keeps ${timezone} intervals independent of containing-envelope call order`, () => {
+      const input = set([rule({ id: 'friday', timezone, frequency, dtstart, until })], []);
+      const window = { start: epoch(start), end: epoch(end) };
+      const expected = [span(expectedStart, expectedEnd, 'rule', 'friday')];
+      const original = enumerate(input.rules[0] as RosterRule, envelopeFor(window), 400, false);
+      expect(original.capped).toBe(false);
+      const reference = original.spans.filter(
+        (span) => span.start >= window.start && span.end <= window.end,
+      );
+      expect(reference).toEqual(expected.map(({ start, end }) => ({ start, end })));
+      const direct = expandRuleSet(input, window);
+      clearExpandCache();
+      expect(
+        expandRuleSet(input, { start: epoch(broadStart), end: epoch(broadEnd) }).complete,
+      ).toBe(true);
+      const retained = expandRuleSet(input, window);
+      expect(retained.stats).toMatchObject({ cacheHits: 1, expanded: 0 });
+      expect(retained.complete).toBe(true);
+      expect(direct.complete).toBe(true);
+      expect(retained.intervals).toEqual(expected);
+      expect(direct.intervals).toEqual(expected);
     });
   }
 

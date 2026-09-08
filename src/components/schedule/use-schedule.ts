@@ -38,7 +38,10 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
         return;
       const absolute = timeAtY(projection, columnIndex, y);
       if (absolute === null) return;
-      const time = snapToStep(absolute, minuteStep, projection.viewTimezone);
+      const time = Math.max(
+        window.start,
+        snapToStep(absolute, minuteStep, projection.viewTimezone),
+      );
       const hit = hitTest(
         lane,
         {
@@ -57,7 +60,7 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
         onGapPress?.(hit.rect, lane);
         return;
       }
-      onCellPress?.(lane, Math.max(window.start, time));
+      if (time < window.end) onCellPress?.(lane, time);
     };
   });
   return {

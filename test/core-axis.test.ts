@@ -311,6 +311,29 @@ describe('transition geometry and pointer inversion', () => {
     });
   }
 
+  it('bounds inverse rounding below each scale piece and day end', () => {
+    for (const [date, timezone] of [
+      ['2024-01-01', 'UTC'],
+      ['2024-11-03', 'America/Chicago'],
+      ['2009-11-01', 'America/St_Johns'],
+      ['1988-10-30', 'America/Goose_Bay'],
+    ] as const) {
+      const { columns } = projection(date, timezone, 'day');
+      columns.pxPerHour = 48;
+      const day = columns.days[0];
+      if (!day) throw new Error('Expected a day column');
+      for (const piece of scalePieces(day, timezone)) {
+        const endY =
+          ((piece.minute + ((piece.end - piece.start) / minute) * piece.scale) * 48) / 60;
+        const time = timeAtY(columns, 0, endY - 1e-9);
+        expect(time).not.toBeNull();
+        expect(time).toBeGreaterThanOrEqual(piece.start);
+        expect(time).toBeLessThan(piece.end);
+        expect(time).toBeLessThan(day.end);
+      }
+    }
+  });
+
   it('keeps 09:00 aligned over all seven days in spring and fall', () => {
     for (const anchor of ['2024-03-10', '2024-11-03']) {
       const { window, columns } = projection(anchor, 'America/Chicago');

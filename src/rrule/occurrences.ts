@@ -42,11 +42,13 @@ export function enumerate(
   const until = input.until === undefined ? upper : zoned(input.until, input.timezone, true);
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    // Only interval 1 preserves filtered phase; COUNT needs its lifetime anchor.
+    // Only midnight anchors with interval 1 and no COUNT may skip periods.
+    // Non-midnight iteration can shift wall time through a DST gap.
     dtstart:
       advanceAnchor &&
       (input.interval === undefined || input.interval === 1) &&
-      input.count === undefined
+      input.count === undefined &&
+      original.toPlainTime().equals('00:00')
         ? advance(original, envelope, input)
         : original,
     until: Temporal.ZonedDateTime.compare(until, upper) < 0 ? until : upper,
@@ -134,11 +136,18 @@ function advance(
     .startOfDay();
   const unit =
     input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
-  const distance = original.toPlainDate().until(lower.toPlainDate(), { largestUnit: unit })[unit];
-  let steps = Math.max(0, distance - 1);
+  const originalDate = original.toPlainDate();
+  const interval = input.interval ?? 1;
+  const distance = originalDate.until(lower.toPlainDate(), { largestUnit: unit })[unit];
+  let steps = Math.max(0, Math.floor(distance / interval) - 1);
   while (steps > 0) {
-    const candidate = original.add({ [unit]: steps });
-    if (unit !== 'months' || candidate.day === original.day) return candidate;
+    const candidate = originalDate.add({ [unit]: steps * interval });
+    if (
+      (unit !== 'weeks' || candidate.dayOfWeek === originalDate.dayOfWeek) &&
+      (unit !== 'months' || candidate.day === originalDate.day) &&
+      candidate.toZonedDateTime(input.timezone).toPlainDate().equals(candidate)
+    )
+      return candidate.toPlainDateTime(original.toPlainTime()).toZonedDateTime(input.timezone);
     steps--;
   }
   return original;

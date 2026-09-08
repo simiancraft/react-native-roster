@@ -205,6 +205,29 @@ describe('useSchedule hook harness', () => {
     expect(cb.onCellPress).not.toHaveBeenCalled();
     expect(cb.onGapPress).not.toHaveBeenCalled();
   });
+  it('keeps bottom-edge cell presses inside the selected day and exclusive window end', () => {
+    const lane: Lane = { id: 'empty', label: 'Empty', layers: [] };
+    for (const span of ['day', 'week'] as const) {
+      const cb = callbacks();
+      const h = harness({
+        lane,
+        windowSpec: { span, anchorDate: '2024-01-01', timezone: 'UTC' },
+        ...cb,
+      });
+      for (const [column, day] of h.model.days.entries()) {
+        for (const y of [1152 - 1e-9, 1151.99]) {
+          h.model.press(column, 1, y);
+          const time = cb.onCellPress.mock.calls.at(-1)?.[1];
+          expect(time).toBe(day.end - 3_600_000);
+          expect(time).toBeGreaterThanOrEqual(day.start);
+          expect(time).toBeLessThan(day.end);
+          expect(time).toBeLessThan(h.model.window.end);
+        }
+        h.model.press(column, 1, 1152);
+      }
+      expect(cb.onCellPress).toHaveBeenCalledTimes(2 * h.model.days.length);
+    }
+  });
   it('rejects invalid points and invalid steps, and represents the Apia week with six columns', () => {
     const input = inputFor('schedule-apia');
     const cb = callbacks();

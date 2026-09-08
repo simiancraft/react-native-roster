@@ -10,27 +10,32 @@ export function transitionBounds(
 ) {
   const minute =
     (wallTime(transition.at, projection.viewTimezone) - dateEpoch(day.localDate)) / 60_000;
-  const start = transition.deltaMinutes > 0 ? minute - transition.deltaMinutes : minute;
-  const end = start + Math.abs(transition.deltaMinutes);
-  const y = (Math.max(0, start) * projection.pxPerHour) / 60;
+  const delta = transition.deltaMinutes;
+  const start = Math.max(0, delta > 0 ? minute - delta : minute);
+  const end = Math.min(1440, delta < 0 ? minute - delta : minute);
+  const pxPerMinute = projection.pxPerHour / 60;
+  const y = start * pxPerMinute;
   return {
     y,
-    height: (Math.max(0, Math.min(1440, end) - Math.max(0, start)) * projection.pxPerHour) / 60,
+    dividerY: nowPosition(projection, transition.at)?.y ?? y,
+    height: Math.max(0, end - start) * pxPerMinute,
     width: projection.columnWidth,
   };
 }
 
 export function nowPosition(projection: ScheduleProjection, now: number | null) {
-  if (now === null) return null;
-  for (const [column, day] of projection.days.entries()) {
-    for (const piece of scalePieces(day, projection.viewTimezone)) {
-      if (now >= piece.start && now < piece.end)
-        return {
-          column,
-          y:
-            ((piece.minute + ((now - piece.start) / 60_000) * piece.scale) * projection.pxPerHour) /
-            60,
-        };
+  if (now !== null) {
+    for (const [column, day] of projection.days.entries()) {
+      for (const piece of scalePieces(day, projection.viewTimezone)) {
+        if (now >= piece.start && now < piece.end)
+          return {
+            column,
+            y:
+              ((piece.minute + ((now - piece.start) / 60_000) * piece.scale) *
+                projection.pxPerHour) /
+              60,
+          };
+      }
     }
   }
   return null;

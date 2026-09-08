@@ -212,7 +212,7 @@ to preserve geometry, scrolling, and interaction. Types are exported from root.
 | `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
 | `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
 | `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
-| `transitionZone` | `day`, `transition`, `y`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+| `transitionZone` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
 | `nowLineZone` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
 | `intervalZone`, `gapZone` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
 | `incompleteZone` | `lane`, `label` | `ScheduleIncomplete`: notice in reserved space above the grid when incomplete. |
@@ -244,11 +244,14 @@ Each column spans the first instant of its date to the first instant of the next
 For rollbacks across midnight (St_Johns 2009, Goose_Bay 1988), earlier-date instants
 inside that span draw in a compressed repeat at the top edge, ending where
 ordinary wall time resumes. timeAtY inverts this region to the absolute occurrence.
+The repeat divider uses dividerY, the projected transition instant, even when
+the surviving repeat regions have unequal heights.
 
 timeAtX(projection,window,x) returns absolute time with origin from window.
 timeAtY(projection,columnIndex,y) returns an absolute occurrence or null for
-skipped time/outside bounds. snapToStep(time,minuteStep,timezone) floors by wall
-clock and clamps to occurrence start if flooring would cross a transition.
+skipped time/outside bounds. Inverse times stay below each scale piece's exclusive
+end, including immediately inside the bottom edge.
+snapToStep(time,minuteStep,timezone) floors by wall clock and clamps to occurrence start if flooring would cross a transition.
 minuteStep must be a positive integer divisor of 60.
 
 ## Interaction and ordering
@@ -258,7 +261,8 @@ intervals first, gaps second, empty space last. Highest z wins, then later layer
 wins among equal z. A low-z interval therefore wins over a high-z gap. Skipped
 schedule time fires nothing. Only empty-space times snap; 10:30 intervals stay
 pressable on a 60-minute grid. onIntervalPress(rect,lane), onGapPress(rect,lane),
-and onCellPress(lane,time) expose the outcome. Roster onIntervalHover(rect,lane)
+and onCellPress(lane,time) expose the outcome. Cell times clamp up to window.start
+and are rejected at or beyond window.end. Roster onIntervalHover(rect,lane)
 reports the winning web interval; native attaches no hover handler.
 
 highlightSource matches a fresh {kind,id} across lanes, using highlightColor or
@@ -321,8 +325,11 @@ Date values, and nulls at the boundary; reject unsupported active semantics.
 
 Expansion uses one absolute envelope for every include, exclude, and date:
 envelopeFor(window) is window +/-48 absolute hours. The view zone is not an input.
-Enumeration always retains the original dtstart so filtered recurrence phase is
-independent of the display window. UNTIL is clamped to the query's upper local-date
+Enumeration retains the original dtstart except for interval-1 rules without
+COUNT whose anchor is exactly local midnight. Those rules may skip whole periods
+in plain-date space, preserving the weekly weekday and monthly day, and stepping
+back past nonexistent dates. Non-midnight anchors retain their original iteration
+through DST gaps. UNTIL is clamped to the query's upper local-date
 bound; occurrences outside the envelope never consume the occurrence cap.
 Retained-envelope containment selects existing bounds before creating a new
 padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
