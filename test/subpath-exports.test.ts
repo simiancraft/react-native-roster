@@ -66,6 +66,7 @@ describe('subpath exports', () => {
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
         'coverageStats', 'resetStats', 'clearLayoutCache', 'clearCoverageCache',
+        'byLabel', 'byCoverage',
       ]) assert.equal(typeof core[name], 'function');
       const window = core.windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' });
       const geometry = core.layoutLane({ id: 'one', label: 'One', layers: [] }, window, {

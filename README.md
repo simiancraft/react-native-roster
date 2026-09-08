@@ -9,11 +9,11 @@ A React Native read surface for layered intervals with provenance: a stack of la
 one per person or resource, against a shared time axis. Scan a column to see who is
 on; scan a row to see whether someone set anything at all.
 
-**API not yet shipped.** The pure TypeScript core is implemented in this working tree:
+**API unreleased.** The pure TypeScript core is implemented in this working tree:
 contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
-`Roster`, `useRoster`, replaceable zones, the first seven gallery routes, and the
-recurrence adapter are implemented. `Schedule`, `useSchedule`, and ten schedule
-gallery routes are also implemented.
+`Roster`, `useRoster`, `Schedule`, `useSchedule`, replaceable zones, and the
+recurrence adapter are implemented, along with the first seven roster gallery
+routes, the provenance and timezone routes, and ten schedule gallery routes.
 
 ## Design
 
@@ -223,6 +223,28 @@ Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks
 Tests enforce separate 16 ms target-cold layout and coverage budgets and print the
 measured baselines. Device performance remains an issue #9 acceptance item.
 
+## Provenance interaction
+
+`onIntervalPress(rect, lane)`, `onGapPress(rect, lane)`, and
+`onCellPress(lane, time)` report one result per press. Intervals win over gaps,
+then higher z and later layers break ties. Cell times snap to `minuteStep`.
+`onIntervalHover(rect, lane)` reports the winning interval as a web pointer moves;
+native renders attach no hover handler. Web coordinates are relative to the row,
+including after scrolling, and sources belong to the exact split span.
+
+`highlightSource={{ kind: 'rule', id: 'shared-rule' }}` colors matching rects with
+`layer.style.highlightColor`, falling back to the normal color when absent.
+Identity ignores labels and object reference. Highlight changes reuse geometry.
+`sortLanes` defaults to `byLabel`; `byCoverage({ measure: 'availability' })` and
+`byCoverage({ measure: 'availabilityMinusBooking' })` sort descending with label
+ties. Comparators receive coverage for every lane, including offscreen lanes.
+
+Only consumers set `flag: 'never-set'`; `neverSetLabel` defaults to
+"No availability set". `empty-in-window` is inferred when intervals exist but none
+intersect the window, and displays no flag text. Flag changes retain rect references.
+`complete: false` shows `incompleteLabel`, default "Availability may be incomplete",
+in the label column and the first empty span of the row.
+
 ## Recurrence adapter
 
 ```ts
@@ -279,23 +301,55 @@ selected envelope's occurrences, including those outside the display window.
 caches only. Changing the total cap reuses occurrence lists; changing the per-rule
 cap invalidates them. Returned intervals, sources, and envelope objects are fresh.
 
+## Timezones
+
+`WindowSpec.timezone` is the component's only view-zone input. It keeps the same
+local anchor date when changed. `Lane.timezone` is display metadata: the default
+label shows its IANA name when it differs from the view zone. Rule and date zones
+interpret local hours only in the adapter. For example, London's 09:00 appears
+at Chicago 03:00 on March 9, 2024, at 04:00 on March 10, and at 03:00 again on
+March 31.
+
+Horizontal weeks contain 167 or 169 hourly boundaries across Chicago's spring
+and fall changes, including the day boundaries at midnight. Intervals align with
+their wall-hour labels on this elapsed-time axis. Core columns retain 24 equal
+hour bands, an empty skipped region, and two half-height repeat regions; 09:00
+stays at the same y. `Schedule` draws these column regions, hatching skipped time and dividing repeated time.
+
+With the current inputs target-warm, changing Chicago's view zone to Auckland
+expands zero rules inside the retained envelope, computes each visible lane's
+layout once, and computes each lane's coverage once for the new window. Revisiting
+retained exact keys computes nothing. A lane-zone edit preserves the geometry
+reference and all three run counts. A rule-zone edit computes only the changed
+rule and lane when its hours change and its new occurrence key is absent.
+Coverage keys exclude projection, so a zone change with identical absolute bounds
+reuses coverage, as required by the core contract.
+
 ## Gallery and platforms
 
 The demo targets iOS, Android, and web using Expo SDK 54, Expo Router 6, React 19.1,
 React Native 0.81, React Native Web 0.21, and NativeWind 4.1. React Compiler is
 enabled through Expo SDK 54's `experiments.reactCompiler` app-config setting.
 The home route links to empty, single-lane, two-layers, full-day-gap, never-set,
-every-zone, and 200-lanes fixtures under `demo/app/gallery/`. Each has span, minute
-step, view timezone, and sort controls. Fixtures are static data from `test/fixtures`;
-they do not depend on the recurrence adapter.
+every-zone, 200-lanes, dst-week, and mixed-timezones fixtures under
+`demo/app/gallery/`. Additional routes cover booking-in-gap, equal-z precedence,
+highlight-rule across 20 lanes, sort-coverage across 200 lanes, and
+incomplete-expansion. Each has span, minute step, view timezone, and sort controls,
+plus a sources readout. The highlight and incomplete routes expand rules through
+the adapter using fixtures in `test/fixtures`.
+The timezone routes expand rules from `test/fixtures/timezones.ts` for the selected
+window and offer March and November DST weeks. Mixed timezones shows Chicago,
+London, and Auckland lanes, each with a 09:00 rule in its own zone. The remaining roster routes retain their static fixtures.
 
 The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
 `resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
 is stable across renders and it is removed on unmount. Only the on-screen counters
-use a 500 ms snapshot. Optional expansion counter slots are reserved for future
-adapter integration on the roster routes. Schedule routes supply live `expandStats`,
-`resetExpandStats`, and `clearExpandCache` too. These are cumulative engine counters,
-not render counts.
+use a 500 ms snapshot. The bridge also exposes `expandStats`, `resetExpandStats`,
+and `clearExpandCache` from the adapter; the display includes the cumulative
+expanded count. These counters measure computation and cache reuse.
+Target-warm interactions leave expansion computations, layout runs, and coverage runs
+unchanged. Sorting newly visible lanes can require geometry when their exact
+window and projection keys have not been visited yet.
 
 Ten additional `schedule-*` routes use `test/fixtures/schedule.ts`: empty, overlapping
 rules with three sessions, full-day exclusion, Chicago spring and fall, Lord Howe,

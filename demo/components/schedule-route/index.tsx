@@ -14,9 +14,12 @@ export function ScheduleRoute({ fixtureId }: { fixtureId: ScheduleFixtureId }) {
       subjectZone={<ScheduleSubject model={model} />}
       countersZone={
         <>
-          <GalleryCounters snapshot={model.snapshot} selection={model.selection} />
+          <GalleryCounters
+            snapshot={{ ...model.snapshot, expanded: model.snapshot.expansion.expanded }}
+            selection={model.selection}
+          />
           <Text style={{ fontSize: 12, color: '#334155' }}>
-            Expanded {model.snapshot.expansion.expanded} · Hits {model.snapshot.expansion.cacheHits}
+            Expansion cache hits {model.snapshot.expansion.cacheHits}
           </Text>
         </>
       }

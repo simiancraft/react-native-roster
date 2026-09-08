@@ -71,6 +71,8 @@ export function Roster(props: RosterProps) {
         intervalZone,
         gapZone,
         highlightSource: props.highlightSource,
+        onIntervalHover: props.onIntervalHover,
+        incompleteLabel,
       })}
     />
   );

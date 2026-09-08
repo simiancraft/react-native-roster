@@ -96,6 +96,8 @@ describe('roster pure helpers', () => {
       { highlightSource: { kind: 'rule', id: 'two' } },
       { intervalZone: () => null },
       { gapZone: () => null },
+      { onIntervalHover: () => {} },
+      { incompleteLabel: 'Partial data' },
     ])
       expect(bodyContentKey({ ...input, ...changed })).not.toBe(key);
   });

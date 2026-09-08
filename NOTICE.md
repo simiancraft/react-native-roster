@@ -16,7 +16,7 @@ do not load them. They are installed as dependencies and are not bundled.
 ## Rendering peer
 
 - **@legendapp/list**, Legend, MIT: <https://github.com/LegendApp/legend-list>.
-  A peer dependency, with 2.0.19 used in development; virtualization is planned in #5.
+  A peer dependency, with 2.0.19 used in development; Roster uses it to virtualize lanes.
 
 ## Predecessor
 

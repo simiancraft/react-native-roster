@@ -1,6 +1,9 @@
 import type { RosterProps } from '../../src';
-import type { Lane, WindowSpec } from '../../src/core';
+import type { Lane, Source, Window, WindowSpec } from '../../src/core';
+import type { expandRuleSet } from '../../src/rrule';
+import { provenanceFixtures } from './provenance';
 import { replacedZones } from './roster-zones';
+import { type RuleLane, timezoneFixtures } from './timezones';
 import { workload } from './workload';
 
 const start = Date.UTC(2024, 0, 1);
@@ -67,8 +70,15 @@ const excluded: Lane = {
   ],
 };
 
-type RosterFixture = {
+export type RosterFixture = {
+  lanesFor?: (window: Window, expand: typeof expandRuleSet) => Lane[];
+  highlightSource?: Source;
   title: string;
+  description?: string;
+  windowSpec?: WindowSpec;
+  windowPresets?: { label: string; windowSpec: WindowSpec }[];
+  ruleLanes?: RuleLane[];
+  pxPerMinute?: number;
   lanes: Lane[];
   zones: Pick<RosterProps, keyof typeof replacedZones>;
   showsEmptyExample: boolean;
@@ -81,9 +91,13 @@ export const rosterFixtures: Record<
   | 'full-day-gap'
   | 'never-set'
   | 'every-zone'
-  | '200-lanes',
+  | '200-lanes'
+  | keyof typeof provenanceFixtures
+  | keyof typeof timezoneFixtures,
   RosterFixture
 > = {
+  ...provenanceFixtures,
+  ...timezoneFixtures,
   empty: { title: 'Empty roster', lanes: [], zones: {}, showsEmptyExample: false },
   'single-lane': { title: 'Single lane', lanes: [single], zones: {}, showsEmptyExample: false },
   'two-layers': {

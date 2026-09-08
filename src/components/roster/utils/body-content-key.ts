@@ -18,9 +18,17 @@ export function bodyContentKey({
   highlightSource,
   intervalZone,
   gapZone,
+  onIntervalHover,
+  incompleteLabel,
 }: Pick<
   BodyInput,
-  'window' | 'projection' | 'highlightSource' | 'intervalZone' | 'gapZone'
+  | 'window'
+  | 'projection'
+  | 'highlightSource'
+  | 'intervalZone'
+  | 'gapZone'
+  | 'onIntervalHover'
+  | 'incompleteLabel'
 >): string {
   return JSON.stringify([
     window.start,
@@ -32,5 +40,7 @@ export function bodyContentKey({
     highlightSource?.id,
     zoneId(intervalZone),
     zoneId(gapZone),
+    onIntervalHover && zoneId(onIntervalHover),
+    incompleteLabel,
   ]);
 }
