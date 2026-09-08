@@ -1,9 +1,10 @@
 # react-native-roster
 
 > A React Native read surface for layered intervals with provenance across lanes
-> and a shared time axis. API not yet shipped. Pure core types, geometry, coverage,
-> caches, axis helpers, Roster, useRoster, and the recurrence adapter are implemented;
-> Schedule is planned.
+> and a shared time axis. API unreleased. Pure core types, geometry, coverage,
+> caches, axis helpers, Roster, useRoster, Schedule, useSchedule, and the recurrence
+> adapter are implemented, along with the timezone and provenance routes and ten
+> schedule gallery routes.
 
 ## Vocabulary
 
@@ -36,7 +37,7 @@ and Temporal belong exclusively to the rrule adapter.
 
 ## Entry points
 
-- `react-native-roster`: Roster, useRoster, default zone fillers, rendering types, and core re-exports.
+- `react-native-roster`: Roster, useRoster, Schedule, useSchedule, default zone fillers, rendering types, and core re-exports.
 - `react-native-roster/core`: pure types, geometry, coverage, axis helpers, and counters.
 - `react-native-roster/rrule`: recurrence expansion, caps, provenance, and caches.
 - `react-native-roster/package.json`: package metadata.
@@ -79,6 +80,18 @@ No `.js` extensions on relative imports in src. No consumer-specific entities.
 
 - WindowSpec.timezone is the only component view-zone input; Lane.timezone is an IANA display badge only. Rule and date zones belong exclusively to the adapter. Chicago DST weeks have 167 or 169 hourly boundaries, including midnight day ticks; 09:00 aligns with its header label horizontally and has the same y in columns. London 09:00 appears at Chicago 03:00 or 04:00 by date.
 - With current keys target-warm, Chicago to Auckland reuses retained expansion, computes visible layouts once, and computes all lane coverage once. Lane-zone edits retain geometry references and compute nothing. Rule-zone edits compute only the changed rule and lane when their target keys are absent and intervals change. Coverage excludes projection, so equal absolute windows reuse it across view zones.
+
+## Schedule usage constraints
+
+- This feature is about a schedule; its children are days. Schedule takes one lane and a day/week WindowSpec only; month and custom are rejected by ScheduleWindowSpec.
+- useSchedule returns exactly window, days, projection, geometry, now, press, and ready status. Its standalone grid is 280 px wide; Schedule supplies measured width internally after measurement. pxPerHour defaults to 48 and must be a positive finite number; the gutter is 48 px wide.
+- Body scrolling is vertical only. Each day has 24 equal wall-clock bands; interval insets are already applied in final rect bounds. Day headers and the left gutter stay aligned.
+- gutterZone, dayHeaderZone, skippedDateZone, columnZone, transitionZone, nowLineZone, intervalZone, gapZone, and incompleteZone are documented optional render functions. Default fillers are exported. Interval and gap fillers, platform press-point resolution, and styles are shared with Roster.
+- press(columnIndex, x, y) resolves timeAtY then snapToStep, then the shared interval/gap walk at the original point within that column. Skipped time fires nothing; repeated halves resolve distinct absolute times, including Lord Howe's 30-minute repeat.
+- Missing local dates have header markers but no column. The Apia week containing 2011-12-30 has six columns. Repeats have an again divider; skips are hatched.
+- now is inside the window or null and refreshes every minute. incompleteLabel defaults to Availability may be incomplete; incompleteZone draws it in reserved empty space above the grid when lane.complete is false.
+- Ten schedule-* gallery routes have span, step, view-zone, and projection controls. The side-by-side route renders the same lane in Roster and Schedule. These fixtures use the recurrence adapter and the shared counter bridge with live expandStats, resetExpandStats, and clearExpandCache.
+- The hook harness proves exact session and exclusion sources, midnight continuity, skipped/repeated presses, and projection switching with expanded delta 0, columns layout delta 1, and returning horizontal layout delta 0.
 
 ## Adapter usage constraints
 
