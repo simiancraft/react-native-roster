@@ -112,8 +112,8 @@ describe('roster pure helpers', () => {
     const parts = spyOn(Intl.DateTimeFormat.prototype, 'formatToParts');
     try {
       const ticks = ticksFor(window, spec, { ...projection, pxPerMinute: 3 }, 15);
-      // Cached day columns need only the local date at the window start.
-      expect(parts).toHaveBeenCalledTimes(1);
+      // Resolve the window start and each of the seven day origins on a cache miss.
+      expect(parts).toHaveBeenCalledTimes(8);
       parts.mockClear();
       expect(ticksFor({ ...window }, { ...spec }, { ...projection, pxPerMinute: 3 }, 15)).toBe(
         ticks,
@@ -125,6 +125,36 @@ describe('roster pure helpers', () => {
       parts.mockRestore();
     }
   });
+  for (const minuteStep of [60, 30, 15]) {
+    for (const anchorDate of ['1919-03-31', '1919-04-01', '2024-03-10']) {
+      it(`places exact Toronto ticks on ${anchorDate} at ${minuteStep} minutes`, () => {
+        const spec: WindowSpec = { span: 'day', anchorDate, timezone: 'America/Toronto' };
+        const window = windowFor(spec);
+        const ticks = ticksFor(window, spec, projection, minuteStep);
+        const expected: { label: string; x: number }[] = [];
+        const origin = anchorDate === '1919-03-31' ? 30 : 0;
+        for (let minute = minuteStep; minute < 1440; minute += minuteStep) {
+          if (minute <= origin) continue;
+          if (anchorDate === '2024-03-10' && minute >= 120 && minute < 180) continue;
+          expected.push({
+            label: `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`,
+            x: minute - origin - (anchorDate === '2024-03-10' && minute >= 180 ? 60 : 0),
+          });
+        }
+        expect(
+          ticks.filter((tick) => tick.kind === 'time').map(({ label, x }) => ({ label, x })),
+        ).toEqual(expected);
+        const parts = spyOn(Intl.DateTimeFormat.prototype, 'formatToParts');
+        try {
+          expect(ticksFor({ ...window }, { ...spec }, { ...projection }, minuteStep)).toBe(ticks);
+          expect(parts).toHaveBeenCalledTimes(0);
+        } finally {
+          parts.mockRestore();
+        }
+      });
+    }
+  }
+
   it('places Chicago spring and fall week ticks on wall steps with both repeat occurrences', () => {
     for (const anchorDate of ['2024-03-04', '2024-10-28']) {
       const spec: WindowSpec = { span: 'week', anchorDate, timezone: 'America/Chicago' };
