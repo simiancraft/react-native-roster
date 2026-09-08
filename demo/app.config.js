@@ -25,7 +25,10 @@ const config = {
   ios: { supportsTablet: true, bundleIdentifier: 'com.simiancraft.roster.demo' },
   android: { package: 'com.simiancraft.roster.demo' },
   web: { bundler: 'metro', output: 'static' },
-  experiments: process.env.GITHUB_PAGES ? { baseUrl: '/react-native-roster' } : undefined,
+  experiments: {
+    reactCompiler: true,
+    ...(process.env.GITHUB_PAGES ? { baseUrl: '/react-native-roster' } : {}),
+  },
   plugins: ['expo-router'],
   extra: { build: { gitSha, builtAt } },
 };
