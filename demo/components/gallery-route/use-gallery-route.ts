@@ -21,6 +21,7 @@ import {
   rosterFixtures,
   rosterWindowSpec,
 } from '../../../test/fixtures/roster';
+import { expandLanes } from '../../../test/fixtures/timezones';
 import { useCounterBridge } from './counter-bridge';
 import type { CounterBridgeInput } from './counter-bridge.types';
 
@@ -36,7 +37,10 @@ const counterBridge: CounterBridgeInput = {
 };
 
 export function useGalleryRoute(fixtureId: RosterFixtureId) {
-  const [windowSpec, setWindowSpec] = useState<WindowSpec>(rosterWindowSpec);
+  const definition = rosterFixtures[fixtureId];
+  const [windowSpec, setWindowSpec] = useState<WindowSpec>(
+    definition.windowSpec ?? rosterWindowSpec,
+  );
   const [minuteStep, setMinuteStep] = useState(60);
   const [sort, setSort] = useState<'label' | 'availability' | 'availabilityMinusBooking'>('label');
   const [highlightSource, setHighlightSource] = useState<Source>();
@@ -46,15 +50,18 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
     layout: { runs: 0, cacheHits: 0 },
     coverage: { runs: 0, cacheHits: 0 },
   });
-  const record = rosterFixtures[fixtureId];
   const fixture = {
-    ...record,
-    lanes: record.lanesFor?.(windowFor(windowSpec), expandRuleSet) ?? record.lanes,
+    ...definition,
+    lanes:
+      definition.lanesFor?.(windowFor(windowSpec), expandRuleSet) ??
+      (definition.ruleLanes
+        ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
+        : definition.lanes),
   };
   const sortLanes = sort === 'label' ? byLabel : byCoverage({ measure: sort });
   useEffect(() => {
     const timer = setInterval(() => {
-      const expanded = expandStats().expanded;
+      const { expanded } = expandStats();
       const layout = layoutStats();
       const coverage = coverageStats();
       setSnapshot((previous) =>
@@ -99,7 +106,7 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
     snapshot,
     highlightSource,
     highlightRule: () =>
-      setHighlightSource(record.highlightSource && { ...record.highlightSource }),
+      setHighlightSource(definition.highlightSource && { ...definition.highlightSource }),
     clearHighlight: () => setHighlightSource(undefined),
     selection,
     selectRect,

@@ -11,8 +11,8 @@ on; scan a row to see whether someone set anything at all.
 
 **API not yet shipped.** The pure TypeScript core is implemented in this working tree:
 contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
-`Roster`, `useRoster`, replaceable zones, the provenance gallery routes, and the
-recurrence adapter are implemented. `Schedule` remains a planned API.
+`Roster`, `useRoster`, replaceable zones, the provenance and timezone gallery routes,
+and the recurrence adapter are implemented. `Schedule` remains a planned API.
 
 ## Design
 
@@ -251,23 +251,53 @@ selected envelope's occurrences, including those outside the display window.
 caches only. Changing the total cap reuses occurrence lists; changing the per-rule
 cap invalidates them. Returned intervals, sources, and envelope objects are fresh.
 
+## Timezones
+
+`WindowSpec.timezone` is the component's only view-zone input. It keeps the same
+local anchor date when changed. `Lane.timezone` is display metadata: the default
+label shows its IANA name when it differs from the view zone. Rule and date zones
+interpret local hours only in the adapter. For example, London's 09:00 appears
+at Chicago 03:00 on March 9, 2024, at 04:00 on March 10, and at 03:00 again on
+March 31.
+
+Horizontal weeks contain 167 or 169 hourly boundaries across Chicago's spring
+and fall changes, including the day boundaries at midnight. Intervals align with
+their wall-hour labels on this elapsed-time axis. Core columns retain 24 equal
+hour bands, an empty skipped region, and two half-height repeat regions; 09:00
+stays at the same y. Drawing the column regions belongs to the planned Schedule.
+
+With the current inputs target-warm, changing Chicago's view zone to Auckland
+expands zero rules inside the retained envelope, computes each visible lane's
+layout once, and computes each lane's coverage once for the new window. Revisiting
+retained exact keys computes nothing. A lane-zone edit preserves the geometry
+reference and all three run counts. A rule-zone edit computes only the changed
+rule and lane when its hours change and its new occurrence key is absent.
+Coverage keys exclude projection, so a zone change with identical absolute bounds
+reuses coverage, as required by the core contract.
+
 ## Gallery and platforms
 
 The demo targets iOS, Android, and web using Expo SDK 54, Expo Router 6, React 19.1,
 React Native 0.81, React Native Web 0.21, and NativeWind 4.1. React Compiler is
 enabled through Expo SDK 54's `experiments.reactCompiler` app-config setting.
 The home route links to empty, single-lane, two-layers, full-day-gap, never-set,
-every-zone, and 200-lanes fixtures under `demo/app/gallery/`. Additional routes cover
-booking-in-gap, equal-z precedence, highlight-rule across 20 lanes, sort-coverage
-across 200 lanes, and incomplete-expansion. Each has span, minute step, view
-timezone, and sort controls, plus a sources readout. The highlight and incomplete
-routes expand rules through the adapter using fixtures in `test/fixtures`.
+every-zone, 200-lanes, dst-week, and mixed-timezones fixtures under
+`demo/app/gallery/`. Additional routes cover booking-in-gap, equal-z precedence,
+highlight-rule across 20 lanes, sort-coverage across 200 lanes, and
+incomplete-expansion. Each has span, minute step, view timezone, and sort controls,
+plus a sources readout. The highlight and incomplete routes expand rules through
+the adapter using fixtures in `test/fixtures`.
+The timezone routes expand rules from `test/fixtures/timezones.ts` for the selected
+window and offer March and November DST weeks. Mixed timezones shows Chicago,
+London, and Auckland lanes, each with a 09:00 rule in its own zone. Other routes
+retain their static fixtures.
 
 The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
 `resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
 is stable across renders and it is removed on unmount. Only the on-screen counters
 use a 500 ms snapshot. The bridge also exposes `expandStats`, `resetExpandStats`,
-and `clearExpandCache` from the adapter. These are cumulative compute counters.
+and `clearExpandCache` from the adapter; the display includes the cumulative
+expanded count. These counters measure computation and cache reuse.
 Target-warm interactions leave expansion computations, layout runs, and coverage runs
 unchanged. Sorting newly visible lanes can require geometry when their exact
 window and projection keys have not been visited yet.
