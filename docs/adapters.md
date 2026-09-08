@@ -80,6 +80,12 @@ feed's source identity across occurrences. The renderer does not parse ICS text.
 
 ## 3. Preserve covered and removed time
 
+The recurrence adapter accepts a zero-duration window and returns empty intervals
+and gaps with `complete: true` and `stats.expanded: 0`. This supports day navigation
+through wholly skipped local dates, including Apia 2011-12-30. Partial and whole-day
+dated includes and excludes on such a date produce no occurrences; they never
+move coverage or subtraction onto the following local date.
+
 Return `[start, end)` in integer epoch milliseconds. Never snap to `minuteStep`.
 An interval shorter than a minute is still an interval. Clip to the requested
 window, retaining the exact source set for each resulting span.
@@ -137,18 +143,18 @@ finished lanes or netted output.
    and end by exactly 48 absolute hours. Evaluate every include, exclude, and
    dated override over that same envelope. Fetching exclusions over a narrower
    span can leave covered time that should have been removed.
-2. **Retain envelope history by set content.** The shipped adapter canonically
-   orders rules by id, then dates by id, and keys a history by the set's content.
+2. **Share one retained-envelope LRU across sets.** The shipped adapter retains
+   bounds independently of set content.
    Inspect retained envelopes for containment of the new display window; exact
    window equality is not required. Reuse the most recently used containing
    envelope; otherwise create and retain a new one. Default retention is four
-   envelopes per set, so next then previous can reuse both.
+   envelopes globally, so next then previous can reuse both.
 3. **Content-keyed per-item entries.** Cache each item's occurrence list and its
    per-item cap status by body content, exact envelope start/end, and per-rule
    cap. Identity and display metadata are attached during assembly. In the
    shipped adapter, the per-item body key excludes id
    and dated note, allowing identical occurrence bodies to share work. Editing
-   a set creates a new set history; unchanged item bodies still hit when the
+   a set reuses retained containing envelopes; unchanged item bodies still hit when the
    selected envelope bounds match an existing key.
 4. **Containment only chooses bounds.** An envelope hit is not an occurrence hit.
    The corresponding per-item entries may have been evicted. `expanded === 0`
@@ -159,9 +165,9 @@ finished lanes or netted output.
    display window. Do not cache assembly by the envelope. Changing a total cap
    must affect the next result without re-expanding occurrences.
 6. **Own lifetime and counters.** `clearExpandCache()` empties both occurrence
-   entries and envelope histories without resetting counters. `resetExpandStats()`
-   resets counters without emptying keys. Histories are bounded per set, not
-   globally across all distinct edited sets; clear when discarding old sets.
+   entries and retained envelopes without resetting counters. `resetExpandStats()`
+   resets counters without emptying keys. Both LRUs are bounded globally; clear
+   when discarding old windows.
 
 The 48-hour padding covers ordinary view-zone reanchoring of the same local week.
 It does not make arbitrary navigation free. Check actual containment and retained

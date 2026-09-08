@@ -26,5 +26,6 @@ updates:
     ignore:
       - dependency-name: react
       - dependency-name: react-native
+      - dependency-name: react-native-reanimated
       - dependency-name: expo
       - dependency-name: '@legendapp/list'

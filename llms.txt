@@ -284,7 +284,7 @@ when a consumer no longer needs them. This cache lifetime belongs to the consume
 | clearLayoutCache(), clearCoverageCache() | Empty corresponding keys, preserve counters. |
 | expandStats() | Cumulative {rules, dates, expanded, cacheHits, cacheMisses}; expanded counts occurrence computations. |
 | resetExpandStats() | Zero expansion counters, preserve keys. |
-| clearExpandCache() | Empty occurrence entries and envelope histories, preserve counters. |
+| clearExpandCache() | Empty occurrence entries and retained envelopes, preserve counters. |
 
 Target-warm means exact requested keys exist. Target-cold means they do not.
 Neither describes the whole cache. A projection change can be target-cold for
@@ -297,7 +297,8 @@ requires coverage for all lanes, plus geometry for mounted lanes.
 expandRuleSet(set,window,options?) returns {intervals,gaps,envelope,complete,
 truncated:[{id,droppedAtLeast}],stats}. It throws on invalid window, hours,
 recurrence fields, timezone, or date input. Treat malformed upstream data as an
-error; do not silently map errors to definitive empty lanes.
+error; do not silently map errors to definitive empty lanes. A zero-duration window
+(start=end) returns empty intervals and gaps, complete=true, and expanded=0.
 
 RuleSet is {rules:RosterRule[],dates:RosterDate[]}.
 RosterRule requires id, kind:'include'|'exclude', frequency:'DAILY'|'WEEKLY'|'MONTHLY',
@@ -305,18 +306,20 @@ dtstart (ISO date/datetime), hourstart, hourend, and timezone (IANA).
 Optional: until, count, interval, wkst, byweekday, bymonth, bymonthday, bysetpos.
 RosterDate requires id, kind, date (local ISO date), and timezone; optional note
 becomes Source.label. Hours are both present for partial day, both absent for
-whole day. Hours satisfy 0<=hourstart<hourend<=24 and may be fractional.
+whole day. A wholly skipped local date has no occurrences for either kind, with
+or without hours. Hours satisfy 0<=hourstart<hourend<=24 and may be fractional.
 Unsupported fields: byyearday, byweekno, byhour, byminute, bysecond. Convert enums,
 Date values, and nulls at the boundary; reject unsupported active semantics.
 
 Expansion uses one absolute envelope for every include, exclude, and date:
 envelopeFor(window) is window +/-48 absolute hours. The view zone is not an input.
 Retained-envelope containment selects existing bounds before creating a new
-padded envelope. Histories are LRU per set content (default maxEnvelopes=4).
+padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
+containment selects the most recently used matching envelope.
 Per-item keys use occurrence body content + exact envelope + perRuleOccurrences.
 Id and dated note attach freshly in assembly; include/exclude kind remains in the body key. Unchanged
 bodies reuse occurrences only if those exact keys still exist (maxEntries=2000).
-Editing a set starts a new envelope history; unchanged item keys may still hit.
+Editing a set reuses containing envelopes; unchanged item keys may still hit.
 Envelope retention alone never guarantees expanded=0 after occurrence eviction.
 
 Netting and total caps run fresh on every call, then clip to display window.
@@ -324,8 +327,8 @@ Includes supply interval sources; excludes supply gap sources. Fully excluded
 includes leave gaps. No minute-step snapping. Defaults: caps.perRuleOccurrences=400,
 caps.totalOccurrences=10000; options.cache.maxEntries=2000, maxEnvelopes=4.
 All accept nonnegative integers. Zero cache budgets disable retention; zero caps
-admit no occurrences. Histories are not bounded globally across different sets;
-clear when discarding them.
+admit no occurrences. Both occurrence entries and retained envelopes are bounded
+globally across sets; clear when discarding old windows.
 
 Per-rule cap truncation reports droppedAtLeast=1 (unknown remainder). The total
 cap admits whole lists in rule-id order, then date-id order. First list that
@@ -369,8 +372,11 @@ and unrelated-lane-zone controls for the browser/device protocol.
 
 Web static export and Chromium checks complement iOS/Android implementations;
 physical-device rendering and Hermes Intl behavior remain unverified here.
-Production web Profiler callbacks are disabled. The active Bun Profiler test uses
-host doubles; a real LaneRow profile is required for release. Pages deployment
+Production web Profiler callbacks are disabled. check:web also exports development
+web and checks actual LegendList LaneRow commits on the second scroll pass, with
+nonzero mount and highlight-update controls. The development 200-lane route exposes
+profileStats() through window.__roster. Bun host tests remain complementary; a
+native LaneRow profile is required for release. Pages deployment
 is configured from main but cannot be proven by local export.
 
 W: seed 1318, 200 lanes, week, two layers, 24-lane layout batch, 15-minute ticks;
