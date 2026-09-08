@@ -173,6 +173,9 @@ geometryFor(lane), scroll, press(lane,x,y), ticks, contentWidth, viewport,
 onLayout, navigate, and status ('empty' or 'ready'). There is no visibleRange
 field in the shipped public model. Custom layouts must wire onLayout. Custom
 bodies compute geometry only for mounted lanes, preserving virtualization.
+A zero-duration window has contentWidth=0 and renders no Roster body. Positive
+windows use their exact elapsed duration, including sub-minute spans. Cell times
+are clamped up to window.start and rejected at or beyond window.end.
 
 Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
 Optional: minuteStep (60), pxPerHour (48, positive finite), highlightSource,
@@ -237,6 +240,10 @@ skipped empty region; negative means two half-height repeat regions. Rects split
 at column edges, source changes, and every scale boundary. For repeat at T with
 magnitude d, boundaries are T-d, T, and T+d. A wholly skipped date produces no
 column; skippedDateZone labels the header gap (Apia 2011-12-30).
+Each column spans the first instant of its date to the first instant of the next.
+For rollbacks across midnight (St_Johns 2009, Goose_Bay 1988), earlier-date instants
+inside that span draw in a compressed repeat at the top edge, ending where
+ordinary wall time resumes. timeAtY inverts this region to the absolute occurrence.
 
 timeAtX(projection,window,x) returns absolute time with origin from window.
 timeAtY(projection,columnIndex,y) returns an absolute occurrence or null for
@@ -298,7 +305,8 @@ expandRuleSet(set,window,options?) returns {intervals,gaps,envelope,complete,
 truncated:[{id,droppedAtLeast}],stats}. It throws on invalid window, hours,
 recurrence fields, timezone, or date input. Treat malformed upstream data as an
 error; do not silently map errors to definitive empty lanes. A zero-duration window
-(start=end) returns empty intervals and gaps, complete=true, and expanded=0.
+(start=end) validates every rule and date, including date, dtstart, until, and
+timezone, then returns empty intervals and gaps, complete=true, and expanded=0.
 
 RuleSet is {rules:RosterRule[],dates:RosterDate[]}.
 RosterRule requires id, kind:'include'|'exclude', frequency:'DAILY'|'WEEKLY'|'MONTHLY',
@@ -313,6 +321,9 @@ Date values, and nulls at the boundary; reject unsupported active semantics.
 
 Expansion uses one absolute envelope for every include, exclude, and date:
 envelopeFor(window) is window +/-48 absolute hours. The view zone is not an input.
+Enumeration always retains the original dtstart so filtered recurrence phase is
+independent of the display window. UNTIL is clamped to the query's upper local-date
+bound; occurrences outside the envelope never consume the occurrence cap.
 Retained-envelope containment selects existing bounds before creating a new
 padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
 containment selects the most recently used matching envelope.
