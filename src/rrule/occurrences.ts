@@ -40,9 +40,14 @@ export function enumerate(
     .add({ days: 1 })
     .startOfDay();
   const until = input.until === undefined ? upper : zoned(input.until, input.timezone, true);
+  const untilDate =
+    input.until !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(input.until)
+      ? Temporal.PlainDate.from(input.until)
+      : undefined;
+  if (!untilDate && Temporal.ZonedDateTime.compare(until, original) < 0) return result;
   const anchorWallTime = original.toPlainTime();
   // Let the engine emit the entire final date despite wall-time drift at DST gaps.
-  // The callback applies the exact UNTIL using the original anchor's wall time.
+  // The callback applies the original date cutoff or the exact datetime UNTIL.
   const untilDateEnd = until
     .toPlainDate()
     .toPlainDateTime('23:59:59.999')
@@ -86,8 +91,9 @@ export function enumerate(
     const key = date.toString();
     if (visited.has(key)) return true;
     visited.add(key);
-    const anchored = date.toPlainDateTime(anchorWallTime).toZonedDateTime(input.timezone);
-    if (Temporal.ZonedDateTime.compare(anchored, until) > 0) return true;
+    if (untilDate) {
+      if (Temporal.PlainDate.compare(date, untilDate) > 0) return true;
+    } else if (Temporal.ZonedDateTime.compare(anchorFor(date, original), until) > 0) return true;
     return admit(date);
   });
   return result;
@@ -156,8 +162,16 @@ function advance(
       (unit !== 'months' || candidate.day === originalDate.day) &&
       candidate.toZonedDateTime(input.timezone).toPlainDate().equals(candidate)
     )
-      return candidate.toPlainDateTime(original.toPlainTime()).toZonedDateTime(input.timezone);
+      return anchorFor(candidate, original);
     steps--;
   }
   return original;
+}
+
+// Prefer the original offset in repeated time; otherwise resolve skips compatibly.
+function anchorFor(
+  date: TemporalModule.Temporal.PlainDate,
+  original: TemporalModule.Temporal.ZonedDateTime,
+): TemporalModule.Temporal.ZonedDateTime {
+  return original.with({ year: date.year, month: date.month, day: date.day }, { offset: 'prefer' });
 }
