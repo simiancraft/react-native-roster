@@ -4,7 +4,7 @@
     ".": {
       "entry": ["scripts/set-version.ts"],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "test/**/*.ts"],
-      "ignoreDependencies": ["@semantic-release/.*", "@legendapp/list"]
+      "ignoreDependencies": ["@semantic-release/.*"]
     }
   },
   "ignoreWorkspaces": ["demo"]

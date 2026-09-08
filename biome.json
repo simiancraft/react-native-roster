@@ -12,6 +12,7 @@
       "scripts/**",
       "demo/app/**",
       "demo/src/**",
+      "demo/components/**",
       "demo/*.js",
       "demo/*.json",
       "demo/*.ts",

@@ -8,6 +8,12 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 
 // Build first. Missing output must fail this gate, including on a fresh checkout.
 describe('subpath exports', () => {
+  it('ships both sides of each browser platform remap', () => {
+    for (const [native, web] of Object.entries(pkg.browser)) {
+      expect(existsSync(new URL(`../${native}`, import.meta.url))).toBe(true);
+      expect(existsSync(new URL(`../${web}`, import.meta.url))).toBe(true);
+    }
+  });
   for (const [subpath, conditions] of Object.entries(pkg.exports)) {
     it(`${subpath} resolves every declared condition to a shipped file`, () => {
       const targets = typeof conditions === 'string' ? [conditions] : Object.values(conditions);
@@ -27,6 +33,15 @@ describe('subpath exports', () => {
       import assert from 'node:assert/strict';
       import { createRequire } from 'node:module';
       const require = createRequire(import.meta.url);
+      // Supply native host peers; Node cannot parse React Native's Flow source.
+      const Module = require('node:module');
+      const originalLoad = Module._load;
+      Module._load = function(specifier, ...args) {
+        if (specifier === 'react-native') return { View: 'View', Text: 'Text', Pressable: 'Pressable', ScrollView: 'ScrollView' };
+        if (specifier === 'react-native-reanimated') return { __esModule: true, default: { View: 'AnimatedView' } };
+        if (specifier === '@legendapp/list') return { LegendList: 'LegendList' };
+        return originalLoad.call(this, specifier, ...args);
+      };
       const pkg = require('react-native-roster/package.json');
       for (const subpath of Object.keys(pkg.exports)) {
         const specifier = pkg.name + subpath.slice(1);
@@ -42,6 +57,8 @@ describe('subpath exports', () => {
       const core = require('react-native-roster/core');
       const root = require('react-native-roster');
       assert.equal(root.layoutLane, core.layoutLane);
+      assert.equal(typeof root.Roster, 'function');
+      assert.equal(typeof root.useRoster, 'function');
       for (const name of [
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
