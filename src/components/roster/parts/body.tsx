@@ -1,0 +1,80 @@
+import { LegendList } from '@legendapp/list';
+import { ScrollView, View } from 'react-native';
+import { LaneRow } from '../lane-row';
+import type { BodyInput } from '../roster.types';
+import { bodyContentKey } from '../utils/body-content-key';
+
+export function RosterBody({
+  lanes,
+  geometryFor,
+  projection,
+  scroll,
+  press,
+  ticks,
+  contentWidth,
+  viewport,
+  window,
+  intervalZone,
+  gapZone,
+  highlightSource,
+}: BodyInput) {
+  // LegendList requires a measured viewport and does not support static rendering.
+  if (viewport.width <= 0 || viewport.height <= 0) return null;
+  return (
+    <ScrollView
+      testID="roster-horizontal-scroll"
+      ref={scroll.bodyRef}
+      horizontal
+      onScroll={scroll.onBodyScroll}
+      scrollEventThrottle={16}
+      style={{ flex: 1 }}
+    >
+      <View style={{ width: contentWidth, height: viewport.height }}>
+        <View
+          testID="roster-grid"
+          pointerEvents="none"
+          style={{ position: 'absolute', width: contentWidth, height: '100%' }}
+        >
+          {ticks.map((tick) => (
+            <View
+              key={tick.time}
+              style={{
+                position: 'absolute',
+                left: tick.x,
+                top: 0,
+                bottom: 0,
+                width: 1,
+                backgroundColor: '#e2e8f0',
+              }}
+            />
+          ))}
+        </View>
+        <LegendList
+          testID="roster-vertical-scroll"
+          data={lanes}
+          extraData={bodyContentKey({ window, projection, highlightSource, intervalZone, gapZone })}
+          keyExtractor={(lane) => lane.id}
+          estimatedItemSize={projection.rowHeight}
+          getFixedItemSize={() => projection.rowHeight}
+          drawDistance={0}
+          recycleItems={false}
+          onScroll={scroll.onVerticalScroll}
+          scrollEventThrottle={16}
+          style={{ flex: 1 }}
+          renderItem={({ item }) => (
+            <LaneRow
+              lane={item}
+              geometry={geometryFor(item)}
+              width={contentWidth}
+              rowHeight={projection.rowHeight}
+              press={press}
+              intervalZone={intervalZone}
+              gapZone={gapZone}
+              highlightSource={highlightSource}
+            />
+          )}
+        />
+      </View>
+    </ScrollView>
+  );
+}

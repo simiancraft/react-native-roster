@@ -1,5 +1,7 @@
 import Constants from 'expo-constants';
+import { Link } from 'expo-router';
 import { Text, View } from 'react-native';
+import { rosterFixtures } from '../../test/fixtures/roster';
 
 const VERSION = Constants.expoConfig?.version ?? '?';
 const BUILD = (Constants.expoConfig?.extra?.build ?? {}) as { gitSha?: string; builtAt?: string };
@@ -14,6 +16,11 @@ export default function HomeScreen() {
       <Text accessibilityRole="header" className="text-4xl font-semibold text-white">
         roster
       </Text>
+      {Object.entries(rosterFixtures).map(([id, fixture]) => (
+        <Link key={id} href={`/gallery/${id}` as '/gallery/empty'} style={{ color: '#a5b4fc' }}>
+          {fixture.title}
+        </Link>
+      ))}
       <Text className="font-mono text-xs text-zinc-400">{BUILD_LINE}</Text>
     </View>
   );

@@ -2,6 +2,7 @@
 linker = "hoisted"
 
 [test]
+preload = ["./test/render-host.test.ts"]
 coverageThreshold = 1.0
 coverageSkipTestFiles = true
 coveragePathIgnorePatterns = ["**/dist/**", "**/demo/**", "scripts/set-version.ts"]
