@@ -10,6 +10,7 @@ import { ScheduleGutter } from '../src/components/schedule/parts/gutter';
 import { ScheduleTransition } from '../src/components/schedule/parts/transition';
 import type { ScheduleColumnInput, ScheduleProps } from '../src/components/schedule/schedule.types';
 import { ScheduleWidth } from '../src/components/schedule/use-schedule-viewport';
+import { transitionBounds } from '../src/components/schedule/utils/days';
 import * as core from '../src/core';
 import { clearLayoutCache, layoutStats } from '../src/core';
 import * as adapter from '../src/rrule';
@@ -157,6 +158,39 @@ describe('Schedule chassis and day zones', () => {
     act(() => tree.update(createElement(Schedule, propsFor('schedule-lord-howe'))));
     expect(tree.root.findByProps({ testID: 'schedule-repeat' }).props.style.top).toBe(1.75 * 48);
   });
+  for (const [timezone, anchorDate, instant, dividerY] of [
+    ['America/St_Johns', '2009-11-01', '2009-11-01T02:31Z', 1 / 61],
+    ['America/Goose_Bay', '1988-10-30', '1988-10-30T02:01Z', 1 / 121],
+    ['America/Chicago', '2024-11-03', '2024-11-03T07:00Z', 90],
+  ] as const) {
+    it(`places the ${timezone} repeat divider at the projected transition instant`, () => {
+      const windowSpec = { span: 'day', anchorDate, timezone } as const;
+      const days = core.dayColumnsFor(core.windowFor(windowSpec), timezone);
+      const day = days[0];
+      if (!day) throw new Error('Expected a day column');
+      const transition = day.transitions[0];
+      if (!transition) throw new Error('Expected a repeat transition');
+      const projection = {
+        orientation: 'columns',
+        viewTimezone: timezone,
+        days,
+        pxPerHour: 60,
+        columnWidth: 100,
+      } as const;
+      const bounds = transitionBounds(day, transition, projection);
+      const tree = render(
+        createElement(Schedule, {
+          lane: { id: 'empty', label: 'Empty', layers: [] },
+          windowSpec,
+          pxPerHour: 60,
+        }),
+      );
+      const top = tree.root.findByProps({ testID: 'schedule-repeat' }).props.style.top;
+      expect(top).toBeCloseTo(dividerY, 12);
+      expect(core.timeAtY(projection, 0, top)).toBe(Date.parse(instant));
+      expect(bounds).toMatchObject({ dividerY });
+    });
+  }
   it('navigates the actual Apia route through the skipped day and onward', () => {
     let route!: ReturnType<typeof useScheduleRoute>;
     function Route() {
@@ -269,6 +303,7 @@ describe('Schedule chassis and day zones', () => {
         day: { start: 0, end: 1, localDate: '2011-12-31', label: 'Sat', transitions: [] },
         transition: { at: 0, deltaMinutes: 1440 },
         y: 0,
+        dividerY: 0,
         height: 0,
         width: 40,
       }),

@@ -39,6 +39,8 @@ export type ScheduleModel = {
 export type ScheduleTransitionInput = {
   day: DayColumn;
   transition: Transition;
+  /** Projected transition instant, separating repeated occurrences. */
+  dividerY: number;
   y: number;
   height: number;
   width: number;

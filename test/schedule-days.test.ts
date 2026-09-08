@@ -35,16 +35,17 @@ describe('Schedule day chrome geometry', () => {
     expect(nowPosition(p, (p.days[0] as DayColumn).start - 1)).toBeNull();
   });
   it('clips skipped and repeated wall regions at day edges, for arbitrary offset sizes', () => {
-    for (const [date, timezone, y, height] of [
-      ['2024-03-04', 'America/Chicago', 96, 48],
-      ['2024-10-28', 'America/Chicago', 48, 48],
-      ['2024-04-01', 'Australia/Lord_Howe', 72, 24],
-      ['2024-09-30', 'Australia/Lord_Howe', 96, 24],
+    for (const [date, timezone, y, height, dividerY] of [
+      ['2024-03-04', 'America/Chicago', 96, 48, 144],
+      ['2024-10-28', 'America/Chicago', 48, 48, 72],
+      ['2024-04-01', 'Australia/Lord_Howe', 72, 24, 84],
+      ['2024-09-30', 'Australia/Lord_Howe', 96, 24, 120],
     ] as const) {
       const p = projection(date, timezone);
       const day = p.days[6] as DayColumn;
       expect(transitionBounds(day, day.transitions[0] as Transition, p)).toEqual({
         y,
+        dividerY,
         height,
         width: 40,
       });

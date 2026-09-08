@@ -1,7 +1,13 @@
 import { Text, View } from 'react-native';
 import type { ScheduleTransitionInput } from '../schedule.types';
 
-export function ScheduleTransition({ transition, y, height, width }: ScheduleTransitionInput) {
+export function ScheduleTransition({
+  transition,
+  y,
+  dividerY,
+  height,
+  width,
+}: ScheduleTransitionInput) {
   if (height === 0) return null;
   if (transition.deltaMinutes < 0)
     return (
@@ -10,7 +16,7 @@ export function ScheduleTransition({ transition, y, height, width }: ScheduleTra
         pointerEvents="none"
         style={{
           position: 'absolute',
-          top: y + height / 2,
+          top: dividerY,
           width,
           borderTopWidth: 1,
           borderTopColor: '#92400e',
@@ -42,23 +48,23 @@ export function ScheduleTransition({ transition, y, height, width }: ScheduleTra
         backgroundColor: '#fef3c7',
       }}
     >
-      {Array.from(
-        { length: Math.ceil((width + height) / 8) },
-        (_, index) => index * 8 - height,
-      ).map((left) => (
-        <View
-          key={left}
-          style={{
-            position: 'absolute',
-            left,
-            top: -height,
-            width: 1,
-            height: height * 3,
-            backgroundColor: '#d97706',
-            transform: [{ rotate: '45deg' }],
-          }}
-        />
-      ))}
+      {Array.from({ length: Math.ceil((width + height) / 8) }, (_, index) => {
+        const left = index * 8 - height;
+        return (
+          <View
+            key={left}
+            style={{
+              position: 'absolute',
+              left,
+              top: -height,
+              width: 1,
+              height: height * 3,
+              backgroundColor: '#d97706',
+              transform: [{ rotate: '45deg' }],
+            }}
+          />
+        );
+      })}
     </View>
   );
 }
