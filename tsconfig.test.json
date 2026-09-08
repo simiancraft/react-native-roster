@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "customConditions": ["react-native"],
     "noEmit": true,
     "rootDir": "."
   },

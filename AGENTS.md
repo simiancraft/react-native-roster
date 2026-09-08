@@ -235,3 +235,4 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The gallery bridge exposes real expansion counters; expanded counts computations.
     Lane badges retain IANA names. Coverage excludes projection, so equal absolute
     bounds reuse coverage even when the view zone changes.
+23. Test typechecks resolve the package to source through the `react-native` export condition, so they never depend on `dist`.
