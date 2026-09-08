@@ -1,0 +1,18 @@
+# Fast commit gates; build, demo export, coverage, and package hygiene run in check.
+pre-commit:
+  parallel: true
+  jobs:
+    # Fix and restage only staged files so formatting stays fast and the commit stays clean.
+    - name: biome
+      glob: '*.{ts,tsx,js,jsx,mjs,json}'
+      run: bunx biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    # Check the whole library; tsgo makes this fast enough for every commit.
+    - name: typecheck
+      run: bun run typecheck
+    # Catch test and maintenance-script type errors before the heavier build and test gate.
+    - name: typecheck-test
+      run: bun run typecheck:test
+    # Check library components for compiler bailouts without building the demo.
+    - name: react-compiler
+      run: bun run check:react-compiler

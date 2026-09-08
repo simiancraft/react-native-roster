@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/set-version.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "test/**/*.ts"],
+      "ignoreDependencies": ["@semantic-release/.*", "@legendapp/list"]
+    }
+  },
+  "ignoreWorkspaces": ["demo"]
+}

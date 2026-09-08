@@ -1,0 +1,117 @@
+{
+  "name": "react-native-roster",
+  "version": "0.0.0",
+  "description": "Layered intervals with provenance across lanes and a shared time axis for React Native. API not yet shipped.",
+  "keywords": [
+    "react-native",
+    "expo",
+    "roster",
+    "lanes",
+    "intervals",
+    "provenance"
+  ],
+  "author": "Jesse Harlin (the-simian) <info@simiancraft.com>",
+  "license": "MIT",
+  "homepage": "https://simiancraft.github.io/react-native-roster/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simiancraft/react-native-roster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/simiancraft/react-native-roster/issues"
+  },
+  "type": "commonjs",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "react-native": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./core": {
+      "types": "./dist/src/core/index.d.ts",
+      "react-native": "./src/core/index.ts",
+      "default": "./dist/src/core/index.js"
+    },
+    "./rrule": {
+      "types": "./dist/src/rrule/index.d.ts",
+      "react-native": "./src/rrule/index.ts",
+      "default": "./dist/src/rrule/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE",
+    "llms.txt"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "bun run clean && tsgo -p tsconfig.build.json",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write .",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:test": "tsgo --noEmit -p tsconfig.test.json",
+    "check:react-compiler": "eslint 'src/components/**/*.{ts,tsx}' --no-error-on-unmatched-pattern",
+    "check:knip": "knip",
+    "check:package": "publint --strict",
+    "test": "bun test --coverage",
+    "check": "bun run lint && bun run typecheck && bun run typecheck:test && bun run typecheck:demo && bun run check:react-compiler && bun run build:web && bun run test && bun run check:knip && bun run check:package",
+    "prepare": "if command -v lefthook >/dev/null 2>&1; then lefthook install; fi",
+    "prepack": "bun run build",
+    "typecheck:demo": "tsgo --noEmit -p demo/tsconfig.json",
+    "build:web": "bun run build && cd demo && bunx expo export -p web",
+    "demo": "cd demo && bun run start",
+    "demo:ios": "cd demo && bun run ios",
+    "demo:android": "cd demo && bun run android",
+    "demo:web": "cd demo && bun run web"
+  },
+  "peerDependencies": {
+    "@legendapp/list": ">=2.0.0",
+    "expo": ">=51.0.0",
+    "react": ">=18.2.0",
+    "react-native": ">=0.74.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.14",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/bun": "^1.3.12",
+    "@typescript-eslint/parser": "^8.60.1",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "eslint": "^10.4.1",
+    "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "knip": "^6.5.0",
+    "lefthook": "^2.1.9",
+    "publint": "^0.3.18",
+    "semantic-release": "^25.0.3",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/release-notes-generator": "14.1.0",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/github": "12.0.6",
+    "@types/react": "~19.1.10",
+    "@types/semver": "^7.7.0",
+    "semver": "^7.7.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "expo": "~54.0.37",
+    "@legendapp/list": "2.0.19"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "bun@1.4.0",
+  "workspaces": [
+    "demo"
+  ]
+}

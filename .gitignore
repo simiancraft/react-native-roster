@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.expo/
+*.tsbuildinfo
+*.tgz
+.env
+.env.*
+.DS_Store
+.check-output.txt
+.cache/
+test/.release-*/

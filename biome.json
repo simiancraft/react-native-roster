@@ -1,0 +1,73 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "src/**",
+      "test/**",
+      "scripts/**",
+      "demo/app/**",
+      "demo/src/**",
+      "demo/*.js",
+      "demo/*.json",
+      "demo/*.ts",
+      "demo/*.css",
+      "*.mjs",
+      "*.json"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["demo/global.css"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noUnknownAtRules": {
+              "level": "error",
+              "options": {
+                "ignore": ["tailwind"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
