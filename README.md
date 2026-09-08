@@ -218,11 +218,13 @@ usually reuses occurrences for that local week. Expansion retains the original
 anchor unless it is exactly local midnight with interval 1 (or absent) and no COUNT.
 Such rules may skip whole periods in plain-date space while preserving the
 weekly weekday and monthly day, and stepping back past nonexistent dates.
-The adapter checks inclusive UNTIL against each emitted date at the original
-anchor's wall time, using compatible zone disambiguation. Date-only UNTIL includes
-its last millisecond. The engine receives the end of that local date, clamped to
-the envelope query bound, so DST iteration drift cannot change UNTIL admission
-between direct expansion and retained envelopes.
+Date-only UNTIL admits only local dates at or before the authored date, even when
+its final hour or the whole date is skipped. Datetime UNTIL compares exact instants
+at the original anchor's wall time, preferring its offset during repeats and using
+compatible disambiguation otherwise. A datetime UNTIL before DTSTART admits nothing.
+The engine receives the end of that local date, clamped to the envelope query
+bound, so DST iteration drift cannot change UNTIL admission between direct
+expansion and retained envelopes.
 A new absolute window requires coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
 Presses resolve one result: intervals before gaps, highest z first, and later
@@ -302,6 +304,9 @@ that absolute span and compress earlier-date instants into a repeat at the top
 edge, ending where ordinary wall time resumes. Pointer inversion preserves the
 absolute occurrence. The repeat divider uses the projected transition instant,
 including when the surviving repeat regions have unequal heights.
+Skipped wall spans belong to the date they interrupt; its transitions include a
+skip at the column's exclusive end when it empties that date's final bands, such
+as Nuuk's 23:00 to 24:00 on 2024-03-30. Those bands are hatched and reject presses.
 A wholly skipped date has no column. Horizontal Roster instead uses true elapsed
 time, so Chicago's transition weeks are 167 and 169 hours wide. Rects split at
 midnight, offset scale boundaries, and source-set changes. Column x coordinates

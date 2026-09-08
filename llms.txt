@@ -241,6 +241,10 @@ at column edges, source changes, and every scale boundary. For repeat at T with
 magnitude d, boundaries are T-d, T, and T+d. A wholly skipped date produces no
 column; skippedDateZone labels the header gap (Apia 2011-12-30).
 Each column spans the first instant of its date to the first instant of the next.
+Skipped wall spans belong to the date they interrupt. Its transitions include a
+skip at the exclusive end when it empties that date's final wall bands (Nuuk
+2024-03-30, 23:00 to 24:00). Those bands are hatched; timeAtY returns null there,
+and onCellPress does not fire.
 For rollbacks across midnight (St_Johns 2009, Goose_Bay 1988), earlier-date instants
 inside that span draw in a compressed repeat at the top edge, ending where
 ordinary wall time resumes. timeAtY inverts this region to the absolute occurrence.
@@ -331,10 +335,12 @@ in plain-date space, preserving the weekly weekday and monthly day, and stepping
 back past nonexistent dates. Non-midnight anchors retain their original iteration
 through DST gaps. The engine receives the end of UNTIL's local date, clamped to
 the query's upper local-date bound. The adapter admits each emitted date only
-when that date at the original dtstart wall time is at or before the exact UNTIL
-instant, using compatible zone disambiguation. Date-only UNTIL includes its last
-millisecond. This keeps UNTIL admission independent of DST iteration drift,
-anchor advancement, and retained envelopes. Occurrences outside the envelope
+when that date is at or before the authored date-only UNTIL, including when its
+final hour or the whole date is skipped. Datetime UNTIL compares exact instants at
+the original dtstart wall time, preferring its offset in repeats and using
+compatible disambiguation otherwise. A datetime UNTIL before DTSTART admits nothing.
+This keeps UNTIL admission independent of DST iteration drift, anchor advancement,
+and retained envelopes. Occurrences outside the envelope
 never consume the occurrence cap.
 Retained-envelope containment selects existing bounds before creating a new
 padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
