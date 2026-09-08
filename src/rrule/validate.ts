@@ -5,9 +5,9 @@ export function validateWindow(window: Window): void {
   if (
     !Number.isSafeInteger(window.start) ||
     !Number.isSafeInteger(window.end) ||
-    window.start >= window.end
+    window.start > window.end
   ) {
-    throw new RangeError('window must have integer epoch milliseconds with start < end');
+    throw new RangeError('window must have integer epoch milliseconds with start <= end');
   }
 }
 
