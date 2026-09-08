@@ -204,7 +204,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     .types.ts and package.json browser remap together when changing this pair.
 
 15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
-    transitions, preserving skips and both repeat occurrences. Cache by window bounds,
+    transitions, preserving skips and both repeat occurrences. On a cache miss, resolve
+    the actual wall minute at each date's first instant; a straddling skip can start
+    a date after midnight. Do not add a start-boundary transition delta again.
+    Cache by window bounds,
     timezone, span, minuteStep, and pxPerMinute; identical calls must do no Intl work.
 16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
     renders; only on-screen counters sample every 500 ms. Fixture records own zones
@@ -229,8 +232,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     anchor may skip periods. Compute candidates in plain
     date space, retaining the weekly weekday and monthly day, and step back past
     nonexistent dates. All other rules retain the original anchor.
-    Give the engine the end of UNTIL's local date interpreted as UTC, clamped to
-    the corresponding UTC calendar bound of the envelope query. Before cap admission,
+    The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
+    Explicit-offset UNTIL uses the end of the following local date instead; exact instant
+    admission is its only UNTIL admission test. Clamp either bound to the corresponding
+    UTC calendar bound of the envelope query. Before cap admission,
     compare each emitted date at the authored anchor's wall time against local
     datetime UNTIL in plain date-time space, without normalizing skipped hours.
     Only explicit-offset UNTIL compares exact instants, preferring an explicit-offset
@@ -329,3 +334,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Boundary transitions with no wall-band overlap draw no hatch; timeAtY returns
     null inside the skipped band, and onCellPress must not fire. Wholly skipped
     dates still have no column.
+
+32. **Whole-day overrides use first instants.** When both hours are absent, use
+    the first instant of the authored date and the first instant of the following
+    date. Compatible midnight resolution can overshoot a straddling skip.
+    Wholly skipped dates remain empty; explicit hours retain compatible resolution.

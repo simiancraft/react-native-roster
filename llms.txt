@@ -335,8 +335,11 @@ in plain-date space, preserving the weekly weekday and monthly day, and stepping
 back past nonexistent dates. Date-only and local-datetime dtstart preserve their
 authored date and time, even inside a skipped date or hour. Explicit-offset dtstart
 remains an instant, converted to wall fields and an offset in the rule's zone.
-The engine iterates those wall fields in UTC calendar space, with the end of UNTIL's
-local date as a UTC bound, clamped to the corresponding query bound. The adapter
+The engine iterates those wall fields in UTC calendar space.
+The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
+Explicit-offset UNTIL uses the end of the following local date instead; exact instant
+admission is its only UNTIL admission test. Clamp either bound to the corresponding
+UTC calendar bound of the envelope query. The adapter
 drops wholly nonexistent dates before counting existing dates from the original
 anchor for COUNT. A skipped date never becomes a different weekday or consumes
 COUNT. The adapter admits each emitted date only when that date is at or before
