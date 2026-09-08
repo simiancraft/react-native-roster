@@ -1,4 +1,5 @@
 import { LegendList } from '@legendapp/list';
+import { Profiler, type ProfilerOnRenderCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 import { LaneRow } from '../lane-row';
 import type { BodyInput } from '../roster.types';
@@ -19,7 +20,11 @@ export function RosterBody({
   highlightSource,
   onIntervalHover,
   incompleteLabel,
-}: BodyInput) {
+  onRowRender,
+}: BodyInput & {
+  /** Optional per-lane commit observer; used by the development gallery's Profiler gate. */
+  onRowRender?: ProfilerOnRenderCallback;
+}) {
   // LegendList requires a measured viewport and does not support static rendering.
   if (viewport.width <= 0 || viewport.height <= 0) return null;
   return (
@@ -73,20 +78,29 @@ export function RosterBody({
           onScroll={scroll.onVerticalScroll}
           scrollEventThrottle={16}
           style={{ flex: 1 }}
-          renderItem={({ item }) => (
-            <LaneRow
-              lane={item}
-              geometry={geometryFor(item)}
-              width={contentWidth}
-              rowHeight={projection.rowHeight}
-              press={press}
-              intervalZone={intervalZone}
-              gapZone={gapZone}
-              highlightSource={highlightSource}
-              onIntervalHover={onIntervalHover}
-              incompleteLabel={incompleteLabel}
-            />
-          )}
+          renderItem={({ item }) => {
+            const row = (
+              <LaneRow
+                lane={item}
+                geometry={geometryFor(item)}
+                width={contentWidth}
+                rowHeight={projection.rowHeight}
+                press={press}
+                intervalZone={intervalZone}
+                gapZone={gapZone}
+                highlightSource={highlightSource}
+                onIntervalHover={onIntervalHover}
+                incompleteLabel={incompleteLabel}
+              />
+            );
+            if (onRowRender)
+              return (
+                <Profiler id={item.id} onRender={onRowRender}>
+                  {row}
+                </Profiler>
+              );
+            return row;
+          }}
         />
       </View>
     </ScrollView>

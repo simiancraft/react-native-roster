@@ -3,6 +3,7 @@ import type { RosterFixtureId } from '../../../test/fixtures/roster';
 import { GalleryRouteLayout } from './layout';
 import { GalleryControls } from './parts/controls';
 import { GalleryCounters } from './parts/counters';
+import { ProfiledBody } from './parts/profiled-body';
 import { RuleSetEditor } from './parts/rule-set-editor';
 import { useGalleryRoute } from './use-gallery-route';
 
@@ -50,6 +51,7 @@ export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
           onGapPress={selectRect}
           onCellPress={selectCell}
           {...zones}
+          bodyZone={__DEV__ && fixtureId === '200-lanes' ? ProfiledBody : zones?.bodyZone}
         />
       }
       countersZone={

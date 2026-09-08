@@ -1,19 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { dayColumnsFor, layoutLane, snapToStep, timeAtY, windowFor } from '../../core';
 import { hitTest } from '../roster/utils/hit-test';
 import type { ScheduleInput, ScheduleModel, ScheduleProjection } from './schedule.types';
 import { ScheduleWidth } from './use-schedule-viewport';
 
 export function useSchedule(input: ScheduleInput): ScheduleModel {
-  const {
-    lane,
-    windowSpec,
-    minuteStep = 60,
-    pxPerHour = 48,
-    onIntervalPress,
-    onGapPress,
-    onCellPress,
-  } = input;
+  const { lane, windowSpec, minuteStep = 60, pxPerHour = 48 } = input;
   const width = useContext(ScheduleWidth);
   const [clock, setClock] = useState(Date.now);
   // The current-time indicator follows the wall clock for the mounted surface's lifetime.
@@ -35,31 +27,39 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
     days,
   };
   const geometry = layoutLane(lane, window, projection);
-  function press(columnIndex: number, x: number, y: number): void {
-    if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= projection.columnWidth) return;
-    const absolute = timeAtY(projection, columnIndex, y);
-    if (absolute === null) return;
-    const time = snapToStep(absolute, minuteStep, windowSpec.timezone);
-    const hit = hitTest(
-      lane,
-      {
-        ...geometry,
-        rects: geometry.rects.filter((rect) => rect.column === columnIndex),
-        gapRects: geometry.gapRects.filter((rect) => rect.column === columnIndex),
-      },
-      x,
-      y,
-    );
-    if (hit?.kind === 'interval') {
-      onIntervalPress?.(hit.rect, lane);
-      return;
-    }
-    if (hit?.kind === 'gap') {
-      onGapPress?.(hit.rect, lane);
-      return;
-    }
-    onCellPress?.(lane, Math.max(window.start, time));
-  }
+  const currentPress = { input, window, projection, geometry };
+  const pressInput = useRef(currentPress);
+  pressInput.current = currentPress;
+  const [press] = useState(() => {
+    return function press(columnIndex: number, x: number, y: number): void {
+      const { input, window, projection, geometry } = pressInput.current;
+      const { lane, minuteStep = 60, onIntervalPress, onGapPress, onCellPress } = input;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= projection.columnWidth)
+        return;
+      const absolute = timeAtY(projection, columnIndex, y);
+      if (absolute === null) return;
+      const time = snapToStep(absolute, minuteStep, projection.viewTimezone);
+      const hit = hitTest(
+        lane,
+        {
+          ...geometry,
+          rects: geometry.rects.filter((rect) => rect.column === columnIndex),
+          gapRects: geometry.gapRects.filter((rect) => rect.column === columnIndex),
+        },
+        x,
+        y,
+      );
+      if (hit?.kind === 'interval') {
+        onIntervalPress?.(hit.rect, lane);
+        return;
+      }
+      if (hit?.kind === 'gap') {
+        onGapPress?.(hit.rect, lane);
+        return;
+      }
+      onCellPress?.(lane, Math.max(window.start, time));
+    };
+  });
   return {
     window,
     days,

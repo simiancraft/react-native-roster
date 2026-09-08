@@ -120,6 +120,32 @@ describe('useSchedule hook harness', () => {
     h.model.press(0, 0, rect.y + 1);
     h.model.press(0, 1, 0);
   });
+  it('keeps retained presses current after step, callback, lane, and projection changes', () => {
+    const input = inputFor('schedule-layers');
+    const previous = callbacks();
+    const next = callbacks();
+    const h = harness({ ...input, ...previous, minuteStep: 60 });
+    const press = h.model.press;
+    press(0, 1, (47 / 60) * 48);
+    expect(previous.onCellPress).toHaveBeenLastCalledWith(input.lane, Date.UTC(2024, 0, 1));
+    h.update({ ...input, ...next, minuteStep: 15 });
+    expect(h.model.press).toBe(press);
+    press(0, 1, (47 / 60) * 48);
+    press(0, 5, 10.75 * 48);
+    press(0, 0, 10.75 * 48);
+    expect(next.onCellPress).toHaveBeenLastCalledWith(input.lane, Date.UTC(2024, 0, 1, 0, 45));
+    expect(next.onIntervalPress).toHaveBeenCalledTimes(1);
+    expect(next.onGapPress).toHaveBeenCalledTimes(1);
+    expect(previous.onCellPress).toHaveBeenCalledTimes(1);
+    expect(previous.onIntervalPress).not.toHaveBeenCalled();
+    expect(previous.onGapPress).not.toHaveBeenCalled();
+    const empty = inputFor('schedule-empty');
+    const windowSpec = { ...empty.windowSpec, anchorDate: '2024-01-08' };
+    h.update({ ...empty, windowSpec, ...next, minuteStep: 15, pxPerHour: 60 });
+    expect(h.model.press).toBe(press);
+    press(0, 1, 47);
+    expect(next.onCellPress).toHaveBeenLastCalledWith(empty.lane, Date.UTC(2024, 0, 8, 0, 45));
+  });
   it('selects midnight-crossing rects by column with identical sources', () => {
     const input = inputFor('schedule-midnight');
     const cb = callbacks();

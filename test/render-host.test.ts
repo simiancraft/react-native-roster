@@ -42,4 +42,4 @@ mock.module('@legendapp/list', () => ({
         ),
     ),
 }));
-Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true, __DEV__: true });

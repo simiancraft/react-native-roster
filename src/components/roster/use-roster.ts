@@ -24,9 +24,6 @@ export function useRoster(input: RosterInput): RosterModel {
     rowHeight = 48,
     pxPerMinute = 0.5,
     onNavigate,
-    onIntervalPress,
-    onGapPress,
-    onCellPress,
   } = input;
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   // The pinned compiler lint cannot resolve useSharedValue's built-in type.
@@ -63,28 +60,36 @@ export function useRoster(input: RosterInput): RosterModel {
   function geometryFor(lane: Lane): LaneGeometry {
     return layoutLane(lane, window, projection);
   }
-  function press(lane: Lane, pointX: number, pointY: number): void {
-    if (
-      !Number.isFinite(pointX) ||
-      !Number.isFinite(pointY) ||
-      pointX < 0 ||
-      pointX >= contentWidth ||
-      pointY < 0 ||
-      pointY >= rowHeight
-    )
-      return;
-    const hit = hitTest(lane, layoutLane(lane, window, projection), pointX, pointY);
-    if (hit?.kind === 'interval') {
-      onIntervalPress?.(hit.rect, lane);
-      return;
-    }
-    if (hit?.kind === 'gap') {
-      onGapPress?.(hit.rect, lane);
-      return;
-    }
-    const time = snapToStep(timeAtX(projection, window, pointX), minuteStep, windowSpec.timezone);
-    onCellPress?.(lane, Math.max(window.start, time));
-  }
+  const currentPress = { input, window, projection, width: contentWidth };
+  const pressInput = useRef(currentPress);
+  pressInput.current = currentPress;
+  const [press] = useState(() => {
+    return function press(lane: Lane, pointX: number, pointY: number): void {
+      const { input, window, projection, width } = pressInput.current;
+      const { minuteStep = 60, onIntervalPress, onGapPress, onCellPress } = input;
+      const { rowHeight, viewTimezone } = projection;
+      if (
+        !Number.isFinite(pointX) ||
+        !Number.isFinite(pointY) ||
+        pointX < 0 ||
+        pointX >= width ||
+        pointY < 0 ||
+        pointY >= rowHeight
+      )
+        return;
+      const hit = hitTest(lane, layoutLane(lane, window, projection), pointX, pointY);
+      if (hit?.kind === 'interval') {
+        onIntervalPress?.(hit.rect, lane);
+        return;
+      }
+      if (hit?.kind === 'gap') {
+        onGapPress?.(hit.rect, lane);
+        return;
+      }
+      const time = snapToStep(timeAtX(projection, window, pointX), minuteStep, viewTimezone);
+      onCellPress?.(lane, Math.max(window.start, time));
+    };
+  });
   return {
     window,
     projection,
