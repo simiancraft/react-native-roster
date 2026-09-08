@@ -28,10 +28,10 @@ behavior. State any interpretation in the delivery report.
 
 ```text
 src/
-  index.ts                 # public React entry; re-exports ./core, otherwise empty
+  index.ts                 # public Roster, hook, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   rrule/index.ts           # empty adapter entry; recurrence expansion arrives in #4
-  components/              # planned Roster (#5) and Schedule (#11) chassis and zones
+  components/              # Roster chassis, hook, zones, and rect rows; Schedule planned
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
@@ -39,8 +39,9 @@ scripts/
 test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
-  app/index.tsx            # static roster shell and build identity
-  app/gallery/             # reserved fixture routes, starting in #5
+  app/index.tsx            # gallery links and build identity
+  app/gallery/             # seven thin static fixture route shells
+  components/gallery-route/ # hook, chassis, controls, and web counter bridge
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
 .github/                   # CI, Pages, links, Scorecard, and community templates
@@ -69,6 +70,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   fills it. Layouts only arrange zones. Parts receive domain data, never relayed
   flags such as `disabled` or `loading`. Primitives without hooks use plain composition.
 - No `useMemo`, `useCallback`, or `React.memo`; consumers use React Compiler.
+  The SDK 54 demo enables `experiments.reactCompiler: true` in app.config.js.
   Use `useEffect` only for genuine lifecycle integration. Compute derived values
   during render and handle user actions in handlers.
 - Use function declarations for exports, `import type`, kebab-case filenames,
@@ -157,8 +159,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-6. **The core is implemented; React surfaces are planned.** Do not advertise planned
-   components or the empty recurrence adapter as shipped. Preserve all entry points.
+6. **Roster and the core are implemented; Schedule and recurrence are planned.**
+   Do not advertise planned surfaces as shipped. Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
    returns an absolute time.
@@ -178,3 +180,28 @@ Do not publish, tag, change repository settings, or push without task authorizat
     plus gap rects per lane per week (63 rects, 7 gap rects), in either projection.
     The test measures target-cold layout of 24 visible lanes and coverage of all
     200 lanes separately against 16 ms. Rendering and device gates remain in #9.
+
+11. **Roster waits for viewport measurement before mounting LegendList.** LegendList
+    2.x lacks a server snapshot; mounting it during static rendering causes hydration
+    recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
+    keys window, projection, highlight identity, and rect zone fillers. Vertical scroll
+    must not update React state; all lane labels share one translated column.
+12. **Reanimated offsets use makeMutable initialized by useState.** The pinned compiler
+    lint crashes on useSharedValue's built-in shape. Offsets use get/set and have no
+    animations to cancel; the regular compiler gate stays enabled without suppression.
+    Reanimated is an optional peer for core-only installs, required by Roster.
+13. **Bun tests use a native host preload.** react-test-renderer exercises real hooks;
+    native Views, LegendList, and shared values use host doubles. Node export smoke
+    tests stub only native peers, then load actual emitted package exports. Browser
+    and device integration complement these tests; doubles do not prove native behavior.
+
+14. **Press coordinates differ on web.** press-point.tsx reads native locationX/Y;
+    press-point.web.tsx maps DOM clientX/Y relative to currentTarget. Keep the shared
+    .types.ts and package.json browser remap together when changing this pair.
+
+15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
+    transitions, preserving skips and both repeat occurrences. Cache by window bounds,
+    timezone, span, minuteStep, and pxPerMinute; identical calls must do no Intl work.
+16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
+    renders; only on-screen counters sample every 500 ms. Fixture records own zones
+    and showsEmptyExample, with visual fillers in test/fixtures/roster-zones.tsx.
