@@ -1184,6 +1184,61 @@ describe('recurrence fields and local boundaries', () => {
     ).toEqual([]);
   });
 
+  for (const retained of [false, true]) {
+    for (const scenario of [
+      {
+        name: 'whole date after a straddling skip',
+        dates: [date({ date: '1919-03-31', timezone: 'America/Toronto' })],
+        intervals: [span('1919-03-31T04:30Z', '1919-04-01T04:00Z', 'date', 'd')],
+        gaps: [],
+      },
+      {
+        name: 'whole date before a straddling skip',
+        dates: [date({ date: '1919-03-30', timezone: 'America/Toronto' })],
+        intervals: [span('1919-03-30T05:00Z', '1919-03-31T04:30Z', 'date', 'd')],
+        gaps: [],
+      },
+      {
+        name: 'whole date exclusion of a partial include',
+        dates: [
+          date({ date: '1919-03-31', timezone: 'America/Toronto', hourstart: 0.5, hourend: 2 }),
+          date({ id: 'exclude', kind: 'exclude', date: '1919-03-31', timezone: 'America/Toronto' }),
+        ],
+        intervals: [],
+        gaps: [span('1919-03-31T04:30Z', '1919-03-31T06:00Z', 'date', 'exclude')],
+      },
+      {
+        name: 'explicit midnight retains compatible resolution',
+        dates: [
+          date({ date: '1919-03-31', timezone: 'America/Toronto', hourstart: 0, hourend: 24 }),
+        ],
+        intervals: [span('1919-03-31T05:00Z', '1919-04-01T04:00Z', 'date', 'd')],
+        gaps: [],
+      },
+      {
+        name: 'wholly skipped date',
+        dates: [date({ date: '2011-12-30', timezone: 'Pacific/Apia' })],
+        intervals: [],
+        gaps: [],
+      },
+    ]) {
+      it(`preserves ${scenario.name}, retained ${retained}`, () => {
+        const skipped = scenario.name === 'wholly skipped date';
+        const window = {
+          start: epoch(skipped ? '2011-12-28' : '1919-03-29'),
+          end: epoch(skipped ? '2012-01-02' : '1919-04-02'),
+        };
+        const input = set([], scenario.dates);
+        if (retained) expandRuleSet(input, { start: window.start - hour, end: window.end + hour });
+        const output = expandRuleSet(input, window);
+        expect(output.intervals).toEqual(scenario.intervals);
+        expect(output.gaps).toEqual(scenario.gaps);
+        expect(output.complete).toBe(true);
+        expect(output.stats.expanded).toBe(retained ? 0 : scenario.dates.length);
+      });
+    }
+  }
+
   it('ignores partial and whole-day overrides on a wholly skipped local date', () => {
     const window = { start: epoch('2011-12-28'), end: epoch('2012-01-02') };
     const following = date({ id: 'following', date: '2011-12-31', timezone: 'Pacific/Apia' });
