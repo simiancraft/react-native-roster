@@ -4,7 +4,12 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "moduleResolution": "bundler",
-    "customConditions": ["react-native"]
+    "customConditions": ["react-native"],
+    "paths": {
+      "react-native-roster": ["../src/index.ts"],
+      "react-native-roster/core": ["../src/core/index.ts"],
+      "react-native-roster/rrule": ["../src/rrule/index.ts"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
   "exclude": ["node_modules", "dist"]
