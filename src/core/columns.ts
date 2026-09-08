@@ -35,7 +35,8 @@ export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
                 timeZone: timezone,
                 weekday: 'short',
               }).format(start),
-              transitions: transitionsBetween(start - 1, end, timezone),
+              // Boundary transitions describe wall bands; absolute bounds stay exclusive.
+              transitions: transitionsBetween(start - 1, end + 1, timezone),
             }
           : null;
       columns.set(key, day);

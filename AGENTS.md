@@ -225,8 +225,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     non-midnight times whose iteration can shift through a DST gap.
     Give the engine the end of UNTIL's local date, clamped to the envelope query
     bound. Before cap admission, compare each emitted date at the original anchor's
-    wall time against the exact inclusive UNTIL instant, using the same compatible
-    disambiguation as hoursFor. Date-only UNTIL includes its last millisecond.
+    wall time against the exact inclusive datetime UNTIL instant, preferring the
+    original offset in repeats and using compatible disambiguation otherwise.
+    Preserve that offset when advancing anchors too. A datetime UNTIL before the
+    original DTSTART admits nothing. Date-only UNTIL compares PlainDates, so a
+    skipped final hour or wholly skipped date never admits a later local date.
     This prevents DST iteration drift from changing results across anchor paths
     or retained envelopes. Skip out-of-envelope occurrences without consuming the cap.
 
@@ -309,3 +312,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     to start and reject any snapped time at or beyond end in both hooks. timeAtY
     clamps inverse rounding below each scale piece's exclusive end. Adapter input
     validation also runs for empty windows, without enumerating occurrences.
+
+31. **Skipped wall spans belong to the date they interrupt.** Column transitions
+    include both boundary instants; the absolute column span stays end-exclusive.
+    Schedule clips each transition to the date's wall bands, so an end-boundary
+    skip hatches the interrupted date, such as Nuuk 2024-03-30 from 23:00 to 24:00.
+    Boundary transitions with no wall-band overlap draw no hatch; timeAtY returns
+    null inside the skipped band, and onCellPress must not fire. Wholly skipped
+    dates still have no column.

@@ -420,6 +420,105 @@ describe('caps', () => {
 });
 
 describe('recurrence fields and local boundaries', () => {
+  for (const [timezone, dtstart, until, anchorDate, controlDate, start, end] of [
+    [
+      'America/Nuuk',
+      '2024-03-01',
+      '2024-03-30',
+      '2024-03-31',
+      '2024-03-30',
+      '2024-03-30T11:00Z',
+      '2024-03-30T19:00Z',
+    ],
+    [
+      'Pacific/Apia',
+      '2011-12-01',
+      '2011-12-30',
+      '2011-12-31',
+      '2011-12-29',
+      '2011-12-29T19:00Z',
+      '2011-12-30T03:00Z',
+    ],
+    [
+      'Pacific/Kwajalein',
+      '1993-08-01',
+      '1993-08-21',
+      '1993-08-22',
+      '1993-08-20',
+      '1993-08-20T21:00Z',
+      '1993-08-21T05:00Z',
+    ],
+  ] as const) {
+    for (const retained of [false, true]) {
+      it(`rejects dates after date-only UNTIL in ${timezone}, retained ${retained}`, () => {
+        const input = set([rule({ timezone, dtstart, until })], []);
+        const window = windowFor({ span: 'day', anchorDate, timezone });
+        if (retained)
+          expandRuleSet(input, {
+            start: window.start - 14 * 24 * hour,
+            end: window.end + 7 * 24 * hour,
+          });
+        const output = expandRuleSet(input, window);
+        expect(output.intervals).toEqual([]);
+        expect(output.gaps).toEqual([]);
+        expect(output.complete).toBe(true);
+        expect(output.stats.expanded).toBe(retained ? 0 : 1);
+      });
+      it(`admits the date-only UNTIL date in ${timezone}, retained ${retained}`, () => {
+        const input = set([rule({ timezone, dtstart, until: controlDate })], []);
+        const window = windowFor({ span: 'day', anchorDate: controlDate, timezone });
+        if (retained)
+          expandRuleSet(input, {
+            start: window.start - 14 * 24 * hour,
+            end: window.end + 7 * 24 * hour,
+          });
+        const output = expandRuleSet(input, window);
+        expect(output.intervals).toEqual([span(start, end, 'rule', 'a')]);
+        expect(output.complete).toBe(true);
+        expect(output.stats.expanded).toBe(retained ? 0 : 1);
+      });
+    }
+  }
+
+  for (const [timezone, dtstart, before, start, end] of [
+    [
+      'America/Chicago',
+      '2024-11-03T07:30Z',
+      '2024-11-03T07:00Z',
+      '2024-11-03T15:00Z',
+      '2024-11-03T23:00Z',
+    ],
+    [
+      'America/Havana',
+      '2024-11-03T05:30Z',
+      '2024-11-03T05:00Z',
+      '2024-11-03T14:00Z',
+      '2024-11-03T22:00Z',
+    ],
+  ] as const) {
+    for (const until of [before, dtstart]) {
+      it(`compares UNTIL ${until} with the second-occurrence DTSTART in ${timezone}`, () => {
+        const window = windowFor({ span: 'day', anchorDate: '2024-11-03', timezone });
+        const output = expandRuleSet(set([rule({ timezone, dtstart, until })], []), window);
+        expect(output.intervals).toEqual(until === dtstart ? [span(start, end, 'rule', 'a')] : []);
+        expect(output.gaps).toEqual([]);
+        expect(output.complete).toBe(true);
+      });
+    }
+  }
+
+  for (const [timezone, dtstart, until] of [
+    ['America/Chicago', '2023-11-05T07:30Z', '2024-11-03T07:00Z'],
+    ['America/Havana', '2023-11-05T05:00Z', '2024-11-03T04:30Z'],
+  ] as const) {
+    it(`preserves the original offset at a later UNTIL repeat in ${timezone}`, () => {
+      const window = windowFor({ span: 'day', anchorDate: '2024-11-03', timezone });
+      const input = rule({ timezone, dtstart, until });
+      expect(enumerate(input, window, 400)).toEqual({ spans: [], capped: false });
+      expect(enumerate(input, window, 400, false)).toEqual({ spans: [], capped: false });
+    });
+  }
+
   for (const frequency of ['DAILY', 'WEEKLY', 'MONTHLY'] as const) {
     const filters: Record<string, Partial<RosterRule>> = {
       unfiltered: {},
