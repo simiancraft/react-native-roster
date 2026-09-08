@@ -218,9 +218,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
     CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
     select matching polyfill instances. Its iterator can replay, so deduplicate local
     dates before COUNT or cap admission. Drive the engine in UTC calendar space using
-    the anchor's local wall date-time interpreted as UTC, so a wholly skipped date
-    cannot normalize into another weekday. Do not pass COUNT to the engine; drop
-    nonexistent dates before counting existing dates from the original anchor.
+    authored PlainDate and PlainTime fields for date-only or local-datetime DTSTART,
+    without resolving skipped dates or hours. Only explicit-offset DTSTART resolves
+    as an instant to wall fields and its own offset in the rule's zone. Interpret
+    those wall fields as UTC, so a wholly skipped date cannot become another weekday.
+    Do not pass COUNT to the engine; drop nonexistent dates before counting existing
+    dates from the original anchor.
     Supply the implicit monthly day explicitly to avoid a 31st drifting through
     February. Only interval-1 rules without COUNT and with an exactly local-midnight
     anchor may skip periods. Compute candidates in plain
@@ -228,12 +231,14 @@ Do not publish, tag, change repository settings, or push without task authorizat
     nonexistent dates. All other rules retain the original anchor.
     Give the engine the end of UNTIL's local date interpreted as UTC, clamped to
     the corresponding UTC calendar bound of the envelope query. Before cap admission,
-    compare each emitted date at the original anchor's wall time against the exact
-    inclusive datetime UNTIL instant, preferring the
-    original offset in repeats and using compatible disambiguation otherwise.
-    Preserve that offset when advancing anchors too. A datetime UNTIL before the
-    original DTSTART admits nothing. Date-only UNTIL compares PlainDates, so a
-    skipped final hour or wholly skipped date never admits a later local date.
+    compare each emitted date at the authored anchor's wall time against local
+    datetime UNTIL in plain date-time space, without normalizing skipped hours.
+    Only explicit-offset UNTIL compares exact instants, preferring an explicit-offset
+    DTSTART's original offset in repeats and using compatible disambiguation otherwise.
+    Anchor advancement preserves plain fields; instant comparisons retain the original
+    offset. A datetime UNTIL before the original DTSTART admits nothing. Date-only
+    UNTIL compares PlainDates, so a skipped final hour or wholly skipped date never
+    admits a later local date.
     This preserves results across anchor paths and retained envelopes. Skip
     out-of-envelope occurrences without consuming the cap.
 

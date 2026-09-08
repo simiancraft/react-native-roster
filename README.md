@@ -219,14 +219,18 @@ anchor unless it is exactly local midnight with interval 1 (or absent) and no CO
 Such rules may skip whole periods in plain-date space while preserving the
 weekly weekday and monthly day, and stepping back past nonexistent dates.
 Date-only UNTIL admits only local dates at or before the authored date, even when
-its final hour or the whole date is skipped. Datetime UNTIL compares exact instants
-at the original anchor's wall time, preferring its offset during repeats and using
-compatible disambiguation otherwise. A datetime UNTIL before DTSTART admits nothing.
-The engine iterates the anchor's local wall date-time in UTC calendar space, with
-the end of UNTIL's local date as a UTC bound, clamped to the corresponding envelope
-bound. The adapter drops wholly nonexistent dates before counting existing dates
-from the original anchor for COUNT. A skipped date never becomes a different weekday
-or consumes COUNT. UNTIL admission stays consistent across direct expansion and
+its final hour or the whole date is skipped. Local datetime UNTIL compares plain
+date-times at the authored anchor's wall time, without normalizing skipped hours.
+Explicit-offset UNTIL compares exact instants, preferring an explicit-offset
+DTSTART's offset during repeats and using compatible disambiguation otherwise.
+A datetime UNTIL before DTSTART admits nothing.
+Date-only and local-datetime DTSTART preserve their authored date and time, even
+inside a skipped date or hour. Explicit-offset DTSTART remains an instant whose
+wall fields and offset come from the rule's zone. The engine iterates those wall
+fields in UTC calendar space, with the end of UNTIL's local date as a UTC bound,
+clamped to the corresponding envelope bound. The adapter drops wholly nonexistent
+dates before counting existing dates from the original anchor for COUNT. A skipped
+date never becomes a different weekday or consumes COUNT. UNTIL admission stays consistent across direct expansion and
 retained envelopes.
 A new absolute window requires coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
