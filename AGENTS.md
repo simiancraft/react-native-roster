@@ -232,6 +232,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     anchor may skip periods. Compute candidates in plain
     date space, retaining the weekly weekday and monthly day, and step back past
     nonexistent dates. All other rules retain the original anchor.
+    Every rule enumerates from the period containing DTSTART at the anchor wall time,
+    aligned to WKST for WEEKLY and day 1 for MONTHLY, so interval phases follow the
+    DTSTART period rather than the first matching date. Dates before DTSTART are
+    rejected before COUNT and cap admission.
     The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
     Explicit-offset UNTIL uses the end of the following local date instead; exact instant
     admission is its only UNTIL admission test. Clamp either bound to the corresponding

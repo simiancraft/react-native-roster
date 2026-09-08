@@ -1438,6 +1438,135 @@ function positionalOracle(input: RosterRule, window: Window): Interval[] {
     }));
 }
 
+describe('authored recurrence period phases', () => {
+  const cases: {
+    name: string;
+    input: Partial<RosterRule>;
+    end: string;
+    dates: string[];
+    positions?: (number[] | undefined)[];
+  }[] = [
+    ...([0, 6] as const).map((wkst) => ({
+      name: `weekly Wednesday DTSTART with WKST ${wkst}`,
+      input: { frequency: 'WEEKLY' as const, wkst, byweekday: [0] as Weekday[], count: 3 },
+      end: '2024-04-15',
+      dates: ['2024-03-18', '2024-04-01'],
+    })),
+    {
+      name: 'Sunday DTSTART in the preceding Monday week',
+      input: { frequency: 'WEEKLY', dtstart: '2024-03-03', wkst: 0, byweekday: [0] },
+      end: '2024-04-01',
+      dates: ['2024-03-11', '2024-03-25'],
+    },
+    {
+      name: 'Sunday DTSTART at the Sunday week boundary',
+      input: { frequency: 'WEEKLY', dtstart: '2024-03-03', wkst: 6, byweekday: [0] },
+      end: '2024-04-01',
+      dates: ['2024-03-04', '2024-03-18'],
+    },
+    {
+      name: 'COUNT 2 rejects the Monday before DTSTART',
+      input: { frequency: 'WEEKLY', byweekday: [0], count: 2 },
+      end: '2024-05-01',
+      dates: ['2024-03-18', '2024-04-01'],
+    },
+    {
+      name: 'COUNT 3 admits the third Monday in a wider window',
+      input: { frequency: 'WEEKLY', byweekday: [0], count: 3 },
+      end: '2024-05-01',
+      dates: ['2024-03-18', '2024-04-01', '2024-04-15'],
+    },
+    {
+      name: 'monthly day 1 retains the DTSTART month phase',
+      input: { frequency: 'MONTHLY', bymonthday: [1] },
+      end: '2024-08-01',
+      dates: ['2024-05-01', '2024-07-01'],
+    },
+    {
+      name: 'monthly weekdays retain the DTSTART month phase',
+      input: { frequency: 'MONTHLY', byweekday: [0] },
+      end: '2024-06-01',
+      dates: [
+        '2024-03-11',
+        '2024-03-18',
+        '2024-03-25',
+        '2024-05-06',
+        '2024-05-13',
+        '2024-05-20',
+        '2024-05-27',
+      ],
+      positions: [undefined],
+    },
+    {
+      name: 'monthly first weekday selects within the DTSTART month phase',
+      input: { frequency: 'MONTHLY', byweekday: [0] },
+      end: '2024-08-01',
+      dates: ['2024-05-06', '2024-07-01'],
+      positions: [[1]],
+    },
+    {
+      name: 'matching date-only Monday DTSTART is admitted first',
+      input: { frequency: 'WEEKLY', dtstart: '2024-03-04', wkst: 0, byweekday: [0], count: 3 },
+      end: '2024-04-15',
+      dates: ['2024-03-04', '2024-03-18', '2024-04-01'],
+    },
+    {
+      name: 'matching Monday DTSTART is admitted first',
+      input: {
+        frequency: 'WEEKLY',
+        dtstart: '2024-03-04T12:30',
+        wkst: 0,
+        byweekday: [0],
+        count: 3,
+      },
+      end: '2024-04-15',
+      dates: ['2024-03-04', '2024-03-18', '2024-04-01'],
+    },
+    {
+      name: 'matching monthly day 1 DTSTART is admitted first',
+      input: { frequency: 'MONTHLY', dtstart: '2024-03-01', bymonthday: [1], count: 3 },
+      end: '2024-08-01',
+      dates: ['2024-03-01', '2024-05-01', '2024-07-01'],
+    },
+    {
+      name: 'daily interval phase remains unchanged',
+      input: { frequency: 'DAILY', count: 3 },
+      end: '2024-04-01',
+      dates: ['2024-03-06', '2024-03-08', '2024-03-10'],
+    },
+  ];
+  for (const sample of cases) {
+    for (const bysetpos of sample.positions ?? [undefined, [1], [-1]]) {
+      it(`${sample.name}, BYSETPOS ${bysetpos ?? 'absent'}, cold and retained`, () => {
+        const input = set(
+          [rule({ dtstart: '2024-03-06', interval: 2, ...sample.input, bysetpos })],
+          [],
+        );
+        const window = { start: epoch('2024-03-01T00:00Z'), end: epoch(`${sample.end}T00:00Z`) };
+        const expected = sample.dates.map((date) =>
+          span(`${date}T09:00Z`, `${date}T17:00Z`, 'rule', 'a'),
+        );
+        const cold = expandRuleSet(input, window);
+        expect(cold.intervals).toEqual(expected);
+        expect(cold.complete).toBe(true);
+        expect(cold.truncated).toEqual([]);
+        clearExpandCache();
+        const containing = expandRuleSet(input, {
+          start: window.start - 7 * 24 * hour,
+          end: window.end + 7 * 24 * hour,
+        });
+        const retained = expandRuleSet(input, window);
+        expect(retained.envelope).toEqual(containing.envelope);
+        expect(retained.intervals).toEqual(cold.intervals);
+        expect(retained.complete).toBe(true);
+        expect(retained.truncated).toEqual([]);
+        expect(retained.stats.expanded).toBe(0);
+        expect(retained.stats.cacheHits).toBe(1);
+      });
+    }
+  }
+});
+
 describe('adapter positional selection and bounded periods', () => {
   it('applies weekly BYMONTH before BYSETPOS directly and through a containing envelope', () => {
     const input = set(

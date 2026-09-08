@@ -93,9 +93,7 @@ export function enumerate(
     1;
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    dtstart: (positional ? firstPeriod.toPlainDateTime(anchorWallTime) : anchor).toZonedDateTime(
-      'UTC',
-    ),
+    dtstart: firstPeriod.toPlainDateTime(anchorWallTime).toZonedDateTime('UTC'),
     // Positions must see the entire final period before UNTIL and envelope admission.
     until: positional
       ? lastPeriod
