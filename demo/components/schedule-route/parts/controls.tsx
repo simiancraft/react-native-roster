@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { next, prev } from 'react-native-roster/core';
+import { next, prev, today } from 'react-native-roster/core';
 import type { useScheduleRoute } from '../use-schedule-route';
 
 export function ScheduleControls(model: ReturnType<typeof useScheduleRoute>) {
@@ -16,11 +16,43 @@ export function ScheduleControls(model: ReturnType<typeof useScheduleRoute>) {
     view,
     setView,
   } = model;
+  const zoneExamples = model.showsZoneExamples ? (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+      {(['defaults', 'replacements'] as const).map((value) => (
+        <Control
+          key={value}
+          label={`Zones: ${value}`}
+          selected={model.zoneStyle === value}
+          onPress={() => model.setZoneStyle(value)}
+        />
+      ))}
+      <Control
+        label="Apia skipped date"
+        onPress={() =>
+          navigate({ span: 'week', anchorDate: '2011-12-26', timezone: 'Pacific/Apia' })
+        }
+      />
+      <Control
+        label="Chicago spring"
+        onPress={() =>
+          navigate({ span: 'week', anchorDate: '2024-03-04', timezone: 'America/Chicago' })
+        }
+      />
+      <Control
+        label="Chicago fall"
+        onPress={() =>
+          navigate({ span: 'week', anchorDate: '2024-10-28', timezone: 'America/Chicago' })
+        }
+      />
+      <Control label="Current week: now line" onPress={() => navigate(today(windowSpec))} />
+    </View>
+  ) : null;
   return (
     <View style={{ gap: 8 }}>
       <Text accessibilityRole="header" style={{ fontSize: 22, color: '#0f172a' }}>
         {fixture.title}
       </Text>
+      {zoneExamples}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         <Control label="Previous" onPress={() => navigate(prev(windowSpec))} />
         <Control label="Next" onPress={() => navigate(next(windowSpec))} />

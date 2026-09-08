@@ -30,6 +30,7 @@ const bridge: CounterBridgeInput = {
 export function useScheduleRoute(fixtureId: ScheduleFixtureId) {
   const fixture = scheduleFixtures[fixtureId];
   const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(fixture.windowSpec);
+  const [zoneStyle, setZoneStyle] = useState<'defaults' | 'replacements'>('defaults');
   const [pxPerHour, setPxPerHour] = useState(48);
   const [minuteStep, setMinuteStep] = useState(60);
   const [view, setView] = useState<'roster' | 'schedule' | 'both'>(
@@ -56,6 +57,9 @@ export function useScheduleRoute(fixtureId: ScheduleFixtureId) {
   }
   return {
     status: 'ready' as const,
+    zoneStyle,
+    setZoneStyle,
+    showsZoneExamples: fixtureId === 'schedule-every-zone',
     fixture,
     lane,
     windowSpec,
