@@ -9,10 +9,10 @@ A React Native read surface for layered intervals with provenance: a stack of la
 one per person or resource, against a shared time axis. Scan a column to see who is
 on; scan a row to see whether someone set anything at all.
 
-**API not yet shipped.** This repository currently contains package tooling and an
-Expo Router gallery shell. The three library entry points are empty typed modules.
-`Roster`, `Schedule`, the core types, and the recurrence adapter are planned APIs;
-there is no usable rendering API or installation quick start yet.
+**API not yet shipped.** The pure TypeScript core is implemented in this working tree:
+contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
+`Roster`, `Schedule`, and the recurrence adapter remain planned APIs. The Expo
+Router gallery is still a shell; there is no rendering API yet.
 
 ## Design
 
@@ -34,17 +34,80 @@ expansion belongs to an adapter. The planned `Roster` projects many lanes horizo
 | adapter | A function outside the core that converts upstream data into lanes and layers. |
 | schedule | One lane projected into days across and wall-clock hours down. |
 
-## Planned entry points
+## Entry points
 
-| Import | Planned contents | Status |
+| Import | Contents | Status |
 | --- | --- | --- |
-| `react-native-roster` | `Roster`, `Schedule`, zones, and core re-exports | Empty module |
-| `react-native-roster/core` | Types, layout, axis math, comparators, and counters | Empty module |
+| `react-native-roster` | Core re-exports; React surfaces are planned | Core implemented |
+| `react-native-roster/core` | Types, layout, coverage, axis helpers, and counters | Implemented |
 | `react-native-roster/rrule` | Recurrence expansion adapter | Empty module |
 
-The core will use only the standard library and `Intl`. The adapter will own
+The core uses only the standard library and `Intl`. The adapter will own
 `rrule-temporal` and `@js-temporal/polyfill`; neither is a runtime dependency yet.
 React, React Native, Expo, and `@legendapp/list` are peers.
+
+## Pure core
+
+```ts
+import { dayColumnsFor, layoutLane, windowFor } from 'react-native-roster/core';
+import type { Lane, Projection } from 'react-native-roster/core';
+
+const window = windowFor({
+  span: 'week',
+  anchorDate: '2024-03-10',
+  timezone: 'America/Chicago',
+});
+const lane: Lane = { id: 'one', label: 'One', layers: [] };
+const projection: Projection = {
+  orientation: 'columns',
+  viewTimezone: 'America/Chicago',
+  pxPerHour: 60,
+  columnWidth: 100,
+  days: dayColumnsFor(window, 'America/Chicago'),
+};
+const geometry = layoutLane(lane, window, projection);
+```
+
+`layoutLane` computes rects for visible lanes. `coverageFor(lane, window)` computes
+projection-independent union coverage for every lane. `flagFor` reads explicit
+flags first and can infer `empty-in-window`; it never infers `never-set`.
+Gaps carry provenance even after complete subtraction and are not subtracted again
+from coverage. Rect bounds include the layer inset and preserve exact milliseconds.
+Column `x` coordinates are local to the column; use `rect.column` to select it.
+
+`windowFor`, `prev`, `next`, and `today` accept a `WindowSpec`. Week bounds default
+to Monday. Local-day, week, and month bounds follow the view zone; custom windows
+remain absolute. Month navigation clamps an anchor to the target month's last day
+when necessary. `dayColumnsFor` returns whole local-day bounds intersecting the
+window. A skipped local date has no column; compare `localDate` values for a header
+gap. Date labels currently use English abbreviated weekdays.
+
+Columns have 24 equal hour bands. Skipped time is empty; repeated time uses two
+half-height sub-regions. `timeAtY(projection, columnIndex, y)` resolves the absolute
+occurrence or returns `null` in skipped time or outside a column. The horizontal
+projection has no origin field, so `timeAtX(projection, window, x)` takes the window
+and returns an epoch time at true elapsed length. `snapToStep` floors a
+pointer result to a positive divisor of 60 in the view zone and clamps at a crossed
+transition. Minute steps never change geometry or cache keys.
+
+Layout keys include lane id, version, window bounds, and every projection field.
+Without `lane.version`, a canonical structural encoding of `layers` supplies the
+content key. Bump a supplied version when layers change. Lane label, timezone,
+flag, completeness, and metadata never invalidate rects. Flag and coverage are
+read on every assembly; complete inputs retain their object references, including
+when revisiting a projection. Treat returned objects as read-only. Clear caches
+explicitly when their retained windows are no longer useful.
+
+`layoutStats` and `coverageStats` return cumulative `{ runs, cacheHits }` snapshots.
+`resetStats` resets counters without clearing keys; `clearLayoutCache` and
+`clearCoverageCache` clear keys without resetting counters. Target-warm means the
+exact requested keys exist; target-cold means they are absent.
+
+The deterministic fixture in `test/fixtures/workload.ts` produces **70 rects plus
+gap rects per lane per week** (63 rects and 7 gap rects) in either projection.
+Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks.
+Tests enforce separate 16 ms target-cold layout and coverage budgets and print the
+measured baselines. Device performance remains an issue #9 acceptance item.
 
 ## Gallery and platforms
 
@@ -55,8 +118,8 @@ React Native 0.81, React Native Web 0.21, and NativeWind 4.1. It currently displ
 The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/workflows/deploy-demo.yml)
 builds every pull request and deploys `main` to
 <https://simiancraft.github.io/react-native-roster/>. Deployment and device rendering
-have not yet been verified. Performance measurements, size gates, and browser
-interaction tests arrive in issue #9; no performance claims are made yet.
+have not yet been verified. Core workload timings run in the test gate. Device measurements, size gates, and
+browser interaction tests arrive in issue #9.
 
 ## Develop
 

@@ -39,6 +39,20 @@ describe('subpath exports', () => {
           : await import(specifier);
         assert.equal(typeof imported, 'object');
       }
+      const core = require('react-native-roster/core');
+      const root = require('react-native-roster');
+      assert.equal(root.layoutLane, core.layoutLane);
+      for (const name of [
+        'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
+        'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
+        'coverageStats', 'resetStats', 'clearLayoutCache', 'clearCoverageCache',
+      ]) assert.equal(typeof core[name], 'function');
+      const window = core.windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' });
+      const geometry = core.layoutLane({ id: 'one', label: 'One', layers: [] }, window, {
+        orientation: 'horizontal', viewTimezone: 'UTC', pxPerMinute: 1, rowHeight: 40,
+      });
+      assert.deepEqual(geometry.rects, []);
+      assert.equal(geometry.flag, 'none');
       process.stdout.write('ok');
     `;
     expect(
