@@ -218,7 +218,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
     select matching polyfill instances. Its iterator can replay, so deduplicate local
     dates before cap admission. Supply the implicit monthly day explicitly to avoid
-    a 31st drifting through February. Do not move COUNT anchors when skipping history.
+    a 31st drifting through February. Never advance DTSTART; filtered rules can change phase when re-anchored.
+    Enumerate from the original anchor, clamp UNTIL to the envelope query bound,
+    and skip out-of-envelope occurrences without consuming the cap.
 
 19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
     interval-hover.web.tsx resolves row-relative pointer movement against existing
@@ -283,3 +285,16 @@ Do not publish, tag, change repository settings, or push without task authorizat
     on narrow screens. The schedule
     every-zone fixture offers defaults/replacements and date presets to exercise
     skippedDateZone, transitionZone, and nowLineZone as well as the ordinary slots.
+
+29. **Cross-date rollbacks retain absolute column spans.** A local date's column
+    spans the first instant of that date to the first instant of the next.
+    Instants of an earlier wall-clock date inside that span draw at the top edge
+    as repeated time. Compress the surviving repeat span into the region from
+    y=0 to where ordinary wall time resumes; timeAtY uses that same scale to
+    recover the absolute occurrence. This covers St_Johns 2009 and Goose_Bay 1988.
+    Select columns by their absolute overlap even when a window ends during the rollback.
+30. **Empty roster windows have no body.** A wholly skipped day retains zero
+    contentWidth and a finite projection. Positive windows use their exact elapsed
+    duration, including sub-minute spans. Cell presses clamp a floor below start
+    to start and reject any snapped time at or beyond end. Adapter input validation
+    also runs for empty windows, without enumerating occurrences.

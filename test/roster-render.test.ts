@@ -46,6 +46,19 @@ describe('Roster zones and rect primitives', () => {
     expect(tree.root.findByType('custom-empty' as ElementType)).toBeDefined();
     close(tree);
   });
+  it('renders no body for a wholly skipped local day', () => {
+    const bodyZone = mock(() => createElement('custom-body'));
+    const tree = render(
+      createElement(Roster, {
+        lanes: rosterFixtures['single-lane'].lanes,
+        windowSpec: { span: 'day', anchorDate: '2011-12-30', timezone: 'Pacific/Apia' },
+        bodyZone,
+      }),
+    );
+    expect(tree.toJSON()).toBeNull();
+    expect(bodyZone).not.toHaveBeenCalled();
+    close(tree);
+  });
   it('composes defaults, virtualizes at fixed height, and supplies all resolved label data', () => {
     const lanes = rosterFixtures['never-set'].lanes;
     const tree = render(

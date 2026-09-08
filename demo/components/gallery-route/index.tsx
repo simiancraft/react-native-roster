@@ -21,6 +21,7 @@ export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
     selection,
   } = model;
   const { zones, showsEmptyExample } = fixture;
+  const bodyZone = __DEV__ && fixtureId === '200-lanes' ? ProfiledBody : zones?.bodyZone;
   const emptyExample = showsEmptyExample ? (
     <Roster lanes={[]} windowSpec={windowSpec} {...zones} />
   ) : null;
@@ -51,7 +52,7 @@ export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
           onGapPress={selectRect}
           onCellPress={selectCell}
           {...zones}
-          bodyZone={__DEV__ && fixtureId === '200-lanes' ? ProfiledBody : zones?.bodyZone}
+          bodyZone={bodyZone}
         />
       }
       countersZone={

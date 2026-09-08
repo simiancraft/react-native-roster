@@ -16,14 +16,15 @@ export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
   const days: DayColumn[] = [];
   if (window.start >= window.end) return days;
   let localDate = localDateAt(window.start, timezone);
-  const lastDate = localDateAt(window.end - 1, timezone);
-  while (localDate <= lastDate) {
+  let start = startOfDate(localDate, timezone);
+  // After a rollback across midnight, the wall date can lag the column whose
+  // first instant has already passed. Walk until the next absolute date start.
+  while (start < window.end) {
     const nextDate = dateString(dateEpoch(localDate) + dayMilliseconds);
+    const end = startOfDate(nextDate, timezone);
     const key = JSON.stringify([localDate, timezone]);
     let day = columns.get(key);
     if (day === undefined) {
-      const start = startOfDate(localDate, timezone);
-      const end = startOfDate(nextDate, timezone);
       day =
         start < end
           ? {
@@ -39,8 +40,9 @@ export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
           : null;
       columns.set(key, day);
     }
-    if (day) days.push(day);
+    if (day && day.end > window.start) days.push(day);
     localDate = nextDate;
+    start = end;
   }
   return days;
 }

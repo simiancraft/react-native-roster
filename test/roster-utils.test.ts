@@ -112,8 +112,8 @@ describe('roster pure helpers', () => {
     const parts = spyOn(Intl.DateTimeFormat.prototype, 'formatToParts');
     try {
       const ticks = ticksFor(window, spec, { ...projection, pxPerMinute: 3 }, 15);
-      // Cached day columns need only the two local dates bounding the window.
-      expect(parts).toHaveBeenCalledTimes(2);
+      // Cached day columns need only the local date at the window start.
+      expect(parts).toHaveBeenCalledTimes(1);
       parts.mockClear();
       expect(ticksFor({ ...window }, { ...spec }, { ...projection, pxPerMinute: 3 }, 15)).toBe(
         ticks,

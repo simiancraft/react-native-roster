@@ -15,6 +15,8 @@ export function enumerate(
   input: RosterRule | RosterDate,
   envelope: Window,
   cap: number,
+  // Internal reference path for testing against original-anchor enumeration.
+  advanceAnchor = true,
 ): Occurrences {
   const result: Occurrences = { spans: [], capped: false };
   const admit = (date: TemporalModule.Temporal.PlainDate): boolean => {
@@ -33,11 +35,6 @@ export function enumerate(
     return result;
   }
   const original = zoned(input.dtstart, input.timezone);
-  // Query whole local dates, including the date crossing the envelope's left edge.
-  // Occurrence anchors and the displayed hour span can have different times of day.
-  const lower = Temporal.Instant.fromEpochMilliseconds(envelope.start)
-    .toZonedDateTimeISO(input.timezone)
-    .startOfDay();
   const upper = Temporal.Instant.fromEpochMilliseconds(envelope.end)
     .toZonedDateTimeISO(input.timezone)
     .add({ days: 1 })
@@ -45,7 +42,13 @@ export function enumerate(
   const until = input.until === undefined ? upper : zoned(input.until, input.timezone, true);
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    dtstart: input.count === undefined ? advance(original, lower, input) : original,
+    // Only interval 1 preserves filtered phase; COUNT needs its lifetime anchor.
+    dtstart:
+      advanceAnchor &&
+      (input.interval === undefined || input.interval === 1) &&
+      input.count === undefined
+        ? advance(original, envelope, input)
+        : original,
     until: Temporal.ZonedDateTime.compare(until, upper) < 0 ? until : upper,
     count: input.count,
     interval: input.interval,
@@ -79,6 +82,16 @@ export function enumerate(
   return result;
 }
 
+// Validate temporal fields even when the display window has no elapsed time.
+export function validateDates(input: RosterRule | RosterDate): void {
+  if ('date' in input) {
+    Temporal.PlainDate.from(input.date).toZonedDateTime(input.timezone);
+    return;
+  }
+  zoned(input.dtstart, input.timezone);
+  if (input.until !== undefined) zoned(input.until, input.timezone, true);
+}
+
 function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
   const midnight = date.toPlainDateTime();
   const dayStart = date.toZonedDateTime(input.timezone);
@@ -108,21 +121,23 @@ function zoned(
   return Temporal.PlainDateTime.from(value).toZonedDateTime(timezone);
 }
 
-// Skip old periods only without COUNT: moving its anchor would reset lifetime count.
-// Keep the original day and time, and back up one period so WKST/BYDAY cannot lose
+// Keep the original wall time and back up one period so WKST/BYDAY cannot lose
 // an earlier candidate. A monthly jump must never constrain the 31st to the 28th.
 function advance(
   original: TemporalModule.Temporal.ZonedDateTime,
-  lower: TemporalModule.Temporal.ZonedDateTime,
+  envelope: Window,
   input: RosterRule,
 ): TemporalModule.Temporal.ZonedDateTime {
+  // Include the local date crossing the left edge, regardless of anchor wall time.
+  const lower = Temporal.Instant.fromEpochMilliseconds(envelope.start)
+    .toZonedDateTimeISO(input.timezone)
+    .startOfDay();
   const unit =
     input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
-  const interval = input.interval ?? 1;
   const distance = original.toPlainDate().until(lower.toPlainDate(), { largestUnit: unit })[unit];
-  let steps = Math.max(0, Math.floor(distance / interval) - 1);
+  let steps = Math.max(0, distance - 1);
   while (steps > 0) {
-    const candidate = original.add({ [unit]: steps * interval });
+    const candidate = original.add({ [unit]: steps });
     if (unit !== 'months' || candidate.day === original.day) return candidate;
     steps--;
   }

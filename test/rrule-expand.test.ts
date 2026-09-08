@@ -9,6 +9,7 @@ import {
   expandStats,
   resetExpandStats,
 } from '../src/rrule';
+import { enumerate } from '../src/rrule/occurrences';
 
 const hour = 3_600_000;
 const epoch = Date.parse;
@@ -419,6 +420,79 @@ describe('caps', () => {
 });
 
 describe('recurrence fields and local boundaries', () => {
+  for (const frequency of ['DAILY', 'WEEKLY', 'MONTHLY'] as const) {
+    const filters: Record<string, Partial<RosterRule>> = {
+      byweekday: { byweekday: [0, 4] },
+      bymonthday: { bymonthday: [1, 4, 11, 18, 25, -1] },
+      bysetpos: { bysetpos: [-1] },
+      combined: { byweekday: [0, 4], bymonthday: [1, 4, 11, 18, 25, -1], bysetpos: [-1] },
+    };
+    for (const [name, filter] of Object.entries(filters)) {
+      it(`matches original-anchor enumeration for interval-1 ${frequency} with ${name}`, () => {
+        for (const interval of [undefined, 1]) {
+          for (const start of ['2024-03-01T18:00Z', '2024-03-02T18:00Z', '2024-04-02T18:00Z']) {
+            const window = { start: epoch(start), end: epoch('2024-06-01') };
+            const input = rule({
+              frequency,
+              interval,
+              dtstart: '2014-01-31T18:30',
+              timezone: 'America/Chicago',
+              wkst: 6,
+              ...filter,
+            });
+            const reference = enumerate(input, window, 400, false);
+            expect(reference.capped).toBe(false);
+            expect(reference.spans.length).toBeGreaterThan(0);
+            expect(enumerate(input, window, 400)).toEqual(reference);
+          }
+        }
+      });
+    }
+
+    it(`keeps the lifetime COUNT anchor for interval-1 ${frequency} rules`, () => {
+      for (const interval of [undefined, 1]) {
+        const input = rule({ frequency, interval, dtstart: '2014-01-31', count: 2 });
+        const reference = enumerate(input, window, 400, false);
+        expect(reference).toEqual({ spans: [], capped: false });
+        expect(enumerate(input, window, 400)).toEqual(reference);
+      }
+    });
+  }
+
+  it('preserves filtered DAILY phase across display windows and retained envelopes', () => {
+    const input = set(
+      [rule({ dtstart: '2023-01-31', interval: 2, byweekday: [0], hourend: 10 })],
+      [],
+    );
+    const expected = [
+      span('2024-03-04T09:00Z', '2024-03-04T10:00Z', 'rule', 'a'),
+      span('2024-03-18T09:00Z', '2024-03-18T10:00Z', 'rule', 'a'),
+    ];
+    for (const start of ['2024-03-01', '2024-03-02']) {
+      const window = { start: epoch(start), end: epoch('2024-04-01') };
+      clearExpandCache();
+      const narrow = expandRuleSet(input, window);
+      expect(narrow.intervals).toEqual(expected);
+      expect(narrow.complete).toBe(true);
+      clearExpandCache();
+      const broad = expandRuleSet(input, { start: epoch('2023-01-31'), end: window.end });
+      expect(broad.intervals.filter((span) => span.start >= window.start)).toEqual(expected);
+      const retained = expandRuleSet(input, window);
+      expect(retained.intervals).toEqual(expected);
+      expect(retained.stats.expanded).toBe(0);
+      clearExpandCache();
+      const counted = expandRuleSet(
+        set(
+          input.rules.map((rule) => ({ ...rule, count: 10000 })),
+          [],
+        ),
+        window,
+      );
+      expect(counted.intervals).toEqual(expected);
+      expect(counted.complete).toBe(true);
+    }
+  });
+
   it('maps monthly filters, last positions, and inclusive date UNTIL', () => {
     const output = expandRuleSet(
       set(
@@ -438,7 +512,7 @@ describe('recurrence fields and local boundaries', () => {
     expect(output.intervals).toEqual([span('2024-03-29T09:00Z', '2024-03-29T17:00Z', 'rule', 'a')]);
   });
 
-  it('preserves the 31st when advancing monthly anchors across February', () => {
+  it('preserves the 31st across February from the original monthly anchor', () => {
     const output = expandRuleSet(set([rule({ dtstart: '2020-01-31', frequency: 'MONTHLY' })], []), {
       start: epoch('2024-04-02'),
       end: epoch('2024-06-01'),
@@ -595,6 +669,29 @@ describe('validation', () => {
     }
     expect(expandStats().expanded).toBe(0);
     expect(expandRuleSet(set(), { start: 1, end: 1 }).complete).toBe(true);
+  });
+
+  it('rejects invalid temporal fields identically before empty-window expansion', () => {
+    for (const input of [
+      set([], [date({ date: 'invalid', timezone: 'invalid' })]),
+      set([], [date({ date: '2024-02-30' })]),
+      set([], [date({ timezone: 'invalid' })]),
+      set([rule({ dtstart: 'invalid' })], []),
+      set([rule({ dtstart: '2024-02-30' })], []),
+      set([rule({ until: 'invalid' })], []),
+      set([rule({ until: '2024-02-30' })], []),
+      set([rule({ timezone: 'invalid' })], []),
+    ]) {
+      let failure: unknown;
+      try {
+        expandRuleSet(input, { start: 0, end: 1 });
+      } catch (error) {
+        failure = error;
+      }
+      expect(failure).toBeInstanceOf(RangeError);
+      expect(() => expandRuleSet(input, { start: 0, end: 0 })).toThrow(failure as Error);
+    }
+    expect(expandStats().expanded).toBe(0);
   });
 
   it('rejects invalid windows and limits', () => {

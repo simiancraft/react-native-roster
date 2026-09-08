@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, setSystemTime, spyOn } from 'bun:test';
-import type { DayColumn, Interval, Lane, Layer, Projection, WindowSpec } from '../src/core';
+import type { DayColumn, Interval, Lane, Layer, Projection, Rect, WindowSpec } from '../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -201,7 +201,7 @@ describe('transition geometry and pointer inversion', () => {
       expect(snapToStep(second, 60, timezone)).toBe(at);
       // Only the pointer instant is formatted for its floor and local date;
       // no day-boundary or transition instants are probed again.
-      expect(formatToParts.mock.calls.map(([time]) => time)).toEqual([second, second, second]);
+      expect(formatToParts.mock.calls.map(([time]) => time)).toEqual([second, second]);
 
       formatToParts.mockClear();
       snapToStep(second, 60, 'UTC');
@@ -268,6 +268,48 @@ describe('transition geometry and pointer inversion', () => {
     expect(snapToStep(at - 15 * minute, 60, columns.viewTimezone)).toBe(at - hour);
     expect(snapToStep(at + 75 * minute, 60, columns.viewTimezone)).toBe(at + hour);
   });
+
+  for (const [timezone, anchorDate, transition, delta] of [
+    ['America/St_Johns', '2009-11-01', '2009-11-01T02:31:00Z', 60],
+    ['America/Goose_Bay', '1988-10-30', '1988-10-30T02:01:00Z', 120],
+  ] as const) {
+    it(`keeps cross-date rollback rects and pointers inside ${timezone} columns`, () => {
+      const { window, columns } = projection(anchorDate, timezone);
+      const at = Date.parse(transition);
+      const start = at + 1000;
+      const end = at + 31000;
+      const day = columns.days[6] as DayColumn;
+      expect(day.localDate).toBe(anchorDate);
+      expect(localDateAt(start, timezone)).not.toBe(anchorDate);
+      const geometry = layoutLane(lane(start, end), window, columns);
+      expect(geometry.rects).toHaveLength(1);
+      const rect = geometry.rects[0] as Rect;
+      expect(rect.column).toBe(6);
+      expect(rect.y).toBeGreaterThanOrEqual(0);
+      expect(rect.y + rect.height).toBeLessThanOrEqual(1440);
+      expect(rect.y).toBeCloseTo(61 / 60 / (delta + 1), 10);
+      expect(rect.height).toBeCloseTo(0.5 / (delta + 1), 10);
+      expect(timeAtY(columns, 6, rect.y)).toBeCloseTo(start, 2);
+      expect(timeAtY(columns, 6, rect.y + rect.height / 2)).toBeCloseTo(start + 15000, 2);
+      expect(geometry.gapRects).toEqual(geometry.rects);
+      const full = layoutLane(lane(window.start, window.end), window, columns);
+      for (const rect of full.rects) {
+        expect(rect.y).toBeGreaterThanOrEqual(0);
+        expect(rect.y).toBeLessThan(1440);
+        expect(rect.y + rect.height).toBeLessThanOrEqual(1440);
+      }
+      expect(timeAtY(columns, 6, 0)).toBe(day.start);
+      expect(timeAtY(columns, 6, 1 / (delta + 1))).toBe(at);
+      expect(timeAtY(columns, 6, 1)).toBe(at + delta * minute);
+      expect(localDateAt(timeAtY(columns, 6, 540) as number, timezone)).toBe(anchorDate);
+      const narrow = dayColumnsFor({ start, end }, timezone);
+      expect(narrow).toEqual([day]);
+      expect(dayColumnsFor({ start: day.start, end }, timezone)).toEqual([day]);
+      expect(
+        dayColumnsFor({ start: day.start - 1, end }, timezone).map((day) => day.localDate),
+      ).toEqual([localDateAt(day.start - 1, timezone), anchorDate]);
+    });
+  }
 
   it('keeps 09:00 aligned over all seven days in spring and fall', () => {
     for (const anchor of ['2024-03-10', '2024-11-03']) {

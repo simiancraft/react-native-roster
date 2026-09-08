@@ -91,7 +91,10 @@ to 48 and `pxPerMinute` to a minimum of 0.5, growing to fit wider viewports.
 
 ## Quick start: recurring local hours
 
-The adapter is an explicit subpath import. Expand once for the selected window,
+The adapter is an explicit subpath import. Every rule and date is validated even
+for zero-duration windows. Recurrence keeps its original `dtstart` so changing
+the display window preserves phase; out-of-envelope occurrences consume no cap.
+Expand once for the selected window,
 then map the result into a layer. This complete example can replace the static
 example in the same scratch route (use a default export for Expo Router).
 
@@ -217,7 +220,10 @@ coverage; a new projection requires geometry. Equal absolute bounds reuse covera
 Presses resolve one result: intervals before gaps, highest z first, and later
 layers winning equal-z ties. `onIntervalPress(rect, lane)` and
 `onGapPress(rect, lane)` return the exact contributing sources.
-`onCellPress(lane, time)` returns snapped absolute time for empty space.
+`onCellPress(lane, time)` returns snapped absolute time for empty space, clamped
+up to `window.start` and rejected at or beyond `window.end`. Positive windows use
+their exact elapsed width, including sub-minute spans; a zero-duration window
+renders no Roster body.
 `onIntervalHover(rect, lane)` is Roster's web-only pointer callback.
 `highlightSource={{ kind: 'rule', id: 'one' }}` uses `highlightColor` across all
 matching rects without new geometry. Sorting defaults to `byLabel`;
@@ -282,6 +288,11 @@ a 48 px gutter, and fits actual day columns without horizontal scrolling.
 
 Every day has 24 equal wall-hour bands. Skipped time is empty and fires no press;
 repeated time has two half-height regions resolving to different instants.
+Each column spans its date's first instant to the next date's first instant.
+Rollbacks across midnight, such as St_Johns in 2009 and Goose_Bay in 1988, retain
+that absolute span and compress earlier-date instants into a repeat at the top
+edge, ending where ordinary wall time resumes. Pointer inversion preserves the
+absolute occurrence.
 A wholly skipped date has no column. Horizontal Roster instead uses true elapsed
 time, so Chicago's transition weeks are 167 and 169 hours wide. Rects split at
 midnight, offset scale boundaries, and source-set changes. Column x coordinates

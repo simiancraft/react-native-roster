@@ -41,12 +41,12 @@ export function useRoster(input: RosterInput): RosterModel {
     !Number.isFinite(pxPerMinute)
   )
     throw new RangeError('rowHeight and pxPerMinute must be positive finite numbers');
-  const duration = Math.max(1, (window.end - window.start) / 60_000);
+  const duration = (window.end - window.start) / 60_000;
   const projection: RosterProjection = {
     orientation: 'horizontal',
     viewTimezone: windowSpec.timezone,
     rowHeight,
-    pxPerMinute: Math.max(pxPerMinute, viewport.width / duration),
+    pxPerMinute: Math.max(pxPerMinute, duration === 0 ? 0 : viewport.width / duration),
   };
   const contentWidth = duration * projection.pxPerMinute;
   const coverage = new Map(lanes.map((lane) => [lane.id, coverageFor(lane, window)]));
@@ -86,8 +86,11 @@ export function useRoster(input: RosterInput): RosterModel {
         onGapPress?.(hit.rect, lane);
         return;
       }
-      const time = snapToStep(timeAtX(projection, window, pointX), minuteStep, viewTimezone);
-      onCellPress?.(lane, Math.max(window.start, time));
+      const time = Math.max(
+        window.start,
+        snapToStep(timeAtX(projection, window, pointX), minuteStep, viewTimezone),
+      );
+      if (time < window.end) onCellPress?.(lane, time);
     };
   });
   return {
