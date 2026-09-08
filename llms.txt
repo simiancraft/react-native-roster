@@ -69,10 +69,12 @@ No `.js` extensions on relative imports in src. No consumer-specific entities.
 - Body scroll drives Reanimated shared x and y values. Vertical scrolling never updates React state. All lane labels share one translated column. LegendList extraData keys window, projection, highlight identity, and rect zone fillers. Reanimated is an optional peer for core-only installs, required for rendering.
 - All eight zone props are render functions: emptyZone, laneLabelZone, headerCellZone, intervalZone, gapZone, headerZone, laneLabelColumnZone, and bodyZone. Default fillers are exported from the root.
 - intervalZone supplies a View positioned by rect bounds and z; gapZone fills an already positioned pressable. Default gap content is null.
+- onIntervalHover(rect, lane) reports the winning interval as a web pointer moves; native attaches no hover handler. Both variants share interval-hover.types.ts and a browser remap.
 - press chooses intervals, then gaps, then snapped empty space; highest z and later-layer ties win. Only one callback fires. highlightSource compares kind and id.
+- Highlighting and sorting retain geometry. Warm target viewport keys yield zero expanded, layout runs, and coverage runs; newly visible lanes with absent geometry keys require layout.
 - byLabel is the default comparator. byCoverage accepts measure availability or availabilityMinusBooking, sorts descending, and breaks ties by label.
-- complete is lane.complete ?? true. incompleteLabel defaults to Availability may be incomplete; neverSetLabel defaults to No availability set.
-- The seven gallery routes use static test fixtures and offer span, step, view timezone, and sort controls. Expo SDK 54 experiments.reactCompiler is enabled. window.__roster exposes live layoutStats, coverageStats, resetStats, clearLayoutCache, and clearCoverageCache functions with stable bridge identity. Only on-screen counters sample every 500 ms. Fixture records own zones and showsEmptyExample.
+- complete is lane.complete ?? true. An incomplete lane also shows its notice in the first empty row span. incompleteLabel defaults to Availability may be incomplete; neverSetLabel defaults to No availability set.
+- Gallery routes cover presses, gaps, equal-z precedence, highlighting across 20 lanes, coverage sorting across 200 lanes, flags, and incomplete expansion. Highlight and incomplete routes call the rrule adapter. All offer span, step, view timezone, and sort controls plus a sources readout. Expo SDK 54 experiments.reactCompiler is enabled. window.__roster exposes live layoutStats, coverageStats, resetStats, clearLayoutCache, clearCoverageCache, expandStats, resetExpandStats, and clearExpandCache functions with stable bridge identity. Only on-screen counters sample every 500 ms. Fixture records own zones and showsEmptyExample.
 - iOS and Android scrolling and React DevTools LaneRow render counts still need the device pass.
 
 ## Adapter usage constraints
