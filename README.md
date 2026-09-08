@@ -222,9 +222,12 @@ Date-only UNTIL admits only local dates at or before the authored date, even whe
 its final hour or the whole date is skipped. Datetime UNTIL compares exact instants
 at the original anchor's wall time, preferring its offset during repeats and using
 compatible disambiguation otherwise. A datetime UNTIL before DTSTART admits nothing.
-The engine receives the end of that local date, clamped to the envelope query
-bound, so DST iteration drift cannot change UNTIL admission between direct
-expansion and retained envelopes.
+The engine iterates the anchor's local wall date-time in UTC calendar space, with
+the end of UNTIL's local date as a UTC bound, clamped to the corresponding envelope
+bound. The adapter drops wholly nonexistent dates before counting existing dates
+from the original anchor for COUNT. A skipped date never becomes a different weekday
+or consumes COUNT. UNTIL admission stays consistent across direct expansion and
+retained envelopes.
 A new absolute window requires coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
 Presses resolve one result: intervals before gaps, highest z first, and later

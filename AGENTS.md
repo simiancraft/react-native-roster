@@ -214,24 +214,28 @@ Do not publish, tag, change repository settings, or push without task authorizat
     by containment; only retained per-rule entries guarantee expanded 0. The default
     LRUs retain 2000 occurrence entries and 4 envelopes shared across sets; clear discarded windows
     explicitly. Source identity and notes are attached during assembly.
-18. **The pinned recurrence engine needs two compatibility details.** 1.5.2 has a
+18. **The pinned recurrence engine needs compatibility handling.** 1.5.2 has a
     CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
     select matching polyfill instances. Its iterator can replay, so deduplicate local
-    dates before cap admission. Supply the implicit monthly day explicitly to avoid
-    a 31st drifting through February. Only interval-1 rules without COUNT and with
-    an exactly local-midnight anchor may skip periods. Compute candidates in plain
+    dates before COUNT or cap admission. Drive the engine in UTC calendar space using
+    the anchor's local wall date-time interpreted as UTC, so a wholly skipped date
+    cannot normalize into another weekday. Do not pass COUNT to the engine; drop
+    nonexistent dates before counting existing dates from the original anchor.
+    Supply the implicit monthly day explicitly to avoid a 31st drifting through
+    February. Only interval-1 rules without COUNT and with an exactly local-midnight
+    anchor may skip periods. Compute candidates in plain
     date space, retaining the weekly weekday and monthly day, and step back past
-    nonexistent dates. All other rules retain the original anchor, including
-    non-midnight times whose iteration can shift through a DST gap.
-    Give the engine the end of UNTIL's local date, clamped to the envelope query
-    bound. Before cap admission, compare each emitted date at the original anchor's
-    wall time against the exact inclusive datetime UNTIL instant, preferring the
+    nonexistent dates. All other rules retain the original anchor.
+    Give the engine the end of UNTIL's local date interpreted as UTC, clamped to
+    the corresponding UTC calendar bound of the envelope query. Before cap admission,
+    compare each emitted date at the original anchor's wall time against the exact
+    inclusive datetime UNTIL instant, preferring the
     original offset in repeats and using compatible disambiguation otherwise.
     Preserve that offset when advancing anchors too. A datetime UNTIL before the
     original DTSTART admits nothing. Date-only UNTIL compares PlainDates, so a
     skipped final hour or wholly skipped date never admits a later local date.
-    This prevents DST iteration drift from changing results across anchor paths
-    or retained envelopes. Skip out-of-envelope occurrences without consuming the cap.
+    This preserves results across anchor paths and retained envelopes. Skip
+    out-of-envelope occurrences without consuming the cap.
 
 19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
     interval-hover.web.tsx resolves row-relative pointer movement against existing
