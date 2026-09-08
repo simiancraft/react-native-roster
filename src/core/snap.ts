@@ -28,9 +28,15 @@ export function timeAtY(
   if (!day || y < 0 || y >= 24 * projection.pxPerHour) return null;
   const minute = (y * 60) / projection.pxPerHour;
   for (const piece of scalePieces(day, projection.viewTimezone)) {
-    const endMinute = piece.minute + ((piece.end - piece.start) / 60_000) * piece.scale;
-    if (minute >= piece.minute && minute < endMinute) {
-      return piece.start + ((minute - piece.minute) * 60_000) / piece.scale;
+    if (
+      minute >= piece.minute &&
+      minute < piece.minute + ((piece.end - piece.start) / 60_000) * piece.scale
+    ) {
+      // Epoch addition can round an interior pointer to the exclusive boundary.
+      return Math.min(
+        piece.end - 1,
+        piece.start + ((minute - piece.minute) * 60_000) / piece.scale,
+      );
     }
   }
   return null;
