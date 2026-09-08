@@ -29,14 +29,14 @@ behavior. State any interpretation in the delivery report.
 ```text
 src/
   index.ts                 # public React entry; re-exports ./core, otherwise empty
-  core/index.ts            # empty pure core entry; types and geometry arrive in #3
+  core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   rrule/index.ts           # empty adapter entry; recurrence expansion arrives in #4
   components/              # planned Roster (#5) and Schedule (#11) chassis and zones
-  lib/                     # planned pure geometry, axis math, and helpers
+  core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
   lib/package-version.ts   # validates and rewrites only the package version
-test/                      # Bun tests; fixture generator arrives in #3
+test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # static roster shell and build identity
@@ -157,5 +157,24 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-6. **An empty API is intentional at bootstrap.** Do not advertise planned components
-   as shipped. Preserve the three entry points while later issues fill them.
+6. **The core is implemented; React surfaces are planned.** Do not advertise planned
+   components or the empty recurrence adapter as shipped. Preserve all entry points.
+7. **Horizontal pointer origin belongs to the window.** The horizontal projection
+   has no origin field, so `timeAtX(projection, window, x)` takes the window and
+   returns an absolute time.
+   Column rect x coordinates reset per column; select it using `rect.column`.
+8. **Intl-only zone math lives in core/zone.ts.** It uses explicit Gregorian and
+   Latin-digit formatting, `formatToParts`, and UTC Date arithmetic. The Gregorian
+   era field preserves years near 0001; h23 plus a modulo-24 normalization handles
+   midnight formatting. Hourly probes bracket IANA offset changes, then binary
+   search locates exact boundaries. Two offset changes within one probe hour are
+   outside this helper's assumption. Hermes formatToParts/device behavior still
+   needs device verification; no extra Intl operation or dependency was added.
+9. **Cache lifecycle is explicit.** A supplied version must change with layers;
+   absent versions use a canonical structural encoding of layers only. Returned
+   references are read-only by convention. Clear retained caches when a consumer
+   discards old windows. Flag and coverage assembly does not invalidate rects.
+10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 rects
+    plus gap rects per lane per week (63 rects, 7 gap rects), in either projection.
+    The test measures target-cold layout of 24 visible lanes and coverage of all
+    200 lanes separately against 16 ms. Rendering and device gates remain in #9.

@@ -1,8 +1,8 @@
 # react-native-roster
 
 > A React Native read surface for layered intervals with provenance across lanes
-> and a shared time axis. API not yet shipped; all three entry points are empty
-> typed modules. Do not suggest imports of planned functions as working code.
+> and a shared time axis. API not yet shipped. Pure core types, geometry, coverage,
+> caches, and axis helpers are implemented; React surfaces and the adapter are planned.
 
 ## Vocabulary
 
@@ -19,7 +19,7 @@
 | adapter | A function outside the core that converts upstream data into lanes and layers. |
 | schedule | One lane projected into days across and wall-clock hours down. |
 
-## Planned contract
+## Contract
 
 The authoritative contract is issue #3. A lane contains layers; a layer contains
 covered intervals and removed gaps. Both carry `sources: Source[]`. Absolute time
@@ -35,8 +35,8 @@ and Temporal belong exclusively to the future adapter.
 
 ## Entry points
 
-- `react-native-roster`: planned React surfaces and core re-exports; empty today.
-- `react-native-roster/core`: planned pure types, geometry, axis math, and counters; empty today.
+- `react-native-roster`: core re-exports; React surfaces remain planned.
+- `react-native-roster/core`: pure types, geometry, coverage, axis helpers, and counters.
 - `react-native-roster/rrule`: planned recurrence adapter; empty today.
 - `react-native-roster/package.json`: package metadata.
 
@@ -44,10 +44,26 @@ Metro resolves the `react-native` condition to TypeScript source. Other runtimes
 resolve the default condition to emitted CommonJS. Type declarations live in dist.
 No `.js` extensions on relative imports in src. No consumer-specific entities.
 
+## Core usage constraints
+
+- `layoutLane(lane, window, projection)` is for visible lanes; `coverageFor(lane, window)` is for every lane.
+- `flagFor` honors explicit flags, infers only `empty-in-window`, and never infers `never-set` or completeness.
+- Geometry preserves exact bounds and source sets, applies inset, and splits at column and transition scale boundaries.
+- Columns use local `x` coordinates and `rect.column`; repeated time has two half-height sub-regions.
+- `timeAtY` returns an epoch time or null. Horizontally, `timeAtX(projection, window, x)` returns an epoch time at true elapsed length; the window supplies the origin the projection lacks.
+- `snapToStep` floors in the view zone and clamps at transitions; the step must be a positive divisor of 60.
+- `WindowSpec` supports day, week, month, and custom spans. Use windowFor, prev, next, and today; week starts Monday by default.
+- Month navigation clamps short-month anchors. Day columns have full local-day bounds, English weekday labels, localDate, and transitions. Skipped dates have no column.
+- Cache keys use lane id, version or a canonical structural layers encoding, window, and all projection fields. Coverage excludes projection. Lane display metadata and completeness never enter keys.
+- Bump version when layers change. Treat returned references as read-only. Flags and coverage are assembled fresh while rects are reused.
+- layoutStats and coverageStats count runs and cacheHits; resetStats clears counters only. clearLayoutCache and clearCoverageCache clear keys only.
+- The deterministic workload fixture emits 70 rects plus gap rects per lane per week: 63 rects and 7 gap rects. Workload W has 200 lanes, two layers, 24 visible lanes, and 15-minute ticks.
+- Intl formatToParts supplies zone offsets. Hourly transition probes are refined to millisecond boundaries. No Temporal, recurrence, or React imports in core.
+
 ## Key files
 
-- [README](./README.md): status, planned surface, development, and scope.
-- [Type contract](https://github.com/simiancraft/react-native-roster/issues/3): authoritative planned types.
+- [README](./README.md): status, core usage, development, and scope.
+- [Type contract](https://github.com/simiancraft/react-native-roster/issues/3): authoritative types.
 - [Plan](https://github.com/simiancraft/react-native-roster/issues/1): feature order and performance acceptance.
 - [AGENTS.md](https://github.com/simiancraft/react-native-roster/blob/main/AGENTS.md): contributor conventions.
 - [NOTICE.md](https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md): third-party attribution.
