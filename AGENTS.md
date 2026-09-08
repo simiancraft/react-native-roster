@@ -246,6 +246,15 @@ Do not publish, tag, change repository settings, or push without task authorizat
     admits a later local date.
     This preserves results across anchor paths and retained envelopes. Skip
     out-of-envelope occurrences without consuming the cap.
+    The adapter owns BYSETPOS after every other BYxxx filter, grouping plain dates
+    by day, WKST week, or year-month before deduplication, UNTIL, COUNT, and cap admission.
+    Positional enumeration includes complete edge periods, then rejects dates before
+    DTSTART and spans outside the envelope. The engine iteration limit is the number
+    of authored periods from the enumeration anchor through the query bound, so empty
+    candidate periods terminate completely without an arbitrary cutoff. Only that
+    exact engine limit error signals completed enumeration; other failures propagate.
+    Replayed iterator passes stop before buffering positional candidates.
+    YEARLY is unsupported and rejected by input validation.
 
 19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
     interval-hover.web.tsx resolves row-relative pointer movement against existing

@@ -1,6 +1,6 @@
 import type * as TemporalModule from '@js-temporal/polyfill';
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
-import type { Window } from '../core';
+import type { Weekday, Window } from '../core';
 import type { Occurrences } from './cache';
 import type { RosterDate, RosterRule } from './types';
 
@@ -78,13 +78,38 @@ export function enumerate(
     anchorWallTime.equals('00:00')
       ? advance(originalWall, envelope, input)
       : originalWall;
+  const positional = !!input.bysetpos?.length;
+  const unit = periodUnit(input);
+  const firstPeriod = periodStart(anchor.toPlainDate(), input);
+  const bound =
+    Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate;
+  const lastPeriod = periodStart(bound.toPlainDate(), input);
+  if (Temporal.PlainDate.compare(firstPeriod, lastPeriod) > 0) return result;
+  // 1.5.2 tests UNTIL only while visiting candidates in its monthly loop.
+  // Every supported loop advances at least one authored period per iteration.
+  // Exhaustion after the final query period is complete, even with no candidates.
+  const maxIterations =
+    Math.floor(firstPeriod.until(lastPeriod, { largestUnit: unit })[unit] / (input.interval ?? 1)) +
+    1;
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    dtstart: anchor.toZonedDateTime('UTC'),
-    until: Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate,
+    dtstart: (positional ? firstPeriod.toPlainDateTime(anchorWallTime) : anchor).toZonedDateTime(
+      'UTC',
+    ),
+    // Positions must see the entire final period before UNTIL and envelope admission.
+    until: positional
+      ? lastPeriod
+          .add({ [unit]: 1 })
+          .toZonedDateTime('UTC')
+          .subtract({ milliseconds: 1 })
+      : bound,
     interval: input.interval,
     wkst: allowedWeekdays[input.wkst ?? 0],
-    byDay: input.byweekday?.map((day) => allowedWeekdays[day]),
+    byDay: input.byweekday?.length
+      ? input.byweekday.map((day) => allowedWeekdays[day])
+      : input.frequency === 'WEEKLY' && !input.bymonthday?.length
+        ? [allowedWeekdays[(original.dayOfWeek - 1) as Weekday]]
+        : undefined,
     byMonth: input.bymonth,
     // Explicitly preserve the implicit monthly day; 1.5.2's fallback otherwise
     // constrains a 31st through February and drifts subsequent months.
@@ -93,19 +118,17 @@ export function enumerate(
       : input.frequency === 'MONTHLY' && !input.byweekday?.length
         ? [original.day]
         : undefined,
-    bySetPos: input.bysetpos,
     tzid: 'UTC',
     includeDtstart: false,
-    // The finite upper bound stops sparse rules; the callback enforces our cap.
-    maxIterations: Number.POSITIVE_INFINITY,
+    maxIterations,
   });
   // Version 1.5.2 can replay the iterator when applying its final count filter.
   // Admit each local date once so replay cannot consume COUNT or the cap twice.
   const visited = new Set<string>();
   let admitted = 0;
-  engine.all((occurrence) => {
+  const visit = (date: TemporalModule.Temporal.PlainDate): boolean => {
     if (result.capped || admitted === input.count) return false;
-    const date = occurrence.toPlainDate();
+    if (Temporal.PlainDate.compare(date, original.toPlainDate()) < 0) return true;
     const key = date.toString();
     if (visited.has(key)) return true;
     visited.add(key);
@@ -121,7 +144,43 @@ export function enumerate(
     // Lifetime COUNT includes existing dates before the envelope, but never skipped dates.
     admitted++;
     return admit(date);
-  });
+  };
+  let candidateCount = 0;
+  let period = '';
+  let candidates: TemporalModule.Temporal.PlainDate[] = [];
+  const flush = (): boolean => {
+    const selected = candidates.filter((_, index) =>
+      input.bysetpos?.some((position) =>
+        position > 0 ? index === position - 1 : index === candidates.length + position,
+      ),
+    );
+    candidates = [];
+    return selected.every(visit);
+  };
+  try {
+    engine.all((occurrence, index) => {
+      const date = occurrence.toPlainDate();
+      if (!positional) return visit(date);
+      // Replayed callback indices restart at zero. They must not enlarge a
+      // buffered period, especially when the whole query has only one candidate.
+      if (index < candidateCount) return false;
+      candidateCount++;
+      const key = periodStart(date, input).toString();
+      if (key !== period) {
+        if (!flush()) return false;
+        period = key;
+      }
+      candidates.push(date);
+      return true;
+    });
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      error.message !== `Maximum iterations (${maxIterations}) exceeded in all()`
+    )
+      throw error;
+  }
+  flush();
   return result;
 }
 
@@ -206,4 +265,18 @@ function anchorFor(
   return original instanceof Temporal.ZonedDateTime
     ? original.with({ year: date.year, month: date.month, day: date.day }, { offset: 'prefer' })
     : date.toPlainDateTime(original.toPlainTime()).toZonedDateTime(timezone);
+}
+
+function periodUnit(input: RosterRule): 'days' | 'weeks' | 'months' {
+  return input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
+}
+
+function periodStart(
+  date: TemporalModule.Temporal.PlainDate,
+  input: RosterRule,
+): TemporalModule.Temporal.PlainDate {
+  if (input.frequency === 'MONTHLY') return date.with({ day: 1 });
+  if (input.frequency === 'WEEKLY')
+    return date.subtract({ days: (date.dayOfWeek - 1 - (input.wkst ?? 0) + 7) % 7 });
+  return date;
 }
