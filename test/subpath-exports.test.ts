@@ -60,6 +60,8 @@ describe('subpath exports', () => {
       assert.equal(root.layoutLane, core.layoutLane);
       assert.equal(typeof root.Roster, 'function');
       assert.equal(typeof root.useRoster, 'function');
+      assert.equal(typeof root.Schedule, 'function');
+      assert.equal(typeof root.useSchedule, 'function');
       for (const name of [
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',

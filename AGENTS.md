@@ -22,16 +22,16 @@ coverage fields. Do not introduce consumer-specific entities or dependencies.
 
 ## Quick orientation
 
-The API is not yet shipped. Issue #1 is the epic; #3 is authoritative for types.
+The API is unreleased. Issue #1 is the epic; #3 is authoritative for types.
 When issues disagree, #3 wins for types and the feature's owning issue wins for
 behavior. State any interpretation in the delivery report.
 
 ```text
 src/
-  index.ts                 # public Roster, hook, zone fillers, and core re-exports
+  index.ts                 # public Roster, Schedule, hooks, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
-  components/              # Roster chassis, hook, zones, and rect rows; Schedule planned
+  components/              # Roster and Schedule chassis, hooks, zones, and rect parts
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
@@ -40,7 +40,7 @@ test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # gallery links and build identity
-  app/gallery/             # thin named fixture route shells
+  app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery-route/ # hook, chassis, controls, and web counter bridge
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -159,8 +159,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-6. **Roster, the core, and the recurrence adapter are implemented; Schedule is planned.**
-   Do not advertise planned surfaces as shipped. Preserve all entry points.
+6. **Roster, Schedule, the core, the recurrence adapter, the timezone routes, and
+   the provenance routes are implemented.** Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
    returns an absolute time.
@@ -237,18 +237,27 @@ Do not publish, tag, change repository settings, or push without task authorizat
     bounds reuse coverage even when the view zone changes.
 23. Test typechecks resolve the package to source through the `react-native` export condition, so they never depend on `dist`.
 
-24. **Performance gates require an exported demo and Chromium.** `check` exports first,
+24. **Schedule measures before layout.** Its internal width context preserves the
+    exact useSchedule contract while fitting day columns to the viewport. Standalone
+    hooks use a 280 px grid; the chassis subtracts the 48 px gutter from measured width.
+    pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
+    walk, filtering rects by column and keeping the original pointer for final bounds.
+    Skipped dates have a zero-width header marker supplied by skippedDateZone and
+    ScheduleSkippedDate, never a fabricated day column.
+    Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
+    bridge and supply the actual adapter expanded counter.
+25. **Performance gates require an exported demo and Chromium.** `check` exports first,
     then runs `check:size` and `check:web`. Install Chromium once with
     `bunx playwright install chromium`; CI includes system dependencies. Traces
     live in `.cache/web-performance/`. `bench:update` writes only the baseline
     JSON; baseline increases need measurement evidence and review.
-25. **The 200-lane route supplies real expansion to W.** A daily rule and dated
+26. **The 200-lane route supplies real expansion to W.** A daily rule and dated
     include clip the selected week's fixture. Default UTC layers retain exact W
     density. The cold-layout capture button times 24 lanes after clearing caches.
     The web view-zone budget uses the actual mounted range, including LegendList's
     boundary guard, in a 24-row viewport. Supply `estimatedListSize` from the
     measured roster viewport to avoid allocating lanes for the whole screen.
-26. **Production web Profiler callbacks are disabled.** The active Profiler test
+27. **Production web Profiler callbacks are disabled.** The active Profiler test
     in `test/roster-render.test.ts` complements the browser cache assertions;
     its host doubles do not prove browser or device LaneRow renders. Follow
     `docs/performance.md` for the real profile and exact-commit release evidence.

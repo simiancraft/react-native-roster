@@ -1,7 +1,7 @@
 {
   "name": "react-native-roster",
   "version": "0.0.0",
-  "description": "Layered intervals with provenance across lanes and a shared time axis for React Native. API not yet shipped.",
+  "description": "Layered intervals with provenance across lanes and a shared time axis for React Native. API unreleased.",
   "keywords": [
     "react-native",
     "expo",
