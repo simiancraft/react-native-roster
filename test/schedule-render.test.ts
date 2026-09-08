@@ -191,6 +191,42 @@ describe('Schedule chassis and day zones', () => {
       expect(bounds).toMatchObject({ dividerY });
     });
   }
+  for (const span of ['day', 'week'] as const) {
+    it(`hatches Nuuk's skipped final hour in a ${span} and rejects presses inside it`, () => {
+      const timezone = 'America/Nuuk';
+      const windowSpec = { span, anchorDate: '2024-03-30', timezone };
+      const pxPerHour = 48;
+      const days = core.dayColumnsFor(core.windowFor(windowSpec), timezone);
+      const column = days.findIndex((day) => day.localDate === windowSpec.anchorDate);
+      const projection = {
+        orientation: 'columns',
+        viewTimezone: timezone,
+        days,
+        pxPerHour,
+        columnWidth: 40,
+      } as const;
+      expect(days[column]).toMatchObject({
+        start: Date.parse('2024-03-30T02:00Z'),
+        end: Date.parse('2024-03-31T01:00Z'),
+        transitions: [{ at: Date.parse('2024-03-31T01:00Z'), deltaMinutes: 60 }],
+      });
+      expect(core.timeAtY(projection, column, 23.5 * pxPerHour)).toBeNull();
+      const onCellPress = mock();
+      const lane = { id: 'empty', label: 'Empty', layers: [] };
+      const tree = render(createElement(Schedule, { lane, windowSpec, pxPerHour, onCellPress }));
+      const pressable = tree.root
+        .findAllByType('Pressable' as ElementType)
+        .find((node) => node.props.testID === 'schedule-day-2024-03-30') as ReactTestInstance;
+      pressable.props.onPress({ nativeEvent: { locationX: 1, locationY: 23.5 * pxPerHour } });
+      expect(onCellPress).not.toHaveBeenCalled();
+      pressable.props.onPress({ nativeEvent: { locationX: 1, locationY: 22.5 * pxPerHour } });
+      expect(onCellPress).toHaveBeenCalledTimes(1);
+      const skips = tree.root.findAllByProps({ testID: 'schedule-skip' });
+      expect(skips).toHaveLength(1);
+      expect(skips[0]?.props.style).toMatchObject({ top: 23 * pxPerHour, height: pxPerHour });
+      expect(pressable.findAllByProps({ testID: 'schedule-skip' })).toHaveLength(1);
+    });
+  }
   it('navigates the actual Apia route through the skipped day and onward', () => {
     let route!: ReturnType<typeof useScheduleRoute>;
     function Route() {
