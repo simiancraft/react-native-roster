@@ -11,6 +11,8 @@ const { allowedWeekdays, RRuleTemporal } = require('rrule-temporal') as typeof R
 // fail the recurrence engine's ZonedDateTime instanceof check.
 const { Temporal } = require('@js-temporal/polyfill') as typeof TemporalModule;
 
+type RuleDateTime = TemporalModule.Temporal.PlainDateTime | TemporalModule.Temporal.ZonedDateTime;
+
 export function enumerate(
   input: RosterRule | RosterDate,
   envelope: Window,
@@ -34,17 +36,30 @@ export function enumerate(
     admit(Temporal.PlainDate.from(input.date));
     return result;
   }
-  const original = zoned(input.dtstart, input.timezone);
+  const original = dateTime(input.dtstart, input.timezone);
+  const originalWall = plain(original);
   const upper = Temporal.Instant.fromEpochMilliseconds(envelope.end)
     .toZonedDateTimeISO(input.timezone)
     .add({ days: 1 })
     .startOfDay();
-  const until = input.until === undefined ? upper : zoned(input.until, input.timezone, true);
+  const until =
+    input.until === undefined
+      ? upper.toPlainDateTime()
+      : dateTime(input.until, input.timezone, true);
   const untilDate =
     input.until !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(input.until)
       ? Temporal.PlainDate.from(input.until)
       : undefined;
-  if (!untilDate && Temporal.ZonedDateTime.compare(until, original) < 0) return result;
+  if (
+    !untilDate &&
+    (until instanceof Temporal.ZonedDateTime
+      ? Temporal.ZonedDateTime.compare(
+          until,
+          anchorFor(original.toPlainDate(), original, input.timezone),
+        ) < 0
+      : Temporal.PlainDateTime.compare(until, originalWall) < 0)
+  )
+    return result;
   const anchorWallTime = original.toPlainTime();
   // Iterate wall dates in UTC so zone skips cannot normalize a candidate date.
   // The callback applies the original date cutoff or the exact datetime UNTIL.
@@ -58,11 +73,11 @@ export function enumerate(
     (input.interval === undefined || input.interval === 1) &&
     input.count === undefined &&
     anchorWallTime.equals('00:00')
-      ? advance(original, envelope, input)
-      : original;
+      ? advance(originalWall, envelope, input)
+      : originalWall;
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    dtstart: anchor.toPlainDateTime().toZonedDateTime('UTC'),
+    dtstart: anchor.toZonedDateTime('UTC'),
     until: Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate,
     interval: input.interval,
     wkst: allowedWeekdays[input.wkst ?? 0],
@@ -93,7 +108,12 @@ export function enumerate(
     visited.add(key);
     if (untilDate) {
       if (Temporal.PlainDate.compare(date, untilDate) > 0) return true;
-    } else if (Temporal.ZonedDateTime.compare(anchorFor(date, original), until) > 0) return true;
+    } else if (
+      until instanceof Temporal.ZonedDateTime
+        ? Temporal.ZonedDateTime.compare(anchorFor(date, original, input.timezone), until) > 0
+        : Temporal.PlainDateTime.compare(date.toPlainDateTime(anchorWallTime), until) > 0
+    )
+      return true;
     if (!date.toZonedDateTime(input.timezone).toPlainDate().equals(date)) return true;
     // Lifetime COUNT includes existing dates before the envelope, but never skipped dates.
     admitted++;
@@ -108,8 +128,9 @@ export function validateDates(input: RosterRule | RosterDate): void {
     Temporal.PlainDate.from(input.date).toZonedDateTime(input.timezone);
     return;
   }
-  zoned(input.dtstart, input.timezone);
-  if (input.until !== undefined) zoned(input.until, input.timezone, true);
+  plain(dateTime(input.dtstart, input.timezone)).toZonedDateTime(input.timezone);
+  if (input.until !== undefined)
+    plain(dateTime(input.until, input.timezone, true)).toZonedDateTime(input.timezone);
 }
 
 function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
@@ -126,28 +147,28 @@ function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | R
   return { start: at(input.hourstart ?? 0), end: at(input.hourend ?? 24) };
 }
 
-function zoned(
-  value: string,
-  timezone: string,
-  endOfDate = false,
-): TemporalModule.Temporal.ZonedDateTime {
+function dateTime(value: string, timezone: string, endOfDate = false): RuleDateTime {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     const date = Temporal.PlainDate.from(value);
-    return date.toPlainDateTime(endOfDate ? '23:59:59.999' : '00:00').toZonedDateTime(timezone);
+    return date.toPlainDateTime(endOfDate ? '23:59:59.999' : '00:00');
   }
   if (/(?:Z|[+-]\d{2}:?\d{2})(?:\[.*\])?$/i.test(value)) {
     return Temporal.Instant.from(value).toZonedDateTimeISO(timezone);
   }
-  return Temporal.PlainDateTime.from(value).toZonedDateTime(timezone);
+  return Temporal.PlainDateTime.from(value);
+}
+
+function plain(value: RuleDateTime): TemporalModule.Temporal.PlainDateTime {
+  return value instanceof Temporal.ZonedDateTime ? value.toPlainDateTime() : value;
 }
 
 // Keep the original wall time and back up one period so WKST/BYDAY cannot lose
 // an earlier candidate. A monthly jump must never constrain the 31st to the 28th.
 function advance(
-  original: TemporalModule.Temporal.ZonedDateTime,
+  original: TemporalModule.Temporal.PlainDateTime,
   envelope: Window,
   input: RosterRule,
-): TemporalModule.Temporal.ZonedDateTime {
+): TemporalModule.Temporal.PlainDateTime {
   // Include the local date crossing the left edge, regardless of anchor wall time.
   const lower = Temporal.Instant.fromEpochMilliseconds(envelope.start)
     .toZonedDateTimeISO(input.timezone)
@@ -165,7 +186,7 @@ function advance(
       (unit !== 'months' || candidate.day === originalDate.day) &&
       candidate.toZonedDateTime(input.timezone).toPlainDate().equals(candidate)
     )
-      return anchorFor(candidate, original);
+      return candidate.toPlainDateTime(original.toPlainTime());
     steps--;
   }
   return original;
@@ -174,7 +195,10 @@ function advance(
 // Prefer the original offset in repeated time; otherwise resolve skips compatibly.
 function anchorFor(
   date: TemporalModule.Temporal.PlainDate,
-  original: TemporalModule.Temporal.ZonedDateTime,
+  original: RuleDateTime,
+  timezone: string,
 ): TemporalModule.Temporal.ZonedDateTime {
-  return original.with({ year: date.year, month: date.month, day: date.day }, { offset: 'prefer' });
+  return original instanceof Temporal.ZonedDateTime
+    ? original.with({ year: date.year, month: date.month, day: date.day }, { offset: 'prefer' })
+    : date.toPlainDateTime(original.toPlainTime()).toZonedDateTime(timezone);
 }
