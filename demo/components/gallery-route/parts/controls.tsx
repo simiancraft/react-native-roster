@@ -6,6 +6,10 @@ type ControlsInput = ReturnType<typeof useGalleryRoute>;
 
 export function GalleryControls({
   fixture,
+  fixtureId,
+  changeRule,
+  measureColdLayout,
+  changeLaneTimezone,
   windowSpec,
   setWindowSpec,
   setSpan,
@@ -28,6 +32,14 @@ export function GalleryControls({
       <Control label="Clear highlight" onPress={clearHighlight} />
     </View>
   ) : null;
+  const performanceZone =
+    fixtureId === '200-lanes' ? (
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Control label="Measure cold layout" onPress={measureColdLayout} />
+        <Control label="Change rule hours" onPress={changeRule} />
+        <Control label="Change last lane zone" onPress={changeLaneTimezone} />
+      </View>
+    ) : null;
   return (
     <View style={{ gap: 8 }}>
       <Text
@@ -38,6 +50,7 @@ export function GalleryControls({
       </Text>
       <Text style={{ color: '#475569', fontSize: 12 }}>{fixture.description}</Text>
       {highlightZone}
+      {performanceZone}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {fixture.windowPresets?.map((preset) => (
           <Control

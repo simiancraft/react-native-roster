@@ -5,5 +5,5 @@ linker = "hoisted"
 preload = ["./test/render-host.test.ts"]
 coverageThreshold = 1.0
 coverageSkipTestFiles = true
-coveragePathIgnorePatterns = ["**/dist/**", "**/demo/**", "scripts/set-version.ts"]
+coveragePathIgnorePatterns = ["**/dist/**", "**/demo/**", "scripts/set-version.ts", "scripts/update-performance-baseline.ts", "test/fixtures/performance.ts"]
 # The CLI shim is exercised in a subprocess; its imported version writer is coverage-gated.

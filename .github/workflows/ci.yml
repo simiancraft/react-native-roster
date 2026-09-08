@@ -56,6 +56,15 @@ jobs:
         working-directory: ./demo
         run: bunx expo export -p web
 
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: Web performance budget
+        run: bun run check:web
+
+      - name: Package size budget
+        run: bun run check:size
+
       - name: Package hygiene (publint)
         run: bun run check:package
 
