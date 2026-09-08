@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pkg from '../package.json';
 
@@ -53,10 +54,47 @@ describe('subpath exports', () => {
       });
       assert.deepEqual(geometry.rects, []);
       assert.equal(geometry.flag, 'none');
+      const adapter = require('react-native-roster/rrule');
+      for (const name of ['expandRuleSet', 'envelopeFor', 'expandStats', 'resetExpandStats', 'clearExpandCache']) {
+        assert.equal(typeof adapter[name], 'function');
+        assert.equal(root[name], undefined);
+        assert.equal(core[name], undefined);
+      }
+      const result = adapter.expandRuleSet({ rules: [], dates: [{
+        id: 'one', kind: 'include', date: '2024-01-01', timezone: 'UTC',
+      }] }, window);
+      assert.deepEqual(result.intervals, [{ ...window, sources: [{ kind: 'date', id: 'one' }] }]);
+      const recurring = adapter.expandRuleSet({ rules: [{
+        id: 'one', kind: 'include', frequency: 'DAILY', dtstart: '2024-01-01',
+        count: 1, hourstart: 0, hourend: 24, timezone: 'UTC',
+      }], dates: [] }, window);
+      assert.deepEqual(recurring.intervals, [{ ...window, sources: [{ kind: 'rule', id: 'one' }] }]);
       process.stdout.write('ok');
     `;
     expect(
       execFileSync('node', ['--input-type=module', '-e', script], { cwd: root, encoding: 'utf8' }),
     ).toBe('ok');
   });
+});
+
+// Walk the emitted import graph, not merely the public barrels: a transitive
+// adapter import would otherwise pull Temporal into every core consumer.
+it('root and core emitted graphs contain only relative core imports', () => {
+  const visited = new Set<string>();
+  function walk(file: string): void {
+    if (visited.has(file)) return;
+    visited.add(file);
+    const source = readFileSync(file, 'utf8');
+    for (const match of source.matchAll(/require\(([^)]*)\)/g)) {
+      const argument = match[1] as string;
+      expect(argument).toMatch(/^['"]\.[^'"]*['"]$/);
+      const base = resolve(dirname(file), argument.slice(1, -1));
+      const target = existsSync(`${base}.js`) ? `${base}.js` : resolve(base, 'index.js');
+      expect(target.startsWith(`${resolve(root, 'dist/src/core')}/`)).toBe(true);
+      walk(target);
+    }
+  }
+  walk(resolve(root, 'dist/src/index.js'));
+  walk(resolve(root, 'dist/src/core/index.js'));
+  expect(visited.size).toBeGreaterThan(2);
 });

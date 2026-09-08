@@ -113,5 +113,9 @@
   "packageManager": "bun@1.4.0",
   "workspaces": [
     "demo"
-  ]
+  ],
+  "dependencies": {
+    "@js-temporal/polyfill": "0.5.1",
+    "rrule-temporal": "1.5.2"
+  }
 }
