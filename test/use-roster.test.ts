@@ -227,6 +227,60 @@ describe('useRoster hook without native rendering', () => {
     expect(h.model.orderedLanes).toEqual([lane]);
     h.close();
   });
+  it('keeps the skipped Apia day empty and never fires a cell press', () => {
+    const lane: Lane = { id: 'empty', label: 'Empty', layers: [] };
+    const cell = mock();
+    const h = harness({
+      lanes: [lane],
+      windowSpec: { span: 'day', anchorDate: '2011-12-30', timezone: 'Pacific/Apia' },
+      onCellPress: cell,
+    });
+    act(() => h.model.onLayout(layoutInput(800, 48)));
+    h.model.press(lane, 400, 20);
+    expect(cell).not.toHaveBeenCalled();
+    expect(h.model.window.start).toBe(h.model.window.end);
+    expect(h.model.contentWidth).toBe(0);
+    expect(Number.isFinite(h.model.projection.pxPerMinute)).toBe(true);
+    expect(h.model.geometryFor(lane).rects).toEqual([]);
+    h.close();
+  });
+  it('scales a sub-minute window exactly and keeps cell times within its bounds', () => {
+    const window = {
+      start: Date.parse('2024-01-01T00:00:59.990Z'),
+      end: Date.parse('2024-01-01T00:01:00.000Z'),
+    };
+    const lane: Lane = { id: 'empty', label: 'Empty', layers: [] };
+    const cell = mock();
+    const h = harness({
+      lanes: [lane],
+      windowSpec: { span: 'custom', timezone: 'UTC', window },
+      minuteStep: 1,
+      onCellPress: cell,
+    });
+    act(() => h.model.onLayout(layoutInput(800, 48)));
+    h.model.press(lane, 400, 20);
+    expect(cell).toHaveBeenCalledWith(lane, window.start);
+    expect(h.model.contentWidth).toBe(800);
+    expect(h.model.projection.pxPerMinute).toBe(4_800_000);
+    const covered: Lane = {
+      ...lane,
+      layers: [
+        {
+          id: 'whole',
+          role: 'custom',
+          z: 0,
+          style: { color: 'green' },
+          intervals: [{ ...window, sources: [] }],
+        },
+      ],
+    };
+    expect(h.model.geometryFor(covered).rects[0]).toMatchObject({ x: 0, width: 800 });
+    // Floating-point inversion can round a point just inside the edge to window.end.
+    h.model.press(lane, 800 - Number.EPSILON * 800, 20);
+    h.model.press(lane, 800, 20);
+    expect(cell).toHaveBeenCalledTimes(1);
+    h.close();
+  });
   it('rejects invalid dimensions', () => {
     for (const options of [
       { rowHeight: 0 },

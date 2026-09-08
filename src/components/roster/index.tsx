@@ -38,6 +38,7 @@ export function Roster(props: RosterProps) {
     neverSetLabel = 'No availability set',
   } = props;
   if (status === 'empty') return emptyZone();
+  if (window.start === window.end) return null;
   return (
     <RosterLayout
       style={props.style}
