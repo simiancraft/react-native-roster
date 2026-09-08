@@ -48,6 +48,81 @@ beforeEach(() => {
   resetExpandStats();
 });
 
+describe('retained envelope right boundaries across date rollbacks', () => {
+  for (const sample of [
+    {
+      timezone: 'America/Goose_Bay',
+      dtstart: '1988-10-20T12:00',
+      seedStart: '1988-10-28T00:00Z',
+      seedEnd: '1988-10-28T03:00Z',
+      targetStart: '1988-10-30T02:00Z',
+      targetEnd: '1988-10-30T03:00Z',
+      laterUntil: '1988-11-30',
+      earlierUntil: '1988-10-29',
+    },
+    {
+      timezone: 'America/St_Johns',
+      dtstart: '2009-10-20T12:00',
+      seedStart: '2009-10-30T00:00Z',
+      seedEnd: '2009-10-30T03:00Z',
+      targetStart: '2009-11-01T02:30Z',
+      targetEnd: '2009-11-01T03:00Z',
+      laterUntil: '2009-11-30',
+      earlierUntil: '2009-10-31',
+    },
+  ]) {
+    for (const bysetpos of [undefined, [1]]) {
+      for (const until of [undefined, sample.laterUntil, sample.earlierUntil]) {
+        it(`matches cold expansion in ${sample.timezone}, BYSETPOS ${bysetpos ?? 'absent'}, UNTIL ${until ?? 'absent'}`, () => {
+          const input = set(
+            [
+              rule({
+                id: 'r',
+                timezone: sample.timezone,
+                dtstart: sample.dtstart,
+                hourstart: 0,
+                hourend: 1,
+                bysetpos,
+                until,
+              }),
+            ],
+            [],
+          );
+          const target = { start: epoch(sample.targetStart), end: epoch(sample.targetEnd) };
+          const seed = expandRuleSet(input, {
+            start: epoch(sample.seedStart),
+            end: epoch(sample.seedEnd),
+          });
+          const retained = expandRuleSet(input, target);
+          expect(retained.envelope).toEqual(seed.envelope);
+          expect(retained.stats).toMatchObject({ expanded: 0, cacheHits: 1 });
+          clearExpandCache();
+          const cold = expandRuleSet(input, target);
+          expect(cold.intervals).toEqual(
+            until === sample.earlierUntil
+              ? []
+              : [span(sample.targetStart, sample.targetEnd, 'rule', 'r')],
+          );
+          expect(cold.complete).toBe(true);
+          expect(retained.intervals).toEqual(cold.intervals);
+          expect(retained.complete).toBe(cold.complete);
+          expect(retained.gaps).toEqual(cold.gaps);
+          expect(retained.truncated).toEqual([]);
+        });
+      }
+    }
+  }
+
+  it('discards extra UTC candidates before cap admission at the envelope end', () => {
+    const input = rule({ dtstart: '2024-03-01T12:00', hourstart: 0, hourend: 1 });
+    const envelope = { start: epoch('2024-03-04T00:00Z'), end: epoch('2024-03-05T00:00Z') };
+    expect(enumerate(input, envelope, 1)).toEqual({
+      spans: [{ start: envelope.start, end: envelope.start + hour }],
+      capped: false,
+    });
+  });
+});
+
 describe('rule-local expansion and netting', () => {
   it('pads each edge by exactly 48 elapsed hours', () => {
     expect(envelopeFor(window)).toEqual({

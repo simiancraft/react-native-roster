@@ -238,6 +238,8 @@ The engine uses the end of UNTIL's local date as a conservative UTC enumeration 
 Explicit-offset UNTIL uses the end of the following local date instead; exact instant
 admission is its only UNTIL admission test. Clamp either bound to the corresponding
 UTC calendar bound of the envelope query.
+The enumeration bound is conservative through the wall date after any cross-date rollback
+at the envelope end, and envelope clipping discards the extra candidates.
 The adapter owns BYSETPOS after every other BYxxx filter, grouping plain dates
 by day, WKST week, or year-month before deduplication, UNTIL, COUNT, and cap admission.
 Positional enumeration includes complete edge periods, then rejects dates before
