@@ -140,7 +140,13 @@ export const rosterFixtures: Record<
     zones: replacedZones,
     showsEmptyExample: true,
   },
-  '200-lanes': { title: '200 lanes', lanes: workload().lanes, zones: {}, showsEmptyExample: false },
+  '200-lanes': {
+    highlightSource: { kind: 'rule', id: '0:a' },
+    title: '200 lanes',
+    lanes: workload().lanes,
+    zones: {},
+    showsEmptyExample: false,
+  },
 };
 export type RosterFixtureId = keyof typeof rosterFixtures;
 export const rosterWindowSpec: WindowSpec = {

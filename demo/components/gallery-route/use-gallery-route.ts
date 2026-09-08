@@ -16,6 +16,7 @@ import {
   expandStats,
   resetExpandStats,
 } from 'react-native-roster/rrule';
+import { performanceLanes } from '../../../test/fixtures/performance-lanes';
 import {
   type RosterFixtureId,
   rosterFixtures,
@@ -24,6 +25,7 @@ import {
 import { expandLanes } from '../../../test/fixtures/timezones';
 import { useCounterBridge } from './counter-bridge';
 import type { CounterBridgeInput } from './counter-bridge.types';
+import { measureLayout } from './measure-layout';
 
 const counterBridge: CounterBridgeInput = {
   layoutStats,
@@ -41,7 +43,7 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   const [windowSpec, setWindowSpec] = useState<WindowSpec>(
     definition.windowSpec ?? rosterWindowSpec,
   );
-  const [minuteStep, setMinuteStep] = useState(60);
+  const [minuteStep, setMinuteStep] = useState(fixtureId === '200-lanes' ? 15 : 60);
   const [sort, setSort] = useState<'label' | 'availability' | 'availabilityMinusBooking'>('label');
   const [highlightSource, setHighlightSource] = useState<Source>();
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
@@ -50,13 +52,23 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
     layout: { runs: 0, cacheHits: 0 },
     coverage: { runs: 0, cacheHits: 0 },
   });
+  const [ruleHourEnd, setRuleHourEnd] = useState(24);
+  const [laneTimezone, setLaneTimezone] = useState('UTC');
   const fixture = {
     ...definition,
     lanes:
-      definition.lanesFor?.(windowFor(windowSpec), expandRuleSet) ??
-      (definition.ruleLanes
-        ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
-        : definition.lanes),
+      fixtureId === '200-lanes' && windowSpec.span !== 'custom'
+        ? performanceLanes(
+            windowFor(windowSpec),
+            windowSpec.anchorDate,
+            expandRuleSet,
+            ruleHourEnd,
+            laneTimezone,
+          )
+        : (definition.lanesFor?.(windowFor(windowSpec), expandRuleSet) ??
+          (definition.ruleLanes
+            ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
+            : definition.lanes)),
   };
   const sortLanes = sort === 'label' ? byLabel : byCoverage({ measure: sort });
   useEffect(() => {
@@ -93,6 +105,11 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   return {
     status: 'ready' as const,
     fixtureId,
+    measureColdLayout: () =>
+      setSelection(measureLayout(fixture.lanes, windowFor(windowSpec), windowSpec.timezone)),
+    changeRule: () => setRuleHourEnd((hour) => (hour === 24 ? 10 : 24)),
+    changeLaneTimezone: () =>
+      setLaneTimezone((zone) => (zone === 'UTC' ? 'Pacific/Auckland' : 'UTC')),
     fixture,
     windowSpec,
     setWindowSpec,

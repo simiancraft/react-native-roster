@@ -220,8 +220,8 @@ exact requested keys exist; target-cold means they are absent.
 The deterministic fixture in `test/fixtures/workload.ts` produces **70 rects plus
 gap rects per lane per week** (63 rects and 7 gap rects) in either projection.
 Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks.
-Tests enforce separate 16 ms target-cold layout and coverage budgets and print the
-measured baselines. Device performance remains an issue #9 acceptance item.
+Tests enforce separate 16 ms target-cold layout and coverage budgets, plus a 1.5×
+CI-only regression limit against the committed CI runner baseline. See [Performance](#performance).
 
 ## Provenance interaction
 
@@ -364,8 +364,52 @@ The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/
 builds every pull request and deploys `main` to
 <https://simiancraft.github.io/react-native-roster/>. The exported gallery has been checked in Chromium for hydration, virtualized lanes,
 and horizontal and vertical scrolling. Deployment and device rendering have not
-yet been verified. Core workload timings run in the test gate. Device measurements, size gates, and
-browser interaction tests arrive in issue #9.
+yet been verified. Timing, size, and browser action budgets run in CI on every PR.
+Device capture remains a manual release gate.
+
+## Performance
+
+Workload W has 200 lanes, two layers, a week window, and 15-minute ticks.
+The layout batch has 24 lanes; coverage includes all 200. Each lane produces
+63 rects and 7 gap rects. CI fails either timing row at 16 ms or above, or above
+1.5× its committed CI runner baseline. Local runs measure and print both rows,
+but enforce only the absolute 16 ms ceiling because hardware differs. Both size gates use minified, uncompressed bundles
+with peers external. The web harness checks every automated action in issue #9.
+
+Recorded CI timing baseline, **2026-09-08 UTC**, Bun 1.4.0,
+GitHub Actions ubuntu-latest, commit
+`1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa`:
+
+| Measurement | Result | Gate |
+| --- | ---: | ---: |
+| Target-cold layout, 24 lanes, median of 11 | 2.070 ms | <16 ms and ≤3.105 ms in CI |
+| Target-cold coverage, 200 lanes, median of 11 | 1.063 ms | <16 ms and ≤1.5945 ms in CI |
+| Core minified bundle | 12.20 kB | <15 kB |
+| Root minified bundle | 27.66 kB | <40 kB |
+| Pixel 6a class, release build, five-second fling | Not yet measured | 60 fps, zero dropped frames |
+| Same device, next-week target-cold layout, 24 lanes | Not yet measured | <16 ms |
+
+The timing baseline comes from the CI runner; phone measurements remain pending.
+The JSON records the full timestamp, machine, method, and measured commit.
+The production web check uses a 24-row viewport and counts LegendList's actual
+mounted lanes, including its boundary guard, for the view-zone layout assertion.
+The LaneRow render assertion runs with an active React Profiler in the Bun
+renderer test; the production web export disables profiling. Its native host
+doubles still require the real-device/profile follow-up.
+
+[Performance capture and comparison procedure](docs/performance.md) explains
+baseline updates, browser traces, the profiler fallback, Android release capture,
+and the `release` environment review. Device model, date, exact release commit,
+raw trace, and screenshots must accompany each release's manual measurements.
+
+The same-machine comparison with the legacy react-big-scheduler wrapper is
+**not yet measured**. No relative-speed claim is made.
+
+| Same-machine web comparison | react-native-roster | Legacy react-big-scheduler wrapper |
+| --- | --- | --- |
+| Next-week target-cold preparation, 24 lanes | Not yet measured in paired run | Not yet measured |
+| Five-second vertical scroll fps / dropped frames | Not yet measured in paired run | Not yet measured |
+| Machine / browser / viewport / date / commits | Pending paired capture | Pending paired capture |
 
 ## Develop
 
@@ -378,7 +422,8 @@ bun run demo:web
 ```
 
 `bun run check` covers lint, three typechecks, React Compiler safety, library build,
-demo web export, coverage, dead code, and package hygiene. See
+demo web export, coverage, dead code, package hygiene, size limits, and Playwright
+performance assertions. Install Chromium first with `bunx playwright install chromium`. See
 [CONTRIBUTING.md](https://github.com/simiancraft/react-native-roster/blob/main/CONTRIBUTING.md)
 for the contributor workflow.
 

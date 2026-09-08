@@ -90,7 +90,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   target-cold means they are absent. Do not restate these as whole-cache states.
 - The Expo app is the gallery; a "story" means a fixture route under
   `demo/app/gallery/` using a named fixture from `test/fixtures`. No Storybook.
-  Size gates and Playwright arrive in #9; adapter docs and full examples in #10.
+  Size gates and Playwright run in `check`; adapter docs and full examples remain in #10.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.
@@ -124,7 +124,7 @@ bun pm pack --dry-run         # inspect the files that would ship
 ```
 
 `check` runs lint, all three typechecks, React Compiler lint, library build,
-demo web export, tests with coverage, knip, and strict publint. `prepack` builds
+demo web export, tests with coverage, knip, strict publint, size-limit, and Playwright. `prepack` builds
 from a clean dist. `prepare` installs lefthook. The other names mirror package.json.
 
 ## Commits
@@ -179,7 +179,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
 10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 rects
     plus gap rects per lane per week (63 rects, 7 gap rects), in either projection.
     The test measures target-cold layout of 24 visible lanes and coverage of all
-    200 lanes separately against 16 ms. Rendering and device gates remain in #9.
+    200 lanes separately against 16 ms everywhere; the 1.5x committed CI runner baseline
+    gate runs only when process.env.CI is truthy so hardware classes are comparable.
+    Local runs still measure and print both rows. Device gates remain manual.
 
 11. **Roster waits for viewport measurement before mounting LegendList.** LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
@@ -246,3 +248,19 @@ Do not publish, tag, change repository settings, or push without task authorizat
     ScheduleSkippedDate, never a fabricated day column.
     Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
     bridge and supply the actual adapter expanded counter.
+25. **Performance gates require an exported demo and Chromium.** `check` exports first,
+    then runs `check:size` and `check:web`. Install Chromium once with
+    `bunx playwright install chromium`; CI includes system dependencies. Traces
+    live in `.cache/web-performance/`. `bench:update` writes only the baseline
+    JSON; use --machine, --layout, and --coverage to record a green main CI run,
+    then commit with its run URL. Baseline increases need measurement evidence and review.
+26. **The 200-lane route supplies real expansion to W.** A daily rule and dated
+    include clip the selected week's fixture. Default UTC layers retain exact W
+    density. The cold-layout capture button times 24 lanes after clearing caches.
+    The web view-zone budget uses the actual mounted range, including LegendList's
+    boundary guard, in a 24-row viewport. Supply `estimatedListSize` from the
+    measured roster viewport to avoid allocating lanes for the whole screen.
+27. **Production web Profiler callbacks are disabled.** The active Profiler test
+    in `test/roster-render.test.ts` complements the browser cache assertions;
+    its host doubles do not prove browser or device LaneRow renders. Follow
+    `docs/performance.md` for the real profile and exact-commit release evidence.

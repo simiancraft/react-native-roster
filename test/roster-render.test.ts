@@ -1,7 +1,7 @@
 import './render-host.test';
 import { describe, expect, it, mock } from 'bun:test';
 import type { ElementType, ReactElement } from 'react';
-import { createElement } from 'react';
+import { createElement, Profiler } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { Roster } from '../src/components/roster';
 import { LaneRow } from '../src/components/roster/lane-row';
@@ -63,6 +63,7 @@ describe('Roster zones and rect primitives', () => {
     );
     const list = tree.root.findByType('LegendList' as ElementType);
     expect(list.props.estimatedItemSize).toBe(48);
+    expect(list.props.estimatedListSize).toEqual({ width: 5040, height: 480 });
     expect(list.props.maintainVisibleContentPosition).toBe(false);
     expect(list.props.getFixedItemSize()).toBe(48);
     expect(list.props.keyExtractor(lanes[0])).toBe('never');
@@ -110,12 +111,17 @@ describe('Roster zones and rect primitives', () => {
   it('keeps mounted LaneRow renders at zero across vertical scroll', () => {
     clearLayoutCache();
     const intervalZone = mock(RosterInterval);
+    const onRender = mock(() => {});
     const tree = render(
-      createElement(Roster, {
-        lanes: rosterFixtures['200-lanes'].lanes,
-        windowSpec: rosterWindowSpec,
-        intervalZone,
-      }),
+      createElement(
+        Profiler,
+        { id: 'roster', onRender },
+        createElement(Roster, {
+          lanes: rosterFixtures['200-lanes'].lanes,
+          windowSpec: rosterWindowSpec,
+          intervalZone,
+        }),
+      ),
     );
     act(() =>
       tree.root
@@ -126,12 +132,15 @@ describe('Roster zones and rect primitives', () => {
     expect(tree.root.findAllByType(LaneRow)).toHaveLength(24);
     expect(intervalZone).toHaveBeenCalledTimes(24 * 63);
     const mountedCalls = intervalZone.mock.calls.length;
+    expect(onRender.mock.calls.length).toBeGreaterThan(0);
+    onRender.mockClear();
     const before = layoutStats();
     for (const y of [48, 96, 144, 96, 48, 0]) {
       act(() => list.props.onScroll({ nativeEvent: { contentOffset: { x: 0, y } } }));
       expect(intervalZone.mock.calls.length - mountedCalls).toBe(0);
       expect(tree.root.findByType('LegendList' as ElementType).props).toBe(list.props);
     }
+    expect(onRender).not.toHaveBeenCalled();
     expect(layoutStats()).toEqual(before);
     expect(tree.root.findByProps({ testID: 'roster-labels' }).children).toHaveLength(200);
     close(tree);

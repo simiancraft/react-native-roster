@@ -66,7 +66,7 @@
     "check:knip": "knip",
     "check:package": "publint --strict",
     "test": "bun test --coverage",
-    "check": "bun run lint && bun run typecheck && bun run typecheck:test && bun run typecheck:demo && bun run check:react-compiler && bun run build:web && bun run test && bun run check:knip && bun run check:package",
+    "check": "bun run lint && bun run typecheck && bun run typecheck:test && bun run typecheck:demo && bun run check:react-compiler && bun run build:web && bun run test && bun run check:knip && bun run check:package && bun run check:size && bun run check:web",
     "prepare": "if command -v lefthook >/dev/null 2>&1; then lefthook install; fi",
     "prepack": "bun run build",
     "typecheck:demo": "tsgo --noEmit -p demo/tsconfig.json",
@@ -74,7 +74,10 @@
     "demo": "cd demo && bun run start",
     "demo:ios": "cd demo && bun run ios",
     "demo:android": "cd demo && bun run android",
-    "demo:web": "cd demo && bun run web"
+    "demo:web": "cd demo && bun run web",
+    "check:size": "size-limit",
+    "check:web": "bun scripts/check-web-performance.ts",
+    "bench:update": "bun scripts/update-performance-baseline.ts"
   },
   "peerDependencies": {
     "@legendapp/list": ">=2.0.0",
@@ -101,6 +104,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "12.0.6",
     "@semantic-release/release-notes-generator": "14.1.0",
+    "@size-limit/preset-small-lib": "^13.0.3",
     "@types/bun": "^1.3.12",
     "@types/react": "~19.1.10",
     "@types/react-test-renderer": "^19.1.0",
@@ -112,13 +116,15 @@
     "expo": "~54.0.37",
     "knip": "^6.5.0",
     "lefthook": "^2.1.9",
+    "playwright": "^1.63.0",
     "publint": "^0.3.18",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-reanimated": "~3.19.5",
     "react-test-renderer": "19.1.0",
     "semantic-release": "^25.0.3",
-    "semver": "^7.7.0"
+    "semver": "^7.7.0",
+    "size-limit": "^13.0.3"
   },
   "publishConfig": {
     "access": "public",
