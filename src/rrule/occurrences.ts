@@ -142,11 +142,13 @@ function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | R
   if (!dayStart.toPlainDate().equals(date)) {
     return { start: dayStart.epochMilliseconds, end: dayStart.epochMilliseconds };
   }
-  // Add wall-clock milliseconds before resolving the zone, including hour 24.
-  // Temporal's compatible policy chooses the earlier repeat and advances skips.
-  const at = (hour: number) =>
-    midnight.add({ milliseconds: Math.round(hour * 3_600_000) }).toZonedDateTime(input.timezone)
-      .epochMilliseconds;
+  const wholeDay = input.hourstart === undefined && input.hourend === undefined;
+  // Whole-day bounds resolve PlainDates to first instants. Explicit hours use
+  // compatible wall time, choosing the earlier repeat and advancing skips.
+  const at = (hour: number) => {
+    const wall = midnight.add({ milliseconds: Math.round(hour * 3_600_000) });
+    return (wholeDay ? wall.toPlainDate() : wall).toZonedDateTime(input.timezone).epochMilliseconds;
+  };
   return { start: at(input.hourstart ?? 0), end: at(input.hourend ?? 24) };
 }
 
