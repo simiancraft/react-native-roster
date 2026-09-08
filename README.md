@@ -228,6 +228,10 @@ Date-only and local-datetime DTSTART preserve their authored date and time, even
 inside a skipped date or hour. Explicit-offset DTSTART remains an instant whose
 wall fields and offset come from the rule's zone. The engine iterates those wall
 fields in UTC calendar space.
+Every rule enumerates from the period containing DTSTART at the anchor wall time,
+aligned to WKST for WEEKLY and day 1 for MONTHLY, so interval phases follow the
+DTSTART period rather than the first matching date. Dates before DTSTART are
+rejected before COUNT and cap admission.
 The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
 Explicit-offset UNTIL uses the end of the following local date instead; exact instant
 admission is its only UNTIL admission test. Clamp either bound to the corresponding
