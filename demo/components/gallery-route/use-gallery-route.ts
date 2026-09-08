@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { LayoutChangeEvent } from 'react-native';
 import type { Rect, Source, Span, WindowSpec } from 'react-native-roster/core';
 import {
   byCoverage,
@@ -26,6 +27,7 @@ import { expandLanes } from '../../../test/fixtures/timezones';
 import { useCounterBridge } from './counter-bridge';
 import type { CounterBridgeInput } from './counter-bridge.types';
 import { measureLayout } from './measure-layout';
+import { useRuleSetDraft } from './use-rule-set-draft';
 
 const counterBridge: CounterBridgeInput = {
   layoutStats,
@@ -40,10 +42,13 @@ const counterBridge: CounterBridgeInput = {
 
 export function useGalleryRoute(fixtureId: RosterFixtureId) {
   const definition = rosterFixtures[fixtureId];
+  const [contentWidth, setContentWidth] = useState(720);
   const [windowSpec, setWindowSpec] = useState<WindowSpec>(
     definition.windowSpec ?? rosterWindowSpec,
   );
-  const [minuteStep, setMinuteStep] = useState(fixtureId === '200-lanes' ? 15 : 60);
+  const [minuteStep, setMinuteStep] = useState(
+    definition.minuteStep ?? (fixtureId === '200-lanes' ? 15 : 60),
+  );
   const [sort, setSort] = useState<'label' | 'availability' | 'availabilityMinusBooking'>('label');
   const [highlightSource, setHighlightSource] = useState<Source>();
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
@@ -54,10 +59,31 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   });
   const [ruleHourEnd, setRuleHourEnd] = useState(24);
   const [laneTimezone, setLaneTimezone] = useState('UTC');
+  const ruleSetDraft = useRuleSetDraft(definition.ruleSet);
+  const expansion = ruleSetDraft.applied
+    ? expandRuleSet(ruleSetDraft.applied, windowFor(windowSpec), definition.expandOptions)
+    : undefined;
   const fixture = {
     ...definition,
-    lanes:
-      fixtureId === '200-lanes' && windowSpec.span !== 'custom'
+    lanes: expansion
+      ? [
+          {
+            id: fixtureId,
+            label: definition.title,
+            complete: expansion.complete,
+            layers: [
+              {
+                id: 'open',
+                role: 'availability' as const,
+                z: 0,
+                style: { color: '#4f9478' },
+                intervals: expansion.intervals,
+                gaps: expansion.gaps,
+              },
+            ],
+          },
+        ]
+      : fixtureId === '200-lanes' && windowSpec.span !== 'custom'
         ? performanceLanes(
             windowFor(windowSpec),
             windowSpec.anchorDate,
@@ -104,6 +130,11 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   }
   return {
     status: 'ready' as const,
+    contentDirection: contentWidth < 720 ? ('column' as const) : ('row' as const),
+    measureContent: (input: LayoutChangeEvent) => setContentWidth(input.nativeEvent.layout.width),
+    ruleSetDraft,
+    expansion,
+    applyRuleSet: () => ruleSetDraft.apply(windowFor(windowSpec), definition.expandOptions),
     fixtureId,
     measureColdLayout: () =>
       setSelection(measureLayout(fixture.lanes, windowFor(windowSpec), windowSpec.timezone)),

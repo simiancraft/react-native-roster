@@ -1,6 +1,7 @@
 import type { RosterProps } from '../../src';
 import type { Lane, Source, Window, WindowSpec } from '../../src/core';
-import type { expandRuleSet } from '../../src/rrule';
+import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/rrule';
+import { adapterFixtures } from './adapters';
 import { provenanceFixtures } from './provenance';
 import { replacedZones } from './roster-zones';
 import { type RuleLane, timezoneFixtures } from './timezones';
@@ -71,6 +72,9 @@ const excluded: Lane = {
 };
 
 export type RosterFixture = {
+  ruleSet?: RuleSet;
+  expandOptions?: ExpandOptions;
+  minuteStep?: number;
   lanesFor?: (window: Window, expand: typeof expandRuleSet) => Lane[];
   highlightSource?: Source;
   title: string;
@@ -87,6 +91,10 @@ export type RosterFixture = {
 export const rosterFixtures: Record<
   | 'empty'
   | 'single-lane'
+  | '20-lanes'
+  | 'default-zones'
+  | `${'day' | 'week' | 'month'}-${15 | 30 | 60}`
+  | keyof typeof adapterFixtures
   | 'two-layers'
   | 'full-day-gap'
   | 'never-set'
@@ -97,8 +105,17 @@ export const rosterFixtures: Record<
   RosterFixture
 > = {
   ...provenanceFixtures,
+  ...adapterFixtures,
+  ...axisFixtures(),
   ...timezoneFixtures,
   empty: { title: 'Empty roster', lanes: [], zones: {}, showsEmptyExample: false },
+  '20-lanes': { title: '20 lanes', lanes: workload(20).lanes, zones: {}, showsEmptyExample: false },
+  'default-zones': {
+    title: 'Every roster zone: defaults',
+    lanes: [inset, excluded],
+    zones: {},
+    showsEmptyExample: true,
+  },
   'single-lane': { title: 'Single lane', lanes: [single], zones: {}, showsEmptyExample: false },
   'two-layers': {
     title: 'Two layers with inset',
@@ -154,3 +171,22 @@ export const rosterWindowSpec: WindowSpec = {
   anchorDate: '2024-01-01',
   timezone: 'UTC',
 };
+
+function axisFixtures() {
+  const fixtures = {} as Record<`${'day' | 'week' | 'month'}-${15 | 30 | 60}`, RosterFixture>;
+  for (const span of ['day', 'week', 'month'] as const) {
+    for (const minuteStep of [15, 30, 60] as const) {
+      fixtures[`${span}-${minuteStep}`] = {
+        title: `Axis: ${span}, ${minuteStep} minutes`,
+        description:
+          'Step changes ticks and pointer snapping; interval bounds stay exact. Navigate, then return to inspect cache reuse.',
+        lanes: [inset],
+        zones: {},
+        showsEmptyExample: false,
+        minuteStep,
+        windowSpec: { span, anchorDate: '2024-01-01', timezone: 'UTC' },
+      };
+    }
+  }
+  return fixtures;
+}

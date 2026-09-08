@@ -11,6 +11,7 @@ type ScheduleFixture = {
   layers: Layer[];
   options?: ExpandOptions;
   earlyStyle?: LayerStyle;
+  complete?: boolean;
 };
 
 function rule(
@@ -88,6 +89,21 @@ function transitionFixture(title: string, anchorDate: string, timezone: string):
 }
 
 export const scheduleFixtures = {
+  'schedule-every-zone': {
+    ...transitionFixture(
+      'Schedule: every zone, defaults and replacements',
+      '2011-12-26',
+      'Pacific/Apia',
+    ),
+    complete: false,
+    set: {
+      rules: [
+        rule('early', 0, 4, 'Pacific/Apia', '2011-12-26'),
+        rule('daytime', 9, 12, 'Pacific/Apia', '2011-12-26'),
+      ],
+      dates: [{ id: 'closed', kind: 'exclude', date: '2011-12-27', timezone: 'Pacific/Apia' }],
+    },
+  },
   'schedule-empty': {
     title: 'Schedule: empty week',
     windowSpec: week,
@@ -167,7 +183,7 @@ export function scheduleLane(fixtureId: ScheduleFixtureId, windowSpec: ScheduleW
     id: fixtureId,
     label: fixture.title,
     timezone: fixture.windowSpec.timezone,
-    complete: expanded.complete,
+    complete: fixture.complete ?? expanded.complete,
     layers: [
       {
         id: 'open',
