@@ -3,7 +3,7 @@ import { occurrences, recordStats, retainedEnvelope, touch, trim } from './cache
 import { envelopeFor } from './envelope';
 import { bodyKey } from './hash';
 import { net } from './net';
-import { enumerate } from './occurrences';
+import { enumerate, validateDates } from './occurrences';
 import type {
   ExpandOptions,
   ExpandResult,
@@ -33,7 +33,10 @@ export function expandRuleSet(
   const rules = [...set.rules].sort(byId);
   const dates = [...set.dates].sort(byId);
   const ordered = [...rules, ...dates];
-  for (const input of ordered) validateInput(input);
+  for (const input of ordered) {
+    validateInput(input);
+    validateDates(input);
+  }
   const stats: ExpandStats = {
     rules: set.rules.length,
     dates: set.dates.length,
