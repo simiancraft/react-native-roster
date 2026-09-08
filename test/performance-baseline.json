@@ -1,10 +1,10 @@
 {
-  "layoutMs": 0.9464650000000034,
-  "coverageMs": 0.4178540000000055,
-  "measuredAt": "2026-09-08T04:48:26.095Z",
-  "commit": "6ca032fb6a75d57a6cd1f750c64b826e680c9c74",
+  "layoutMs": 2.07,
+  "coverageMs": 1.063,
+  "measuredAt": "2026-09-08T05:18:00Z",
+  "commit": "1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa",
   "runtime": "Bun 1.4.0",
-  "machine": "linux 6.18.33.2-microsoft-standard-WSL2; 13th Gen Intel(R) Core(TM) i9-13900K",
+  "machine": "GitHub Actions ubuntu-latest",
   "method": "Median of 11 target-cold samples after five JIT warmups; W seed 1318",
-  "workingTreeDirty": true
+  "workingTreeDirty": false
 }

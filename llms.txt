@@ -121,7 +121,7 @@ No `.js` extensions on relative imports in src. No consumer-specific entities.
 ## Performance gates
 
 - bun run check includes size-limit and Playwright over the static demo/dist export. Install Chromium with bunx playwright install chromium first. CI installs it and fails every PR on budget regressions.
-- Both W target-cold timing rows fail at 16 ms or above, or above 1.5 times test/performance-baseline.json. The median uses 11 samples after five JIT warmups, clearing target caches before each sample. bun run bench:update proposes a recorded baseline change; CI never updates it.
+- Both W target-cold timing rows fail at 16 ms or above everywhere; only when process.env.CI is truthy do they also fail above 1.5 times the CI runner baseline in test/performance-baseline.json. Local runs still measure and print both rows. The median uses 11 samples after five JIT warmups, clearing target caches before each sample. bun run bench:update --machine "GitHub Actions ubuntu-latest" --layout <ms> --coverage <ms> records numbers from a green main CI run; commit with the run URL. CI never updates it.
 - Core is limited to 15 kB, and root to 40 kB, minified without compression, with peers external. Build before bun run check:size.
 - The 200-lane route clips W through a real daily rule and dated include, starts with 15-minute ticks, and offers rule-hour edits, last-lane zone edits, and a 24-lane cold-layout capture button. The original UTC week's density is unchanged.
 - The browser harness measures a 24-row viewport and the actual mounted boundary row for view-zone layout. Roster supplies its measured viewport to LegendList's initial size estimate.

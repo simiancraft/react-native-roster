@@ -179,7 +179,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
 10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 rects
     plus gap rects per lane per week (63 rects, 7 gap rects), in either projection.
     The test measures target-cold layout of 24 visible lanes and coverage of all
-    200 lanes separately against 16 ms and 1.5x the committed JSON baseline. Device gates remain manual.
+    200 lanes separately against 16 ms everywhere; the 1.5x committed CI runner baseline
+    gate runs only when process.env.CI is truthy so hardware classes are comparable.
+    Local runs still measure and print both rows. Device gates remain manual.
 
 11. **Roster waits for viewport measurement before mounting LegendList.** LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
@@ -250,7 +252,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     then runs `check:size` and `check:web`. Install Chromium once with
     `bunx playwright install chromium`; CI includes system dependencies. Traces
     live in `.cache/web-performance/`. `bench:update` writes only the baseline
-    JSON; baseline increases need measurement evidence and review.
+    JSON; use --machine, --layout, and --coverage to record a green main CI run,
+    then commit with its run URL. Baseline increases need measurement evidence and review.
 26. **The 200-lane route supplies real expansion to W.** A daily rule and dated
     include clip the selected week's fixture. Default UTC layers retain exact W
     density. The cold-layout capture button times 24 lanes after clearing caches.

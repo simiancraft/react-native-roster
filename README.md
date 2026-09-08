@@ -221,7 +221,7 @@ The deterministic fixture in `test/fixtures/workload.ts` produces **70 rects plu
 gap rects per lane per week** (63 rects and 7 gap rects) in either projection.
 Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks.
 Tests enforce separate 16 ms target-cold layout and coverage budgets, plus a 1.5×
-regression limit against the committed baseline. See [Performance](#performance).
+CI-only regression limit against the committed CI runner baseline. See [Performance](#performance).
 
 ## Provenance interaction
 
@@ -372,26 +372,25 @@ Device capture remains a manual release gate.
 Workload W has 200 lanes, two layers, a week window, and 15-minute ticks.
 The layout batch has 24 lanes; coverage includes all 200. Each lane produces
 63 rects and 7 gap rects. CI fails either timing row at 16 ms or above, or above
-1.5× its committed baseline. Both size gates use minified, uncompressed bundles
+1.5× its committed CI runner baseline. Local runs measure and print both rows,
+but enforce only the absolute 16 ms ceiling because hardware differs. Both size gates use minified, uncompressed bundles
 with peers external. The web harness checks every automated action in issue #9.
 
-Initial recorded baseline, **2026-09-08 UTC**, Bun 1.4.0, Linux WSL2,
-Intel Core i9-13900K, source base commit
-`6ca032fb6a75d57a6cd1f750c64b826e680c9c74` with the uncommitted issue #9 harness:
+Recorded CI timing baseline, **2026-09-08 UTC**, Bun 1.4.0,
+GitHub Actions ubuntu-latest, commit
+`1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa`:
 
 | Measurement | Result | Gate |
 | --- | ---: | ---: |
-| Target-cold layout, 24 lanes, median of 11 | 0.946 ms | <16 ms and ≤1.420 ms |
-| Target-cold coverage, 200 lanes, median of 11 | 0.418 ms | <16 ms and ≤0.627 ms |
+| Target-cold layout, 24 lanes, median of 11 | 2.070 ms | <16 ms and ≤3.105 ms in CI |
+| Target-cold coverage, 200 lanes, median of 11 | 1.063 ms | <16 ms and ≤1.5945 ms in CI |
 | Core minified bundle | 12.20 kB | <15 kB |
 | Root minified bundle | 27.66 kB | <40 kB |
 | Pixel 6a class, release build, five-second fling | Not yet measured | 60 fps, zero dropped frames |
 | Same device, next-week target-cold layout, 24 lanes | Not yet measured | <16 ms |
 
-These are local baseline measurements, not GitHub runner or phone measurements.
-The JSON records the full timestamp, machine, method, and source base commit.
-After committing this change, attach the final commit's CI output to its PR;
-the source base above is not a claim of measurements from an unchanged commit.
+The timing baseline comes from the CI runner; phone measurements remain pending.
+The JSON records the full timestamp, machine, method, and measured commit.
 The production web check uses a 24-row viewport and counts LegendList's actual
 mounted lanes, including its boundary guard, for the view-zone layout assertion.
 The LaneRow render assertion runs with an active React Profiler in the Bun

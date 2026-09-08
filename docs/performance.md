@@ -24,8 +24,10 @@ it fails if the export or browser is missing. It never starts a development serv
 Failures exit nonzero. Trace and screenshot files live in `.cache/web-performance/`.
 Open a trace with `bunx playwright show-trace .cache/web-performance/trace.zip`.
 
-Both timing rows independently fail at 16 ms or above, or above 1.5 times their
-committed value in `test/performance-baseline.json`. Five untimed JIT warmup
+Both timing rows independently fail at 16 ms or above on every machine. Only when
+`process.env.CI` is truthy do they also fail above 1.5 times their committed CI
+runner value in `test/performance-baseline.json`. Local runs still measure and
+print both rows, but skip the relative gate because hardware differs. Five untimed JIT warmup
 iterations precede 11 samples; the reported value is their median. Every sample
 clears the exact layout and coverage keys before timing. Fixture construction,
 cache clearing, and counter reads are outside the timer. Each layout sample
@@ -34,19 +36,34 @@ sample clears coverage again and computes all 200 lanes. A target-cold sample
 is not a cold JavaScript runtime. Timing harness code and the baseline CLI are
 outside coverage, like the existing release CLI shim; library coverage stays 100%.
 
-To propose a baseline update, run `bun run bench:update` on an idle machine using
-the pinned Bun version, run the full gate, and include both old and new numbers,
-the machine, the commit, the date, and the reason in the PR. The script only
-updates the JSON. CI never updates it, and a failing regression is not permission
-to raise it. The initial baseline is from the recorded local machine, not a
-claim of a GitHub runner measurement. Attach CI output when evaluating portability.
-
 `.size-limit.json` bundles both emitted entry points with the small-library
 esbuild preset, minifies them, and disables gzip and Brotli. Limits are decimal
 15 kB for core and 40 kB for root. React, React Native, Expo, LegendList, and
 Reanimated, including their subpaths, remain external. Adapter dependencies are
 not externalized to hide an accidental root/core import; export isolation tests
 also reject that import graph. Build before running `bun run check:size`.
+
+## Refresh the CI baseline
+
+On a green run of `main` using Bun 1.4.0 on GitHub Actions `ubuntu-latest`, read
+both millisecond values from the CI job log line `Workload W target-cold: ...`.
+From a clean checkout of that run's commit with the same Bun version, run:
+
+```sh
+bun run bench:update --machine "GitHub Actions ubuntu-latest" --layout <ms> --coverage <ms>
+```
+
+The supplied numbers are recorded without measuring locally. Set `measuredAt` in
+`test/performance-baseline.json` to the CI measurement timestamp; the script records
+its invocation time, current commit, runtime, and working tree state. Run the full
+gate, then commit the baseline with the CI run URL in the commit message. Include
+old and new numbers and the reason in the PR. CI never updates the baseline, and
+a failing regression is not permission to raise it.
+
+Without `--layout` and `--coverage`, the script measures locally; `--machine`
+defaults to the local OS and CPU description. It always warns that the committed
+baseline must come from a CI run. Both timing flags must be supplied together as
+positive finite milliseconds.
 
 ## Browser action protocol
 

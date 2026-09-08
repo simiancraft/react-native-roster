@@ -59,7 +59,7 @@ it('generates deterministic N-lane, W-day fixtures with bounded intervals and so
   );
 });
 
-it('keeps target-cold workload W below 16 ms and 1.5x the recorded baseline', () => {
+it('keeps target-cold workload W below 16 ms, with a CI-only 1.5x gate for comparable runners', () => {
   const { layoutMs, coverageMs } = measureWorkload();
   console.log(
     `Workload W target-cold: layout 24 lanes ${layoutMs.toFixed(3)} ms (baseline ${baseline.layoutMs.toFixed(3)} ms); coverage 200 lanes ${coverageMs.toFixed(3)} ms (baseline ${baseline.coverageMs.toFixed(3)} ms); 15-minute ticks.`,
@@ -68,8 +68,11 @@ it('keeps target-cold workload W below 16 ms and 1.5x the recorded baseline', ()
   expect(baseline.coverageMs).toBeGreaterThan(0);
   expect(layoutMs).toBeLessThan(16);
   expect(coverageMs).toBeLessThan(16);
-  expect(layoutMs).toBeLessThanOrEqual(baseline.layoutMs * 1.5);
-  expect(coverageMs).toBeLessThanOrEqual(baseline.coverageMs * 1.5);
+  // Compare like runner classes: the CI baseline is not a local hardware budget.
+  if (process.env.CI) {
+    expect(layoutMs).toBeLessThanOrEqual(baseline.layoutMs * 1.5);
+    expect(coverageMs).toBeLessThanOrEqual(baseline.coverageMs * 1.5);
+  }
   const { lanes, window } = workload();
   resetStats();
   for (const lane of lanes.slice(0, 24)) layoutLane(lane, window, horizontal);
