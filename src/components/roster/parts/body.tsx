@@ -64,6 +64,7 @@ export function RosterBody({
             incompleteLabel,
           })}
           keyExtractor={(lane) => lane.id}
+          estimatedListSize={{ width: contentWidth, height: viewport.height }}
           estimatedItemSize={projection.rowHeight}
           getFixedItemSize={() => projection.rowHeight}
           drawDistance={0}
