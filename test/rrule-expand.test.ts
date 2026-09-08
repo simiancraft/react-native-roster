@@ -444,17 +444,49 @@ describe('recurrence fields and local boundaries', () => {
         ],
         ['Pacific/Apia', '2011-12-16', ['2012-01-06', '2012-01-07', '2012-02-07'], '2012-06-01'],
         ['America/Chicago', '2024-03-03', ['2024-03-16', '2024-03-17', '2024-04-02'], '2024-06-01'],
+        [
+          'America/Santiago',
+          '2024-09-01',
+          ['2024-09-18', '2024-09-19', '2024-10-02'],
+          '2024-12-01',
+        ],
       ] as const) {
         for (const interval of [undefined, 1]) {
           for (const start of starts) {
-            it(`matches original-anchor ${frequency} with ${name}, ${timezone}, ${dtstart}, interval ${interval}, and ${start}`, () => {
-              const window = { start: epoch(start), end: epoch(end) };
-              const input = rule({ frequency, interval, dtstart, timezone, wkst: 6, ...filter });
-              const reference = enumerate(input, window, 400, false);
-              expect(reference.capped).toBe(false);
-              expect(reference.spans.length).toBeGreaterThan(0);
-              expect(enumerate(input, window, 400)).toEqual(reference);
-            });
+            for (const time of [undefined, '00:00', '00:30', '23:59:59.999']) {
+              it(`matches original-anchor and retained-envelope ${frequency} with ${name}, ${timezone}, ${dtstart}, interval ${interval}, ${start}, and UNTIL time ${time}`, () => {
+                const window = { start: epoch(start), end: epoch(end) };
+                const untilDate = new Date(window.end - 10 * 24 * hour).toISOString().slice(0, 10);
+                const input = rule({
+                  frequency,
+                  interval,
+                  dtstart,
+                  timezone,
+                  wkst: 6,
+                  ...filter,
+                  until: time === undefined ? undefined : `${untilDate}T${time}`,
+                });
+                const reference = enumerate(input, window, 400, false);
+                expect(reference.capped).toBe(false);
+                if (time === undefined) expect(reference.spans.length).toBeGreaterThan(0);
+                expect(enumerate(input, window, 400)).toEqual(reference);
+                clearExpandCache();
+                const direct = expandRuleSet(set([input], []), window);
+                clearExpandCache();
+                const broad = expandRuleSet(set([input], []), {
+                  start: epoch(starts[0]) - 14 * 24 * hour,
+                  end: window.end,
+                });
+                expect(broad.complete).toBe(true);
+                const retained = expandRuleSet(set([input], []), window);
+                expect(retained.stats).toMatchObject({ cacheHits: 1, expanded: 0 });
+                expect(direct.complete).toBe(true);
+                expect(retained.complete).toBe(true);
+                expect(retained.intervals).toEqual(direct.intervals);
+                expect(retained.gaps).toEqual(direct.gaps);
+                expect(retained.truncated).toEqual(direct.truncated);
+              });
+            }
           }
         }
       }
@@ -479,8 +511,7 @@ describe('recurrence fields and local boundaries', () => {
     end,
     broadStart,
     broadEnd,
-    expectedStart,
-    expectedEnd,
+    expectedSpans,
   ] of [
     [
       'Pacific/Apia',
@@ -491,8 +522,7 @@ describe('recurrence fields and local boundaries', () => {
       '2012-01-15',
       '2011-12-16',
       '2012-01-20',
-      '2012-01-12T19:00Z',
-      '2012-01-13T03:00Z',
+      [['2012-01-12T19:00Z', '2012-01-13T03:00Z']],
     ],
     [
       'America/Chicago',
@@ -503,14 +533,31 @@ describe('recurrence fields and local boundaries', () => {
       '2024-03-23',
       '2024-03-01',
       '2024-03-23',
-      '2024-03-16T14:00Z',
-      '2024-03-16T22:00Z',
+      [
+        ['2024-03-16T14:00Z', '2024-03-16T22:00Z'],
+        ['2024-03-17T14:00Z', '2024-03-17T22:00Z'],
+      ],
+    ],
+    [
+      'America/Santiago',
+      'DAILY',
+      '2024-09-01',
+      '2024-09-20T00:30',
+      '2024-09-18',
+      '2024-09-23',
+      '2024-09-01',
+      '2024-09-23',
+      [
+        ['2024-09-18T12:00Z', '2024-09-18T20:00Z'],
+        ['2024-09-19T12:00Z', '2024-09-19T20:00Z'],
+        ['2024-09-20T12:00Z', '2024-09-20T20:00Z'],
+      ],
     ],
   ] as const) {
     it(`keeps ${timezone} intervals independent of containing-envelope call order`, () => {
       const input = set([rule({ id: 'friday', timezone, frequency, dtstart, until })], []);
       const window = { start: epoch(start), end: epoch(end) };
-      const expected = [span(expectedStart, expectedEnd, 'rule', 'friday')];
+      const expected = expectedSpans.map(([start, end]) => span(start, end, 'rule', 'friday'));
       const original = enumerate(input.rules[0] as RosterRule, envelopeFor(window), 400, false);
       expect(original.capped).toBe(false);
       const reference = original.spans.filter(
