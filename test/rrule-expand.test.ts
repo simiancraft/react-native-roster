@@ -425,6 +425,144 @@ describe('caps', () => {
 });
 
 describe('recurrence fields and local boundaries', () => {
+  for (const broadFirst of [false, true]) {
+    for (const [timezone, dtstart, weekday, weeklyStarts, monthlyStarts] of [
+      [
+        'Pacific/Apia',
+        '2011-12-30',
+        4,
+        ['2012-01-05T19:00Z', '2012-01-12T19:00Z'],
+        ['2012-01-29T19:00Z', '2012-03-29T19:00Z'],
+      ],
+      [
+        'Pacific/Fakaofo',
+        '2011-12-30',
+        4,
+        ['2012-01-05T20:00Z', '2012-01-12T20:00Z'],
+        ['2012-01-29T20:00Z', '2012-03-29T20:00Z'],
+      ],
+      [
+        'Pacific/Kwajalein',
+        '1993-08-21',
+        5,
+        ['1993-08-27T21:00Z', '1993-09-03T21:00Z'],
+        ['1993-09-20T21:00Z', '1993-10-20T21:00Z'],
+      ],
+    ] as const) {
+      for (const localTime of ['', 'T02:30']) {
+        for (const frequency of ['WEEKLY', 'MONTHLY'] as const) {
+          for (const explicit of [false, true]) {
+            it(`preserves skipped DTSTART ${dtstart}${localTime} in ${timezone}, ${frequency}, explicit ${explicit}, broad first ${broadFirst}`, () => {
+              const input = rule({
+                timezone,
+                dtstart: `${dtstart}${localTime}`,
+                frequency,
+                count: 2,
+                hourend: 10,
+                ...(explicit
+                  ? frequency === 'WEEKLY'
+                    ? { byweekday: [weekday] }
+                    : { bymonthday: [Number(dtstart.slice(-2))] }
+                  : {}),
+              });
+              const starts = frequency === 'WEEKLY' ? weeklyStarts : monthlyStarts;
+              const expected = starts.map((start) => ({
+                start: epoch(start),
+                end: epoch(start) + hour,
+                sources: [{ kind: 'rule', id: 'a' }],
+              }));
+              const window = { start: epoch(dtstart), end: epoch(starts[1]) + 24 * hour };
+              const broad = {
+                start: window.start - 14 * 24 * hour,
+                end: window.end + 14 * 24 * hour,
+              };
+              for (const advanceAnchor of [false, true]) {
+                expect(enumerate(input, window, 400, advanceAnchor)).toEqual({
+                  spans: expected.map(({ start, end }) => ({ start, end })),
+                  capped: false,
+                });
+              }
+              if (broadFirst)
+                expect(expandRuleSet(set([input], []), broad).intervals).toEqual(expected);
+              const output = expandRuleSet(set([input], []), window);
+              expect(output.intervals).toEqual(expected);
+              expect(output.complete).toBe(true);
+              expect(output.stats.expanded).toBe(broadFirst ? 0 : 1);
+              expect(expandRuleSet(set([input], []), broad).intervals).toEqual(expected);
+              const retained = expandRuleSet(set([input], []), window);
+              expect(retained.intervals).toEqual(expected);
+              expect(retained.complete).toBe(true);
+              expect(retained.stats.expanded).toBe(0);
+            });
+          }
+        }
+      }
+    }
+
+    for (const dtstart of ['2024-03-09T02:30', '2024-03-10T02:30']) {
+      for (const [until, included] of [
+        ['2024-03-11T03:00', true],
+        ['2024-03-11T02:30', true],
+        ['2024-03-11T02:29', false],
+        ['2024-03-11T07:30Z', true],
+        ['2024-03-11T07:29Z', false],
+      ] as const) {
+        it(`preserves skipped anchor wall time for ${dtstart}, UNTIL ${until}, broad first ${broadFirst}`, () => {
+          const input = set([rule({ timezone: 'America/Chicago', dtstart, until })], []);
+          const window = windowFor({
+            span: 'day',
+            anchorDate: '2024-03-11',
+            timezone: 'America/Chicago',
+          });
+          const broad = { start: epoch('2024-03-08'), end: epoch('2024-03-15') };
+          const expected = included
+            ? [span('2024-03-11T14:00Z', '2024-03-11T22:00Z', 'rule', 'a')]
+            : [];
+          if (broadFirst) expect(expandRuleSet(input, broad).complete).toBe(true);
+          const output = expandRuleSet(input, window);
+          expect(output.intervals).toEqual(expected);
+          expect(output.complete).toBe(true);
+          expect(output.stats.expanded).toBe(broadFirst ? 0 : 1);
+          expect(expandRuleSet(input, broad).complete).toBe(true);
+          const retained = expandRuleSet(input, window);
+          expect(retained.intervals).toEqual(expected);
+          expect(retained.complete).toBe(true);
+          expect(retained.stats.expanded).toBe(0);
+        });
+      }
+    }
+
+    for (const [dtstart, until, included] of [
+      ['2024-03-09T02:30', '2024-03-10T03:00', true],
+      ['2024-03-10T02:30', '2024-03-10T03:00', true],
+      ['2024-03-09T03:00', '2024-03-10T02:30', false],
+      ['2024-03-10T03:00', '2024-03-10T02:30', false],
+    ] as const) {
+      it(`compares local UNTIL across a skipped hour without normalization, ${dtstart}, ${until}, broad first ${broadFirst}`, () => {
+        const input = set([rule({ timezone: 'America/Chicago', dtstart, until })], []);
+        const window = windowFor({
+          span: 'day',
+          anchorDate: '2024-03-10',
+          timezone: 'America/Chicago',
+        });
+        const broad = { start: epoch('2024-03-08'), end: epoch('2024-03-15') };
+        const expected = included
+          ? [span('2024-03-10T14:00Z', '2024-03-10T22:00Z', 'rule', 'a')]
+          : [];
+        if (broadFirst) expandRuleSet(input, broad);
+        const output = expandRuleSet(input, window);
+        expect(output.intervals).toEqual(expected);
+        expect(output.complete).toBe(true);
+        expect(output.stats.expanded).toBe(broadFirst ? 0 : 1);
+        expandRuleSet(input, broad);
+        const retained = expandRuleSet(input, window);
+        expect(retained.intervals).toEqual(expected);
+        expect(retained.complete).toBe(true);
+        expect(retained.stats.expanded).toBe(0);
+      });
+    }
+  }
+
   for (const count of [undefined, 5]) {
     for (const broadFirst of [false, true]) {
       for (const kind of ['include', 'exclude'] as const) {
