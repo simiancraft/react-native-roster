@@ -1,12 +1,14 @@
 import { Fragment } from 'react';
 import { Pressable } from 'react-native';
 import type { Lane, LaneGeometry } from '../../core';
+import { intervalHoverProps } from './interval-hover';
+import { RosterIncomplete } from './parts/incomplete';
 import { pressPoint } from './press-point';
 import type { BodyInput } from './roster.types';
 
 export type LaneRowProps = Pick<
   BodyInput,
-  'press' | 'intervalZone' | 'gapZone' | 'highlightSource'
+  'press' | 'intervalZone' | 'gapZone' | 'highlightSource' | 'onIntervalHover' | 'incompleteLabel'
 > & {
   lane: Lane;
   geometry: LaneGeometry;
@@ -23,10 +25,13 @@ export function LaneRow({
   intervalZone,
   gapZone,
   highlightSource,
+  onIntervalHover,
+  incompleteLabel = 'Availability may be incomplete',
 }: LaneRowProps) {
   const layers = [...lane.layers].sort((a, b) => a.z - b.z);
   return (
     <Pressable
+      {...intervalHoverProps({ lane, geometry, onIntervalHover })}
       testID={`roster-lane-${lane.id}`}
       accessibilityLabel={lane.label}
       onPress={(input) => {
@@ -35,6 +40,7 @@ export function LaneRow({
       }}
       style={{ width, height: rowHeight }}
     >
+      <RosterIncomplete lane={lane} geometry={geometry} width={width} label={incompleteLabel} />
       {layers.map((layer) => (
         <Fragment key={layer.id}>
           {geometry.rects

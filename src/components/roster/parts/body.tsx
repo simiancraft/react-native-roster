@@ -17,6 +17,8 @@ export function RosterBody({
   intervalZone,
   gapZone,
   highlightSource,
+  onIntervalHover,
+  incompleteLabel,
 }: BodyInput) {
   // LegendList requires a measured viewport and does not support static rendering.
   if (viewport.width <= 0 || viewport.height <= 0) return null;
@@ -52,12 +54,21 @@ export function RosterBody({
         <LegendList
           testID="roster-vertical-scroll"
           data={lanes}
-          extraData={bodyContentKey({ window, projection, highlightSource, intervalZone, gapZone })}
+          extraData={bodyContentKey({
+            window,
+            projection,
+            highlightSource,
+            intervalZone,
+            gapZone,
+            onIntervalHover,
+            incompleteLabel,
+          })}
           keyExtractor={(lane) => lane.id}
           estimatedItemSize={projection.rowHeight}
           getFixedItemSize={() => projection.rowHeight}
           drawDistance={0}
           recycleItems={false}
+          maintainVisibleContentPosition={false}
           onScroll={scroll.onVerticalScroll}
           scrollEventThrottle={16}
           style={{ flex: 1 }}
@@ -71,6 +82,8 @@ export function RosterBody({
               intervalZone={intervalZone}
               gapZone={gapZone}
               highlightSource={highlightSource}
+              onIntervalHover={onIntervalHover}
+              incompleteLabel={incompleteLabel}
             />
           )}
         />
