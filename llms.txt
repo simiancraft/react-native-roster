@@ -332,16 +332,17 @@ envelopeFor(window) is window +/-48 absolute hours. The view zone is not an inpu
 Enumeration retains the original dtstart except for interval-1 rules without
 COUNT whose anchor is exactly local midnight. Those rules may skip whole periods
 in plain-date space, preserving the weekly weekday and monthly day, and stepping
-back past nonexistent dates. Non-midnight anchors retain their original iteration
-through DST gaps. The engine receives the end of UNTIL's local date, clamped to
-the query's upper local-date bound. The adapter admits each emitted date only
-when that date is at or before the authored date-only UNTIL, including when its
-final hour or the whole date is skipped. Datetime UNTIL compares exact instants at
+back past nonexistent dates. The engine iterates the anchor's local wall date-time
+in UTC calendar space, with the end of UNTIL's local date as a UTC bound, clamped
+to the corresponding query bound. The adapter drops wholly nonexistent dates
+before counting existing dates from the original anchor for COUNT. A skipped
+date never becomes a different weekday or consumes COUNT. The adapter admits each
+emitted date only when that date is at or before the authored date-only UNTIL,
+including when its final hour or the whole date is skipped. Datetime UNTIL compares exact instants at
 the original dtstart wall time, preferring its offset in repeats and using
 compatible disambiguation otherwise. A datetime UNTIL before DTSTART admits nothing.
-This keeps UNTIL admission independent of DST iteration drift, anchor advancement,
-and retained envelopes. Occurrences outside the envelope
-never consume the occurrence cap.
+This keeps UNTIL admission independent of anchor advancement and retained envelopes.
+Occurrences outside the envelope never consume the occurrence cap.
 Retained-envelope containment selects existing bounds before creating a new
 padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
 containment selects the most recently used matching envelope.

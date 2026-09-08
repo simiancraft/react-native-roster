@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import type * as TemporalModule from '@js-temporal/polyfill';
+import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
 import type { Interval, Window } from '../src/core';
 import { windowFor } from '../src/core';
 import type { RosterDate, RosterRule, RuleSet } from '../src/rrule';
@@ -10,6 +12,9 @@ import {
   resetExpandStats,
 } from '../src/rrule';
 import { enumerate } from '../src/rrule/occurrences';
+
+const { Temporal } = require('@js-temporal/polyfill') as typeof TemporalModule;
+const { RRuleTemporal, allowedWeekdays } = require('rrule-temporal') as typeof RRuleModule;
 
 const hour = 3_600_000;
 const epoch = Date.parse;
@@ -420,6 +425,143 @@ describe('caps', () => {
 });
 
 describe('recurrence fields and local boundaries', () => {
+  for (const count of [undefined, 5]) {
+    for (const broadFirst of [false, true]) {
+      for (const kind of ['include', 'exclude'] as const) {
+        it(`preserves Apia Fridays across a skipped date, ${kind}, COUNT ${count}, broad first ${broadFirst}`, () => {
+          const input = set(
+            [
+              rule({
+                id: 'friday',
+                kind,
+                frequency: 'WEEKLY',
+                dtstart: '2011-12-16',
+                byweekday: [4],
+                count,
+                timezone: 'Pacific/Apia',
+              }),
+            ],
+            kind === 'exclude'
+              ? [
+                  date({
+                    id: 'saturday',
+                    date: '2011-12-31',
+                    timezone: 'Pacific/Apia',
+                    hourstart: 9,
+                    hourend: 17,
+                  }),
+                ]
+              : [],
+          );
+          const window = { start: epoch('2011-12-15T00:00Z'), end: epoch('2012-01-21T00:00Z') };
+          const broad = { start: epoch('2011-12-01T00:00Z'), end: epoch('2012-02-04T00:00Z') };
+          const fridays = [
+            span('2011-12-16T19:00Z', '2011-12-17T03:00Z', 'rule', 'friday'),
+            span('2011-12-23T19:00Z', '2011-12-24T03:00Z', 'rule', 'friday'),
+            span('2012-01-05T19:00Z', '2012-01-06T03:00Z', 'rule', 'friday'),
+            span('2012-01-12T19:00Z', '2012-01-13T03:00Z', 'rule', 'friday'),
+            span('2012-01-19T19:00Z', '2012-01-20T03:00Z', 'rule', 'friday'),
+          ];
+          const expected =
+            kind === 'include'
+              ? fridays
+              : [span('2011-12-30T19:00Z', '2011-12-31T03:00Z', 'date', 'saturday')];
+          if (broadFirst) expect(expandRuleSet(input, broad).complete).toBe(true);
+          const output = expandRuleSet(input, window);
+          expect(output.intervals).toEqual(expected);
+          expect(output.gaps).toEqual([]);
+          expect(output.complete).toBe(true);
+          expect(output.truncated).toEqual([]);
+          expect(output.stats.expanded).toBe(
+            broadFirst ? 0 : input.rules.length + input.dates.length,
+          );
+          const expanded = expandRuleSet(input, broad);
+          expect(expanded.complete).toBe(true);
+          expect(expanded.gaps).toEqual([]);
+          expect(expanded.intervals).toEqual(
+            kind === 'include' && count === undefined
+              ? [
+                  ...fridays,
+                  span('2012-01-26T19:00Z', '2012-01-27T03:00Z', 'rule', 'friday'),
+                  span('2012-02-02T19:00Z', '2012-02-03T03:00Z', 'rule', 'friday'),
+                ]
+              : expected,
+          );
+          const retained = expandRuleSet(input, window);
+          expect(retained.intervals).toEqual(expected);
+          expect(retained.gaps).toEqual([]);
+          expect(retained.complete).toBe(true);
+          expect(retained.stats.expanded).toBe(0);
+        });
+      }
+    }
+  }
+
+  for (const [timezone, dtstart, until] of [
+    ['America/Chicago', '2024-03-01T02:30', '2024-05-31'],
+    ['Pacific/Apia', '2011-12-16T00:00', '2012-03-31'],
+    ['America/Santiago', '2024-09-01T00:00', '2024-11-30'],
+    ['Asia/Kathmandu', '1985-12-16T00:00', '1986-03-31'],
+  ] as const) {
+    const samples: Partial<RosterRule>[] = [
+      {},
+      { interval: 2 },
+      { frequency: 'WEEKLY', byweekday: [4], wkst: 6 },
+      { frequency: 'WEEKLY', interval: 2, byweekday: [0, 4], wkst: 6 },
+      { frequency: 'MONTHLY', bymonthday: [1, 16, -1] },
+      { frequency: 'MONTHLY', byweekday: [0, 1, 2, 3, 4], bysetpos: [-1], bymonth: [3, 11, 12] },
+    ];
+    for (const [index, sample] of samples.entries()) {
+      for (const count of [undefined, 5]) {
+        it(`matches UTC plain-date enumeration after nonexistent dates are dropped in ${timezone}, sample ${index}, COUNT ${count}`, () => {
+          const input = rule({ timezone, dtstart, until, ...sample, count });
+          const reference = new RRuleTemporal({
+            freq: input.frequency,
+            dtstart: Temporal.PlainDateTime.from(dtstart).toZonedDateTime('UTC'),
+            until: Temporal.PlainDate.from(until)
+              .toPlainDateTime('23:59:59.999')
+              .toZonedDateTime('UTC'),
+            tzid: 'UTC',
+            includeDtstart: false,
+            interval: input.interval,
+            wkst: allowedWeekdays[input.wkst ?? 0],
+            byDay: input.byweekday?.map((day) => allowedWeekdays[day]),
+            byMonthDay: input.bymonthday,
+            byMonth: input.bymonth,
+            bySetPos: input.bysetpos,
+          });
+          const expected = [
+            ...new Set(reference.all().map((value) => value.toPlainDate().toString())),
+          ]
+            .filter((value) => {
+              const date = Temporal.PlainDate.from(value);
+              return date.toZonedDateTime(timezone).toPlainDate().equals(date);
+            })
+            .slice(0, count);
+          expect(expected.length).toBeGreaterThan(0);
+          const window = {
+            start: Temporal.PlainDateTime.from(dtstart).toPlainDate().toZonedDateTime(timezone)
+              .epochMilliseconds,
+            end: Temporal.PlainDate.from(until).add({ days: 1 }).toZonedDateTime(timezone)
+              .epochMilliseconds,
+          };
+          for (const advanceAnchor of [false, true]) {
+            const output = enumerate(input, window, 400, advanceAnchor);
+            expect(output.capped).toBe(false);
+            expect(
+              output.spans.map(({ start }) =>
+                Temporal.Instant.fromEpochMilliseconds(start)
+                  .toZonedDateTimeISO(timezone)
+                  .toPlainDate()
+                  .toString(),
+              ),
+            ).toEqual(expected);
+          }
+        });
+      }
+    }
+  }
+
   for (const [timezone, dtstart, until, anchorDate, controlDate, start, end] of [
     [
       'America/Nuuk',

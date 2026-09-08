@@ -46,25 +46,24 @@ export function enumerate(
       : undefined;
   if (!untilDate && Temporal.ZonedDateTime.compare(until, original) < 0) return result;
   const anchorWallTime = original.toPlainTime();
-  // Let the engine emit the entire final date despite wall-time drift at DST gaps.
+  // Iterate wall dates in UTC so zone skips cannot normalize a candidate date.
   // The callback applies the original date cutoff or the exact datetime UNTIL.
-  const untilDateEnd = until
-    .toPlainDate()
+  const untilDateEnd = (untilDate ?? until.toPlainDate())
     .toPlainDateTime('23:59:59.999')
-    .toZonedDateTime(input.timezone);
+    .toZonedDateTime('UTC');
+  const upperDate = upper.toPlainDateTime().toZonedDateTime('UTC');
+  // Only midnight anchors with interval 1 and no COUNT may skip periods.
+  const anchor =
+    advanceAnchor &&
+    (input.interval === undefined || input.interval === 1) &&
+    input.count === undefined &&
+    anchorWallTime.equals('00:00')
+      ? advance(original, envelope, input)
+      : original;
   const engine = new RRuleTemporal({
     freq: input.frequency,
-    // Only midnight anchors with interval 1 and no COUNT may skip periods.
-    // Non-midnight iteration can shift wall time through a DST gap.
-    dtstart:
-      advanceAnchor &&
-      (input.interval === undefined || input.interval === 1) &&
-      input.count === undefined &&
-      anchorWallTime.equals('00:00')
-        ? advance(original, envelope, input)
-        : original,
-    until: Temporal.ZonedDateTime.compare(untilDateEnd, upper) < 0 ? untilDateEnd : upper,
-    count: input.count,
+    dtstart: anchor.toPlainDateTime().toZonedDateTime('UTC'),
+    until: Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate,
     interval: input.interval,
     wkst: allowedWeekdays[input.wkst ?? 0],
     byDay: input.byweekday?.map((day) => allowedWeekdays[day]),
@@ -77,16 +76,17 @@ export function enumerate(
         ? [original.day]
         : undefined,
     bySetPos: input.bysetpos,
-    tzid: input.timezone,
+    tzid: 'UTC',
     includeDtstart: false,
     // The finite upper bound stops sparse rules; the callback enforces our cap.
     maxIterations: Number.POSITIVE_INFINITY,
   });
   // Version 1.5.2 can replay the iterator when applying its final count filter.
-  // Admit each local date once so replay cannot consume the cap twice.
+  // Admit each local date once so replay cannot consume COUNT or the cap twice.
   const visited = new Set<string>();
+  let admitted = 0;
   engine.all((occurrence) => {
-    if (result.capped) return false;
+    if (result.capped || admitted === input.count) return false;
     const date = occurrence.toPlainDate();
     const key = date.toString();
     if (visited.has(key)) return true;
@@ -94,6 +94,9 @@ export function enumerate(
     if (untilDate) {
       if (Temporal.PlainDate.compare(date, untilDate) > 0) return true;
     } else if (Temporal.ZonedDateTime.compare(anchorFor(date, original), until) > 0) return true;
+    if (!date.toZonedDateTime(input.timezone).toPlainDate().equals(date)) return true;
+    // Lifetime COUNT includes existing dates before the envelope, but never skipped dates.
+    admitted++;
     return admit(date);
   });
   return result;
