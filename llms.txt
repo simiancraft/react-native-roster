@@ -339,7 +339,17 @@ The engine iterates those wall fields in UTC calendar space.
 The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.
 Explicit-offset UNTIL uses the end of the following local date instead; exact instant
 admission is its only UNTIL admission test. Clamp either bound to the corresponding
-UTC calendar bound of the envelope query. The adapter
+UTC calendar bound of the envelope query.
+The adapter owns BYSETPOS after every other BYxxx filter, grouping plain dates
+by day, WKST week, or year-month before deduplication, UNTIL, COUNT, and cap admission.
+Positional enumeration includes complete edge periods, then rejects dates before
+DTSTART and spans outside the envelope. The engine iteration limit is the number
+of authored periods from the enumeration anchor through the query bound, so empty
+candidate periods terminate completely without an arbitrary cutoff. Only that
+exact engine limit error signals completed enumeration; other failures propagate.
+Replayed iterator passes stop before buffering positional candidates.
+YEARLY is unsupported and rejected by input validation.
+The adapter
 drops wholly nonexistent dates before counting existing dates from the original
 anchor for COUNT. A skipped date never becomes a different weekday or consumes
 COUNT. The adapter admits each emitted date only when that date is at or before
