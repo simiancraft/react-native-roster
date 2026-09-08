@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      actions:
+        patterns: ['*']
+
+  # The ecosystem identifier describes the registry; all commands use Bun.
+  - package-ecosystem: npm
+    directories: ['/', '/demo']
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        patterns: ['*']
+    ignore:
+      - dependency-name: react
+      - dependency-name: react-native
+      - dependency-name: expo
+      - dependency-name: '@legendapp/list'
