@@ -64,6 +64,9 @@ export function enumerate(
   // Iterate wall dates in UTC so zone skips cannot normalize a candidate date.
   // The callback applies the original date cutoff or the exact datetime UNTIL.
   const untilDateEnd = (untilDate ?? until.toPlainDate())
+    // An instant after a midnight rollback can have the preceding local date.
+    // Keep the later wall date available for the callback's exact-instant filter.
+    .add({ days: until instanceof Temporal.ZonedDateTime ? 1 : 0 })
     .toPlainDateTime('23:59:59.999')
     .toZonedDateTime('UTC');
   const upperDate = upper.toPlainDateTime().toZonedDateTime('UTC');

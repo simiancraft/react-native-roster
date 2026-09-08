@@ -760,6 +760,89 @@ describe('recurrence fields and local boundaries', () => {
     }
   }
 
+  for (const [timezone, anchorDate, anchorInstant, after, start, end] of [
+    [
+      'America/St_Johns',
+      '2009-11-01',
+      '2009-11-01T02:30Z',
+      '2009-11-01T02:40Z',
+      '2009-11-01T12:30Z',
+      '2009-11-01T13:30Z',
+    ],
+    [
+      'America/Goose_Bay',
+      '1988-10-30',
+      '1988-10-30T02:00Z',
+      '1988-10-30T02:10Z',
+      '1988-10-30T13:00Z',
+      '1988-10-30T14:00Z',
+    ],
+    [
+      'UTC',
+      '2024-03-05',
+      '2024-03-05T00:00Z',
+      '2024-03-05T00:10Z',
+      '2024-03-05T09:00Z',
+      '2024-03-05T10:00Z',
+    ],
+  ] as const) {
+    const before = new Date(epoch(anchorInstant) - 1).toISOString();
+    for (const dtstart of [anchorInstant, `${anchorDate}T00:00`]) {
+      for (const count of [undefined, 1]) {
+        for (const until of [before, anchorInstant, after]) {
+          for (const kind of ['include', 'exclude'] as const) {
+            for (const broadFirst of [false, true]) {
+              it(`applies exact-instant UNTIL in ${timezone}, ${dtstart}, ${until}, ${kind}, COUNT ${count}, broad first ${broadFirst}`, () => {
+                const input = set(
+                  [rule({ id: 'cutoff', timezone, dtstart, until, kind, count, hourend: 10 })],
+                  kind === 'exclude'
+                    ? [date({ date: anchorDate, timezone, hourstart: 9, hourend: 10 })]
+                    : [],
+                );
+                const window = windowFor({ span: 'day', anchorDate, timezone });
+                const broad = {
+                  start: window.start - 14 * 24 * hour,
+                  end: window.end + 7 * 24 * hour,
+                };
+                const admitted = until !== before;
+                const intervals =
+                  kind === 'include'
+                    ? admitted
+                      ? [span(start, end, 'rule', 'cutoff')]
+                      : []
+                    : admitted
+                      ? []
+                      : [span(start, end, 'date', 'd')];
+                const gaps =
+                  kind === 'exclude' && admitted ? [span(start, end, 'rule', 'cutoff')] : [];
+                if (broadFirst) expect(expandRuleSet(input, broad).complete).toBe(true);
+                const output = expandRuleSet(input, window);
+                expect(output.intervals).toEqual(intervals);
+                expect(output.gaps).toEqual(gaps);
+                expect(output.complete).toBe(true);
+                expect(output.truncated).toEqual([]);
+                expect(output.stats.expanded).toBe(
+                  broadFirst ? 0 : input.rules.length + input.dates.length,
+                );
+                const wider = expandRuleSet(input, broad);
+                expect(wider.intervals).toEqual(intervals);
+                expect(wider.gaps).toEqual(gaps);
+                expect(wider.complete).toBe(true);
+                expect(wider.truncated).toEqual([]);
+                const retained = expandRuleSet(input, window);
+                expect(retained.intervals).toEqual(intervals);
+                expect(retained.gaps).toEqual(gaps);
+                expect(retained.complete).toBe(true);
+                expect(retained.truncated).toEqual([]);
+                expect(retained.stats.expanded).toBe(0);
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
   for (const [timezone, dtstart, before, start, end] of [
     [
       'America/Chicago',
