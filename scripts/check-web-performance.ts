@@ -21,7 +21,7 @@ const firstWindow = windowFor(rosterWindowSpec);
 const nextWindow = windowFor(next(rosterWindowSpec));
 const retained = [envelopeFor(firstWindow)];
 
-const root = resolve('demo/dist');
+let root = resolve('demo/dist');
 assert(
   await Bun.file(`${root}/gallery/200-lanes.html`).exists(),
   'Export demo web before check:web',
@@ -134,8 +134,50 @@ try {
   console.log(
     `Web performance: all action budgets pass; 24-row viewport, ${mounted} mounted lanes.`,
   );
+  root = resolve('demo/.cache/dev-dist');
+  assert(
+    await Bun.file(`${root}/gallery/200-lanes.html`).exists(),
+    'Export development web before check:web',
+  );
+  await page.goto(`${server.url}gallery/200-lanes`, { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => !!window.__roster?.profileStats);
+  await settle(page);
+  const profile = await profileStats();
+  assert(profile.body.mounts > 0, 'Development body Profiler must record a mount');
+  assert(
+    Object.values(profile.lanes).filter((lane) => lane.mounts > 0).length >= 24,
+    'Development LaneRow Profilers must record mounted rows',
+  );
+  await scrollRange();
+  const before = await profileStats();
+  const continuous = new Set(await mountedIds());
+  await scrollRange(async () => {
+    const mounted = new Set(await mountedIds());
+    for (const id of continuous) if (!mounted.has(id)) continuous.delete(id);
+  });
+  const after = await profileStats();
+  assert(continuous.size >= 8, `Expected continuously mounted lanes, got ${continuous.size}`);
+  for (const id of continuous) {
+    assert(before.lanes[id]?.mounts, `${id}: Profiler must have recorded a mount`);
+    assert.equal(after.lanes[id]?.mounts, before.lanes[id]?.mounts, `${id}: continuously mounted`);
+    assert.equal(
+      after.lanes[id]?.updates,
+      before.lanes[id]?.updates,
+      `${id}: zero LaneRow updates`,
+    );
+  }
+  // A real content change must make the same instrumentation detect updates.
+  await click('Highlight rule (fresh source)');
+  const changed = await profileStats();
+  assert(
+    [...continuous].some(
+      (id) => (changed.lanes[id]?.updates ?? 0) > (after.lanes[id]?.updates ?? 0),
+    ),
+    'LaneRow Profiler must detect a highlight update',
+  );
+  assert.deepEqual(errors, [], 'Development browser runtime errors');
   console.log(
-    'LaneRow profiler: test/roster-render.test.ts; production export disables React Profiler. See docs/performance.md.',
+    `LaneRow profiler: ${continuous.size} continuously mounted lanes, zero updates on the second scroll pass; mount and update controls pass.`,
   );
 } finally {
   await page.context().tracing.stop({ path: '.cache/web-performance/trace.zip' });
@@ -162,7 +204,7 @@ async function click(name: string) {
     );
   }
 }
-async function scrollRange() {
+async function scrollRange(afterScroll?: () => Promise<void>) {
   for (const y of [240, 480, 720, 480, 240, 0]) {
     await page.getByTestId('roster-vertical-scroll').evaluate((node, top) => {
       node.scrollTop = top;
@@ -172,6 +214,7 @@ async function scrollRange() {
       await page.getByTestId('roster-vertical-scroll').evaluate((node) => node.scrollTop),
       y,
     );
+    await afterScroll?.();
   }
 }
 async function counters() {
@@ -208,4 +251,21 @@ async function row(
     assert.equal(actual.layout.runs, expected.layout, `${name}: layout runs`);
   if (expected.coverage !== undefined)
     assert.equal(actual.coverage.runs, expected.coverage, `${name}: coverage runs`);
+}
+
+async function mountedIds() {
+  return page
+    .locator('[data-testid^="roster-lane-lane-"]')
+    .evaluateAll((nodes) =>
+      nodes.map((node) =>
+        (node.getAttribute('data-testid') as string).slice('roster-lane-'.length),
+      ),
+    );
+}
+async function profileStats() {
+  return page.evaluate(() => {
+    const profile = window.__roster?.profileStats?.();
+    if (!profile) throw new Error('Missing development Profiler counters');
+    return profile;
+  });
 }

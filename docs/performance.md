@@ -7,7 +7,7 @@ layout batch contains 24 lanes; coverage contains all 200. Use 15-minute ticks.
 
 ## Automated gates
 
-`bun run check` exports the production web demo, runs the Bun benchmarks,
+`bun run check` exports the production and development web demos, runs the Bun benchmarks,
 checks the two package sizes, and runs the Playwright harness. CI runs the same
 gates on every pull request. Install Chromium once before the local gate:
 
@@ -19,8 +19,9 @@ bun run check
 For a worktree-local browser cache, use
 `PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/playwright"` on both commands. Linux CI
 installs browser system dependencies with `bunx playwright install --with-deps chromium`.
-`bun run check:web` serves the existing `demo/dist` on a loopback ephemeral port;
-it fails if the export or browser is missing. It never starts a development server.
+`bun run check:web` first runs `bun run build:web:dev` to export `demo/.cache/dev-dist`,
+then serves it and the existing production `demo/dist` on a loopback ephemeral port.
+It fails if either export or the browser is missing. It never starts a development server.
 Failures exit nonzero. Trace and screenshot files live in `.cache/web-performance/`.
 Open a trace with `bunx playwright show-trace .cache/web-performance/trace.zip`.
 
@@ -118,19 +119,24 @@ before that assertion. The adapter's default four-envelope LRU retains both.
 
 ## LaneRow render evidence
 
-The normal Expo production export uses React's production renderer, which disables
-`Profiler` callbacks. Adding a Profiler to that bundle would produce a misleading
-zero. See the [React Profiler documentation](https://react.dev/reference/react/Profiler).
-The automated fallback is `test/roster-render.test.ts`, test
-`keeps mounted LaneRow renders at zero across vertical scroll`: an active React
-Profiler must first record a mount, then record zero commits during six scroll
-offsets. The test also checks that all 24 mounted lanes' interval fillers receive
-zero further calls. It runs in the same CI coverage gate.
+The production export disables React Profiler callbacks, so its cache and action
+assertions run separately from the development render gate. `build:web:dev` uses
+Expo's `--dev` export; only the development 200-lane route supplies a profiled body.
+The body's optional `onRowRender` observer enables a Profiler around each real LegendList LaneRow, and
+`window.__roster.profileStats()` exposes detached body and per-lane commit counts.
+The production gallery supplies no observer.
 
-This fallback uses native host doubles and does not prove LegendList's browser
-or device render behavior. For each release, also record the real LaneRow tree
-with React Native DevTools in a separate development build, or React DevTools
-on the web development gallery. Start profiling after mount, scroll the same
+The browser gate requires nonzero body and LaneRow mount counts, warms the scroll
+range, then traverses the same six offsets again. It intersects the mounted lane
+ids at every offset and asserts unchanged mount and update counts for every
+continuously mounted lane, with at least eight such lanes required. A subsequent
+highlight must produce a recorded LaneRow update, proving the instrumentation
+can detect changes. Entering and leaving lanes may mount and unmount. Production
+action budgets remain in the same harness, and both exports must have no browser
+runtime errors. The native host Profiler test remains complementary coverage.
+
+For each release, also record the native LaneRow tree with React Native DevTools
+in a separate development build. Start profiling after mount, scroll the same
 range twice, and inspect LaneRow: existing lanes must not render because of
 scroll; entering and leaving lanes may mount and unmount. Export the profile and
 attach it with the build identity. Do not use development-build timings as the

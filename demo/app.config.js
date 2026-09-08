@@ -27,6 +27,8 @@ const config = {
   web: { bundler: 'metro', output: 'static' },
   experiments: {
     reactCompiler: true,
+    // Source paths are for typechecks; Metro must retain package export conditions.
+    tsconfigPaths: false,
     ...(process.env.GITHUB_PAGES ? { baseUrl: '/react-native-roster' } : {}),
   },
   plugins: ['expo-router'],
