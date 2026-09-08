@@ -28,6 +28,7 @@ export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
       subjectZone={
         <Roster
           lanes={fixture.lanes}
+          pxPerMinute={fixture.pxPerMinute}
           windowSpec={windowSpec}
           minuteStep={minuteStep}
           sortLanes={sortLanes}
