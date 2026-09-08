@@ -22,7 +22,7 @@ coverage fields. Do not introduce consumer-specific entities or dependencies.
 
 ## Quick orientation
 
-The API is unreleased. Issue #1 is the epic; #3 is authoritative for types.
+The implemented surface is documented in README.md and llms.txt. Issue #1 is the epic; #3 is authoritative for types.
 When issues disagree, #3 wins for types and the feature's owning issue wins for
 behavior. State any interpretation in the delivery report.
 
@@ -41,7 +41,7 @@ demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # gallery links and build identity
   app/gallery/             # thin named roster and schedule fixture route shells
-  components/gallery-route/ # hook, chassis, controls, and web counter bridge
+  components/gallery-route/ # hook, chassis, rule-set draft/editor, and web counter bridge
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
 .github/                   # CI, Pages, links, Scorecard, and community templates
@@ -90,7 +90,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   target-cold means they are absent. Do not restate these as whole-cache states.
 - The Expo app is the gallery; a "story" means a fixture route under
   `demo/app/gallery/` using a named fixture from `test/fixtures`. No Storybook.
-  Size gates and Playwright run in `check`; adapter docs and full examples remain in #10.
+  Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.
@@ -264,3 +264,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
     in `test/roster-render.test.ts` complements the browser cache assertions;
     its host doubles do not prove browser or device LaneRow renders. Follow
     `docs/performance.md` for the real profile and exact-commit release evidence.
+
+28. **Gallery completeness is fixture-driven.** The home page lists roster and schedule
+    fixture records; every record needs a matching thin route shell. Axis fixtures
+    cover day/week/month at 15/30/60 minutes. Adapter fixtures supply ruleSet and
+    optional expandOptions; useRuleSetDraft owns JSON text, parsing, and the last
+    applied set. Apply validates via the actual adapter before updating the roster.
+    GalleryRouteLayout places ruleSetEditorZone beside subjectZone, or above it
+    on narrow screens. The schedule
+    every-zone fixture offers defaults/replacements and date presets to exercise
+    skippedDateZone, transitionZone, and nowLineZone as well as the ordinary slots.

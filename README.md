@@ -1,58 +1,63 @@
 # react-native-roster
 
+[![Gallery](https://img.shields.io/badge/▶%20Gallery-lanes%2C%20layers%2C%20and%20sources-4f46e5?style=for-the-badge)](https://simiancraft.github.io/react-native-roster/)
+
+[![Types: included](https://img.shields.io/badge/types-included-3178c6?logo=typescript)](#contract)
 [![CI](https://github.com/simiancraft/react-native-roster/actions/workflows/ci.yml/badge.svg)](https://github.com/simiancraft/react-native-roster/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/simiancraft/react-native-roster)](https://codecov.io/github/simiancraft/react-native-roster)
+[![Coverage](https://img.shields.io/codecov/c/github/simiancraft/react-native-roster?logo=codecov)](https://codecov.io/github/simiancraft/react-native-roster)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/simiancraft/react-native-roster/badge)](https://securityscorecards.dev/viewer/?uri=github.com/simiancraft/react-native-roster)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-A React Native read surface for layered intervals with provenance: a stack of lanes,
-one per person or resource, against a shared time axis. Scan a column to see who is
-on; scan a row to see whether someone set anything at all.
+A **roster** is a stack of lanes, one per person or resource, against a shared time
+axis. Each lane contains layers of intervals. Scan a column to see who is on;
+press a filled or removed span to see exactly which sources produced it.
+`Roster` shows many lanes horizontally. `Schedule` shows one lane with days across
+and wall-clock hours down. Both render the same interval data and provenance.
 
-**API unreleased.** The pure TypeScript core is implemented in this working tree:
-contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
-`Roster`, `useRoster`, `Schedule`, `useSchedule`, replaceable zones, and the
-recurrence adapter are implemented, along with the first seven roster gallery
-routes, the provenance and timezone routes, and ten schedule gallery routes.
+**The package is feature-complete and unreleased on npm.** Use the repository demo
+or a locally built package. Geometry, coverage, recurrence expansion, timezone
+transitions, replaceable zones, and the performance gates are implemented.
 
-## Design
+## Start with the demo
 
-All expensive work happens outside the render path. Rendering consumes precomputed
-geometry. The core accepts absolute intervals and gaps with provenance; recurrence
-expansion belongs to an adapter. `Roster` projects many lanes horizontally;
-`Schedule` projects one lane into day columns. Both use the same layers and sources.
+Use Bun 1.4.0 and Node 22. From this repository's checkout:
 
-| Term | Meaning |
-| --- | --- |
-| roster | The whole read surface: a shared time axis, lanes, and layers. |
-| lane | One person or resource row containing layers, a label, and optional metadata. |
-| layer | A named, ordered set of intervals and gaps with a role, z-order, and style. |
-| interval | Covered absolute time, `[start, end)` in epoch milliseconds, with sources. |
-| gap | Removed absolute time with sources; survives complete subtraction. |
-| source | Provenance identified by `(kind, id)`; its label is display metadata. |
-| window | A bare absolute `{ start, end }` span; resolution belongs to the axis. |
-| projection | Geometry mapping: horizontal for a roster, columns for a schedule. |
-| adapter | A function outside the core that converts upstream data into lanes and layers. |
-| schedule | One lane projected into days across and wall-clock hours down. |
+```sh
+bun install --ignore-scripts --frozen-lockfile
+bun run build
+bun run demo:web
+```
 
-## Entry points
+One root install supplies the demo workspace too. In an offline or restricted
+environment, use `EXPO_OFFLINE=1 bun run demo:web` to skip Expo's online dependency
+validation. Open the URL printed by Expo;
+choose **Single lane**, **Adapter: includes and exclusions**, or **One lane: Roster
+and Schedule**. No service, account, or data download is needed.
 
-| Import | Contents | Status |
-| --- | --- | --- |
-| `react-native-roster` | Roster, useRoster, Schedule, useSchedule, default zones, and core re-exports | Implemented |
-| `react-native-roster/core` | Types, layout, coverage, axis helpers, and counters | Implemented |
-| `react-native-roster/rrule` | Recurrence expansion, caps, provenance, and caches | Implemented |
+To run the quick start below, save it as `demo/app/gallery/readme-example.tsx`,
+changing `export function Example` to `export default function Example` for Expo
+Router. Open `/gallery/readme-example` on that same local server. It shows a green
+09:00 to 17:00 interval on January 1, 2024; scroll the time axis to see it.
+Remove this scratch route when finished. The fixed date makes the example repeatable.
 
-The core uses only the standard library and `Intl`. Only the adapter imports
-`rrule-temporal` 1.5.2 and `@js-temporal/polyfill` 0.5.1, pinned runtime dependencies.
-React, React Native, Expo, and `@legendapp/list` are peers. Rendering also requires
-`react-native-reanimated` 3.19 or later, declared optional so pure-core consumers
-can omit it. Configure Reanimated in the consumer app. The demo uses 3.19.5.
+For an existing Expo app, build and pack this checkout:
 
-## Render a roster
+```sh
+bun pm pack --destination .cache
+```
 
-Give the roster a bounded height. LegendList mounts only the lanes near the viewport;
-each mounted row requests its content-cached geometry.
+In your app, `bun add /absolute/path/to/react-native-roster-0.0.0.tgz` using the
+actual tarball path printed by that command, then `bun add @legendapp/list` and
+`bunx expo install react-native-reanimated --bun`. Keep the app's compatible React,
+React Native, and Expo versions. The tested demo uses Expo SDK 54, React 19.1,
+React Native 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5. Its
+[babel.config.js](./demo/babel.config.js) shows the Expo and NativeWind Babel presets used by this workspace.
+NativeWind is demo styling, not a library requirement. Web consumers also need
+React DOM and React Native Web compatible with their Expo SDK.
+
+## Quick start: static intervals
+
+Twenty lines, with no adapter required. Give the component a bounded height.
 
 ```tsx
 import { Roster } from 'react-native-roster';
@@ -60,386 +65,321 @@ import type { Lane } from 'react-native-roster/core';
 
 const lanes: Lane[] = [{
   id: 'one', label: 'Lane one', layers: [{
-    id: 'open', role: 'availability', z: 0, style: { color: '#4f9478' },
+    id: 'open', role: 'availability', z: 0,
+    style: { color: '#4f9478' },
     intervals: [{
       start: Date.UTC(2024, 0, 1, 9), end: Date.UTC(2024, 0, 1, 17),
-      sources: [{ kind: 'rule', id: 'one' }],
+      sources: [{ kind: 'table', id: 'row-one' }],
     }],
   }],
 }];
 
 export function Example() {
-  return <Roster lanes={lanes} style={{ height: 480, flex: undefined }}
+  return <Roster lanes={lanes}
+    style={{ height: 480, flex: undefined }}
     windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
     onIntervalPress={(rect, lane) => console.log(lane.id, rect.sources)} />;
 }
 ```
 
-`useRoster` exposes the window, measured horizontal projection, ordered lanes,
-coverage and lane-state maps, `geometryFor`, ticks, shared scrolling, `press`, and
-`status`. Custom layouts wire `onLayout`; custom bodies request `geometryFor(lane)`
-only for mounted lanes. Vertical scrolling updates shared offsets without React state. Default rows are 48 px high, the label column is 180 px wide, and
-the time axis uses at least 0.5 px per elapsed minute. `rowHeight` and
-`pxPerMinute` customize that scale. Minute steps affect ticks and snapping only.
-LegendList mounts after viewport measurement, keeping static export compatible.
-Its content key tracks window, projection, highlight source, and rect zone fillers.
-All lane labels sit in one translated column. Ticks use arithmetic across timezone
-transitions and a cache keyed by window, timezone, span, minute step, and scale.
+Press the interval to receive its `table / row-one` source. `minuteStep` defaults
+to 60; any positive integer divisor of 60 is accepted. It changes ticks and
+empty-space pointer snapping, never interval boundaries. `rowHeight` defaults
+to 48 and `pxPerMinute` to a minimum of 0.5, growing to fit wider viewports.
 
-Presses choose an interval before a gap, highest z first, with later layers winning
-ties. Empty-space presses return a snapped absolute time. `highlightSource` matches
-`(kind, id)` and uses the layer's `highlightColor`. Sorting defaults to `byLabel`;
-`byCoverage({ measure: 'availability' | 'availabilityMinusBooking' })` sorts
-coverage descending with label ties, using coverage for every lane.
+## Quick start: recurring local hours
 
-Every zone is an optional render function. The exported default fillers can be
-composed inside replacements.
-
-| Zone | Input and default |
-| --- | --- |
-| `emptyZone` | No input; `RosterEmpty` shows No lanes. |
-| `laneLabelZone` | Lane, effective flag, complete, viewTimezone, and localized labels; `RosterLaneLabel` shows label, differing timezone, and notices. |
-| `headerCellZone` | Tick; `RosterHeaderCell` shows its label. |
-| `intervalZone` | Rect, layer, lane, and highlighted; `RosterInterval` draws one positioned colored View. Replacements use final rect bounds and z, with pointerEvents="none" for row hit testing. |
-| `gapZone` | Rect, layer, and lane; `RosterGap` draws nothing inside the row's positioned pressable. |
-| `headerZone` | Ticks, projection, scroll, contentWidth, and headerCellZone; `RosterHeader` follows the shared horizontal offset. |
-| `laneLabelColumnZone` | Resolved labels (LaneLabelInput per ordered lane), projection, scroll, and laneLabelZone; `RosterLaneLabelColumn` follows the shared vertical offset. |
-| `bodyZone` | Ordered lanes, window, geometryFor, projection, scroll, press, viewport, ticks, contentWidth, highlightSource, and rect zones; `RosterBody` virtualizes LaneRow. |
-
-`complete` defaults to true. Set `Lane.complete: false` to show `incompleteLabel`
-(default "Availability may be incomplete"). Only explicit `never-set` shows
-`neverSetLabel` (default "No availability set"). These labels are localizable props.
-Neither metadata nor highlighting invalidates cached geometry.
-
-## Render a schedule
-
-This feature is about a schedule; its children are days. Give `Schedule` one lane
-and a bounded viewport. It fits the actual day columns to the width, with a frozen
-48 px hour gutter, a frozen day header, and vertical body scrolling only.
+The adapter is an explicit subpath import. Expand once for the selected window,
+then map the result into a layer. This complete example can replace the static
+example in the same scratch route (use a default export for Expo Router).
 
 ```tsx
-import { Schedule } from 'react-native-roster';
-import type { Lane } from 'react-native-roster/core';
-
-export function Week({ lane }: { lane: Lane }) {
-  return <Schedule lane={lane} style={{ height: 600, flex: undefined }}
-    windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
-    minuteStep={60}
-    onIntervalPress={(rect) => console.log(rect.sources)}
-    onGapPress={(rect) => console.log(rect.sources)}
-    onCellPress={(_lane, time) => console.log(time)} />;
-}
-```
-
-`useSchedule` accepts the lane, `windowSpec`, optional minute step, hour scale, highlight source,
-navigation callback, and press callbacks. It returns `window`, `days`, `projection`,
-`geometry`, `now`, `press(columnIndex, x, y)`, and `status: 'ready'`. Only day and week
-specs are accepted. The view zone comes only from `windowSpec.timezone`. Navigation
-controls belong to the consumer; use `prev`, `next`, and `today` with controlled props.
-The standalone hook uses a 280 px grid; the chassis supplies the measured grid width
-internally and waits for measurement before its first layout. `pxPerHour` defaults to 48 and must be a positive finite number.
-The current-time indicator updates every minute and is absent outside the window.
-
-| Zone | Input and default |
-| --- | --- |
-| `gutterZone` | Hours 0 through 23 and pxPerHour; `ScheduleGutter` draws hour labels. |
-| `dayHeaderZone` | DayColumn; `ScheduleDayHeader` shows weekday, localDate, and transition badge. |
-| `skippedDateZone` | localDate; `ScheduleSkippedDate` labels the zero-width gap for a wholly skipped date. |
-| `columnZone` | Day, rects, gapRects, lane, highlightSource, press, intervalZone, and gapZone; `ScheduleColumn` draws final bounds in layer order. |
-| `transitionZone` | Day, transition, y, height, and width; `ScheduleTransition` hatches skipped time and divides repeated time with an again label. |
-| `nowLineZone` | y and column; `ScheduleNowLine` spans the current day's column. |
-| `intervalZone`, `gapZone` | The same inputs, fillers, style cache, and press coordinate handling as Roster. |
-| `incompleteZone` | Lane and localized label; `ScheduleIncomplete` shows the notice in reserved empty space above the grid when complete is false. |
-
-Columns always have 24 equal hour bands. Repeated time uses two half-height
-sub-regions; skipped time fires no callback. Missing local dates have a header
-marker and no column, including Apia's six-column week containing 2011-12-30.
-Presses resolve `timeAtY`, then `snapToStep`, then the shared interval/gap walk
-at the original point. A 10:30 interval stays pressable on a 60-minute grid.
-Step and highlight changes reuse geometry. An unchanged lane switched from Roster
-to Schedule expands nothing and computes one new layout; returning to the retained
-Roster projection computes none.
-
-## Pure core
-
-```ts
-import { dayColumnsFor, layoutLane, windowFor } from 'react-native-roster/core';
-import type { Lane, Projection } from 'react-native-roster/core';
-
-const window = windowFor({
-  span: 'week',
-  anchorDate: '2024-03-10',
-  timezone: 'America/Chicago',
-});
-const lane: Lane = { id: 'one', label: 'One', layers: [] };
-const projection: Projection = {
-  orientation: 'columns',
-  viewTimezone: 'America/Chicago',
-  pxPerHour: 60,
-  columnWidth: 100,
-  days: dayColumnsFor(window, 'America/Chicago'),
-};
-const geometry = layoutLane(lane, window, projection);
-```
-
-`layoutLane` computes rects for visible lanes. `coverageFor(lane, window)` computes
-projection-independent union coverage for every lane. `flagFor` reads explicit
-flags first and can infer `empty-in-window`; it never infers `never-set`.
-Gaps carry provenance even after complete subtraction and are not subtracted again
-from coverage. Rect bounds include the layer inset and preserve exact milliseconds.
-Column `x` coordinates are local to the column; use `rect.column` to select it.
-
-`windowFor`, `prev`, `next`, and `today` accept a `WindowSpec`. Week bounds default
-to Monday. Local-day, week, and month bounds follow the view zone; custom windows
-remain absolute. Month navigation clamps an anchor to the target month's last day
-when necessary. `dayColumnsFor` returns whole local-day bounds intersecting the
-window. A skipped local date has no column; compare `localDate` values for a header
-gap. Date labels currently use English abbreviated weekdays.
-
-Columns have 24 equal hour bands. Skipped time is empty; repeated time uses two
-half-height sub-regions. `timeAtY(projection, columnIndex, y)` resolves the absolute
-occurrence or returns `null` in skipped time or outside a column. The horizontal
-projection has no origin field, so `timeAtX(projection, window, x)` takes the window
-and returns an epoch time at true elapsed length. `snapToStep` floors a
-pointer result to a positive divisor of 60 in the view zone and clamps at a crossed
-transition. Minute steps never change geometry or cache keys.
-
-Layout keys include lane id, version, window bounds, and every projection field.
-Without `lane.version`, a canonical structural encoding of `layers` supplies the
-content key. Bump a supplied version when layers change. Lane label, timezone,
-flag, completeness, and metadata never invalidate rects. Flag and coverage are
-read on every assembly; complete inputs retain their object references, including
-when revisiting a projection. Treat returned objects as read-only. Clear caches
-explicitly when their retained windows are no longer useful.
-
-`layoutStats` and `coverageStats` return cumulative `{ runs, cacheHits }` snapshots.
-`resetStats` resets counters without clearing keys; `clearLayoutCache` and
-`clearCoverageCache` clear keys without resetting counters. Target-warm means the
-exact requested keys exist; target-cold means they are absent.
-
-The deterministic fixture in `test/fixtures/workload.ts` produces **70 rects plus
-gap rects per lane per week** (63 rects and 7 gap rects) in either projection.
-Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks.
-Tests enforce separate 16 ms target-cold layout and coverage budgets, plus a 1.5×
-CI-only regression limit against the committed CI runner baseline. See [Performance](#performance).
-
-## Provenance interaction
-
-`onIntervalPress(rect, lane)`, `onGapPress(rect, lane)`, and
-`onCellPress(lane, time)` report one result per press. Intervals win over gaps,
-then higher z and later layers break ties. Cell times snap to `minuteStep`.
-`onIntervalHover(rect, lane)` reports the winning interval as a web pointer moves;
-native renders attach no hover handler. Web coordinates are relative to the row,
-including after scrolling, and sources belong to the exact split span.
-
-`highlightSource={{ kind: 'rule', id: 'shared-rule' }}` colors matching rects with
-`layer.style.highlightColor`, falling back to the normal color when absent.
-Identity ignores labels and object reference. Highlight changes reuse geometry.
-`sortLanes` defaults to `byLabel`; `byCoverage({ measure: 'availability' })` and
-`byCoverage({ measure: 'availabilityMinusBooking' })` sort descending with label
-ties. Comparators receive coverage for every lane, including offscreen lanes.
-
-Only consumers set `flag: 'never-set'`; `neverSetLabel` defaults to
-"No availability set". `empty-in-window` is inferred when intervals exist but none
-intersect the window, and displays no flag text. Flag changes retain rect references.
-`complete: false` shows `incompleteLabel`, default "Availability may be incomplete",
-in the label column and the first empty span of the row.
-
-## Recurrence adapter
-
-```ts
+import { Roster } from 'react-native-roster';
+import type { Lane, WindowSpec } from 'react-native-roster/core';
+import { windowFor } from 'react-native-roster/core';
 import { expandRuleSet } from 'react-native-roster/rrule';
 import type { RuleSet } from 'react-native-roster/rrule';
 
+const spec: WindowSpec = {
+  span: 'week', anchorDate: '2024-01-01', timezone: 'America/Chicago',
+};
 const set: RuleSet = {
   rules: [{
     id: 'weekday-hours', kind: 'include', frequency: 'WEEKLY',
     dtstart: '2024-01-01', byweekday: [0, 1, 2, 3, 4],
     hourstart: 9, hourend: 17, timezone: 'America/Chicago',
   }],
-  dates: [],
+  dates: [{
+    id: 'closed', kind: 'exclude', date: '2024-01-02',
+    timezone: 'America/Chicago', note: 'Closed all day',
+  }],
 };
-const result = expandRuleSet(set, window);
-// Put result.intervals and result.gaps on a layer, and result.complete on its lane.
+const result = expandRuleSet(set, windowFor(spec));
+const lane: Lane = {
+  id: 'one', label: 'Lane one', timezone: 'America/Chicago',
+  complete: result.complete,
+  layers: [{
+    id: 'open', role: 'availability', z: 0, style: { color: '#4f9478' },
+    intervals: result.intervals, gaps: result.gaps,
+  }],
+};
+
+export function RecurringExample() {
+  return <Roster lanes={[lane]} windowSpec={spec}
+    style={{ height: 480, flex: undefined }}
+    onGapPress={(rect) => console.log(rect.sources)} />;
+}
 ```
 
-`RosterRule` supports DAILY, WEEKLY, and MONTHLY frequencies, count, until,
-interval, wkst, byweekday, bymonth, bymonthday, and bysetpos. Weekdays use the core's
-0 = Monday numbering. IDs supply provenance; content determines cache identity.
-`RosterDate` adds an included or excluded local date, optional paired hours, and
-an optional note displayed as its source label. No hours means the whole day.
-Hours satisfy `0 <= hourstart < hourend <= 24`; fractional hours retain millisecond
-precision. Hour 24 is next local midnight. Local dates and plain datetimes are
-interpreted in the rule's zone; offset datetimes represent instants converted to
-that zone. Date-only until includes the whole local date. Temporal's compatible
-policy chooses the earlier repeated hour and advances a nonexistent hour.
+Tuesday is a gap carrying the dated exclusion; the other weekdays carry the
+include rule. In a controlled screen, expand for each selected `windowFor(spec)`;
+content-keyed caches reuse unchanged occurrences. Do not expand inside row or
+zone fillers. Propagate `complete` even when no intervals remain. The
+[adapter guide](./docs/adapters.md) covers validation, caps, cache lifetime, and
+mapping other sources without a recurrence dependency.
 
-`expandRuleSet` uses one absolute envelope padded 48 hours on each side, includes
-spans crossing its bounds, subtracts exclusions, and clips to the display window.
-Interval sources contain only includes; gap sources contain only exclusions that
-removed covered time. A completely removed day remains a gap. No view zone enters
-the adapter. A contained window reuses the retained envelope, including after a
-view-zone shift. `envelopeFor(window)` exposes the padding calculation.
+## Contract
 
-Options default to `cache.maxEntries: 2000`, `cache.maxEnvelopes: 4`,
-`caps.perRuleOccurrences: 400`, and `caps.totalOccurrences: 10000`. All accept
-nonnegative integers; zero disables retention or admits no occurrences. Per-rule
-entries retain only occurrence lists and their cap status. Retained envelopes
-are an LRU per set content key. Clear caches when discarding sets; the number of
-set histories is not bounded globally. Evicted occurrence entries must expand
-again even when their envelope is still retained.
+| Term | Meaning |
+| --- | --- |
+| roster | Shared time axis, lanes, and layers. |
+| lane | One person or resource row; `id`, `label`, `layers`, and optional display metadata. |
+| layer | Ordered intervals and gaps with `id`, `role`, `z`, and `style`. |
+| interval | Covered `[start, end)` in epoch milliseconds, with `sources: Source[]`. |
+| gap | Removed `[start, end)` with exclusion sources; survives complete subtraction. |
+| source | `{ kind, id, label? }`; identity is `(kind, id)`, never the label or object reference. |
+| window | Absolute `{ start, end }` only; no span or resolution. |
+| projection | Horizontal elapsed time, or day columns with wall-clock hours. |
+| adapter | Consumer-side conversion from upstream data to lanes and layers. |
+| schedule | One lane projected into days across and hours down. |
 
-Total caps and netting run fresh on every call. Admission follows rules in id
-order, then dates in id order. The first list that does not fit and every later
-list are dropped whole. `truncated` reports exact counts for fully enumerated
-dropped lists and a lower bound of 1 for lists stopped by the per-rule cap.
-Any truncation sets `complete: false`; propagate it to the lane. Caps count the
-selected envelope's occurrences, including those outside the display window.
+`LayerRole` is exactly `'availability' | 'booking' | 'custom'`. Coverage unions
+intervals across layers with each role, clipped to the window:
+`availabilityMinutes`, `bookingMinutes`, and `availabilityMinusBookingMinutes`.
+Gaps are not subtracted again; adapters already removed them from intervals.
+`LayerStyle` is `{ color, highlightColor?, inset?, opacity? }`. The engine applies
+inset on the cross axis and returns final bounds for drawing and hit testing.
 
-`stats` describes the call; `expandStats()` returns cumulative counters.
-`resetExpandStats()` clears counters only, and `clearExpandCache()` clears both
-caches only. Changing the total cap reuses occurrence lists; changing the per-rule
-cap invalidates them. Returned intervals, sources, and envelope objects are fresh.
+`Lane` also accepts `version`, `timezone`, `flag`, `complete`, and `meta`.
+Only the consumer can assert `flag: 'never-set'`. With no explicit flag, intervals
+outside the window yield `empty-in-window`; otherwise the flag is `none`.
+An empty array cannot prove that a lane was never configured. `complete: false`
+shows `incompleteLabel` (default "Availability may be incomplete"); `neverSetLabel`
+defaults to "No availability set". Both labels are localizable component props.
 
-## Timezones
+## Entry points and caches
 
-`WindowSpec.timezone` is the component's only view-zone input. It keeps the same
-local anchor date when changed. `Lane.timezone` is display metadata: the default
-label shows its IANA name when it differs from the view zone. Rule and date zones
-interpret local hours only in the adapter. For example, London's 09:00 appears
-at Chicago 03:00 on March 9, 2024, at 04:00 on March 10, and at 03:00 again on
-March 31.
+| Import | Shipped surface |
+| --- | --- |
+| `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, zone fillers, and all core exports. |
+| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
+| `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters/caches. Uses pinned `rrule-temporal` 1.5.2 and `@js-temporal/polyfill` 0.5.1. |
 
-Horizontal weeks contain 167 or 169 hourly boundaries across Chicago's spring
-and fall changes, including the day boundaries at midnight. Intervals align with
-their wall-hour labels on this elapsed-time axis. Core columns retain 24 equal
-hour bands, an empty skipped region, and two half-height repeat regions; 09:00
-stays at the same y. `Schedule` draws these column regions, hatching skipped time and dividing repeated time.
+Root/core never import recurrence dependencies, though the package installation
+includes them. Metro selects TypeScript source through the `react-native` export
+condition; other bundlers select emitted CommonJS, with declarations in
+`dist/src`. Reanimated is an optional peer for core-only use, required for Roster.
 
-With the current inputs target-warm, changing Chicago's view zone to Auckland
-expands zero rules inside the retained envelope, computes each visible lane's
-layout once, and computes each lane's coverage once for the new window. Revisiting
-retained exact keys computes nothing. A lane-zone edit preserves the geometry
-reference and all three run counts. A rule-zone edit computes only the changed
-rule and lane when its hours change and its new occurrence key is absent.
-Coverage keys exclude projection, so a zone change with identical absolute bounds
-reuses coverage, as required by the core contract.
+Layout runs for mounted lanes; coverage runs for all lanes before sorting.
+Geometry keys include lane id, version (or a structural encoding of layers),
+window, and every projection field. Coverage keys omit projection. **Bump a
+supplied `lane.version` whenever layers change.** Labels, lane timezone, flags,
+completeness, and metadata do not invalidate rects. Treat returned references as
+read-only. `clearLayoutCache()` and `clearCoverageCache()` release retained keys;
+clear them when a consumer discards old windows. They do not reset counters.
 
-## Gallery and platforms
+`layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
+`resetStats()` resets both without clearing caches. `expandStats()` returns
+`{ rules, dates, expanded, cacheHits, cacheMisses }`; `resetExpandStats()` resets
+those counters, and `clearExpandCache()` clears occurrence and envelope caches.
+**Target-warm** means the exact target keys exist; **target-cold** means they are
+absent. A retained envelope alone does not guarantee retained occurrence entries.
 
-The demo targets iOS, Android, and web using Expo SDK 54, Expo Router 6, React 19.1,
-React Native 0.81, React Native Web 0.21, and NativeWind 4.1. React Compiler is
-enabled through Expo SDK 54's `experiments.reactCompiler` app-config setting.
-The home route links to empty, single-lane, two-layers, full-day-gap, never-set,
-every-zone, 200-lanes, dst-week, and mixed-timezones fixtures under
-`demo/app/gallery/`. Additional routes cover booking-in-gap, equal-z precedence,
-highlight-rule across 20 lanes, sort-coverage across 200 lanes, and
-incomplete-expansion. Each has span, minute step, view timezone, and sort controls,
-plus a sources readout. The highlight and incomplete routes expand rules through
-the adapter using fixtures in `test/fixtures`.
-The timezone routes expand rules from `test/fixtures/timezones.ts` for the selected
-window and offer March and November DST weeks. Mixed timezones shows Chicago,
-London, and Auckland lanes, each with a 09:00 rule in its own zone. The remaining roster routes retain their static fixtures.
+## Navigation, timezones, and interaction
 
-The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
-`resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
-is stable across renders and it is removed on unmount. Only the on-screen counters
-use a 500 ms snapshot. The bridge also exposes `expandStats`, `resetExpandStats`,
-and `clearExpandCache` from the adapter; the display includes the cumulative
-expanded count. These counters measure computation and cache reuse.
-Target-warm interactions leave expansion computations, layout runs, and coverage runs
-unchanged. Sorting newly visible lanes can require geometry when their exact
-window and projection keys have not been visited yet.
+A `WindowSpec` is `{ span: 'day' | 'week' | 'month', anchorDate, timezone, wkst? }`,
+or `{ span: 'custom', window, timezone }`. `anchorDate` is a local `YYYY-MM-DD`,
+not an instant. `windowFor`, `prev`, `next`, and `today` handle bounds and
+navigation. Week starts Monday by default; weekday numbering is Monday = 0
+through Sunday = 6. Components accept `onNavigate`, but ship no toolbar;
+consumer controls call these helpers and update the controlled `windowSpec`.
 
-Ten additional `schedule-*` routes use `test/fixtures/schedule.ts`: empty, overlapping
-rules with three sessions, full-day exclusion, Chicago spring and fall, Lord Howe,
-Apia, incomplete, midnight crossing, and Roster beside Schedule. They offer day/week,
-15/30/60-minute steps, view zone, and projection controls without sorting. These
-fixtures use the adapter and expose its expansion counters alongside core counters.
-The transition routes leave an empty strip beside inset custom intervals; press that
-strip in each repeated half to compare absolute times. Availability still fills its
-daytime columns. The Chicago spring hatch accepts no press.
+Rule/date timezone interprets local hours in the adapter. Lane timezone is a
+badge only. View timezone is `windowSpec.timezone`, the component's only view-zone
+input. Changing it preserves the local anchor; the padded expansion envelope
+usually reuses occurrences for that local week. A new absolute window requires
+coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
-The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/workflows/deploy-demo.yml)
-builds every pull request and deploys `main` to
-<https://simiancraft.github.io/react-native-roster/>. The exported gallery has been checked in Chromium for hydration, virtualized lanes,
-and horizontal and vertical scrolling. Deployment and device rendering have not
-yet been verified. Timing, size, and browser action budgets run in CI on every PR.
-Device capture remains a manual release gate.
+Presses resolve one result: intervals before gaps, highest z first, and later
+layers winning equal-z ties. `onIntervalPress(rect, lane)` and
+`onGapPress(rect, lane)` return the exact contributing sources.
+`onCellPress(lane, time)` returns snapped absolute time for empty space.
+`onIntervalHover(rect, lane)` is Roster's web-only pointer callback.
+`highlightSource={{ kind: 'rule', id: 'one' }}` uses `highlightColor` across all
+matching rects without new geometry. Sorting defaults to `byLabel`;
+`byCoverage({ measure: 'availability' | 'availabilityMinusBooking' })` sorts
+coverage descending, with label ties, including offscreen lanes.
+
+## Roster zones
+
+Every zone is an optional render function. Compose exported default fillers in a
+replacement when you want to retain scrolling, geometry, or press behavior.
+
+| Zone | Receives | Default filler and behavior |
+| --- | --- | --- |
+| `emptyZone` | Nothing | `RosterEmpty`: No lanes. |
+| `laneLabelZone` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
+| `headerCellZone` | `tick` | `RosterHeaderCell`: tick label. |
+| `intervalZone` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
+| `gapZone` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `headerZone` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellZone` | `RosterHeader`: frozen header following horizontal offset. |
+| `laneLabelColumnZone` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelZone` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
+| `bodyZone` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect zones | `RosterBody`: virtualized lanes. |
+
+A custom interval filler positions at `rect.x/y`, uses `rect.width/height/z`, and
+sets `pointerEvents="none"` so the parent hit-test walk owns presses. Gap fillers
+are already inside positioned pressables. The
+[default zones](./demo/app/gallery/default-zones.tsx) and
+[replacements](./demo/app/gallery/every-zone.tsx) use the same lanes.
+`useRoster` exposes ordered lanes, coverage, lane state, ticks, `geometryFor`,
+shared scrolling, `press`, viewport measurement, navigation, and status. Custom
+layouts wire `onLayout`; custom bodies request geometry only for mounted lanes.
+
+## Schedule and its zones
+
+```tsx
+import { Schedule } from 'react-native-roster';
+import type { Lane } from 'react-native-roster/core';
+
+export function Week({ lane }: { lane: Lane }) {
+  return <Schedule lane={lane} minuteStep={60}
+    style={{ height: 600, flex: undefined }}
+    windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+    onIntervalPress={(rect) => console.log(rect.sources)} />;
+}
+```
+
+Only day and week specs are accepted. The component measures its width, reserves
+a 48 px gutter, and fits actual day columns without horizontal scrolling.
+`pxPerHour` defaults to 48 and must be positive and finite. `useSchedule` returns
+`window`, `days`, `projection`, `geometry`, `now`, `press(columnIndex, x, y)`, and
+`status: 'ready'`; standalone hooks use a 280 px grid.
+
+| Zone | Receives | Default filler and behavior |
+| --- | --- | --- |
+| `gutterZone` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+| `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
+| `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
+| `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
+| `transitionZone` | `day`, `transition`, `y`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+| `nowLineZone` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
+| `intervalZone`, `gapZone` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
+| `incompleteZone` | `lane`, `label` | `ScheduleIncomplete`: notice in reserved space above the grid when incomplete. |
+
+Every day has 24 equal wall-hour bands. Skipped time is empty and fires no press;
+repeated time has two half-height regions resolving to different instants.
+A wholly skipped date has no column. Horizontal Roster instead uses true elapsed
+time, so Chicago's transition weeks are 167 and 169 hours wide. Rects split at
+midnight, offset scale boundaries, and source-set changes. Column x coordinates
+reset per column; `rect.column` selects it. `timeAtX(projection, window, x)` and
+`timeAtY(projection, columnIndex, y)` invert these mappings; only pointer results
+use `snapToStep`. The [zone route](./demo/app/gallery/schedule-every-zone.tsx)
+offers defaults/replacements, Apia, Chicago transitions, and the current now line.
+
+## Gallery and platform support
+
+The [Expo gallery](https://simiancraft.github.io/react-native-roster/) is the demo;
+there is no Storybook. Its home page lists every fixture route:
+
+- Empty, one, 20, and 200 lanes; inset layers; default and replaced zones.
+- Day, week, and month routes at each of 15, 30, and 60-minute steps.
+- Full-day gaps, lane flags, equal-z precedence, sources, highlight across 20 lanes,
+  sorting 200 lanes by both coverage measures, and incomplete expansion.
+- Chicago DST weeks, mixed rule/lane/view zones, and three editable adapter routes.
+- Schedule empty, layered, excluded, spring, fall, Lord Howe, Apia, incomplete,
+  midnight, side-by-side projections, and every zone.
+
+Roster routes have span, minute step, view zone, and sort controls. Schedule
+routes have day/week, step, view zone, and projection controls without sort.
+Adapter routes add JSON through `ruleSetEditorZone`, backed by `useRuleSetDraft` (stacked above the roster on narrow screens);
+Apply validates the draft and retains the last valid roster on error. The 200-lane
+route exposes live `window.__roster` counter functions and manual device controls.
+The [Pages workflow](./.github/workflows/deploy-demo.yml) builds pull requests and
+is configured to deploy from `main`; deployment is not verified by local export.
+
+| Platform | Support and evidence |
+| --- | --- |
+| Web via React Native Web | Static export and Chromium gallery checks; first-class target. |
+| iOS | React Native implementation; device rendering and Hermes behavior not yet verified here. |
+| Android | React Native implementation; device rendering and release performance not yet captured. |
+| Node/Bun | Built core and adapter work without a renderer; root components require native peers or a web bundler. |
+
+Core timezone arithmetic uses `Intl.DateTimeFormat.formatToParts`. Browser tests
+and native host doubles do not establish physical-device behavior. The tested
+demo dependency versions above are narrower evidence than the declared peer
+ranges (React >=18.2, React Native >=0.74, Expo >=51, and LegendList >=2).
 
 ## Performance
 
-Workload W has 200 lanes, two layers, a week window, and 15-minute ticks.
-The layout batch has 24 lanes; coverage includes all 200. Each lane produces
-63 rects and 7 gap rects. CI fails either timing row at 16 ms or above, or above
-1.5× its committed CI runner baseline. Local runs measure and print both rows,
-but enforce only the absolute 16 ms ceiling because hardware differs. Both size gates use minified, uncompressed bundles
-with peers external. The web harness checks every automated action in issue #9.
+Workload W: seed 1318, 200 lanes, one week, two layers, a 24-lane viewport, and
+15-minute ticks. Each lane produces **63 interval rects and 7 gap rects**.
+These are geometry counts, not a claim about all React Native views.
 
-Recorded CI timing baseline, **2026-09-08 UTC**, Bun 1.4.0,
-GitHub Actions ubuntu-latest, commit
-`1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa`:
+The [committed CI baseline](./test/performance-baseline.json) records
+**2026-09-08 05:18 UTC**, **Bun 1.4.0**, **GitHub Actions ubuntu-latest**, commit
+`1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa`. Values are medians of 11 target-cold
+samples after five runtime warmups, from a clean checkout:
 
-| Measurement | Result | Gate |
-| --- | ---: | ---: |
-| Target-cold layout, 24 lanes, median of 11 | 2.070 ms | <16 ms and ≤3.105 ms in CI |
-| Target-cold coverage, 200 lanes, median of 11 | 1.063 ms | <16 ms and ≤1.5945 ms in CI |
-| Core minified bundle | 12.20 kB | <15 kB |
-| Root minified bundle | 27.66 kB | <40 kB |
-| Pixel 6a class, release build, five-second fling | Not yet measured | 60 fps, zero dropped frames |
-| Same device, next-week target-cold layout, 24 lanes | Not yet measured | <16 ms |
+| Measurement | Recorded result | Gate |
+| --- | ---: | --- |
+| Layout of 24 lanes | 2.070 ms | <16 ms; also <=1.5 times baseline in CI. |
+| Coverage of all 200 lanes | 1.063 ms | <16 ms; also <=1.5 times baseline in CI. |
+| Pixel 6a class release build, five-second fling | Not yet captured | 60 fps, zero dropped frames. |
+| Same device, next-week layout of 24 lanes | Not yet captured | Each capture <16 ms. |
+| Device model, date, and exact release commit | Not yet captured | Required with traces and screenshots per release. |
 
-The timing baseline comes from the CI runner; phone measurements remain pending.
-The JSON records the full timestamp, machine, method, and measured commit.
-The production web check uses a 24-row viewport and counts LegendList's actual
-mounted lanes, including its boundary guard, for the view-zone layout assertion.
-The LaneRow render assertion runs with an active React Profiler in the Bun
-renderer test; the production web export disables profiling. Its native host
-doubles still require the real-device/profile follow-up.
+[Performance evidence](./docs/performance.md) defines the measurement boundaries,
+size gates (core <15 kB, root <40 kB, minified/uncompressed with peers external),
+Chromium action assertions, and device capture procedure. Local tests enforce
+the absolute timing gates; the relative timing gates run only in CI. Production
+web disables React Profiler callbacks; the active Bun Profiler test uses host
+doubles, with a real LaneRow profile still required for release.
 
-[Performance capture and comparison procedure](docs/performance.md) explains
-baseline updates, browser traces, the profiler fallback, Android release capture,
-and the `release` environment review. Device model, date, exact release commit,
-raw trace, and screenshots must accompany each release's manual measurements.
-
-The same-machine comparison with the legacy react-big-scheduler wrapper is
-**not yet measured**. No relative-speed claim is made.
-
-| Same-machine web comparison | react-native-roster | Legacy react-big-scheduler wrapper |
+| Same-machine comparison | react-native-roster | react-big-scheduler wrapper |
 | --- | --- | --- |
-| Next-week target-cold preparation, 24 lanes | Not yet measured in paired run | Not yet measured |
-| Five-second vertical scroll fps / dropped frames | Not yet measured in paired run | Not yet measured |
-| Machine / browser / viewport / date / commits | Pending paired capture | Pending paired capture |
+| Target-cold preparation, 24 lanes | Not yet measured in paired run | Not yet measured |
+| Five-second scroll fps and dropped frames | Not yet measured in paired run | Not yet measured |
+| Machine, browser, date, and commits | Not yet measured | Not yet measured |
 
-## Develop
+No relative-speed claim is justified before the paired capture described in the
+performance guide. CI timing numbers are not phone frame rates.
 
-Use Bun 1.4.0 and Node 22 for the demo and release tooling.
+## What this isn't
+
+This is a read surface. Consumers own creation, dragging, resizing, persistence,
+and permission checks through their own interactions. It is not a general
+calendar with a month grid or arbitrary event list, and it does not expand rules
+inside the core. See the short [design note](./docs/design.md) for the reasoning.
+
+## Development and reference
 
 ```sh
-bun install
+bunx playwright install chromium
 bun run check
-bun run demo:web
 ```
 
-`bun run check` covers lint, three typechecks, React Compiler safety, library build,
-demo web export, coverage, dead code, package hygiene, size limits, and Playwright
-performance assertions. Install Chromium first with `bunx playwright install chromium`. See
-[CONTRIBUTING.md](https://github.com/simiancraft/react-native-roster/blob/main/CONTRIBUTING.md)
-for the contributor workflow.
+`check` runs Biome, library/test/demo typechecks, React Compiler safety, library
+build, static web export, tests with coverage, knip, strict publint, size-limit,
+and Playwright. For a worktree-local browser cache, set
+`PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/playwright"` on both commands. To keep Bun
+scratch/cache writes local, set `TMPDIR="$PWD/.cache/tmp"` and
+`BUN_INSTALL_CACHE_DIR="$PWD/.cache/bun"` after creating those directories.
 
-## Scope
-
-This is a read surface. Creation, dragging, resizing, and a general-purpose
-calendar are outside its scope; consumers attach their own press handlers.
-The package replaces react-big-scheduler for this use case; it is not a fork.
-
-## Project
-
-- [Plan and issue order](https://github.com/simiancraft/react-native-roster/issues/1)
-- [Authoritative type contract](https://github.com/simiancraft/react-native-roster/issues/3)
-- [Conventions](https://github.com/simiancraft/react-native-roster/blob/main/AGENTS.md)
-- [Security policy](https://github.com/simiancraft/react-native-roster/blob/main/SECURITY.md)
-- [Code of conduct](https://github.com/simiancraft/react-native-roster/blob/main/CODE_OF_CONDUCT.md)
-- [Notices](https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md)
+- [Adapter guide](./docs/adapters.md): mapping tables or feeds and retaining occurrences.
+- [Design note](./docs/design.md): precompute, then render geometry.
+- [llms.txt](./llms.txt): integration instructions for agents.
+- [CONTRIBUTING.md](./CONTRIBUTING.md) and [AGENTS.md](./AGENTS.md): contributor workflow.
+- [CHANGELOG.md](./CHANGELOG.md): release history, maintained by semantic-release.
+- [SECURITY.md](./SECURITY.md), [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), and [NOTICE.md](./NOTICE.md).
 
 MIT, copyright 2026 Jesse Harlin (the-simian). See [LICENSE](./LICENSE).
