@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Rect, Span, WindowSpec } from 'react-native-roster/core';
+import type { Rect, Source, Span, WindowSpec } from 'react-native-roster/core';
 import {
   byCoverage,
   byLabel,
@@ -43,6 +43,7 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   );
   const [minuteStep, setMinuteStep] = useState(60);
   const [sort, setSort] = useState<'label' | 'availability' | 'availabilityMinusBooking'>('label');
+  const [highlightSource, setHighlightSource] = useState<Source>();
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
   const [snapshot, setSnapshot] = useState({
     expanded: 0,
@@ -51,9 +52,11 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
   });
   const fixture = {
     ...definition,
-    lanes: definition.ruleLanes
-      ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
-      : definition.lanes,
+    lanes:
+      definition.lanesFor?.(windowFor(windowSpec), expandRuleSet) ??
+      (definition.ruleLanes
+        ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
+        : definition.lanes),
   };
   const sortLanes = sort === 'label' ? byLabel : byCoverage({ measure: sort });
   useEffect(() => {
@@ -101,6 +104,10 @@ export function useGalleryRoute(fixtureId: RosterFixtureId) {
     setSort,
     sortLanes,
     snapshot,
+    highlightSource,
+    highlightRule: () =>
+      setHighlightSource(definition.highlightSource && { ...definition.highlightSource }),
+    clearHighlight: () => setHighlightSource(undefined),
     selection,
     selectRect,
     selectCell: (_lane: unknown, time: number) => setSelection(new Date(time).toISOString()),

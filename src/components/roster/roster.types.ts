@@ -42,6 +42,8 @@ export type RosterInput = {
   highlightSource?: Source;
   onNavigate?: (next: WindowSpec) => void;
   onIntervalPress?: (rect: Rect, lane: Lane) => void;
+  /** Reports the winning interval under a web pointer; native renders attach no hover handler. */
+  onIntervalHover?: (rect: Rect, lane: Lane) => void;
   onGapPress?: (rect: Rect, lane: Lane) => void;
   onCellPress?: (lane: Lane, time: number) => void;
   /** Fixed lane height, default 48. */
@@ -97,6 +99,8 @@ export type BodyInput = Pick<
 > & {
   lanes: Lane[];
   highlightSource?: Source;
+  onIntervalHover?: (rect: Rect, lane: Lane) => void;
+  incompleteLabel?: string;
   /** Covered rect view; position it using the final rect bounds, as RosterInterval does. */
   intervalZone: (input: IntervalInput) => ReactNode;
   /** Removed rect filler, placed inside a pressable by LaneRow. */

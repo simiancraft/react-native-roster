@@ -216,10 +216,23 @@ Do not publish, tag, change repository settings, or push without task authorizat
     dates before cap admission. Supply the implicit monthly day explicitly to avoid
     a 31st drifting through February. Do not move COUNT anchors when skipping history.
 
-19. **Timezone gallery fixtures expand at the selected window.** `test/fixtures/timezones.ts`
+19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
+    interval-hover.web.tsx resolves row-relative pointer movement against existing
+    geometry. Keep the shared .types.ts and browser remap together. The body key
+    includes hover callback identity and incompleteLabel so mounted rows update.
+20. **Provenance fixtures include real expansion.** highlight-rule and
+    incomplete-expansion expand in the gallery hook and expose expandStats through
+    the stable counter bridge. Sort tests warm only the target mounted lanes;
+    sorting itself never lays out offscreen lanes. Incomplete row notices occupy
+    the first empty span and leave interval bounds untouched.
+21. **Sorting retains the viewport offset, not a lane anchor.** RosterBody disables
+    LegendList maintainVisibleContentPosition. The pinned 2.x anchoring otherwise
+    moves mounted containers outside the viewport on repeated coverage sorts.
+22. **Timezone gallery fixtures expand at the selected window.** `test/fixtures/timezones.ts`
     owns the DST and three-zone rule lanes. Fixture records optionally supply ruleLanes,
     windowSpec, windowPresets, and pxPerMinute. Keep root/core isolated from the adapter.
     Pass the gallery's adapter into expandLanes so the bridge reads the same cache instance.
     The gallery bridge exposes real expansion counters; expanded counts computations.
     Lane badges retain IANA names. Coverage excludes projection, so equal absolute
     bounds reuse coverage even when the view zone changes.
+23. Test typechecks resolve the package to source through the `react-native` export condition, so they never depend on `dist`.

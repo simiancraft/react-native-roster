@@ -26,7 +26,8 @@
   "react-native": "./src/index.ts",
   "types": "./dist/src/index.d.ts",
   "browser": {
-    "./dist/src/components/roster/press-point.js": "./dist/src/components/roster/press-point.web.js"
+    "./dist/src/components/roster/press-point.js": "./dist/src/components/roster/press-point.web.js",
+    "./dist/src/components/roster/interval-hover.js": "./dist/src/components/roster/interval-hover.web.js"
   },
   "exports": {
     ".": {

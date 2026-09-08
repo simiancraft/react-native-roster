@@ -11,8 +11,8 @@ on; scan a row to see whether someone set anything at all.
 
 **API not yet shipped.** The pure TypeScript core is implemented in this working tree:
 contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
-`Roster`, `useRoster`, replaceable zones, the gallery routes, and the
-recurrence adapter are implemented. `Schedule` remains a planned API.
+`Roster`, `useRoster`, replaceable zones, the provenance and timezone gallery routes,
+and the recurrence adapter are implemented. `Schedule` remains a planned API.
 
 ## Design
 
@@ -173,6 +173,28 @@ Workload W uses 200 lanes, two layers, and a 24-lane viewport at 15-minute ticks
 Tests enforce separate 16 ms target-cold layout and coverage budgets and print the
 measured baselines. Device performance remains an issue #9 acceptance item.
 
+## Provenance interaction
+
+`onIntervalPress(rect, lane)`, `onGapPress(rect, lane)`, and
+`onCellPress(lane, time)` report one result per press. Intervals win over gaps,
+then higher z and later layers break ties. Cell times snap to `minuteStep`.
+`onIntervalHover(rect, lane)` reports the winning interval as a web pointer moves;
+native renders attach no hover handler. Web coordinates are relative to the row,
+including after scrolling, and sources belong to the exact split span.
+
+`highlightSource={{ kind: 'rule', id: 'shared-rule' }}` colors matching rects with
+`layer.style.highlightColor`, falling back to the normal color when absent.
+Identity ignores labels and object reference. Highlight changes reuse geometry.
+`sortLanes` defaults to `byLabel`; `byCoverage({ measure: 'availability' })` and
+`byCoverage({ measure: 'availabilityMinusBooking' })` sort descending with label
+ties. Comparators receive coverage for every lane, including offscreen lanes.
+
+Only consumers set `flag: 'never-set'`; `neverSetLabel` defaults to
+"No availability set". `empty-in-window` is inferred when intervals exist but none
+intersect the window, and displays no flag text. Flag changes retain rect references.
+`complete: false` shows `incompleteLabel`, default "Availability may be incomplete",
+in the label column and the first empty span of the row.
+
 ## Recurrence adapter
 
 ```ts
@@ -260,7 +282,11 @@ React Native 0.81, React Native Web 0.21, and NativeWind 4.1. React Compiler is
 enabled through Expo SDK 54's `experiments.reactCompiler` app-config setting.
 The home route links to empty, single-lane, two-layers, full-day-gap, never-set,
 every-zone, 200-lanes, dst-week, and mixed-timezones fixtures under
-`demo/app/gallery/`. Each has span, minute step, view timezone, and sort controls.
+`demo/app/gallery/`. Additional routes cover booking-in-gap, equal-z precedence,
+highlight-rule across 20 lanes, sort-coverage across 200 lanes, and
+incomplete-expansion. Each has span, minute step, view timezone, and sort controls,
+plus a sources readout. The highlight and incomplete routes expand rules through
+the adapter using fixtures in `test/fixtures`.
 The timezone routes expand rules from `test/fixtures/timezones.ts` for the selected
 window and offer March and November DST weeks. Mixed timezones shows Chicago,
 London, and Auckland lanes, each with a 09:00 rule in its own zone. Other routes
@@ -270,8 +296,11 @@ The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
 `resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
 is stable across renders and it is removed on unmount. Only the on-screen counters
 use a 500 ms snapshot. The bridge also exposes `expandStats`, `resetExpandStats`,
-and `clearExpandCache`; the display includes the cumulative expanded count.
-These counters measure computation and cache reuse.
+and `clearExpandCache` from the adapter; the display includes the cumulative
+expanded count. These counters measure computation and cache reuse.
+Target-warm interactions leave expansion computations, layout runs, and coverage runs
+unchanged. Sorting newly visible lanes can require geometry when their exact
+window and projection keys have not been visited yet.
 
 The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/workflows/deploy-demo.yml)
 builds every pull request and deploys `main` to

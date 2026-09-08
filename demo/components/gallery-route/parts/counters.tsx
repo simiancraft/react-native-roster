@@ -15,7 +15,12 @@ export function GalleryCounters({
         {snapshot.layout.cacheHits} hits · Coverage {snapshot.coverage.runs} runs /{' '}
         {snapshot.coverage.cacheHits} hits
       </Text>
-      <Text numberOfLines={2} style={{ fontSize: 12, color: '#334155' }}>
+      <Text
+        testID="roster-selection"
+        accessibilityLiveRegion="polite"
+        numberOfLines={2}
+        style={{ fontSize: 12, color: '#334155' }}
+      >
         {selection}
       </Text>
     </View>

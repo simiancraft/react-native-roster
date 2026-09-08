@@ -63,6 +63,7 @@ describe('Roster zones and rect primitives', () => {
     );
     const list = tree.root.findByType('LegendList' as ElementType);
     expect(list.props.estimatedItemSize).toBe(48);
+    expect(list.props.maintainVisibleContentPosition).toBe(false);
     expect(list.props.getFixedItemSize()).toBe(48);
     expect(list.props.keyExtractor(lanes[0])).toBe('never');
     expect(list.props.onViewableItemsChanged).toBeUndefined();

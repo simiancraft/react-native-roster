@@ -14,7 +14,20 @@ export function GalleryControls({
   setMinuteStep,
   sort,
   setSort,
+  highlightSource,
+  highlightRule,
+  clearHighlight,
 }: ControlsInput) {
+  const highlightZone = fixture.highlightSource ? (
+    <View style={{ flexDirection: 'row', gap: 8 }}>
+      <Control
+        label="Highlight rule (fresh source)"
+        selected={!!highlightSource}
+        onPress={highlightRule}
+      />
+      <Control label="Clear highlight" onPress={clearHighlight} />
+    </View>
+  ) : null;
   return (
     <View style={{ gap: 8 }}>
       <Text
@@ -24,6 +37,7 @@ export function GalleryControls({
         {fixture.title}
       </Text>
       <Text style={{ color: '#475569', fontSize: 12 }}>{fixture.description}</Text>
+      {highlightZone}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {fixture.windowPresets?.map((preset) => (
           <Control
