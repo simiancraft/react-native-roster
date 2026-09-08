@@ -223,7 +223,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
     date space, retaining the weekly weekday and monthly day, and step back past
     nonexistent dates. All other rules retain the original anchor, including
     non-midnight times whose iteration can shift through a DST gap.
-    Clamp UNTIL to the envelope query bound, and skip out-of-envelope occurrences without consuming the cap.
+    Give the engine the end of UNTIL's local date, clamped to the envelope query
+    bound. Before cap admission, compare each emitted date at the original anchor's
+    wall time against the exact inclusive UNTIL instant, using the same compatible
+    disambiguation as hoursFor. Date-only UNTIL includes its last millisecond.
+    This prevents DST iteration drift from changing results across anchor paths
+    or retained envelopes. Skip out-of-envelope occurrences without consuming the cap.
 
 19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
     interval-hover.web.tsx resolves row-relative pointer movement against existing

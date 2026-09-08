@@ -40,6 +40,13 @@ export function enumerate(
     .add({ days: 1 })
     .startOfDay();
   const until = input.until === undefined ? upper : zoned(input.until, input.timezone, true);
+  const anchorWallTime = original.toPlainTime();
+  // Let the engine emit the entire final date despite wall-time drift at DST gaps.
+  // The callback applies the exact UNTIL using the original anchor's wall time.
+  const untilDateEnd = until
+    .toPlainDate()
+    .toPlainDateTime('23:59:59.999')
+    .toZonedDateTime(input.timezone);
   const engine = new RRuleTemporal({
     freq: input.frequency,
     // Only midnight anchors with interval 1 and no COUNT may skip periods.
@@ -48,10 +55,10 @@ export function enumerate(
       advanceAnchor &&
       (input.interval === undefined || input.interval === 1) &&
       input.count === undefined &&
-      original.toPlainTime().equals('00:00')
+      anchorWallTime.equals('00:00')
         ? advance(original, envelope, input)
         : original,
-    until: Temporal.ZonedDateTime.compare(until, upper) < 0 ? until : upper,
+    until: Temporal.ZonedDateTime.compare(untilDateEnd, upper) < 0 ? untilDateEnd : upper,
     count: input.count,
     interval: input.interval,
     wkst: allowedWeekdays[input.wkst ?? 0],
@@ -79,6 +86,8 @@ export function enumerate(
     const key = date.toString();
     if (visited.has(key)) return true;
     visited.add(key);
+    const anchored = date.toPlainDateTime(anchorWallTime).toZonedDateTime(input.timezone);
+    if (Temporal.ZonedDateTime.compare(anchored, until) > 0) return true;
     return admit(date);
   });
   return result;
