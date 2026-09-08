@@ -214,8 +214,11 @@ consumer controls call these helpers and update the controlled `windowSpec`.
 Rule/date timezone interprets local hours in the adapter. Lane timezone is a
 badge only. View timezone is `windowSpec.timezone`, the component's only view-zone
 input. Changing it preserves the local anchor; the padded expansion envelope
-usually reuses occurrences for that local week. A new absolute window requires
-coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
+usually reuses occurrences for that local week. Expansion retains the original
+anchor unless it is exactly local midnight with interval 1 (or absent) and no COUNT.
+Such rules may skip whole periods in plain-date space while preserving the
+weekly weekday and monthly day, and stepping back past nonexistent dates.
+A new absolute window requires coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
 Presses resolve one result: intervals before gaps, highest z first, and later
 layers winning equal-z ties. `onIntervalPress(rect, lane)` and
@@ -281,7 +284,7 @@ a 48 px gutter, and fits actual day columns without horizontal scrolling.
 | `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
 | `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
 | `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
-| `transitionZone` | `day`, `transition`, `y`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+| `transitionZone` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
 | `nowLineZone` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
 | `intervalZone`, `gapZone` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
 | `incompleteZone` | `lane`, `label` | `ScheduleIncomplete`: notice in reserved space above the grid when incomplete. |
@@ -292,14 +295,16 @@ Each column spans its date's first instant to the next date's first instant.
 Rollbacks across midnight, such as St_Johns in 2009 and Goose_Bay in 1988, retain
 that absolute span and compress earlier-date instants into a repeat at the top
 edge, ending where ordinary wall time resumes. Pointer inversion preserves the
-absolute occurrence.
+absolute occurrence. The repeat divider uses the projected transition instant,
+including when the surviving repeat regions have unequal heights.
 A wholly skipped date has no column. Horizontal Roster instead uses true elapsed
 time, so Chicago's transition weeks are 167 and 169 hours wide. Rects split at
 midnight, offset scale boundaries, and source-set changes. Column x coordinates
 reset per column; `rect.column` selects it. `timeAtX(projection, window, x)` and
 `timeAtY(projection, columnIndex, y)` invert these mappings; only pointer results
-use `snapToStep`. The [zone route](./demo/app/gallery/schedule-every-zone.tsx)
-offers defaults/replacements, Apia, Chicago transitions, and the current now line.
+use `snapToStep`. Inverse times stay below each scale piece's exclusive end,
+including for pointers immediately inside the bottom edge.
+The [zone route](./demo/app/gallery/schedule-every-zone.tsx) offers defaults/replacements, Apia, Chicago transitions, and the current now line.
 
 ## Gallery and platform support
 
