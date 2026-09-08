@@ -1042,12 +1042,12 @@ describe('recurrence fields and local boundaries', () => {
 
   it('preserves filtered DAILY phase across display windows and retained envelopes', () => {
     const input = set(
-      [rule({ dtstart: '2023-01-31', interval: 2, byweekday: [0], hourend: 10 })],
+      [rule({ dtstart: '2023-02-01', interval: 2, byweekday: [0], hourend: 10 })],
       [],
     );
     const expected = [
-      span('2024-03-04T09:00Z', '2024-03-04T10:00Z', 'rule', 'a'),
-      span('2024-03-18T09:00Z', '2024-03-18T10:00Z', 'rule', 'a'),
+      span('2024-03-11T09:00Z', '2024-03-11T10:00Z', 'rule', 'a'),
+      span('2024-03-25T09:00Z', '2024-03-25T10:00Z', 'rule', 'a'),
     ];
     for (const start of ['2024-03-01', '2024-03-02']) {
       const window = { start: epoch(start), end: epoch('2024-04-01') };
@@ -1056,7 +1056,7 @@ describe('recurrence fields and local boundaries', () => {
       expect(narrow.intervals).toEqual(expected);
       expect(narrow.complete).toBe(true);
       clearExpandCache();
-      const broad = expandRuleSet(input, { start: epoch('2023-01-31'), end: window.end });
+      const broad = expandRuleSet(input, { start: epoch('2023-02-01'), end: window.end });
       expect(broad.intervals.filter((span) => span.start >= window.start)).toEqual(expected);
       const retained = expandRuleSet(input, window);
       expect(retained.intervals).toEqual(expected);
@@ -1534,6 +1534,12 @@ describe('authored recurrence period phases', () => {
       end: '2024-04-01',
       dates: ['2024-03-06', '2024-03-08', '2024-03-10'],
     },
+    {
+      name: 'daily Monday five days after DTSTART preserves authored phase',
+      input: { frequency: 'DAILY', byweekday: [0], count: 3 },
+      end: '2024-05-01',
+      dates: ['2024-03-18', '2024-04-01', '2024-04-15'],
+    },
   ];
   for (const sample of cases) {
     for (const bysetpos of sample.positions ?? [undefined, [1], [-1]]) {
@@ -1564,6 +1570,113 @@ describe('authored recurrence period phases', () => {
         expect(retained.stats.cacheHits).toBe(1);
       });
     }
+  }
+});
+
+describe('DAILY weekday filters preserve the authored sequence', () => {
+  const cases: { name: string; input: Partial<RosterRule>; dates: string[] }[] = [
+    { name: 'interval 2 admits January 15 and 29', input: {}, dates: ['2024-01-15', '2024-01-29'] },
+    { name: 'COUNT 1 admits January 15', input: { count: 1 }, dates: ['2024-01-15'] },
+    {
+      name: 'COUNT 2 admits January 15 and 29',
+      input: { count: 2 },
+      dates: ['2024-01-15', '2024-01-29'],
+    },
+    { name: 'UNTIL January 14 admits nothing', input: { until: '2024-01-14' }, dates: [] },
+    {
+      name: 'UNTIL January 15 admits January 15',
+      input: { until: '2024-01-15' },
+      dates: ['2024-01-15'],
+    },
+    {
+      name: 'Monday and Thursday admit January 11, 15, 25, and 29',
+      input: { byweekday: [0, 3] },
+      dates: ['2024-01-11', '2024-01-15', '2024-01-25', '2024-01-29'],
+    },
+    {
+      name: 'interval 3 Mondays admit January 15 only',
+      input: { interval: 3 },
+      dates: ['2024-01-15'],
+    },
+    {
+      name: 'matching Monday DTSTART admits January 1, 15, and 29',
+      input: { dtstart: '2024-01-01' },
+      dates: ['2024-01-01', '2024-01-15', '2024-01-29'],
+    },
+    {
+      name: 'advanced interval 1 anchor admits January 1, 8, 15, 22, and 29',
+      input: { dtstart: '2023-01-04', interval: 1 },
+      dates: ['2024-01-01', '2024-01-08', '2024-01-15', '2024-01-22', '2024-01-29'],
+    },
+    {
+      name: 'weekday filtering precedes an empty daily positional selection',
+      input: { bysetpos: [2] },
+      dates: [],
+    },
+  ];
+  for (const sample of cases) {
+    for (const bysetpos of sample.input.bysetpos
+      ? [sample.input.bysetpos]
+      : [undefined, [1], [-1]]) {
+      it(`${sample.name}, BYSETPOS ${sample.input.bysetpos ?? bysetpos ?? 'absent'}, cold and retained`, () => {
+        const input = set(
+          [
+            rule({
+              dtstart: '2024-01-03',
+              interval: 2,
+              byweekday: [0],
+              hourend: 10,
+              bysetpos,
+              ...sample.input,
+            }),
+          ],
+          [],
+        );
+        const window = { start: epoch('2024-01-01'), end: epoch('2024-02-01') };
+        const expected = sample.dates.map((date) =>
+          span(`${date}T09:00Z`, `${date}T10:00Z`, 'rule', 'a'),
+        );
+        const cold = expandRuleSet(input, window);
+        expect(cold.intervals).toEqual(expected);
+        expect(cold.complete).toBe(true);
+        expect(cold.truncated).toEqual([]);
+        const original = enumerate(input.rules[0] as RosterRule, envelopeFor(window), 400, false);
+        expect(original.capped).toBe(false);
+        expect(
+          original.spans.filter((span) => span.start >= window.start && span.end <= window.end),
+        ).toEqual(expected.map(({ start, end }) => ({ start, end })));
+        clearExpandCache();
+        const broad = expandRuleSet(input, {
+          start: epoch('2023-12-01'),
+          end: epoch('2024-03-01'),
+        });
+        expect(broad.complete).toBe(true);
+        const retained = expandRuleSet(input, window);
+        expect(retained.envelope).toEqual(broad.envelope);
+        expect(retained.intervals).toEqual(expected);
+        expect(retained.complete).toBe(true);
+        expect(retained.truncated).toEqual([]);
+        expect(retained.stats).toMatchObject({ expanded: 0, cacheHits: 1 });
+      });
+    }
+  }
+
+  for (const bysetpos of [undefined, [1], [-1]]) {
+    it(`caps the authored sequence at January 15, BYSETPOS ${bysetpos ?? 'absent'}`, () => {
+      const output = expandRuleSet(
+        set(
+          [rule({ dtstart: '2024-01-03', interval: 2, byweekday: [0], hourend: 10, bysetpos })],
+          [],
+        ),
+        { start: epoch('2024-01-01'), end: epoch('2024-02-01') },
+        { caps: { perRuleOccurrences: 1 } },
+      );
+      expect(output.intervals).toEqual([
+        span('2024-01-15T09:00Z', '2024-01-15T10:00Z', 'rule', 'a'),
+      ]);
+      expect(output.complete).toBe(false);
+      expect(output.truncated).toEqual([{ id: 'a', droppedAtLeast: 1 }]);
+    });
   }
 });
 
@@ -1601,6 +1714,7 @@ describe('adapter positional selection and bounded periods', () => {
     { frequency: 'MONTHLY', bymonthday: [30, 31], bymonth: [2], byweekday: [0] },
     { frequency: 'MONTHLY', interval: 12, bymonth: [2], byweekday: [4] },
     { frequency: 'DAILY', bymonthday: [31], bymonth: [2] },
+    { frequency: 'DAILY', interval: 2, byweekday: [0], bysetpos: [2] },
     { frequency: 'WEEKLY', bymonthday: [31], bymonth: [2] },
   ];
   for (const [index, sample] of emptyRules.entries()) {

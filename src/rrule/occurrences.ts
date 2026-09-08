@@ -103,11 +103,12 @@ export function enumerate(
       : bound,
     interval: input.interval,
     wkst: allowedWeekdays[input.wkst ?? 0],
-    byDay: input.byweekday?.length
-      ? input.byweekday.map((day) => allowedWeekdays[day])
-      : input.frequency === 'WEEKLY' && !input.bymonthday?.length
-        ? [allowedWeekdays[(original.dayOfWeek - 1) as Weekday]]
-        : undefined,
+    byDay:
+      input.frequency !== 'DAILY' && input.byweekday?.length
+        ? input.byweekday.map((day) => allowedWeekdays[day])
+        : input.frequency === 'WEEKLY' && !input.bymonthday?.length
+          ? [allowedWeekdays[(original.dayOfWeek - 1) as Weekday]]
+          : undefined,
     byMonth: input.bymonth,
     // Explicitly preserve the implicit monthly day; 1.5.2's fallback otherwise
     // constrains a 31st through February and drifts subsequent months.
@@ -158,11 +159,18 @@ export function enumerate(
   try {
     engine.all((occurrence, index) => {
       const date = occurrence.toPlainDate();
-      if (!positional) return visit(date);
       // Replayed callback indices restart at zero. They must not enlarge a
       // buffered period, especially when the whole query has only one candidate.
-      if (index < candidateCount) return false;
+      if (positional && index < candidateCount) return false;
       candidateCount++;
+      // DAILY BYDAY re-anchors the engine; filter the authored sequence here.
+      if (
+        input.frequency === 'DAILY' &&
+        input.byweekday?.length &&
+        !input.byweekday.includes((date.dayOfWeek - 1) as Weekday)
+      )
+        return true;
+      if (!positional) return visit(date);
       const key = periodStart(date, input).toString();
       if (key !== period) {
         if (!flush()) return false;
