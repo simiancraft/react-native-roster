@@ -40,7 +40,7 @@ test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # gallery links and build identity
-  app/gallery/             # seven thin static fixture route shells
+  app/gallery/             # thin named fixture route shells
   components/gallery-route/ # hook, chassis, controls, and web counter bridge
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -215,3 +215,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     select matching polyfill instances. Its iterator can replay, so deduplicate local
     dates before cap admission. Supply the implicit monthly day explicitly to avoid
     a 31st drifting through February. Do not move COUNT anchors when skipping history.
+
+19. **Timezone gallery fixtures expand at the selected window.** `test/fixtures/timezones.ts`
+    owns the DST and three-zone rule lanes. Fixture records optionally supply ruleLanes,
+    windowSpec, windowPresets, and pxPerMinute. Keep root/core isolated from the adapter.
+    Pass the gallery's adapter into expandLanes so the bridge reads the same cache instance.
+    The gallery bridge exposes real expansion counters; expanded counts computations.
+    Lane badges retain IANA names. Coverage excludes projection, so equal absolute
+    bounds reuse coverage even when the view zone changes.

@@ -11,8 +11,9 @@ export function GalleryCounters({
   return (
     <View style={{ gap: 4 }}>
       <Text style={{ fontSize: 12, color: '#334155' }}>
-        Layout {snapshot.layout.runs} runs / {snapshot.layout.cacheHits} hits · Coverage{' '}
-        {snapshot.coverage.runs} runs / {snapshot.coverage.cacheHits} hits
+        Expanded {snapshot.expanded} · Layout {snapshot.layout.runs} runs /{' '}
+        {snapshot.layout.cacheHits} hits · Coverage {snapshot.coverage.runs} runs /{' '}
+        {snapshot.coverage.cacheHits} hits
       </Text>
       <Text numberOfLines={2} style={{ fontSize: 12, color: '#334155' }}>
         {selection}
