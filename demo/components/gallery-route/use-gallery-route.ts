@@ -27,6 +27,7 @@ import { expandLanes } from '../../../test/fixtures/timezones';
 import { useCounterBridge } from './counter-bridge';
 import type { CounterBridgeInput } from './counter-bridge.types';
 import { measureLayout } from './measure-layout';
+import { profileStats } from './profile-stats';
 import { useRuleSetDraft } from './use-rule-set-draft';
 
 const counterBridge: CounterBridgeInput = {
@@ -38,6 +39,7 @@ const counterBridge: CounterBridgeInput = {
   expandStats,
   resetExpandStats,
   clearExpandCache,
+  ...(__DEV__ ? { profileStats } : {}),
 };
 
 export function useGalleryRoute(fixtureId: RosterFixtureId) {

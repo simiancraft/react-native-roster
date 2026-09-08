@@ -81,6 +81,10 @@ export function enumerate(
 
 function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
   const midnight = date.toPlainDateTime();
+  const dayStart = date.toZonedDateTime(input.timezone);
+  if (!dayStart.toPlainDate().equals(date)) {
+    return { start: dayStart.epochMilliseconds, end: dayStart.epochMilliseconds };
+  }
   // Add wall-clock milliseconds before resolving the zone, including hour 24.
   // Temporal's compatible policy chooses the earlier repeat and advances skips.
   const at = (hour: number) =>

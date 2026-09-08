@@ -6,6 +6,10 @@ export type CounterSnapshot = {
   coverage: { runs: number; cacheHits: number };
 };
 export type CounterBridgeInput = {
+  profileStats?: () => {
+    body: { mounts: number; updates: number };
+    lanes: Record<string, { mounts: number; updates: number }>;
+  };
   layoutStats: () => CounterSnapshot['layout'];
   coverageStats: () => CounterSnapshot['coverage'];
   expandStats?: () => ExpandStats;

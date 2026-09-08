@@ -5,6 +5,7 @@ import { createElement, Profiler } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { Roster } from '../src/components/roster';
 import { LaneRow } from '../src/components/roster/lane-row';
+import { RosterBody } from '../src/components/roster/parts/body';
 import { RosterGap } from '../src/components/roster/parts/gap';
 import { RosterInterval } from '../src/components/roster/parts/interval';
 import { RosterLaneLabel } from '../src/components/roster/parts/lane-label';
@@ -106,6 +107,84 @@ describe('Roster zones and rect primitives', () => {
     expect(bodyZone.mock.calls[0]?.[0].scroll).toBe(headerZone.mock.calls[0]?.[0].scroll);
     expect(typeof bodyZone.mock.calls[0]?.[0].geometryFor).toBe('function');
     expect(typeof bodyZone.mock.calls[0]?.[0].press).toBe('function');
+    close(tree);
+  });
+  it('keeps retained row presses current without changing the list content key', () => {
+    const start = Date.UTC(2024, 0, 1);
+    const minute = 60_000;
+    const lane: Lane = {
+      id: 'retained',
+      label: 'Retained lane',
+      layers: [
+        {
+          id: 'open',
+          role: 'availability',
+          z: 0,
+          style: { color: 'green' },
+          intervals: [{ start: start + 60 * minute, end: start + 120 * minute, sources: [] }],
+          gaps: [{ start: start + 120 * minute, end: start + 180 * minute, sources: [] }],
+        },
+      ],
+    };
+    const lanes = [lane];
+    const previous = { onCellPress: mock(), onIntervalPress: mock(), onGapPress: mock() };
+    const next = { onCellPress: mock(), onIntervalPress: mock(), onGapPress: mock() };
+    const input = { lanes, windowSpec: rosterWindowSpec, pxPerMinute: 1 };
+    const tree = render(createElement(Roster, { ...input, ...previous, minuteStep: 60 }));
+    act(() =>
+      tree.root
+        .findAll((node) => typeof node.props.onLayout === 'function')[0]
+        ?.props.onLayout({ nativeEvent: { layout: { width: 800, height: 480 } } }),
+    );
+    const list = tree.root.findByType('LegendList' as ElementType);
+    const key = list.props.extraData;
+    // Retain the rendered item exactly as LegendList does when data and extraData match.
+    const row = render(list.props.renderItem({ item: lane }));
+    const press = row.root.findByType(LaneRow).props.press;
+    const onPress = row.root.findByProps({ testID: 'roster-lane-retained' }).props.onPress;
+    onPress({ nativeEvent: { locationX: 47, locationY: 12 } });
+    expect(previous.onCellPress).toHaveBeenLastCalledWith(lane, start);
+    act(() => tree.update(createElement(Roster, { ...input, ...next, minuteStep: 15 })));
+    expect(tree.root.findByType('LegendList' as ElementType).props.extraData).toBe(key);
+    expect(tree.root.findByType(LaneRow).props.press).toBe(press);
+    onPress({ nativeEvent: { locationX: 47, locationY: 12 } });
+    onPress({ nativeEvent: { locationX: 90, locationY: 12 } });
+    onPress({ nativeEvent: { locationX: 150, locationY: 12 } });
+    expect(next.onCellPress).toHaveBeenLastCalledWith(lane, start + 45 * minute);
+    expect(next.onIntervalPress).toHaveBeenCalledTimes(1);
+    expect(next.onGapPress).toHaveBeenCalledTimes(1);
+    expect(previous.onCellPress).toHaveBeenCalledTimes(1);
+    expect(previous.onIntervalPress).not.toHaveBeenCalled();
+    expect(previous.onGapPress).not.toHaveBeenCalled();
+    close(row);
+    close(tree);
+  });
+  it('records row mount and update commits when profiling is supplied', () => {
+    const onRender = mock();
+    function bodyZone(input: BodyInput) {
+      return createElement(RosterBody, { ...input, onRowRender: onRender });
+    }
+    const input = {
+      lanes: rosterFixtures['single-lane'].lanes,
+      windowSpec: rosterWindowSpec,
+      bodyZone,
+    };
+    const tree = render(createElement(Roster, input));
+    act(() =>
+      tree.root
+        .findAll((node) => typeof node.props.onLayout === 'function')[0]
+        ?.props.onLayout({ nativeEvent: { layout: { width: 800, height: 480 } } }),
+    );
+    expect(onRender.mock.calls.some(([id, phase]) => id === 'one' && phase === 'mount')).toBe(true);
+    onRender.mockClear();
+    act(() =>
+      tree.update(
+        createElement(Roster, { ...input, highlightSource: { kind: 'rule', id: 'one' } }),
+      ),
+    );
+    expect(onRender.mock.calls.some(([id, phase]) => id === 'one' && phase === 'update')).toBe(
+      true,
+    );
     close(tree);
   });
   it('keeps mounted LaneRow renders at zero across vertical scroll', () => {

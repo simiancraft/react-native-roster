@@ -76,7 +76,8 @@
     "demo:android": "cd demo && bun run android",
     "demo:web": "cd demo && bun run web",
     "check:size": "size-limit",
-    "check:web": "bun scripts/check-web-performance.ts",
+    "build:web:dev": "cd demo && bunx expo export -p web --dev --output-dir .cache/dev-dist",
+    "check:web": "bun run build:web:dev && bun scripts/check-web-performance.ts",
     "bench:update": "bun scripts/update-performance-baseline.ts"
   },
   "peerDependencies": {

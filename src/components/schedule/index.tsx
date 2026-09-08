@@ -25,9 +25,9 @@ export function Schedule(props: ScheduleProps) {
   // Wait for measurement so the first mounted projection is the actual viewport key.
   const content =
     width === null ? null : (
-      <ScheduleWidth value={width}>
+      <ScheduleWidth.Provider value={width}>
         <ScheduleContent {...props} />
-      </ScheduleWidth>
+      </ScheduleWidth.Provider>
     );
   return (
     <View

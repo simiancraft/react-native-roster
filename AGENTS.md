@@ -188,6 +188,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
     keys window, projection, highlight identity, and rect zone fillers. Vertical scroll
     must not update React state; all lane labels share one translated column.
+    Roster and Schedule retain a stable press function that reads current inputs
+    from a ref; inline consumer callbacks must not enter the body content key.
 12. **Reanimated offsets use makeMutable initialized by useState.** The pinned compiler
     lint crashes on useSharedValue's built-in shape. Offsets use get/set and have no
     animations to cancel; the regular compiler gate stays enabled without suppression.
@@ -210,7 +212,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
 17. **Adapter caches retain occurrences only.** Every call nets and applies the total
     cap fresh in rule id order, then date id order. Retained envelopes select bounds
     by containment; only retained per-rule entries guarantee expanded 0. The default
-    LRUs retain 2000 occurrence entries and 4 envelopes per set; clear discarded sets
+    LRUs retain 2000 occurrence entries and 4 envelopes shared across sets; clear discarded windows
     explicitly. Source identity and notes are attached during assembly.
 18. **The pinned recurrence engine needs two compatibility details.** 1.5.2 has a
     CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
@@ -237,7 +239,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The gallery bridge exposes real expansion counters; expanded counts computations.
     Lane badges retain IANA names. Coverage excludes projection, so equal absolute
     bounds reuse coverage even when the view zone changes.
-23. Test typechecks resolve the package to source through the `react-native` export condition, so they never depend on `dist`.
+23. **Test and demo typechecks pin all three package entry points to source with paths.**
+    tsgo selects `types` before the `react-native` custom condition when emitted
+    declarations exist. Keep the explicit paths in tsconfig.test.json and
+    demo/tsconfig.json, plus customConditions; stale dist must never mask source exports.
+    app.config.js disables Metro tsconfigPaths so these type-only mappings do not
+    bypass package export conditions during bundling.
 
 24. **Schedule measures before layout.** Its internal width context preserves the
     exact useSchedule contract while fitting day columns to the viewport. Standalone
@@ -260,10 +267,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The web view-zone budget uses the actual mounted range, including LegendList's
     boundary guard, in a 24-row viewport. Supply `estimatedListSize` from the
     measured roster viewport to avoid allocating lanes for the whole screen.
-27. **Production web Profiler callbacks are disabled.** The active Profiler test
-    in `test/roster-render.test.ts` complements the browser cache assertions;
-    its host doubles do not prove browser or device LaneRow renders. Follow
-    `docs/performance.md` for the real profile and exact-commit release evidence.
+27. **Production web Profiler callbacks are disabled.** `check:web` also creates a
+    development export and measures actual LegendList LaneRow commits through
+    the 200-lane route's profiled body and RosterBody.onRowRender observer. Mount and
+    highlight controls must fire; continuously mounted lanes must record zero
+    updates on the second scroll pass. The host test remains complementary.
+    Follow `docs/performance.md` for native profiles and exact-commit release evidence.
 
 28. **Gallery completeness is fixture-driven.** The home page lists roster and schedule
     fixture records; every record needs a matching thin route shell. Axis fixtures

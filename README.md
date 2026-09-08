@@ -14,7 +14,9 @@ press a filled or removed span to see exactly which sources produced it.
 `Roster` shows many lanes horizontally. `Schedule` shows one lane with days across
 and wall-clock hours down. Both render the same interval data and provenance.
 
-**The package is feature-complete and unreleased on npm.** Use the repository demo
+**The two read surfaces, the adapter, and the automated gates are implemented;
+the package is unreleased on npm.** Device evidence and the predecessor comparison
+are not yet captured. Use the repository demo
 or a locally built package. Geometry, coverage, recurrence expansion, timezone
 transitions, replaceable zones, and the performance gates are implemented.
 
@@ -192,6 +194,8 @@ clear them when a consumer discards old windows. They do not reset counters.
 `resetStats()` resets both without clearing caches. `expandStats()` returns
 `{ rules, dates, expanded, cacheHits, cacheMisses }`; `resetExpandStats()` resets
 those counters, and `clearExpandCache()` clears occurrence and envelope caches.
+One shared LRU retains four envelopes across sets by default; containment selects
+the most recently used matching envelope, including after a rule edit.
 **Target-warm** means the exact target keys exist; **target-cold** means they are
 absent. A retained envelope alone does not guarantee retained occurrence entries.
 
@@ -342,8 +346,9 @@ samples after five runtime warmups, from a clean checkout:
 size gates (core <15 kB, root <40 kB, minified/uncompressed with peers external),
 Chromium action assertions, and device capture procedure. Local tests enforce
 the absolute timing gates; the relative timing gates run only in CI. Production
-web disables React Profiler callbacks; the active Bun Profiler test uses host
-doubles, with a real LaneRow profile still required for release.
+web disables React Profiler callbacks; a separate development export checks
+actual LegendList LaneRow commits with active mount and update controls. Bun host
+tests remain complementary, and a native LaneRow profile is still required for release.
 
 | Same-machine comparison | react-native-roster | react-big-scheduler wrapper |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 import type { Interval, Source, Window } from '../core';
-import { structuralKey } from '../core/hash';
 import { occurrences, recordStats, retainedEnvelope, touch, trim } from './cache';
+import { envelopeFor } from './envelope';
 import { bodyKey } from './hash';
 import { net } from './net';
 import { enumerate } from './occurrences';
@@ -34,9 +34,6 @@ export function expandRuleSet(
   const dates = [...set.dates].sort(byId);
   const ordered = [...rules, ...dates];
   for (const input of ordered) validateInput(input);
-  const key = structuralKey([rules, dates]);
-  const envelope = retainedEnvelope(key, window, maxEnvelopes);
-  trim(occurrences, maxEntries);
   const stats: ExpandStats = {
     rules: set.rules.length,
     dates: set.dates.length,
@@ -44,6 +41,19 @@ export function expandRuleSet(
     cacheHits: 0,
     cacheMisses: 0,
   };
+  if (window.start === window.end) {
+    recordStats(stats);
+    return {
+      intervals: [],
+      gaps: [],
+      envelope: envelopeFor(window),
+      complete: true,
+      truncated: [],
+      stats,
+    };
+  }
+  const envelope = retainedEnvelope(window, maxEnvelopes);
+  trim(occurrences, maxEntries);
   const includes: Interval[] = [];
   const excludes: Interval[] = [];
   const truncated: ExpandResult['truncated'] = [];

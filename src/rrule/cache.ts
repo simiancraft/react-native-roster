@@ -4,7 +4,7 @@ import type { ExpandStats } from './types';
 
 export type Occurrences = { spans: Window[]; capped: boolean };
 export const occurrences = new Map<string, Occurrences>();
-const envelopes = new Map<string, Map<string, Window>>();
+const envelopes = new Map<string, Window>();
 const counts: ExpandStats = { rules: 0, dates: 0, expanded: 0, cacheHits: 0, cacheMisses: 0 };
 
 // Map insertion order is the LRU: reads move entries to the newest end.
@@ -19,21 +19,16 @@ export function trim<T>(cache: Map<string, T>, limit: number): void {
   while (cache.size > limit) cache.delete(cache.keys().next().value as string);
 }
 
-export function retainedEnvelope(key: string, window: Window, limit: number): Window {
-  let history = envelopes.get(key);
-  if (!history) {
-    history = new Map();
-    envelopes.set(key, history);
-  }
-  trim(history, limit);
-  for (const [id, envelope] of [...history].reverse()) {
+export function retainedEnvelope(window: Window, limit: number): Window {
+  trim(envelopes, limit);
+  for (const [id, envelope] of [...envelopes].reverse()) {
     if (envelope.start <= window.start && envelope.end >= window.end) {
-      return touch(history, id, envelope);
+      return touch(envelopes, id, envelope);
     }
   }
   const envelope = envelopeFor(window);
-  touch(history, JSON.stringify(envelope), envelope);
-  trim(history, limit);
+  touch(envelopes, JSON.stringify(envelope), envelope);
+  trim(envelopes, limit);
   return envelope;
 }
 

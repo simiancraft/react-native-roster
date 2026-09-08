@@ -231,6 +231,39 @@ describe('occurrence and envelope caches', () => {
     expect(expandRuleSet(input, window).stats.expanded).toBe(0);
   });
 
+  it('reuses unchanged bodies after a contained view-zone change and an edit', () => {
+    const a = rule({ id: 'A' });
+    const b = rule({ id: 'B', hourstart: 10 });
+    const input = set([a, b], []);
+    const chicago = windowFor({
+      span: 'week',
+      anchorDate: '2024-03-04',
+      timezone: 'America/Chicago',
+    });
+    const first = expandRuleSet(input, window);
+    const second = expandRuleSet(input, chicago);
+    const edited = expandRuleSet(set([{ ...a, hourend: 18 }, b], []), chicago);
+    expect([first.stats.expanded, second.stats.expanded, edited.stats.expanded]).toEqual([2, 0, 1]);
+    expect(edited.stats.cacheHits).toBe(1);
+    expect(edited.envelope).toEqual(first.envelope);
+  });
+
+  it('shares the envelope budget across sets and selects the most recently used containment', () => {
+    const first = expandRuleSet(set([rule({ id: 'A' })], []), window);
+    const newer = expandRuleSet(set([rule({ id: 'B', hourend: 18 })], []), shift(window, 72));
+    const contained = shift(window, 36);
+    expect(expandRuleSet(set(), contained).envelope).toEqual(newer.envelope);
+    expandRuleSet(set(), window);
+    expect(expandRuleSet(set(), contained).envelope).toEqual(first.envelope);
+    for (let i = 1; i <= 4; i++) {
+      expandRuleSet(
+        set([rule({ id: String(i), hourend: 18 + i })], []),
+        shift(window, i * 20 * 24),
+      );
+    }
+    expect(expandRuleSet(set(), shift(window, 1)).envelope).not.toEqual(first.envelope);
+  });
+
   it('retains next week and previous week and does not cache total-cap assembly', () => {
     const input = set();
     expandRuleSet(input, window);
@@ -496,6 +529,24 @@ describe('recurrence fields and local boundaries', () => {
     ).toEqual([]);
   });
 
+  it('ignores partial and whole-day overrides on a wholly skipped local date', () => {
+    const window = { start: epoch('2011-12-28'), end: epoch('2012-01-02') };
+    const following = date({ id: 'following', date: '2011-12-31', timezone: 'Pacific/Apia' });
+    const expected = expandRuleSet(set([], [following]), window).intervals;
+    expect(expected).toHaveLength(1);
+    for (const hours of [{}, { hourstart: 9, hourend: 17 }]) {
+      const skipped = date({ date: '2011-12-30', timezone: 'Pacific/Apia', ...hours });
+      const included = expandRuleSet(set([], [skipped]), window);
+      expect(included.intervals).toEqual([]);
+      expect(included.gaps).toEqual([]);
+      expect(included.complete).toBe(true);
+      const excluded = expandRuleSet(set([], [following, { ...skipped, kind: 'exclude' }]), window);
+      expect(excluded.intervals).toEqual(expected);
+      expect(excluded.gaps).toEqual([]);
+      expect(excluded.complete).toBe(true);
+    }
+  });
+
   it('clips a recurring span whose anchor precedes the reused envelope edge', () => {
     const input = set(
       [rule({ count: 1, dtstart: '2024-03-02T00:00', hourstart: 9, hourend: 17 })],
@@ -520,9 +571,34 @@ describe('validation', () => {
     }
   });
 
+  it('returns a complete empty result without expansion for zero-duration windows', () => {
+    const skipped = windowFor({ span: 'day', anchorDate: '2011-12-30', timezone: 'Pacific/Apia' });
+    expect(skipped.start).toBe(skipped.end);
+    for (const input of [set([], []), set()]) {
+      const output = expandRuleSet(input, skipped, {
+        caps: { perRuleOccurrences: 0, totalOccurrences: 0 },
+      });
+      expect(output).toEqual({
+        intervals: [],
+        gaps: [],
+        envelope: envelopeFor(skipped),
+        complete: true,
+        truncated: [],
+        stats: {
+          rules: input.rules.length,
+          dates: input.dates.length,
+          expanded: 0,
+          cacheHits: 0,
+          cacheMisses: 0,
+        },
+      });
+    }
+    expect(expandStats().expanded).toBe(0);
+    expect(expandRuleSet(set(), { start: 1, end: 1 }).complete).toBe(true);
+  });
+
   it('rejects invalid windows and limits', () => {
     for (const bad of [
-      { start: 1, end: 1 },
       { start: 2, end: 1 },
       { start: NaN, end: 5 },
       { start: 0, end: Infinity },

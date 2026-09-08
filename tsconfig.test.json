@@ -3,7 +3,12 @@
   "compilerOptions": {
     "customConditions": ["react-native"],
     "noEmit": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "react-native-roster": ["./src/index.ts"],
+      "react-native-roster/core": ["./src/core/index.ts"],
+      "react-native-roster/rrule": ["./src/rrule/index.ts"]
+    }
   },
   "include": ["src/**/*", "test/**/*", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist", "demo"]
