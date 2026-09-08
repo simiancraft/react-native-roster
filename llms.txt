@@ -329,8 +329,13 @@ Enumeration retains the original dtstart except for interval-1 rules without
 COUNT whose anchor is exactly local midnight. Those rules may skip whole periods
 in plain-date space, preserving the weekly weekday and monthly day, and stepping
 back past nonexistent dates. Non-midnight anchors retain their original iteration
-through DST gaps. UNTIL is clamped to the query's upper local-date
-bound; occurrences outside the envelope never consume the occurrence cap.
+through DST gaps. The engine receives the end of UNTIL's local date, clamped to
+the query's upper local-date bound. The adapter admits each emitted date only
+when that date at the original dtstart wall time is at or before the exact UNTIL
+instant, using compatible zone disambiguation. Date-only UNTIL includes its last
+millisecond. This keeps UNTIL admission independent of DST iteration drift,
+anchor advancement, and retained envelopes. Occurrences outside the envelope
+never consume the occurrence cap.
 Retained-envelope containment selects existing bounds before creating a new
 padded envelope. One shared LRU spans all sets (default maxEnvelopes=4);
 containment selects the most recently used matching envelope.

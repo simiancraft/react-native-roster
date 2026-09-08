@@ -218,6 +218,11 @@ usually reuses occurrences for that local week. Expansion retains the original
 anchor unless it is exactly local midnight with interval 1 (or absent) and no COUNT.
 Such rules may skip whole periods in plain-date space while preserving the
 weekly weekday and monthly day, and stepping back past nonexistent dates.
+The adapter checks inclusive UNTIL against each emitted date at the original
+anchor's wall time, using compatible zone disambiguation. Date-only UNTIL includes
+its last millisecond. The engine receives the end of that local date, clamped to
+the envelope query bound, so DST iteration drift cannot change UNTIL admission
+between direct expansion and retained envelopes.
 A new absolute window requires coverage; a new projection requires geometry. Equal absolute bounds reuse coverage.
 
 Presses resolve one result: intervals before gaps, highest z first, and later
