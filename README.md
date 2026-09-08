@@ -12,7 +12,8 @@ on; scan a row to see whether someone set anything at all.
 **API not yet shipped.** The pure TypeScript core is implemented in this working tree:
 contract types, interval and gap geometry, coverage, caches, and time-axis helpers.
 `Roster`, `useRoster`, replaceable zones, the first seven gallery routes, and the
-recurrence adapter are implemented. `Schedule` remains a planned API.
+recurrence adapter are implemented. `Schedule`, `useSchedule`, and ten schedule
+gallery routes are also implemented.
 
 ## Design
 
@@ -38,7 +39,7 @@ expansion belongs to an adapter. `Roster` projects many lanes horizontally;
 
 | Import | Contents | Status |
 | --- | --- | --- |
-| `react-native-roster` | Roster, useRoster, default zones, and core re-exports | Implemented |
+| `react-native-roster` | Roster, useRoster, Schedule, useSchedule, default zones, and core re-exports | Implemented |
 | `react-native-roster/core` | Types, layout, coverage, axis helpers, and counters | Implemented |
 | `react-native-roster/rrule` | Recurrence expansion, caps, provenance, and caches | Implemented |
 
@@ -109,6 +110,55 @@ composed inside replacements.
 (default "Availability may be incomplete"). Only explicit `never-set` shows
 `neverSetLabel` (default "No availability set"). These labels are localizable props.
 Neither metadata nor highlighting invalidates cached geometry.
+
+## Render a schedule
+
+This feature is about a schedule; its children are days. Give `Schedule` one lane
+and a bounded viewport. It fits the actual day columns to the width, with a frozen
+48 px hour gutter, a frozen day header, and vertical body scrolling only.
+
+```tsx
+import { Schedule } from 'react-native-roster';
+import type { Lane } from 'react-native-roster/core';
+
+export function Week({ lane }: { lane: Lane }) {
+  return <Schedule lane={lane} style={{ height: 600, flex: undefined }}
+    windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+    minuteStep={60}
+    onIntervalPress={(rect) => console.log(rect.sources)}
+    onGapPress={(rect) => console.log(rect.sources)}
+    onCellPress={(_lane, time) => console.log(time)} />;
+}
+```
+
+`useSchedule` accepts the lane, `windowSpec`, optional minute step, hour scale, highlight source,
+navigation callback, and press callbacks. It returns `window`, `days`, `projection`,
+`geometry`, `now`, `press(columnIndex, x, y)`, and `status: 'ready'`. Only day and week
+specs are accepted. The view zone comes only from `windowSpec.timezone`. Navigation
+controls belong to the consumer; use `prev`, `next`, and `today` with controlled props.
+The standalone hook uses a 280 px grid; the chassis supplies the measured grid width
+internally and waits for measurement before its first layout. `pxPerHour` defaults to 48 and must be a positive finite number.
+The current-time indicator updates every minute and is absent outside the window.
+
+| Zone | Input and default |
+| --- | --- |
+| `gutterZone` | Hours 0 through 23 and pxPerHour; `ScheduleGutter` draws hour labels. |
+| `dayHeaderZone` | DayColumn; `ScheduleDayHeader` shows weekday, localDate, and transition badge. |
+| `skippedDateZone` | localDate; `ScheduleSkippedDate` labels the zero-width gap for a wholly skipped date. |
+| `columnZone` | Day, rects, gapRects, lane, highlightSource, press, intervalZone, and gapZone; `ScheduleColumn` draws final bounds in layer order. |
+| `transitionZone` | Day, transition, y, height, and width; `ScheduleTransition` hatches skipped time and divides repeated time with an again label. |
+| `nowLineZone` | y and column; `ScheduleNowLine` spans the current day's column. |
+| `intervalZone`, `gapZone` | The same inputs, fillers, style cache, and press coordinate handling as Roster. |
+| `incompleteZone` | Lane and localized label; `ScheduleIncomplete` shows the notice in reserved empty space above the grid when complete is false. |
+
+Columns always have 24 equal hour bands. Repeated time uses two half-height
+sub-regions; skipped time fires no callback. Missing local dates have a header
+marker and no column, including Apia's six-column week containing 2011-12-30.
+Presses resolve `timeAtY`, then `snapToStep`, then the shared interval/gap walk
+at the original point. A 10:30 interval stays pressable on a 60-minute grid.
+Step and highlight changes reuse geometry. An unchanged lane switched from Roster
+to Schedule expands nothing and computes one new layout; returning to the retained
+Roster projection computes none.
 
 ## Pure core
 
@@ -243,7 +293,18 @@ The web-only `window.__roster` exposes live `layoutStats`, `coverageStats`,
 `resetStats`, `clearLayoutCache`, and `clearCoverageCache` functions. Its identity
 is stable across renders and it is removed on unmount. Only the on-screen counters
 use a 500 ms snapshot. Optional expansion counter slots are reserved for future
-adapter integration. These are cumulative core counters, not render counts.
+adapter integration on the roster routes. Schedule routes supply live `expandStats`,
+`resetExpandStats`, and `clearExpandCache` too. These are cumulative engine counters,
+not render counts.
+
+Ten additional `schedule-*` routes use `test/fixtures/schedule.ts`: empty, overlapping
+rules with three sessions, full-day exclusion, Chicago spring and fall, Lord Howe,
+Apia, incomplete, midnight crossing, and Roster beside Schedule. They offer day/week,
+15/30/60-minute steps, view zone, and projection controls without sorting. These
+fixtures use the adapter and expose its expansion counters alongside core counters.
+The transition routes leave an empty strip beside inset custom intervals; press that
+strip in each repeated half to compare absolute times. Availability still fills its
+daytime columns. The Chicago spring hatch accepts no press.
 
 The [Pages workflow](https://github.com/simiancraft/react-native-roster/actions/workflows/deploy-demo.yml)
 builds every pull request and deploys `main` to

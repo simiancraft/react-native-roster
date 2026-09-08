@@ -31,7 +31,7 @@ src/
   index.ts                 # public Roster, hook, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
-  components/              # Roster chassis, hook, zones, and rect rows; Schedule planned
+  components/              # Roster and Schedule chassis, hooks, zones, and rect parts
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
@@ -40,7 +40,7 @@ test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # gallery links and build identity
-  app/gallery/             # seven thin static fixture route shells
+  app/gallery/             # thin roster and schedule fixture route shells
   components/gallery-route/ # hook, chassis, controls, and web counter bridge
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -159,7 +159,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-6. **Roster, the core, and the recurrence adapter are implemented; Schedule is planned.**
+6. **Roster, Schedule, the core, and the recurrence adapter are implemented.**
    Do not advertise planned surfaces as shipped. Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
@@ -214,4 +214,14 @@ Do not publish, tag, change repository settings, or push without task authorizat
     CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
     select matching polyfill instances. Its iterator can replay, so deduplicate local
     dates before cap admission. Supply the implicit monthly day explicitly to avoid
-    a 31st drifting through February. Do not move COUNT anchors when skipping history.
+a 31st drifting through February. Do not move COUNT anchors when skipping history.
+
+19. **Schedule measures before layout.** Its internal width context preserves the
+exact useSchedule contract while fitting day columns to the viewport. Standalone
+hooks use a 280 px grid; the chassis subtracts the 48 px gutter from measured width.
+pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
+walk, filtering rects by column and keeping the original pointer for final bounds.
+Skipped dates have a zero-width header marker supplied by skippedDateZone and
+ScheduleSkippedDate, never a fabricated day column.
+Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
+bridge and supply the actual adapter expanded counter.
