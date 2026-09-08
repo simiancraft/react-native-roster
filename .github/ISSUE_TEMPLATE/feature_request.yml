@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest a capability or API addition.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        react-native-roster is a read surface for lanes and layered intervals with provenance.
+        Lead with the problem and explain how it fits the shared contract.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that the package doesn't let you do today? A concrete use case is far more useful than a proposed API.
+      placeholder: "I'm building X and need to Y. Today I have to work around it by Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API look like? Pseudo-code is fine. If you're not sure, say so; the problem statement is what matters most.
+      render: ts
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other libraries, userland workarounds, or API shapes you've already ruled out.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Fits the project scope?
+      description: Read surfaces, adapters, and improvements to interval geometry are in scope. Creation, dragging, and resizing belong to consumers.
+      options:
+        - label: I've read the README and believe this fits the project's scope.
+          required: true

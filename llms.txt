@@ -1,0 +1,53 @@
+# react-native-roster
+
+> A React Native read surface for layered intervals with provenance across lanes
+> and a shared time axis. API not yet shipped; all three entry points are empty
+> typed modules. Do not suggest imports of planned functions as working code.
+
+## Vocabulary
+
+| Term | Meaning |
+| --- | --- |
+| roster | The whole read surface: a shared time axis, lanes, and layers. |
+| lane | One person or resource row containing layers, a label, and optional metadata. |
+| layer | A named, ordered set of intervals and gaps with a role, z-order, and style. |
+| interval | Covered absolute time, `[start, end)` in epoch milliseconds, with sources. |
+| gap | Removed absolute time with sources; survives complete subtraction. |
+| source | Provenance identified by `(kind, id)`; its label is display metadata. |
+| window | A bare absolute `{ start, end }` span; resolution belongs to the axis. |
+| projection | Geometry mapping: horizontal for a roster, columns for a schedule. |
+| adapter | A function outside the core that converts upstream data into lanes and layers. |
+| schedule | One lane projected into days across and wall-clock hours down. |
+
+## Planned contract
+
+The authoritative contract is issue #3. A lane contains layers; a layer contains
+covered intervals and removed gaps. Both carry `sources: Source[]`. Absolute time
+is epoch milliseconds and end-exclusive. Source identity is `(kind, id)`; labels
+never participate in equality. A window is only `{ start, end }`.
+
+`LayerRole` values are `availability`, `booking`, and `custom`. A projection is
+horizontal (roster) or columns (schedule). Layout works only on visible lanes;
+coverage works on every lane. Target-warm means the exact requested cache keys
+already exist; target-cold means they do not. Rule, lane, and view timezones have
+separate jobs. The core uses standard JavaScript and `Intl`; recurrence expansion
+and Temporal belong exclusively to the future adapter.
+
+## Entry points
+
+- `react-native-roster`: planned React surfaces and core re-exports; empty today.
+- `react-native-roster/core`: planned pure types, geometry, axis math, and counters; empty today.
+- `react-native-roster/rrule`: planned recurrence adapter; empty today.
+- `react-native-roster/package.json`: package metadata.
+
+Metro resolves the `react-native` condition to TypeScript source. Other runtimes
+resolve the default condition to emitted CommonJS. Type declarations live in dist.
+No `.js` extensions on relative imports in src. No consumer-specific entities.
+
+## Key files
+
+- [README](./README.md): status, planned surface, development, and scope.
+- [Type contract](https://github.com/simiancraft/react-native-roster/issues/3): authoritative planned types.
+- [Plan](https://github.com/simiancraft/react-native-roster/issues/1): feature order and performance acceptance.
+- [AGENTS.md](https://github.com/simiancraft/react-native-roster/blob/main/AGENTS.md): contributor conventions.
+- [NOTICE.md](https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md): third-party attribution.

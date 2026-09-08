@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in react-native-roster does not behave as documented.
+title: '[bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Include a minimal reproduction. Report security issues privately through
+        [SECURITY.md](https://github.com/simiancraft/react-native-roster/blob/main/SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: Package version or commit
+      description: Copy the version from your Bun lockfile or the demo build line.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and dependency versions
+      description: Include device or browser, Expo SDK, React, React Native, and Legend List versions.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the smallest input lanes, window, projection, and relevant timezones, or link a reproduction.
+      render: ts
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include error output and screenshots if relevant.
+    validations:
+      required: true
