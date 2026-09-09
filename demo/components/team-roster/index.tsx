@@ -4,6 +4,7 @@ import { Roster } from 'react-native-roster';
 import { TeamHeaderLayout } from './header-layout';
 import { MemberInspector } from './inspector';
 import { TeamRosterLayout } from './layout';
+import { GeneratedNote } from './parts/generated-note';
 import { TeamGridLines } from './parts/grid-lines';
 import { DayHeaderCell, TeamCorner } from './parts/header-cell';
 import { intervalFillerFor, TimeOffGap } from './parts/interval';
@@ -36,7 +37,7 @@ export type TeamRosterZones = {
   laneLabelZone?: (input: MemberLabelProps) => ReactNode;
   /** Beside or below the roster; defaults to the member inspector. */
   inspectorZone?: (model: TeamRosterReady) => ReactNode;
-  /** Under the roster; defaults to the legend. */
+  /** Under the roster; defaults to the legend and the generated-data note. */
   footerZone?: (model: TeamRosterModel) => ReactNode;
 };
 
@@ -83,7 +84,12 @@ const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
       windowSpec={model.windowSpec}
     />
   ),
-  footerZone: () => <TeamLegend />,
+  footerZone: () => (
+    <>
+      <TeamLegend />
+      <GeneratedNote />
+    </>
+  ),
 };
 
 export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { team?: Team }) {
