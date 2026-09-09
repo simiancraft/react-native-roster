@@ -339,7 +339,7 @@ describe('Roster zones and rect primitives', () => {
     expect(backgrounds.some((style) => style.includes('"backgroundColor":"green"'))).toBe(true);
     expect(backgrounds.some((style) => style.includes('"backgroundColor":"blue"'))).toBe(true);
     expect(backgrounds.filter((style) => style.startsWith('{"width":240'))).toHaveLength(1);
-    expect(backgrounds.filter((style) => style.startsWith('[{"width":240'))).toHaveLength(1);
+    expect(backgrounds.filter((style) => style.includes('"width":240},{"border'))).toHaveLength(1);
     expect(tree.root.findByType('custom-corner' as ElementType).parent?.props.style.width).toBe(
       240,
     );

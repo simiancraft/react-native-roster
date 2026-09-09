@@ -168,7 +168,9 @@ onCellPress, onIntervalHover (web only), style, headerStyle, laneLabelColumnStyl
 bodyStyle, laneLabelWidth (180), neverSetLabel, incompleteLabel, and zones below.
 Each style prop has a className twin (className, headerClassName,
 laneLabelColumnClassName, bodyClassName) resolved only after importing
-react-native-roster/nativewind; class values land after the defaults. Labels default to "No availability set" and "Availability may
+react-native-roster/nativewind. A class entry replaces the region's default
+paint (background and border colors) and keeps its structure, because React
+Native Web renders object styles inline where they would beat any class. Labels default to "No availability set" and "Availability may
 be incomplete". Supply a bounded height; Roster waits for viewport measurement
 before mounting LegendList. Reanimated keeps horizontal and vertical offsets
 outside React state.

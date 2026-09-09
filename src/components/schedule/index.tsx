@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { View } from 'react-native';
 import { RosterGap } from '../roster/parts/gap';
 import { RosterInterval } from '../roster/parts/interval';
+import { regionStyle } from '../roster/utils/region-style';
 import { ScheduleDayHeaderLayout } from './days/header-layout';
 import { ScheduleDayLayout } from './days/layout';
 import { ScheduleLayout } from './layout';
@@ -32,10 +33,11 @@ export function Schedule(props: ScheduleProps) {
   return (
     <View
       onLayout={onLayout}
-      style={[
-        { flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden', backgroundColor: '#fff' },
+      style={regionStyle(
+        { flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' },
+        { backgroundColor: '#fff' },
         props.style,
-      ]}
+      )}
     >
       {content}
     </View>

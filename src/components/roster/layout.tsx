@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
 import type { RosterStyleProps } from './roster.types';
+import { regionStyle } from './utils/region-style';
 
 type RosterLayoutProps = Omit<RosterStyleProps, `${string}ClassName` | 'className'> & {
   /** Cell above the lane labels, beside the header. */
@@ -28,40 +29,40 @@ export function RosterLayout({
   laneLabelWidth = 180,
 }: RosterLayoutProps) {
   return (
-    <View style={[{ flex: 1, minHeight: 0, backgroundColor: '#fff', overflow: 'hidden' }, style]}>
-      <View
-        style={[
-          {
-            flexDirection: 'row',
-            height: 40,
-            overflow: 'hidden',
-            borderBottomWidth: 1,
-            borderBottomColor: '#cbd5e1',
-          },
-          headerStyle,
-        ]}
-      >
+    <View style={regionStyle(structure.root, paint.root, style)}>
+      <View style={regionStyle(structure.header, paint.header, headerStyle)}>
         <View style={{ width: laneLabelWidth }}>{cornerZone}</View>
-        <View style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>{headerZone}</View>
+        <View style={structure.headerStrip}>{headerZone}</View>
       </View>
-      <View style={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
+      <View style={structure.content}>
         <View
-          style={[
-            {
-              width: laneLabelWidth,
-              overflow: 'hidden',
-              borderRightWidth: 1,
-              borderRightColor: '#cbd5e1',
-            },
+          style={regionStyle(
+            { ...structure.labels, width: laneLabelWidth },
+            paint.labels,
             laneLabelColumnStyle,
-          ]}
+          )}
         >
           {laneLabelColumnZone}
         </View>
-        <View onLayout={onLayout} style={[{ flex: 1, minWidth: 0, overflow: 'hidden' }, bodyStyle]}>
+        <View onLayout={onLayout} style={regionStyle(structure.body, {}, bodyStyle)}>
           {bodyZone}
         </View>
       </View>
     </View>
   );
 }
+
+const structure = {
+  root: { flex: 1, minHeight: 0, overflow: 'hidden' },
+  header: { flexDirection: 'row', height: 40, overflow: 'hidden' },
+  headerStrip: { flex: 1, minWidth: 0, overflow: 'hidden' },
+  content: { flex: 1, minHeight: 0, flexDirection: 'row' },
+  labels: { overflow: 'hidden' },
+  body: { flex: 1, minWidth: 0, overflow: 'hidden' },
+} as const;
+// Paint is what a class replaces; see regionStyle.
+const paint = {
+  root: { backgroundColor: '#fff' },
+  header: { borderBottomWidth: 1, borderBottomColor: '#cbd5e1' },
+  labels: { borderRightWidth: 1, borderRightColor: '#cbd5e1' },
+} as const;
