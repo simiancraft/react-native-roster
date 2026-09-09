@@ -12,20 +12,23 @@ const GIT_SHA = (BUILD.gitSha ?? 'local').slice(0, 7);
 const BUILT_AT = BUILD.builtAt ? `${BUILD.builtAt.replace('T', ' ').slice(0, 16)}Z` : 'dev';
 const BUILD_LINE = `v${VERSION} · ${GIT_SHA} · ${BUILT_AT}`;
 
+// Route shapes are decided here, in the shell-facing chassis, not in the cards.
 const rosterCards = Object.entries(rosterFixtures).map(([id, fixture]) => ({
   id,
+  href: `/gallery/${id}`,
   title: fixture.title,
   description: fixture.description,
 }));
 const scheduleCards = Object.entries(scheduleFixtures).map(([id, fixture]) => ({
   id,
+  href: `/gallery/${id}`,
   title: fixture.title,
 }));
 
 export function GalleryHomeScreen() {
   return (
     <GalleryHomeLayout
-      heroZone={<GalleryHero version={VERSION} />}
+      heroZone={<GalleryHero version={VERSION} showcaseHref="/showcase" />}
       sectionsZone={
         <>
           <FixtureSection
@@ -40,7 +43,7 @@ export function GalleryHomeScreen() {
           />
         </>
       }
-      footerZone={<Text className="font-mono text-xs text-zinc-600">{BUILD_LINE}</Text>}
+      footerZone={<Text className="font-mono text-xs text-muted-foreground">{BUILD_LINE}</Text>}
     />
   );
 }

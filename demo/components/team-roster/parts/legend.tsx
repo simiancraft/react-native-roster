@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 import { KIND_CLASSES } from '../utils/tones';
 
+/** Swatches for the layers and event kinds drawn in the roster. */
 export function TeamLegend() {
   return (
     <View className="flex-row flex-wrap items-center gap-4">
@@ -16,12 +17,9 @@ export function TeamLegend() {
         />
       ))}
       <LegendItem
-        swatch="h-3 w-5 rounded border border-dashed border-zinc-700 bg-zinc-900"
+        swatch="h-3 w-5 rounded border border-dashed border-grid-strong bg-muted"
         label="Out of office"
       />
-      <Text className="text-[11px] text-zinc-600">
-        Press a person, an event, or empty time to inspect it.
-      </Text>
     </View>
   );
 }
@@ -30,7 +28,7 @@ function LegendItem({ swatch, label }: { swatch: string; label: string }) {
   return (
     <View className="flex-row items-center gap-2">
       <View className={swatch} />
-      <Text className="text-[11px] text-zinc-400">{label}</Text>
+      <Text className="text-[11px] text-muted-foreground">{label}</Text>
     </View>
   );
 }

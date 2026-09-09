@@ -30,6 +30,18 @@ export function dayLabel(time: number, timezone: string): string {
   }).format(time);
 }
 
+/** The most concise date: 9.9.26. */
+export function conciseDate(time: number, timezone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    month: 'numeric',
+    day: 'numeric',
+    year: '2-digit',
+  }).formatToParts(time);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+  return `${value('month')}.${value('day')}.${value('year')}`;
+}
+
 export function rangeLabel(start: number, end: number, timezone: string): string {
   const format = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
@@ -37,7 +49,17 @@ export function rangeLabel(start: number, end: number, timezone: string): string
     day: 'numeric',
   });
   const year = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric' });
-  return `${format.format(start)} to ${format.format(end - 1)}, ${year.format(start)}`;
+  const last = end - 1;
+  const single = format.format(start) === format.format(last);
+  return single
+    ? `${format.format(start)}, ${year.format(start)}`
+    : `${format.format(start)} to ${format.format(last)}, ${year.format(start)}`;
+}
+
+export function conciseRangeLabel(start: number, end: number, timezone: string): string {
+  const first = conciseDate(start, timezone);
+  const last = conciseDate(end - 1, timezone);
+  return first === last ? first : `${first} to ${last}`;
 }
 
 export function durationLabel(start: number, end: number): string {

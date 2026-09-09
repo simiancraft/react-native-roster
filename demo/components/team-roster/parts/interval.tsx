@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import type { GapInput, IntervalInput } from 'react-native-roster';
+import type { LayerRole } from 'react-native-roster/core';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
 import { eventKindOf, KIND_CLASSES, TONE_CLASSES } from '../utils/tones';
@@ -26,6 +28,8 @@ export function AvailabilityBand({ rect, lane }: IntervalInput) {
     />
   );
 }
+
+const HIGHLIGHT = { on: 'border-2 border-foreground', off: '' } as const;
 
 /** A booked event: colored by kind, labeled when wide enough. */
 export function EventCard({
@@ -56,13 +60,29 @@ export function EventCard({
     <View
       pointerEvents="none"
       style={bounds(rect)}
-      className={`justify-center rounded-md border px-1.5 ${kind.card} ${highlighted ? 'border-2 border-white' : ''}`}
+      className={`justify-center rounded-md border px-1.5 ${kind.card} ${HIGHLIGHT[highlighted ? 'on' : 'off']}`}
     >
       {label}
       {clock}
     </View>
   );
 }
+
+const ROLE_FILLERS: Record<LayerRole, (input: IntervalInput, timezone: string) => ReactNode> = {
+  availability: (input) => <AvailabilityBand {...input} />,
+  booking: (input, timezone) => <EventCard {...input} timezone={timezone} />,
+  custom: (input) => <AvailabilityBand {...input} />,
+};
+
+/** One interval filler for both projections; the layer role picks the part. */
+export function intervalFillerFor(timezone: string) {
+  return (input: IntervalInput) => ROLE_FILLERS[input.layer.role](input, timezone);
+}
+
+const GAP = {
+  wholeDay: 'border border-dashed border-grid-strong bg-muted/60',
+  partial: 'bg-background/70',
+} as const;
 
 /** Removed time inside working hours: lunch and out-of-office days. */
 export function TimeOffGap({ rect }: GapInput) {
@@ -71,7 +91,7 @@ export function TimeOffGap({ rect }: GapInput) {
   const label = wholeDay ? (
     <Text
       numberOfLines={1}
-      className="text-[10px] font-medium uppercase tracking-wide text-zinc-500"
+      className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
     >
       {source?.kind === 'rule' ? 'Lunch' : (source?.label ?? 'Out of office')}
     </Text>
@@ -79,7 +99,7 @@ export function TimeOffGap({ rect }: GapInput) {
   return (
     <View
       pointerEvents="none"
-      className={`flex-1 items-center justify-center rounded-md ${wholeDay ? 'border border-dashed border-zinc-700 bg-zinc-900/60' : 'bg-zinc-950/70'}`}
+      className={`flex-1 items-center justify-center rounded-md ${GAP[wholeDay ? 'wholeDay' : 'partial']}`}
     >
       {label}
     </View>

@@ -1,7 +1,7 @@
 import { Link } from 'expo-router';
 import { Text, View } from 'react-native';
 
-export type FixtureCardInput = { id: string; title: string; description?: string };
+export type FixtureCardInput = { id: string; href: string; title: string; description?: string };
 
 export function FixtureSection({
   title,
@@ -15,10 +15,10 @@ export function FixtureSection({
   return (
     <View className="gap-4">
       <View className="gap-1">
-        <Text accessibilityRole="header" className="text-lg font-semibold text-zinc-50">
+        <Text accessibilityRole="header" className="text-lg font-semibold text-foreground">
           {title}
         </Text>
-        <Text className="text-sm text-zinc-500">{blurb}</Text>
+        <Text className="text-sm text-muted-foreground">{blurb}</Text>
       </View>
       <View className="flex-row flex-wrap gap-3">
         {fixtures.map((fixture) => (
@@ -29,20 +29,20 @@ export function FixtureSection({
   );
 }
 
-function FixtureCard({ id, title, description }: FixtureCardInput) {
+function FixtureCard({ id, href, title, description }: FixtureCardInput) {
   const detail = description ? (
-    <Text numberOfLines={2} className="text-xs leading-4 text-zinc-500">
+    <Text numberOfLines={2} className="text-xs leading-4 text-muted-foreground">
       {description}
     </Text>
   ) : null;
   return (
-    <Link href={`/gallery/${id}`} asChild>
+    <Link href={href} asChild>
       <View
         accessibilityRole="link"
-        className="w-full gap-1 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] web:cursor-pointer web:transition-colors web:hover:border-zinc-600 web:hover:bg-zinc-900"
+        className="w-full gap-1 rounded-xl border border-border bg-card/60 p-4 sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] web:cursor-pointer web:transition-colors web:hover:border-grid-strong web:hover:bg-card"
       >
-        <Text className="text-sm font-medium text-zinc-100">{title}</Text>
-        <Text className="font-mono text-[10px] text-zinc-600">/gallery/{id}</Text>
+        <Text className="text-sm font-medium text-foreground">{title}</Text>
+        <Text className="font-mono text-[10px] text-muted-foreground">/gallery/{id}</Text>
         {detail}
       </View>
     </Link>

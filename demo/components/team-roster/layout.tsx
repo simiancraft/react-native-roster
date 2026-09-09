@@ -1,41 +1,55 @@
 import type { ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 type TeamRosterLayoutProps = {
   contentDirection: 'row' | 'column';
   onContentLayout: (input: LayoutChangeEvent) => void;
-  /** Title, week navigation, view zone, sort, and search. */
+  /** Title, window range, span, and navigation; whatever is placed here unrolls in order. */
+  headerZone: ReactNode;
+  /** Filter beside the people column and controls beside the lanes. */
   toolbarZone: ReactNode;
   /** The team roster; fills the remaining height. */
   subjectZone: ReactNode;
   /** Selected member card, their schedule, and the pressed event. */
   inspectorZone: ReactNode;
-  /** Layer and event-kind legend under the roster. */
-  legendZone: ReactNode;
+  /** Legend and any trailing notes under the roster. */
+  footerZone: ReactNode;
 };
 
 export function TeamRosterLayout({
   contentDirection,
   onContentLayout,
+  headerZone,
   toolbarZone,
   subjectZone,
   inspectorZone,
-  legendZone,
+  footerZone,
 }: TeamRosterLayoutProps) {
-  const row = contentDirection === 'row';
-  return (
-    <View className="flex-1 min-h-0 bg-zinc-950 p-4 gap-4">
-      {toolbarZone}
-      <View
-        onLayout={onContentLayout}
-        className={row ? 'flex-1 min-h-0 flex-row gap-4' : 'flex-1 min-h-0 flex-col gap-4'}
-      >
-        <View className="flex-1 min-w-0 min-h-0 gap-3">
-          <View className="flex-1 min-h-0">{subjectZone}</View>
-          {legendZone}
+  if (contentDirection === 'column')
+    return (
+      <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pb-4 gap-3">
+        {headerZone}
+        <View onLayout={onContentLayout} className="gap-4">
+          <View className="gap-3">
+            {toolbarZone}
+            <View className="h-[440px]">{subjectZone}</View>
+            {footerZone}
+          </View>
+          <View className="h-[600px]">{inspectorZone}</View>
         </View>
-        <View className={row ? 'w-[380px] min-h-0' : 'h-[560px]'}>{inspectorZone}</View>
+      </ScrollView>
+    );
+  return (
+    <View className="flex-1 min-h-0 bg-background px-4 pb-4 gap-3">
+      {headerZone}
+      <View onLayout={onContentLayout} className="flex-1 min-h-0 flex-row gap-4">
+        <View className="flex-1 min-w-0 min-h-0 gap-3">
+          {toolbarZone}
+          <View className="flex-1 min-h-0">{subjectZone}</View>
+          {footerZone}
+        </View>
+        <View className="w-[380px] min-h-0">{inspectorZone}</View>
       </View>
     </View>
   );

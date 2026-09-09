@@ -99,7 +99,12 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
 - The Expo app is the gallery; a "story" means a fixture route under
   `demo/app/gallery/` using a named fixture from `test/fixtures`. No Storybook.
   `demo/app/showcase.tsx` is the one non-fixture route; its `team-roster`
-  feature generates people with seeded Faker and styles everything with NativeWind.
+  feature generates people with seeded Faker and styles everything with NativeWind
+  semantic tokens (`bg-background`, `text-muted-foreground`, `border-border`, and the
+  `grid` pair) declared in `demo/global.css` and swapped by the `dark` root class.
+  `TeamRosterScreen` exposes host-facing zones (title, actions, filter, controls,
+  corner, lane label, inspector, footer) that default to the showcase parts; the
+  route shell owns router contact and passes links in as zones.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are

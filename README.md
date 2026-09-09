@@ -420,7 +420,8 @@ there is no Storybook. Its home page lists every fixture route:
 - The showcase at `/showcase`: twelve Faker-generated people across seven zones,
   weekly hours and exclusions from the recurrence adapter, booked events, day and
   week spans, sorting, filtering, and a per-person Schedule, all styled with
-  NativeWind class props and zone fillers.
+  NativeWind class props and zone fillers. A sun/moon toggle at the top left
+  switches the semantic light and dark palettes.
 
 Roster routes have span, minute step, view zone, and sort controls. Schedule
 routes have day/week, step, view zone, and projection controls without sort.

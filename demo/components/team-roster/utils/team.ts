@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { en, Faker } from '@faker-js/faker';
 import type { Interval, Lane, Layer, Weekday, Window } from 'react-native-roster/core';
 import type { expandRuleSet, RuleSet } from 'react-native-roster/rrule';
 
@@ -39,9 +39,19 @@ const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4];
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
-/** A deterministic team; the same seed always yields the same people. */
-export function teamFor(seed = 1318, count = 12): Member[] {
+export type Team = { organization: string; members: Member[] };
+
+/** A private generator so render-time calls never touch shared random state. */
+function generator(seed: number): Faker {
+  const faker = new Faker({ locale: [en] });
   faker.seed(seed);
+  return faker;
+}
+
+/** A deterministic team; the same seed always yields the same people. */
+export function teamFor(seed = 1318, count = 12): Team {
+  const faker = generator(seed);
+  const organization = faker.company.name();
   const members: Member[] = [];
   for (let index = 0; index < count; index++) {
     const firstName = faker.person.firstName();
@@ -112,11 +122,11 @@ export function teamFor(seed = 1318, count = 12): Member[] {
       rules,
     });
   }
-  return members;
+  return { organization, members };
 }
 
-const EVENT_TITLES: Record<EventKind, () => string> = {
-  meeting: () =>
+const EVENT_TITLES: Record<EventKind, (faker: Faker) => string> = {
+  meeting: (faker) =>
     faker.helpers.arrayElement([
       `Sync with ${faker.person.firstName()}`,
       `${faker.company.buzzNoun()} review`,
@@ -124,13 +134,13 @@ const EVENT_TITLES: Record<EventKind, () => string> = {
       `${faker.commerce.department()} standup`,
       'Roadmap check-in',
     ]),
-  focus: () =>
+  focus: (faker) =>
     faker.helpers.arrayElement([
       `Focus: ${faker.hacker.verb()} ${faker.hacker.noun()}`,
       'Deep work',
       `Draft ${faker.company.buzzNoun()} doc`,
     ]),
-  session: () =>
+  session: (faker) =>
     faker.helpers.arrayElement([
       `Session with ${faker.person.firstName()}`,
       `Onboarding: ${faker.person.firstName()}`,
@@ -140,8 +150,7 @@ const EVENT_TITLES: Record<EventKind, () => string> = {
 
 /** Events for one member inside a window, stable for the same member and window. */
 export function eventsFor(member: Member, window: Window): MemberEvent[] {
-  const seed = hashSeed(`${member.id}:${window.start}`);
-  faker.seed(seed);
+  const faker = generator(hashSeed(`${member.id}:${window.start}`));
   const events: MemberEvent[] = [];
   const dayCount = Math.round((window.end - window.start) / DAY);
   const localMidnight = new Intl.DateTimeFormat('en-US', {
@@ -173,7 +182,7 @@ export function eventsFor(member: Member, window: Window): MemberEvent[] {
       events.push({
         id: `${member.id}:${day}:${hour}`,
         kind,
-        title: EVENT_TITLES[kind](),
+        title: EVENT_TITLES[kind](faker),
         start,
         end,
       });

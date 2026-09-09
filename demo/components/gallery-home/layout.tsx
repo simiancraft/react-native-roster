@@ -12,7 +12,10 @@ type GalleryHomeLayoutProps = {
 
 export function GalleryHomeLayout({ heroZone, sectionsZone, footerZone }: GalleryHomeLayoutProps) {
   return (
-    <ScrollView className="flex-1 bg-zinc-950" contentContainerClassName="items-center px-5 py-10">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="items-center px-5 py-10"
+    >
       <View className="w-full max-w-[1100px] gap-10">
         {heroZone}
         {sectionsZone}
