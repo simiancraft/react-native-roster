@@ -36,21 +36,29 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
+
+      "bun": "./src/index.ts",
       "react-native": "./src/index.ts",
       "default": "./dist/src/index.js"
     },
     "./core": {
       "types": "./dist/src/core/index.d.ts",
+
+      "bun": "./src/core/index.ts",
       "react-native": "./src/core/index.ts",
       "default": "./dist/src/core/index.js"
     },
     "./rrule": {
       "types": "./dist/src/rrule/index.d.ts",
+
+      "bun": "./src/rrule/index.ts",
       "react-native": "./src/rrule/index.ts",
       "default": "./dist/src/rrule/index.js"
     },
     "./nativewind": {
       "types": "./dist/src/nativewind/index.d.ts",
+
+      "bun": "./src/nativewind/index.ts",
       "react-native": "./src/nativewind/index.ts",
       "default": "./dist/src/nativewind/index.js"
     },
