@@ -21,6 +21,14 @@ export function validateInput(input: RosterRule | RosterDate): void {
   if (!input.id || !['include', 'exclude'].includes(input.kind)) {
     throw new RangeError('Each rule or date needs an id and an include or exclude kind');
   }
+  // Bound date strings before any regex sees them; a full offset-and-zone
+  // form is under 50 characters, and unbounded input would scan quadratically.
+  for (const name of ['dtstart', 'until', 'date'] as const) {
+    const value =
+      name in input ? (input as Partial<Record<typeof name, unknown>>)[name] : undefined;
+    if (value !== undefined && (typeof value !== 'string' || value.length > 64))
+      throw new RangeError(`${input.id}: ${name} must be a string of at most 64 characters`);
+  }
   const { hourstart, hourend } = input;
   if ((hourstart === undefined) !== (hourend === undefined)) {
     throw new RangeError(`${input.id}: hourstart and hourend must both be present or both absent`);

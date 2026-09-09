@@ -8,6 +8,14 @@
     "ignore": ["react", "react-native", "expo", "@legendapp/list", "react-native-reanimated"]
   },
   {
+    "name": "react-native-roster/rrule",
+    "path": "dist/src/rrule/index.js",
+    "limit": "15 kB",
+    "gzip": false,
+    "brotli": false,
+    "ignore": ["rrule-temporal", "@js-temporal/polyfill"]
+  },
+  {
     "name": "react-native-roster",
     "path": "dist/src/index.js",
     "limit": "44 kB",

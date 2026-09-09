@@ -8,12 +8,13 @@ or simulator and the platform toolchain. The demo targets Expo SDK 54.
 ```sh
 git clone https://github.com/simiancraft/react-native-roster.git
 cd react-native-roster
-bun install
+bun install --frozen-lockfile
 bun run check
 ```
 
-The root workspace lockfile is committed. Run `bun install --frozen-lockfile` at the
-root to install both the package and demo, matching CI. The prepare hook installs lefthook; pre-commit formats staged
+The root workspace lockfile is committed; one frozen install at the root installs
+both the package and the demo, matching CI. Add `--ignore-scripts` in a sandbox
+that cannot run the lefthook install hook. The prepare hook installs lefthook; pre-commit formats staged
 files, restages fixes, and checks library types, test types, and React Compiler safety.
 
 ## Common tasks
@@ -48,7 +49,13 @@ Never use em dashes in prose; use semicolons, commas, or parentheses. Use the Ox
 
 `feat` releases a minor, `fix` a patch, and `!` or a `BREAKING CHANGE:` footer a
 major. Demo-scoped commits never release. Do not scope library changes to `demo`.
-Other maintenance commits do not release by default.
+Other maintenance commits do not release by default. Merge pull requests with a
+merge commit; squashing rewrites the subjects that semantic-release reads.
+
+For a worktree-local browser cache, set `PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/playwright"`
+on both the install and check commands. To keep Bun scratch and cache writes local,
+set `TMPDIR="$PWD/.cache/tmp"` and `BUN_INSTALL_CACHE_DIR="$PWD/.cache/bun"` after
+creating those directories.
 
 ## Releases
 

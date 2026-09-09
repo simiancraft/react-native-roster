@@ -61,6 +61,7 @@
     "dist",
     "README.md",
     "LICENSE",
+    "NOTICE.md",
     "llms.txt"
   ],
   "scripts": {
@@ -98,10 +99,13 @@
     "react-native-reanimated": ">=3.19.0"
   },
   "peerDependenciesMeta": {
-    "react-native-reanimated": {
+    "expo": {
       "optional": true
     },
     "nativewind": {
+      "optional": true
+    },
+    "react-native-reanimated": {
       "optional": true
     }
   },

@@ -224,7 +224,7 @@ function dateTime(value: string, timezone: string, endOfDate = false): RuleDateT
     const date = Temporal.PlainDate.from(value);
     return date.toPlainDateTime(endOfDate ? '23:59:59.999' : '00:00');
   }
-  if (/(?:Z|[+-]\d{2}:?\d{2})(?:\[.*\])?$/i.test(value)) {
+  if (/(?:Z|[+-]\d{2}:?\d{2})(?:\[[^\]]*\])?$/i.test(value)) {
     return Temporal.Instant.from(value).toZonedDateTimeISO(timezone);
   }
   return Temporal.PlainDateTime.from(value);

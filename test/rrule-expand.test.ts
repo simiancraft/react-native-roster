@@ -1927,3 +1927,37 @@ describe('adapter positional selection and bounded periods', () => {
     }
   });
 });
+
+describe('input string bounds', () => {
+  it('rejects oversized date strings before any parsing', () => {
+    const window = { start: Date.UTC(2024, 0, 1), end: Date.UTC(2024, 0, 8) };
+    const hostile = `Z${'[Z'.repeat(50_000)}`;
+    const started = performance.now();
+    expect(() =>
+      expandRuleSet(
+        {
+          rules: [
+            {
+              id: 'hostile',
+              kind: 'include',
+              frequency: 'DAILY',
+              dtstart: hostile,
+              hourstart: 9,
+              hourend: 17,
+              timezone: 'UTC',
+            },
+          ],
+          dates: [],
+        },
+        window,
+      ),
+    ).toThrow(/dtstart must be a string of at most 64 characters/);
+    expect(() =>
+      expandRuleSet(
+        { rules: [], dates: [{ id: 'd', kind: 'include', date: hostile, timezone: 'UTC' }] },
+        window,
+      ),
+    ).toThrow(/date must be a string/);
+    expect(performance.now() - started).toBeLessThan(50);
+  });
+});

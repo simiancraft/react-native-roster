@@ -6,7 +6,8 @@
     "moduleResolution": "node16",
     "verbatimModuleSyntax": false,
     "rootDir": ".",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "inlineSources": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "demo"]
