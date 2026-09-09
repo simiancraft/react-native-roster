@@ -86,7 +86,9 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `src/nativewind` imports the optional `nativewind` peer; it is the package's
   one side-effect module and is listed in `sideEffects`.
 - Chrome regions expose `xxxStyle` props with `xxxClassName` twins declared on
-  root props; the nativewind entry maps each twin with `cssInterop`. Fine detail
+  root props; the nativewind entry maps each twin with `cssInterop`. Layouts
+  compose region styles with `regionStyle(structure, paint, override)`, which
+  drops the default paint when the override carries a class entry. Fine detail
   is styled through zones, whose fillers accept `className` as plain views.
 - Work outside the render path: geometry for visible lanes, coverage for every
   lane. Preserve exact provenance by `(kind, id)` and end-exclusive epoch bounds.
@@ -96,6 +98,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   target-cold means they are absent. Do not restate these as whole-cache states.
 - The Expo app is the gallery; a "story" means a fixture route under
   `demo/app/gallery/` using a named fixture from `test/fixtures`. No Storybook.
+  `demo/app/showcase.tsx` is the one non-fixture route; its `team-roster`
+  feature generates people with seeded Faker and styles everything with NativeWind.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
@@ -362,3 +366,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
     the first instant of the authored date and the first instant of the following
     date. Compatible midnight resolution can overshoot a straddling skip.
     Wholly skipped dates remain empty; explicit hours retain compatible resolution.
+
+33. **React Native Web renders object styles inline, so inline paint beats any class.**
+    `StyleSheet.create` does not change that on 0.21. Chrome regions therefore
+    pass `regionStyle(structure, paint, override)`; a NativeWind class entry
+    (`$$css`) in the override drops the region's default paint. Native resolves
+    classes into style objects, so the outcome matches: the class wins. Metro
+    serves library source to the web demo through the `react-native` condition;
+    `bun run build` is not needed to see library edits there, but in this
+    environment the dev server has needed a restart to notice edits.
