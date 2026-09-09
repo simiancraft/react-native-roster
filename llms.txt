@@ -28,7 +28,8 @@ absolute tarball path in your app. Add `@legendapp/list` and install the SDK's
 compatible Reanimated with `bunx expo install react-native-reanimated --bun`.
 Keep React, React Native, and Expo aligned with the app's SDK. The demo uses Expo
 54, React 19.1, RN 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5. NativeWind is
-optional consumer styling; no library import requires it. Web needs compatible
+an optional peer (>=4.1); import react-native-roster/nativewind once at the app
+root to enable className props on Roster and Schedule. Web needs compatible
 React DOM and React Native Web. See demo/babel.config.js for workspace presets.
 
 Peer ranges: React >=18.2, React Native >=0.74, Expo >=51, LegendList >=2.
@@ -145,6 +146,7 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 | react-native-roster | Roster, Schedule, useRoster, useSchedule, default zone fillers, and core re-exports. |
 | react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
+| react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
 
 No default exports. Root exports renderer inputs/models/zone types as well as
 core types. Core imports standard JS and Intl only. Only /rrule imports
@@ -162,8 +164,11 @@ not a substitute for a React Native app. Core and /rrule work in Node/Bun.
 Roster required props: lanes: Lane[], windowSpec: WindowSpec.
 Optional: minuteStep (60), rowHeight (48), pxPerMinute (minimum 0.5, fits viewport),
 sortLanes (byLabel), highlightSource, onNavigate, onIntervalPress, onGapPress,
-onCellPress, onIntervalHover (web only), style, neverSetLabel, incompleteLabel,
-and zones below. Labels default to "No availability set" and "Availability may
+onCellPress, onIntervalHover (web only), style, headerStyle, laneLabelColumnStyle,
+bodyStyle, laneLabelWidth (180), neverSetLabel, incompleteLabel, and zones below.
+Each style prop has a className twin (className, headerClassName,
+laneLabelColumnClassName, bodyClassName) resolved only after importing
+react-native-roster/nativewind; class values land after the defaults. Labels default to "No availability set" and "Availability may
 be incomplete". Supply a bounded height; Roster waits for viewport measurement
 before mounting LegendList. Reanimated keeps horizontal and vertical offsets
 outside React state.
@@ -179,8 +184,10 @@ are clamped up to window.start and rejected at or beyond window.end.
 
 Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
 Optional: minuteStep (60), pxPerHour (48, positive finite), highlightSource,
-onNavigate, onIntervalPress, onGapPress, onCellPress, style, incompleteLabel,
-and zones below. No month/custom spec, sort, or interval-hover prop.
+onNavigate, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
+gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
+className, headerClassName, gutterClassName, and daysClassName. No month/custom
+spec, sort, or interval-hover prop.
 
 useSchedule returns window, days, projection, geometry, now (epoch ms or null),
 press(columnIndex,x,y), and status:'ready'. The standalone hook uses a 280 px grid.
@@ -200,6 +207,8 @@ to preserve geometry, scrolling, and interaction. Types are exported from root.
 | `headerCellZone` | `tick` | `RosterHeaderCell`: tick label. |
 | `intervalZone` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `gapZone` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `gridZone` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
+| `cornerZone` | Nothing | `RosterCorner`: nothing; the cell above the labels, laneLabelWidth wide. |
 | `headerZone` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellZone` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnZone` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelZone` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
 | `bodyZone` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect zones | `RosterBody`: virtualized lanes. |
@@ -209,6 +218,7 @@ to preserve geometry, scrolling, and interaction. Types are exported from root.
 | Zone | Receives | Default filler and behavior |
 | --- | --- | --- |
 | `gutterZone` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+| `gridZone` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
 | `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
 | `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
 | `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
@@ -220,6 +230,9 @@ to preserve geometry, scrolling, and interaction. Types are exported from root.
 Position custom interval content at rect.x/y with width/height/z and
 pointerEvents="none". Gap content already sits in a positioned pressable.
 Column x coordinates are local; select the column through rect.column.
+Zone fillers are plain React Native views; under NativeWind they take className
+directly. The default RosterLaneLabel owns its row's bottom border, so a custom
+laneLabelZone draws its own separators.
 
 ## Navigation and zones
 

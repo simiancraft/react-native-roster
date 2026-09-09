@@ -1,50 +1,64 @@
 import type { ReactNode } from 'react';
-import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
+import type { RosterStyleProps } from './roster.types';
 
-type RosterLayoutProps = {
+type RosterLayoutProps = Omit<RosterStyleProps, `${string}ClassName` | 'className'> & {
+  /** Cell above the lane labels, beside the header. */
+  cornerZone: ReactNode;
   /** Frozen tick row; the layout clips translated header content. */
   headerZone: ReactNode;
-  /** Frozen lane labels; the layout supplies a 180 px column and clips vertical translation. */
+  /** Frozen lane labels; the layout supplies the label column and clips vertical translation. */
   laneLabelColumnZone: ReactNode;
   /** Virtualized body with its horizontal scroller; fills the measured viewport. */
   bodyZone: ReactNode;
   onLayout: (input: LayoutChangeEvent) => void;
-  style?: StyleProp<ViewStyle>;
 };
 
 export function RosterLayout({
+  cornerZone,
   headerZone,
   laneLabelColumnZone,
   bodyZone,
   onLayout,
   style,
+  headerStyle,
+  laneLabelColumnStyle,
+  bodyStyle,
+  laneLabelWidth = 180,
 }: RosterLayoutProps) {
   return (
     <View style={[{ flex: 1, minHeight: 0, backgroundColor: '#fff', overflow: 'hidden' }, style]}>
       <View
-        style={{
-          height: 40,
-          marginLeft: 180,
-          overflow: 'hidden',
-          borderBottomWidth: 1,
-          borderBottomColor: '#cbd5e1',
-        }}
+        style={[
+          {
+            flexDirection: 'row',
+            height: 40,
+            overflow: 'hidden',
+            borderBottomWidth: 1,
+            borderBottomColor: '#cbd5e1',
+          },
+          headerStyle,
+        ]}
       >
-        {headerZone}
+        <View style={{ width: laneLabelWidth }}>{cornerZone}</View>
+        <View style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>{headerZone}</View>
       </View>
       <View style={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
         <View
-          style={{
-            width: 180,
-            overflow: 'hidden',
-            borderRightWidth: 1,
-            borderRightColor: '#cbd5e1',
-          }}
+          style={[
+            {
+              width: laneLabelWidth,
+              overflow: 'hidden',
+              borderRightWidth: 1,
+              borderRightColor: '#cbd5e1',
+            },
+            laneLabelColumnStyle,
+          ]}
         >
           {laneLabelColumnZone}
         </View>
-        <View onLayout={onLayout} style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+        <View onLayout={onLayout} style={[{ flex: 1, minWidth: 0, overflow: 'hidden' }, bodyStyle]}>
           {bodyZone}
         </View>
       </View>

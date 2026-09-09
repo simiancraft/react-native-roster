@@ -41,6 +41,7 @@ describe('subpath exports', () => {
         if (specifier === 'react-native') return { View: 'View', Text: 'Text', Pressable: 'Pressable', ScrollView: 'ScrollView' };
         if (specifier === 'react-native-reanimated') return { __esModule: true, default: { View: 'AnimatedView' } };
         if (specifier === '@legendapp/list') return { LegendList: 'LegendList' };
+        if (specifier === 'nativewind') return { cssInterop: (component) => component };
         return originalLoad.call(this, specifier, ...args);
       };
       const pkg = require('react-native-roster/package.json');
@@ -62,6 +63,10 @@ describe('subpath exports', () => {
       assert.equal(typeof root.useRoster, 'function');
       assert.equal(typeof root.Schedule, 'function');
       assert.equal(typeof root.useSchedule, 'function');
+      const styled = require('react-native-roster/nativewind');
+      assert.equal(styled.Roster, root.Roster);
+      assert.equal(styled.Schedule, root.Schedule);
+      assert.equal(styled.rosterClassNames.className, 'style');
       for (const name of [
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',

@@ -21,7 +21,15 @@ export function RosterLaneLabel({
     <Text style={{ fontSize: 10, color: '#9a3412' }}>{incompleteLabel}</Text>
   );
   return (
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 8 }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e2e8f0',
+      }}
+    >
       <Text numberOfLines={1} style={{ color: '#0f172a', fontSize: 12 }}>
         {lane.label}
       </Text>

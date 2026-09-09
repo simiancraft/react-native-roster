@@ -21,8 +21,6 @@ export function RosterLaneLabelColumn({
             top: index * projection.rowHeight,
             height: projection.rowHeight,
             width: '100%',
-            borderBottomWidth: 1,
-            borderBottomColor: '#e2e8f0',
           }}
         >
           {laneLabelZone(label)}

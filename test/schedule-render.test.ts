@@ -293,9 +293,13 @@ describe('Schedule chassis and day zones', () => {
     spyOn(Date, 'now').mockReturnValue(Date.parse('2024-11-03T07:30Z'));
     const columns: ScheduleColumnInput[] = [];
     const zones: Partial<ScheduleProps> = {
+      headerStyle: { backgroundColor: 'red' },
+      gutterStyle: { backgroundColor: 'green' },
+      daysStyle: { backgroundColor: 'blue' },
       gutterZone: mock(({ hours, pxPerHour }) =>
         createElement('custom-gutter', { hours, pxPerHour }),
       ),
+      gridZone: mock(({ hours, pxPerHour }) => createElement('custom-grid', { hours, pxPerHour })),
       dayHeaderZone: mock(({ day }) => createElement('custom-header', { day })),
       columnZone: mock((input) => {
         columns.push(input);
@@ -314,6 +318,13 @@ describe('Schedule chassis and day zones', () => {
     };
     const replaced = render(createElement(Schedule, { ...fall, ...zones, lane: withGaps }));
     expect(replaced.root.findByType('custom-gutter' as ElementType).props.hours).toHaveLength(24);
+    expect(replaced.root.findAllByType('custom-grid' as ElementType)).toHaveLength(7);
+    expect(replaced.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(0);
+    const styles = replaced.root
+      .findAllByType('View' as ElementType)
+      .map((view) => JSON.stringify(view.props.style ?? null));
+    for (const color of ['red', 'green', 'blue'])
+      expect(styles.some((style) => style.includes(`"backgroundColor":"${color}"`))).toBe(true);
     expect(replaced.root.findAllByType('custom-header' as ElementType)).toHaveLength(7);
     expect(replaced.root.findByType('custom-transition' as ElementType).props.height).toBe(48);
     expect(replaced.root.findByType('custom-now' as ElementType).props.y).toBe(1.75 * 48);

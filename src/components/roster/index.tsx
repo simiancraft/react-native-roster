@@ -1,7 +1,9 @@
 import { RosterLayout } from './layout';
 import { RosterBody } from './parts/body';
+import { RosterCorner } from './parts/corner';
 import { RosterEmpty } from './parts/empty';
 import { RosterGap } from './parts/gap';
+import { RosterGrid } from './parts/grid';
 import { RosterHeader } from './parts/header';
 import { RosterHeaderCell } from './parts/header-cell';
 import { RosterInterval } from './parts/interval';
@@ -27,6 +29,7 @@ export function Roster(props: RosterProps) {
   } = useRoster(props);
   const {
     emptyZone = RosterEmpty,
+    cornerZone = RosterCorner,
     headerZone = RosterHeader,
     laneLabelColumnZone = RosterLaneLabelColumn,
     bodyZone = RosterBody,
@@ -34,6 +37,7 @@ export function Roster(props: RosterProps) {
     laneLabelZone = RosterLaneLabel,
     intervalZone = RosterInterval,
     gapZone = RosterGap,
+    gridZone = RosterGrid,
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
@@ -42,7 +46,12 @@ export function Roster(props: RosterProps) {
   return (
     <RosterLayout
       style={props.style}
+      headerStyle={props.headerStyle}
+      laneLabelColumnStyle={props.laneLabelColumnStyle}
+      bodyStyle={props.bodyStyle}
+      laneLabelWidth={props.laneLabelWidth}
       onLayout={onLayout}
+      cornerZone={cornerZone()}
       headerZone={headerZone({ ticks, projection, scroll, contentWidth, headerCellZone })}
       laneLabelColumnZone={laneLabelColumnZone({
         labels: orderedLanes.map((lane) => {
@@ -71,6 +80,7 @@ export function Roster(props: RosterProps) {
         viewport,
         intervalZone,
         gapZone,
+        gridZone,
         highlightSource: props.highlightSource,
         onIntervalHover: props.onIntervalHover,
         incompleteLabel,

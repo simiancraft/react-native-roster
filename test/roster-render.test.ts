@@ -7,10 +7,12 @@ import { Roster } from '../src/components/roster';
 import { LaneRow } from '../src/components/roster/lane-row';
 import { RosterBody } from '../src/components/roster/parts/body';
 import { RosterGap } from '../src/components/roster/parts/gap';
+import { RosterGrid } from '../src/components/roster/parts/grid';
 import { RosterInterval } from '../src/components/roster/parts/interval';
 import { RosterLaneLabel } from '../src/components/roster/parts/lane-label';
 import type {
   BodyInput,
+  GridInput,
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
@@ -307,6 +309,47 @@ describe('Roster zones and rect primitives', () => {
         .findAllByType('View' as ElementType)
         .some((view) => view.props.style[0].backgroundColor === '#f59e0b'),
     ).toBe(false);
+    close(tree);
+  });
+  it('applies chrome styles after defaults, sizes the corner, and swaps the grid', () => {
+    const lanes = rosterFixtures['single-lane'].lanes;
+    const gridZone = mock((input: GridInput) => createElement('custom-grid', input));
+    const tree = render(
+      createElement(Roster, {
+        lanes,
+        windowSpec: rosterWindowSpec,
+        style: { backgroundColor: 'black' },
+        headerStyle: { backgroundColor: 'red' },
+        laneLabelColumnStyle: { backgroundColor: 'green' },
+        bodyStyle: { backgroundColor: 'blue' },
+        laneLabelWidth: 240,
+        cornerZone: () => createElement('custom-corner'),
+        gridZone,
+      }),
+    );
+    act(() =>
+      tree.root
+        .findAll((node) => typeof node.props.onLayout === 'function')[0]
+        ?.props.onLayout({ nativeEvent: { layout: { width: 800, height: 480 } } }),
+    );
+    const views = tree.root.findAllByType('View' as ElementType);
+    const backgrounds = views.map((view) => JSON.stringify(view.props.style));
+    expect(backgrounds[0]).toContain('"backgroundColor":"black"');
+    expect(backgrounds.some((style) => style.includes('"backgroundColor":"red"'))).toBe(true);
+    expect(backgrounds.some((style) => style.includes('"backgroundColor":"green"'))).toBe(true);
+    expect(backgrounds.some((style) => style.includes('"backgroundColor":"blue"'))).toBe(true);
+    expect(backgrounds.filter((style) => style.startsWith('{"width":240'))).toHaveLength(1);
+    expect(backgrounds.filter((style) => style.startsWith('[{"width":240'))).toHaveLength(1);
+    expect(tree.root.findByType('custom-corner' as ElementType).parent?.props.style.width).toBe(
+      240,
+    );
+    expect(tree.root.findAllByProps({ testID: 'roster-grid' })).toHaveLength(0);
+    expect(gridZone).toHaveBeenCalledTimes(1);
+    expect(gridZone.mock.calls[0]?.[0].ticks).toHaveLength(7);
+    expect(gridZone.mock.calls[0]?.[0].contentWidth).toBe(5040);
+    const grid = render(createElement(RosterGrid, gridZone.mock.calls[0]?.[0] as GridInput));
+    expect(grid.root.findByProps({ testID: 'roster-grid' }).children).toHaveLength(7);
+    close(grid);
     close(tree);
   });
   it('shows the lane timezone only when it differs and flags only for never-set', () => {

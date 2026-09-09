@@ -31,6 +31,7 @@ src/
   index.ts                 # public Roster, Schedule, hooks, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
+  nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/              # Roster and Schedule chassis, hooks, zones, and rect parts
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
 scripts/
@@ -77,11 +78,16 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `useXxx` hook names, and relative imports within `src`. Do not add `.js`
   extensions to source imports.
 - Named exports only; Expo Router's route files and tool configuration files are
-  the framework-required exceptions. No subdirectory barrels except the three
+  the framework-required exceptions. No subdirectory barrels except the four
   declared public entry points; a feature's `index.tsx` is its chassis.
 - Core imports only standard JavaScript and `Intl`. React, React Native, Expo, and
   `@legendapp/list` are peers. The rrule adapter alone owns Temporal and
-  recurrence dependencies; root and core must never import them.
+  recurrence dependencies; root and core must never import them. Only
+  `src/nativewind` imports the optional `nativewind` peer; it is the package's
+  one side-effect module and is listed in `sideEffects`.
+- Chrome regions expose `xxxStyle` props with `xxxClassName` twins declared on
+  root props; the nativewind entry maps each twin with `cssInterop`. Fine detail
+  is styled through zones, whose fillers accept `className` as plain views.
 - Work outside the render path: geometry for visible lanes, coverage for every
   lane. Preserve exact provenance by `(kind, id)` and end-exclusive epoch bounds.
   Window is only `{ start, end }`; span and minute step belong to the axis.
@@ -283,7 +289,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The gallery bridge exposes real expansion counters; expanded counts computations.
     Lane badges retain IANA names. Coverage excludes projection, so equal absolute
     bounds reuse coverage even when the view zone changes.
-23. **Test and demo typechecks pin all three package entry points to source with paths.**
+23. **Test and demo typechecks pin all four package entry points to source with paths.**
     tsgo selects `types` before the `react-native` custom condition when emitted
     declarations exist. Keep the explicit paths in tsconfig.test.json and
     demo/tsconfig.json, plus customConditions; stale dist must never mask source exports.

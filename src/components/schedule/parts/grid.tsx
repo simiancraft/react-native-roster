@@ -1,6 +1,7 @@
 import { View } from 'react-native';
+import type { ScheduleHoursInput } from '../schedule.types';
 
-export function ScheduleGrid({ hours, pxPerHour }: { hours: number[]; pxPerHour: number }) {
+export function ScheduleGrid({ hours, pxPerHour }: ScheduleHoursInput) {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', width: '100%' }}>
       {hours.map((hour) => (

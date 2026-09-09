@@ -17,6 +17,7 @@ export function RosterBody({
   window,
   intervalZone,
   gapZone,
+  gridZone,
   highlightSource,
   onIntervalHover,
   incompleteLabel,
@@ -37,25 +38,7 @@ export function RosterBody({
       style={{ flex: 1 }}
     >
       <View style={{ width: contentWidth, height: viewport.height }}>
-        <View
-          testID="roster-grid"
-          pointerEvents="none"
-          style={{ position: 'absolute', width: contentWidth, height: '100%' }}
-        >
-          {ticks.map((tick) => (
-            <View
-              key={tick.time}
-              style={{
-                position: 'absolute',
-                left: tick.x,
-                top: 0,
-                bottom: 0,
-                width: 1,
-                backgroundColor: '#e2e8f0',
-              }}
-            />
-          ))}
-        </View>
+        {gridZone({ ticks, contentWidth })}
         <LegendList
           testID="roster-vertical-scroll"
           data={lanes}

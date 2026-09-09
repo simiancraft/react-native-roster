@@ -54,8 +54,9 @@ actual tarball path printed by that command, then `bun add @legendapp/list` and
 React Native, and Expo versions. The tested demo uses Expo SDK 54, React 19.1,
 React Native 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5. Its
 [babel.config.js](./demo/babel.config.js) shows the Expo and NativeWind Babel presets used by this workspace.
-NativeWind is demo styling, not a library requirement. Web consumers also need
-React DOM and React Native Web compatible with their Expo SDK.
+NativeWind is optional; see [NativeWind](#nativewind) for the `className` entry
+point. Web consumers also need React DOM and React Native Web compatible with
+their Expo SDK.
 
 ## Quick start: static intervals
 
@@ -179,6 +180,7 @@ defaults to "No availability set". Both labels are localizable component props.
 | `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, zone fillers, and all core exports. |
 | `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters/caches. Uses pinned `rrule-temporal` 1.5.2 and `@js-temporal/polyfill` 0.5.1. |
+| `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. Requires the optional `nativewind` peer. |
 
 Root/core never import recurrence dependencies, though the package installation
 includes them. Metro selects TypeScript source through the `react-native` export
@@ -280,6 +282,8 @@ replacement when you want to retain scrolling, geometry, or press behavior.
 | `headerCellZone` | `tick` | `RosterHeaderCell`: tick label. |
 | `intervalZone` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `gapZone` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `gridZone` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
+| `cornerZone` | Nothing | `RosterCorner`: nothing; the cell above the labels, `laneLabelWidth` wide. |
 | `headerZone` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellZone` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnZone` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelZone` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
 | `bodyZone` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect zones | `RosterBody`: virtualized lanes. |
@@ -292,6 +296,11 @@ are already inside positioned pressables. The
 `useRoster` exposes ordered lanes, coverage, lane state, ticks, `geometryFor`,
 shared scrolling, `press`, viewport measurement, navigation, and status. Custom
 layouts wire `onLayout`; custom bodies request geometry only for mounted lanes.
+
+Chrome regions take style props: `style` (outer container), `headerStyle` (the
+40 px header row holding the corner and ticks), `laneLabelColumnStyle`, and
+`bodyStyle`. `laneLabelWidth` sizes the corner and label column, default 180.
+Each style prop has a `className` twin; see [NativeWind](#nativewind).
 
 ## Schedule and its zones
 
@@ -316,6 +325,7 @@ a 48 px gutter, and fits actual day columns without horizontal scrolling.
 | Zone | Receives | Default filler and behavior |
 | --- | --- | --- |
 | `gutterZone` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+| `gridZone` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
 | `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
 | `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
 | `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
@@ -343,6 +353,53 @@ reset per column; `rect.column` selects it. `timeAtX(projection, window, x)` and
 use `snapToStep`. Inverse times stay below each scale piece's exclusive end,
 including for pointers immediately inside the bottom edge.
 The [zone route](./demo/app/gallery/schedule-every-zone.tsx) offers defaults/replacements, Apia, Chicago transitions, and the current now line.
+Schedule chrome takes `style`, `headerStyle` (day heading row), `gutterStyle`,
+and `daysStyle` (the column container), each with a `className` twin.
+
+## NativeWind
+
+`className` is a first-class prop on `Roster` and `Schedule`, alongside `style`.
+Every chrome style prop has a class twin: `className`, `headerClassName`,
+`laneLabelColumnClassName`, and `bodyClassName` on Roster; `className`,
+`headerClassName`, `gutterClassName`, and `daysClassName` on Schedule. Class
+props are resolved by NativeWind and land in the matching style prop after the
+defaults, so `headerClassName="bg-zinc-900 border-zinc-800"` overrides the
+default header background and border.
+
+Set up NativeWind 4 as usual (the demo's [babel.config.js](./demo/babel.config.js),
+[metro.config.js](./demo/metro.config.js), [tailwind.config.js](./demo/tailwind.config.js),
+and [global.css](./demo/global.css) are a working reference), install the optional
+peer with `bun add nativewind`, then register the components once at your app
+root before any screen renders:
+
+```tsx
+// app/_layout.tsx
+import '../global.css';
+import 'react-native-roster/nativewind';
+```
+
+After that, the root imports accept class props anywhere JSX is compiled with the
+NativeWind preset:
+
+```tsx
+import { Roster } from 'react-native-roster';
+
+<Roster
+  lanes={lanes}
+  windowSpec={windowSpec}
+  className="flex-1 rounded-xl bg-zinc-950"
+  headerClassName="bg-zinc-900 border-zinc-800"
+  laneLabelColumnClassName="bg-zinc-900 border-zinc-800"
+  laneLabelWidth={220}
+/>
+```
+
+Zone fillers are ordinary React Native views, so a custom `laneLabelZone`,
+`intervalZone`, or `headerCellZone` uses `className` on `View` and `Text`
+directly; the entry point only covers the components the library owns. Without
+the entry point, class props are ignored and style props still work. The entry
+point is the package's only module with side effects and is listed in
+`sideEffects`.
 
 ## Gallery and platform support
 

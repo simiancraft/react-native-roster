@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
+import type { ScheduleHoursInput } from '../schedule.types';
 
-export function ScheduleGutter({ hours, pxPerHour }: { hours: number[]; pxPerHour: number }) {
+export function ScheduleGutter({ hours, pxPerHour }: ScheduleHoursInput) {
   return (
     <View>
       {hours.map((hour) => (

@@ -37,7 +37,7 @@ sample clears coverage again and computes all 200 lanes. A target-cold sample
 is not a cold JavaScript runtime. Timing harness code and the baseline CLI are
 outside coverage, like the existing release CLI shim; library coverage stays 100%.
 
-`.size-limit.json` bundles both emitted entry points with the small-library
+`.size-limit.json` bundles the emitted root, core, and nativewind entry points with the small-library
 esbuild preset, minifies them, and disables gzip and Brotli. Limits are decimal
 15 kB for core and 40 kB for root. React, React Native, Expo, LegendList, and
 Reanimated, including their subpaths, remain external. Adapter dependencies are

@@ -8,7 +8,8 @@
     "paths": {
       "react-native-roster": ["../src/index.ts"],
       "react-native-roster/core": ["../src/core/index.ts"],
-      "react-native-roster/rrule": ["../src/rrule/index.ts"]
+      "react-native-roster/rrule": ["../src/rrule/index.ts"],
+      "react-native-roster/nativewind": ["../src/nativewind/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],

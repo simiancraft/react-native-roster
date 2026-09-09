@@ -52,6 +52,7 @@ function ScheduleContent(props: ScheduleProps) {
     dayHeaderZone = ScheduleDayHeader,
     skippedDateZone = ScheduleSkippedDate,
     columnZone = ScheduleColumn,
+    gridZone = ScheduleGrid,
     transitionZone = ScheduleTransition,
     nowLineZone = ScheduleNowLine,
     intervalZone = RosterInterval,
@@ -64,6 +65,9 @@ function ScheduleContent(props: ScheduleProps) {
     lane.complete === false ? incompleteZone({ lane, label: incompleteLabel }) : null;
   return (
     <ScheduleLayout
+      headerStyle={props.headerStyle}
+      gutterStyle={props.gutterStyle}
+      daysStyle={props.daysStyle}
       incompleteZone={incomplete}
       gutterZone={gutterZone({ hours, pxPerHour: projection.pxPerHour })}
       dayHeaderZone={headerDates(windowSpec, days).map(({ localDate, day }) => {
@@ -86,7 +90,7 @@ function ScheduleContent(props: ScheduleProps) {
             height={24 * projection.pxPerHour}
             chromeZ={Math.max(0, ...lane.layers.map((layer) => layer.z)) + 1}
             press={(x, y) => press(column, x, y)}
-            gridZone={<ScheduleGrid hours={hours} pxPerHour={projection.pxPerHour} />}
+            gridZone={gridZone({ hours, pxPerHour: projection.pxPerHour })}
             columnZone={columnZone({
               day,
               lane,
