@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { LaneLabelInput } from 'react-native-roster';
+import type { Member } from '../members/member.types';
 import type { Density } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
-import { type Member, memberMeta } from '../utils/team';
+import { memberMeta } from '../utils/team';
 import { TONE_CLASSES } from '../utils/tones';
 
 export type MemberLabelProps = LaneLabelInput & {

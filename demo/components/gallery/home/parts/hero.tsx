@@ -1,7 +1,41 @@
-import { Link } from 'expo-router';
 import { Text, View } from 'react-native';
+import type { LinkZone } from '../home.types';
 
-export function GalleryHero({ version, showcaseHref }: { version: string; showcaseHref: string }) {
+export function GalleryHero({
+  version,
+  showcaseHref,
+  linkZone,
+}: {
+  version: string;
+  showcaseHref: string;
+  linkZone: LinkZone;
+}) {
+  const card = (
+    <View
+      accessibilityRole="link"
+      className="gap-3 rounded-2xl border border-border bg-card p-5 web:cursor-pointer web:transition-colors web:hover:border-grid-strong"
+    >
+      <View className="flex-row items-center justify-between">
+        <Text className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+          Showcase
+        </Text>
+        <Text className="text-xs text-muted-foreground">NativeWind · Faker · rrule adapter</Text>
+      </View>
+      <Text className="text-xl font-semibold text-foreground">Team availability</Text>
+      <Text className="text-sm leading-5 text-muted-foreground">
+        Twelve generated people across seven time zones, weekly working hours from recurrence rules,
+        lunch and out-of-office exclusions, and booked events. Press a person to open their week as
+        a Schedule.
+      </Text>
+      <View className="flex-row gap-1.5">
+        <Swatch className="bg-emerald-500/40" />
+        <Swatch className="bg-sky-500" />
+        <Swatch className="bg-violet-500" />
+        <Swatch className="bg-amber-500/40" />
+        <Swatch className="bg-rose-500/40" />
+      </View>
+    </View>
+  );
   return (
     <View className="gap-6">
       <View className="gap-3">
@@ -23,34 +57,7 @@ export function GalleryHero({ version, showcaseHref }: { version: string; showca
           is a zone, and every chrome region takes a className.
         </Text>
       </View>
-      <Link href={showcaseHref} asChild>
-        <View
-          accessibilityRole="link"
-          className="gap-3 rounded-2xl border border-border bg-card p-5 web:cursor-pointer web:transition-colors web:hover:border-grid-strong"
-        >
-          <View className="flex-row items-center justify-between">
-            <Text className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
-              Showcase
-            </Text>
-            <Text className="text-xs text-muted-foreground">
-              NativeWind · Faker · rrule adapter
-            </Text>
-          </View>
-          <Text className="text-xl font-semibold text-foreground">Team availability</Text>
-          <Text className="text-sm leading-5 text-muted-foreground">
-            Twelve generated people across seven time zones, weekly working hours from recurrence
-            rules, lunch and out-of-office exclusions, and booked events. Press a person to open
-            their week as a Schedule.
-          </Text>
-          <View className="flex-row gap-1.5">
-            <Swatch className="bg-emerald-500/40" />
-            <Swatch className="bg-sky-500" />
-            <Swatch className="bg-violet-500" />
-            <Swatch className="bg-amber-500/40" />
-            <Swatch className="bg-rose-500/40" />
-          </View>
-        </View>
-      </Link>
+      {linkZone({ href: showcaseHref, children: card })}
     </View>
   );
 }

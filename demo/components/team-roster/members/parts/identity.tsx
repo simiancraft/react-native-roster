@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
-import type { Member } from '../../utils/team';
 import { TONE_CLASSES } from '../../utils/tones';
+import type { Member } from '../member.types';
 
 export function MemberIdentity({ member }: { member: Member }) {
   const tone = TONE_CLASSES[member.tone];

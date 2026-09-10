@@ -4,8 +4,9 @@ import type { ScheduleWindowSpec } from 'react-native-roster';
 import type { Lane, LaneComparator, Rect, WindowSpec } from 'react-native-roster/core';
 import { byCoverage, byLabel, next, prev, today, windowFor } from 'react-native-roster/core';
 import { expandRuleSet } from 'react-native-roster/rrule';
-import type { Density, Selection, SortKey, SpanKey } from './team-roster.types';
-import { laneFor, type Member, memberMeta, type Team, teamFor } from './utils/team';
+import type { Member } from './members/member.types';
+import type { Density, Selection, SortKey, SpanKey, Team } from './team-roster.types';
+import { laneFor, memberMeta, teamFor } from './utils/team';
 import { TONE_HEX } from './utils/tones';
 
 const INITIAL: ScheduleWindowSpec = {
