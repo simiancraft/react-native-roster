@@ -468,6 +468,9 @@ editor in the gallery is an integration example, not a rule-authoring product.
 
 - [README](./README.md): runnable quick starts, setup, zones, and measured evidence.
 - [Adapter guide](./docs/adapters.md): table/feed conversion and memoization contract.
+- Area landing pages: [core](./src/core/README.md), [Roster](./src/components/roster/README.md),
+  [Schedule](./src/components/schedule/README.md), [rrule adapter](./src/adapters/rrule/README.md),
+  [nativewind](./src/nativewind/README.md); [adding an adapter](./docs/adding-an-adapter.md).
 - [Design note](./docs/design.md): reasoning and non-goals.
 - [Performance](./docs/performance.md): automated budgets and exact-commit device capture.
 - [AGENTS.md](./AGENTS.md): repository conventions, not consumer API requirements.

@@ -366,6 +366,10 @@ publint, size-limit, and Playwright.
   [timezones](./docs/timezones.md), [caches](./docs/caches.md), and the
   [performance guide](./docs/performance.md).
 - [Design note](./docs/design.md): precompute, then render geometry.
+- Area landing pages: [core](./src/core/README.md), [Roster](./src/components/roster/README.md),
+  [Schedule](./src/components/schedule/README.md), [rrule adapter](./src/adapters/rrule/README.md),
+  and [nativewind](./src/nativewind/README.md); [adding an adapter](./docs/adding-an-adapter.md)
+  is the contributor recipe.
 - [llms.txt](./llms.txt): integration instructions for agents.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) and [AGENTS.md](./AGENTS.md): contributor workflow.
 - [CHANGELOG.md](./CHANGELOG.md): release history, maintained by semantic-release.

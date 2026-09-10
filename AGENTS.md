@@ -115,7 +115,9 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `TeamRosterScreen` exposes host-facing zones (title, actions, filter, controls,
   corner, lane label, inspector, footer) that default to the showcase parts; the
   route shell owns router contact and passes links in as zones.
-  Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md.
+  Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
+  and shipping one follows docs/adding-an-adapter.md. Each source area has a README
+  landing page naming its subpath, exports, boundary, and file map; keep them current.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.
