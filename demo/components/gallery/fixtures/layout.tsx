@@ -3,7 +3,9 @@ import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
 
 type FixtureLayoutProps = {
-  contentDirection?: 'row' | 'column';
+  /** Editor beside the subject, or stacked above it on narrow screens. */
+  direction?: 'row' | 'column';
+  /** Measures the content region so the chassis can choose the direction. */
   onContentLayout?: (input: LayoutChangeEvent) => void;
   /** Fixture controls and title; wraps above the bounded roster viewport. */
   controlsZone: ReactNode;
@@ -15,23 +17,25 @@ type FixtureLayoutProps = {
   countersZone: ReactNode;
 };
 
+const CONTENT = {
+  row: 'flex-1 min-h-0 flex-row gap-3',
+  column: 'flex-1 min-h-0 flex-col gap-3',
+} as const;
+
 export function FixtureLayout({
   controlsZone,
   subjectZone,
   countersZone,
   ruleSetEditorZone,
-  contentDirection = 'row',
+  direction = 'row',
   onContentLayout,
 }: FixtureLayoutProps) {
   return (
-    <View style={{ flex: 1, minHeight: 0, backgroundColor: '#f1f5f9', padding: 12, gap: 12 }}>
+    <View className="flex-1 min-h-0 gap-3 bg-background p-3">
       <View>{controlsZone}</View>
-      <View
-        onLayout={onContentLayout}
-        style={{ flex: 1, minHeight: 0, flexDirection: contentDirection, gap: 12 }}
-      >
+      <View onLayout={onContentLayout} className={CONTENT[direction]}>
         {ruleSetEditorZone}
-        <View style={{ flex: 3, minWidth: 0, minHeight: 0 }}>{subjectZone}</View>
+        <View className="flex-[3] min-w-0 min-h-0">{subjectZone}</View>
       </View>
       <View>{countersZone}</View>
     </View>

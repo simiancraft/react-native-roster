@@ -35,7 +35,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
   return (
     <FixtureLayout
       ruleSetEditorZone={ruleSetEditorZone}
-      contentDirection={model.contentDirection}
+      direction={model.contentDirection}
       onContentLayout={model.measureContent}
       controlsZone={<GalleryControls {...model} />}
       subjectZone={

@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { next, prev } from 'react-native-roster/core';
+import { Control } from '../../parts/control';
 import type { useRosterFixture } from '../use-roster-fixture';
 
 type ControlsInput = ReturnType<typeof useRosterFixture>;
@@ -42,13 +43,10 @@ export function GalleryControls({
     ) : null;
   return (
     <View style={{ gap: 8 }}>
-      <Text
-        accessibilityRole="header"
-        style={{ fontSize: 24, fontWeight: '600', color: '#0f172a' }}
-      >
+      <Text accessibilityRole="header" className="text-2xl font-semibold text-foreground">
         {fixture.title}
       </Text>
-      <Text style={{ color: '#475569', fontSize: 12 }}>{fixture.description}</Text>
+      <Text className="text-xs text-muted-foreground">{fixture.description}</Text>
       {highlightZone}
       {performanceZone}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -97,27 +95,5 @@ export function GalleryControls({
         ))}
       </View>
     </View>
-  );
-}
-
-function Control({
-  label,
-  selected = false,
-  onPress,
-}: {
-  label: string;
-  selected?: boolean;
-  onPress: () => void;
-}) {
-  const backgroundColor = selected ? '#c7d2fe' : '#fff';
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      style={{ padding: 8, borderRadius: 6, backgroundColor }}
-    >
-      <Text style={{ color: '#1e293b', fontSize: 12 }}>{label}</Text>
-    </Pressable>
   );
 }

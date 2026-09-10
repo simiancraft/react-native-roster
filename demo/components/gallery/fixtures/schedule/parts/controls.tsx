@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { next, prev, today } from 'react-native-roster/core';
+import { Control } from '../../parts/control';
 import type { useScheduleFixture } from '../use-schedule-fixture';
 
 export function ScheduleControls(model: ReturnType<typeof useScheduleFixture>) {
@@ -49,7 +50,7 @@ export function ScheduleControls(model: ReturnType<typeof useScheduleFixture>) {
   ) : null;
   return (
     <View style={{ gap: 8 }}>
-      <Text accessibilityRole="header" style={{ fontSize: 22, color: '#0f172a' }}>
+      <Text accessibilityRole="header" className="text-2xl font-semibold text-foreground">
         {fixture.title}
       </Text>
       {zoneExamples}
@@ -100,27 +101,5 @@ export function ScheduleControls(model: ReturnType<typeof useScheduleFixture>) {
         ))}
       </View>
     </View>
-  );
-}
-
-function Control({
-  label,
-  selected = false,
-  onPress,
-}: {
-  label: string;
-  selected?: boolean;
-  onPress: () => void;
-}) {
-  const backgroundColor = selected ? '#c7d2fe' : '#fff';
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      style={{ padding: 6, borderRadius: 6, backgroundColor }}
-    >
-      <Text style={{ fontSize: 11, color: '#1e293b' }}>{label}</Text>
-    </Pressable>
   );
 }

@@ -96,7 +96,7 @@ export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { tea
   const model = useTeamRoster({ team });
   const zones = { ...DEFAULT_ZONES, ...overrides };
   const chrome = {
-    contentDirection: model.contentDirection,
+    direction: model.contentDirection,
     onContentLayout: model.measureContent,
     headerZone: (
       <TeamHeaderLayout

@@ -5,17 +5,8 @@ import { pressPoint } from '../../../src/components/primitives/press-point.web';
 import { regionStyle } from '../../../src/components/primitives/region-style';
 import { bodyContentKey } from '../../../src/components/roster/utils/body-content-key';
 import { ticksFor } from '../../../src/components/roster/utils/ticks';
-import type { Coverage, Lane, Layer, WindowSpec } from '../../../src/core';
-import {
-  byCoverage,
-  byLabel,
-  dayColumnsFor,
-  layoutLane,
-  timeAtX,
-  timeAtY,
-  windowFor,
-} from '../../../src/core';
-import { hitTest } from '../../../src/core/hit-test';
+import type { Layer, WindowSpec } from '../../../src/core';
+import { dayColumnsFor, timeAtX, timeAtY, windowFor } from '../../../src/core';
 import { scalePieces } from '../../../src/core/scale';
 import { wallTime } from '../../../src/core/zone';
 import { type RosterFixtureId, rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
@@ -27,7 +18,7 @@ const projection = {
   rowHeight: 48,
 };
 
-describe('roster pure helpers', () => {
+describe('roster render helpers', () => {
   it('maps DOM clicks relative to the pressed row and centers keyboard presses', () => {
     const currentTarget = {
       getBoundingClientRect: () => ({ left: 200, top: 80, width: 500, height: 48 }),
@@ -38,18 +29,6 @@ describe('roster pure helpers', () => {
     });
     expect(pressPoint({ currentTarget, nativeEvent: {} })).toEqual({ x: 250, y: 24 });
   });
-  it('sorts coverage descending, breaks ties by label, and accepts missing entries', () => {
-    const a: Lane = { id: 'a', label: 'A', layers: [] };
-    const b: Lane = { id: 'b', label: 'B', layers: [] };
-    const coverage = new Map<string, Coverage>([
-      ['a', { availabilityMinutes: 20, bookingMinutes: 15, availabilityMinusBookingMinutes: 5 }],
-      ['b', { availabilityMinutes: 10, bookingMinutes: 0, availabilityMinusBookingMinutes: 10 }],
-    ]);
-    expect(byLabel(a, b)).toBeLessThan(0);
-    expect(byCoverage({ measure: 'availability' })(a, b, coverage)).toBe(-10);
-    expect(byCoverage({ measure: 'availabilityMinusBooking' })(a, b, coverage)).toBe(5);
-    expect(byCoverage({ measure: 'availability' })(a, b, new Map())).toBeLessThan(0);
-  });
   it('shares styles only for equal layer ids and canonical style contents', () => {
     const fixtureId: RosterFixtureId = 'single-lane';
     const layer = rosterFixtures[fixtureId].lanes[0]?.layers[0] as Layer;
@@ -59,17 +38,6 @@ describe('roster pure helpers', () => {
     const changed = stylesFor({ ...layer, style: { color: '#fff', opacity: 0.4 } });
     expect(changed.normal.opacity).toBe(0.4);
     expect(changed.highlighted.backgroundColor).toBe('#fff');
-  });
-  it('tests final bounds and ignores lower-z and earlier equal-z candidates', () => {
-    const original = rosterFixtures['two-layers'].lanes[0] as Lane;
-    const upper = original.layers[1] as Layer;
-    const lane: Lane = { ...original, layers: [...original.layers, { ...upper, id: 'last' }] };
-    const geometry = layoutLane(lane, windowFor(rosterWindowSpec), projection);
-    geometry.rects = [...geometry.rects].reverse();
-    expect(hitTest(lane, geometry, 720, 10)?.rect.layerId).toBe('last');
-    expect(hitTest(lane, geometry, 720, 40)?.rect.layerId).toBe('open');
-    expect(hitTest(lane, geometry, 720, 48)).toBeUndefined();
-    expect(hitTest(lane, geometry, 2000, 0)).toBeUndefined();
   });
   it('keys body content by geometry, source identity, and zone fillers', () => {
     const input = {

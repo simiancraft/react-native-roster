@@ -9,8 +9,8 @@ export function GalleryCounters({
   selection: string;
 }) {
   return (
-    <View style={{ gap: 4 }}>
-      <Text style={{ fontSize: 12, color: '#334155' }}>
+    <View className="gap-1">
+      <Text className="text-xs text-muted-foreground">
         Expanded {snapshot.expanded} · Layout {snapshot.layout.runs} runs /{' '}
         {snapshot.layout.cacheHits} hits · Coverage {snapshot.coverage.runs} runs /{' '}
         {snapshot.coverage.cacheHits} hits
@@ -19,7 +19,7 @@ export function GalleryCounters({
         testID="roster-selection"
         accessibilityLiveRegion="polite"
         numberOfLines={2}
-        style={{ fontSize: 12, color: '#334155' }}
+        className="text-xs text-foreground"
       >
         {selection}
       </Text>

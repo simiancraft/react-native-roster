@@ -13,8 +13,8 @@ export function RuleSetEditor({
 }) {
   const message = draft.parsed.status === 'invalid' ? draft.parsed.message : draft.message;
   return (
-    <View style={{ flex: 1, gap: 8, minHeight: 280 }}>
-      <Text accessibilityRole="header" style={{ fontWeight: '600' }}>
+    <View className="flex-1 gap-2 min-h-[280px]">
+      <Text accessibilityRole="header" className="font-semibold text-foreground">
         Rule set (JSON)
       </Text>
       <TextInput
@@ -24,27 +24,20 @@ export function RuleSetEditor({
         onChangeText={draft.setText}
         autoCapitalize="none"
         autoCorrect={false}
-        style={{
-          flex: 1,
-          minHeight: 120,
-          backgroundColor: '#fff',
-          padding: 8,
-          fontFamily: 'monospace',
-          fontSize: 12,
-          textAlignVertical: 'top',
-        }}
+        className="flex-1 min-h-[120px] rounded-md border border-border bg-card p-2 font-mono text-xs text-foreground"
+        style={{ textAlignVertical: 'top' }}
       />
       <Pressable
         accessibilityRole="button"
         onPress={onApply}
-        style={{ padding: 8, backgroundColor: '#c7d2fe', borderRadius: 6 }}
+        className="self-start rounded-md border border-primary bg-primary/15 px-3 py-2 active:bg-accent"
       >
-        <Text>Apply rule set</Text>
+        <Text className="text-xs text-foreground">Apply rule set</Text>
       </Pressable>
-      <Text accessibilityLiveRegion="polite" style={{ fontSize: 12 }}>
+      <Text accessibilityLiveRegion="polite" className="text-xs text-muted-foreground">
         {message}
       </Text>
-      <Text selectable style={{ fontSize: 12 }}>
+      <Text selectable className="font-mono text-xs text-muted-foreground">
         {JSON.stringify({ complete: result.complete, truncated: result.truncated })}
       </Text>
     </View>
