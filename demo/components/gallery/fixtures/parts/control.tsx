@@ -19,6 +19,7 @@ export function Control({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
+      aria-selected={selected}
       onPress={onPress}
       className={STATE[selected ? 'selected' : 'idle']}
     >

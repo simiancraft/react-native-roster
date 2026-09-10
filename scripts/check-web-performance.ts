@@ -197,11 +197,8 @@ async function click(name: string) {
     name.startsWith('Sort:') ||
     ['UTC', 'America/Chicago', '15 min', 'Highlight rule (fresh source)'].includes(name)
   ) {
-    assert.equal(
-      await control.evaluate((node) => getComputedStyle(node).backgroundColor),
-      'rgb(199, 210, 254)',
-      `${name}: selected control`,
-    );
+    // The shared Control reports selection through accessibilityState, not paint.
+    assert.equal(await control.getAttribute('aria-selected'), 'true', `${name}: selected control`);
   }
 }
 async function scrollRange(afterScroll?: () => Promise<void>) {
