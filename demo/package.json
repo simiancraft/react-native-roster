@@ -14,7 +14,7 @@
     "@legendapp/list": "2.0.19",
     "expo": "~54.0.37",
     "expo-constants": "~18.0.14",
-    "expo-linking": "8.0.12",
+    "expo-linking": "57.0.9",
     "expo-router": "~6.0.24",
     "nativewind": "4.1.x",
     "react": "19.1.0",
