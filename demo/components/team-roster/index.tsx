@@ -7,7 +7,7 @@ import { MemberInspector } from './members';
 import { GeneratedNote } from './parts/generated-note';
 import { TeamGridLines } from './parts/grid-lines';
 import { DayHeaderCell, TeamCorner } from './parts/header-cell';
-import { intervalFillerFor, TimeOffGap } from './parts/interval';
+import { intervalFillerFor, TimeOffGap } from './parts/layer-fillers';
 import { TeamLegend } from './parts/legend';
 import { MemberLabel, type MemberLabelProps } from './parts/member-label';
 import { TeamTitle, WindowRange } from './parts/title';

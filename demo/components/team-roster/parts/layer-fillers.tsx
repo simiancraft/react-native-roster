@@ -4,6 +4,7 @@ import type { GapInput, IntervalInput } from 'react-native-roster';
 import type { LayerRole } from 'react-native-roster/core';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
+import { timeOffNote } from '../utils/time-off';
 import { eventKindOf, KIND_CLASSES, TONE_CLASSES } from '../utils/tones';
 
 function bounds(rect: IntervalInput['rect']) {
@@ -93,7 +94,7 @@ export function TimeOffGap({ rect }: GapInput) {
       numberOfLines={1}
       className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
     >
-      {source?.kind === 'rule' ? 'Lunch' : (source?.label ?? 'Out of office')}
+      {timeOffNote(source) ?? 'Out of office'}
     </Text>
   ) : null;
   return (
