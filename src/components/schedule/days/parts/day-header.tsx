@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import type { DayColumn } from '../../../core';
+import type { DayColumn } from '../../../../core';
 
 export function ScheduleDayHeader({ day }: { day: DayColumn }) {
   const badge =

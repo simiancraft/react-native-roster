@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import type { ScheduleHoursInput } from '../schedule.types';
+import type { ScheduleHoursInput } from '../../schedule.types';
 
 export function ScheduleGrid({ hours, pxPerHour }: ScheduleHoursInput) {
   return (

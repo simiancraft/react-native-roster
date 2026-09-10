@@ -1,5 +1,6 @@
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
+import { RosterLaneLabel } from './lanes/parts/lane-label';
 import { RosterLayout } from './layout';
 import { RosterBody } from './parts/body';
 import { RosterCorner } from './parts/corner';
@@ -7,7 +8,6 @@ import { RosterEmpty } from './parts/empty';
 import { RosterGrid } from './parts/grid';
 import { RosterHeader } from './parts/header';
 import { RosterHeaderCell } from './parts/header-cell';
-import { RosterLaneLabel } from './parts/lane-label';
 import { RosterLaneLabelColumn } from './parts/lane-label-column';
 import type { RosterProps } from './roster.types';
 import { useRoster } from './use-roster';

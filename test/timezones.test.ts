@@ -9,7 +9,7 @@ import {
   resetExpandStats,
 } from '../src/adapters/rrule';
 import { Roster } from '../src/components/roster';
-import { LaneRow } from '../src/components/roster/lane-row';
+import { LaneRow } from '../src/components/roster/lanes/lane';
 import type { RosterProjection } from '../src/components/roster/roster.types';
 import { ticksFor } from '../src/components/roster/utils/ticks';
 import type { Lane, LaneGeometry, Projection, Rect, WindowSpec } from '../src/core';

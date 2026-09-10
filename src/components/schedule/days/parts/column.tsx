@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Pressable } from 'react-native';
-import { pressPoint } from '../../primitives/press-point';
-import type { ScheduleColumnInput } from '../schedule.types';
+import { pressPoint } from '../../../primitives/press-point';
+import type { ScheduleColumnInput } from '../../schedule.types';
 
 export function ScheduleColumn({
   lane,

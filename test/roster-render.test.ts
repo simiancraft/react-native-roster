@@ -6,10 +6,10 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { RosterGap } from '../src/components/layers/parts/gap';
 import { RosterInterval } from '../src/components/layers/parts/interval';
 import { Roster } from '../src/components/roster';
-import { LaneRow } from '../src/components/roster/lane-row';
+import { LaneRow } from '../src/components/roster/lanes/lane';
+import { RosterLaneLabel } from '../src/components/roster/lanes/parts/lane-label';
 import { RosterBody } from '../src/components/roster/parts/body';
 import { RosterGrid } from '../src/components/roster/parts/grid';
-import { RosterLaneLabel } from '../src/components/roster/parts/lane-label';
 import type {
   BodyInput,
   GridInput,

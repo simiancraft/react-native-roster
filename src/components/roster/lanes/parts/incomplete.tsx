@@ -1,5 +1,5 @@
 import { Text } from 'react-native';
-import type { Lane, LaneGeometry } from '../../../core';
+import type { Lane, LaneGeometry } from '../../../../core';
 
 export function RosterIncomplete({
   lane,

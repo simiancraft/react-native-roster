@@ -33,8 +33,10 @@ src/
   adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/
-    roster/                # Roster chassis, hook, layout, and lane parts
-    schedule/              # Schedule chassis, hook, layout, and day parts
+    roster/                # Roster chassis, hook, layout, and collection parts
+    roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
+    schedule/              # Schedule chassis, hook, layout, and collection parts
+    schedule/days/         # ScheduleDay, day layouts, and day-local parts
     layers/                # interval and gap fillers shared by both projections
     primitives/            # press-point platform pair and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
@@ -292,9 +294,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Replayed iterator passes stop before buffering positional candidates.
     YEARLY is unsupported and rejected by input validation.
 
-19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
-    interval-hover.web.tsx resolves row-relative pointer movement against existing
-    geometry. Keep the shared .types.ts and browser remap together. The body key
+19. **Provenance hover is web-only.** `roster/lanes/interval-hover.tsx` attaches nothing
+    on native; `interval-hover.web.tsx` resolves row-relative pointer movement against
+    existing geometry. Keep the shared .types.ts and browser remap together. The body key
     includes hover callback identity and incompleteLabel so mounted rows update.
 20. **Provenance fixtures include real expansion.** highlight-rule and
     incomplete-expansion expand in the gallery hook and expose expandStats through

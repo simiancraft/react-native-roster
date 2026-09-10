@@ -3,21 +3,21 @@ import { View } from 'react-native';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
 import { regionStyle } from '../primitives/region-style';
+import { ScheduleDay } from './days/day';
 import { ScheduleDayHeaderLayout } from './days/header-layout';
-import { ScheduleDayLayout } from './days/layout';
+import { ScheduleColumn } from './days/parts/column';
+import { ScheduleDayHeader } from './days/parts/day-header';
+import { ScheduleGrid } from './days/parts/grid';
+import { ScheduleNowLine } from './days/parts/now-line';
+import { ScheduleSkippedDate } from './days/parts/skipped-date';
+import { ScheduleTransition } from './days/parts/transition';
 import { ScheduleLayout } from './layout';
-import { ScheduleColumn } from './parts/column';
-import { ScheduleDayHeader } from './parts/day-header';
-import { ScheduleGrid } from './parts/grid';
 import { ScheduleGutter } from './parts/gutter';
 import { ScheduleIncomplete } from './parts/incomplete';
-import { ScheduleNowLine } from './parts/now-line';
-import { ScheduleSkippedDate } from './parts/skipped-date';
-import { ScheduleTransition } from './parts/transition';
 import type { ScheduleProps } from './schedule.types';
 import { useSchedule } from './use-schedule';
 import { ScheduleWidth, useScheduleViewport } from './use-schedule-viewport';
-import { headerDates, nowPosition, transitionBounds } from './utils/days';
+import { headerDates, nowPosition } from './utils/days';
 
 const hours = Array.from({ length: 24 }, (_, hour) => hour);
 
@@ -82,40 +82,25 @@ function ScheduleContent(props: ScheduleProps) {
           />
         );
       })}
-      daysZone={days.map((day, column) => {
-        const nowLine = position?.column === column ? nowLineZone(position) : null;
-        return (
-          <ScheduleDayLayout
-            key={day.localDate}
-            label={day.localDate}
-            width={projection.columnWidth}
-            height={24 * projection.pxPerHour}
-            chromeZ={Math.max(0, ...lane.layers.map((layer) => layer.z)) + 1}
-            press={(x, y) => press(column, x, y)}
-            gridZone={gridZone({ hours, pxPerHour: projection.pxPerHour })}
-            columnZone={columnZone({
-              day,
-              lane,
-              rects: geometry.rects.filter((rect) => rect.column === column),
-              gapRects: geometry.gapRects.filter((rect) => rect.column === column),
-              highlightSource,
-              intervalZone,
-              gapZone,
-              press: (x, y) => press(column, x, y),
-            })}
-            transitionZone={day.transitions.map((transition) => (
-              <Fragment key={transition.at}>
-                {transitionZone({
-                  day,
-                  transition,
-                  ...transitionBounds(day, transition, projection),
-                })}
-              </Fragment>
-            ))}
-            nowLineZone={nowLine}
-          />
-        );
-      })}
+      daysZone={days.map((day, column) => (
+        <ScheduleDay
+          key={day.localDate}
+          day={day}
+          column={column}
+          lane={lane}
+          projection={projection}
+          geometry={geometry}
+          highlightSource={highlightSource}
+          hours={hours}
+          press={(x, y) => press(column, x, y)}
+          gridZone={gridZone}
+          columnZone={columnZone}
+          transitionZone={transitionZone}
+          intervalZone={intervalZone}
+          gapZone={gapZone}
+          nowLineZone={position?.column === column ? nowLineZone(position) : null}
+        />
+      ))}
     />
   );
 }

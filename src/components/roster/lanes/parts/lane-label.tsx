@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import type { LaneLabelInput } from '../roster.types';
+import type { LaneLabelInput } from '../../roster.types';
 
 export function RosterLaneLabel({
   lane,

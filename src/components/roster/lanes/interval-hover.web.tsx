@@ -1,5 +1,5 @@
-import { hitTest } from '../../core/hit-test';
-import { pressPoint } from '../primitives/press-point.web';
+import { hitTest } from '../../../core/hit-test';
+import { pressPoint } from '../../primitives/press-point.web';
 import type { IntervalHoverInput, IntervalHoverProps } from './interval-hover.types';
 
 export function intervalHoverProps({

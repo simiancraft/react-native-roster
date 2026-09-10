@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import type { ScheduleTransitionInput } from '../schedule.types';
+import type { ScheduleTransitionInput } from '../../schedule.types';
 
 export function ScheduleTransition({
   transition,
