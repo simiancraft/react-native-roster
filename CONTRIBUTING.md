@@ -59,18 +59,26 @@ creating those directories.
 
 ## Releases
 
-Release automation is dormant until `RELEASE_ENABLED=true`, `APP_ID`,
-`APP_PRIVATE_KEY`, and `NPM_TOKEN` are configured. Configure the GitHub `release`
-environment with a **required reviewer before enabling releases**. The reviewer
-must verify issue #9's device fps and layout evidence, including screenshots on
-the pull request for the exact commit being released, before approving the job.
+Release automation is dormant until the repository variable `RELEASE_ENABLED=true`
+and the `APP_ID` and `APP_PRIVATE_KEY` secrets are configured. Configure the GitHub
+`release` environment with a **required reviewer before enabling releases**. The
+reviewer must verify issue #9's device fps and layout evidence, including screenshots
+on the pull request for the exact commit being released, before approving the job.
 The YAML references the environment; required reviewers are a repository setting.
 
+npm has no token secret. The package's npmjs.com settings register a trusted
+publisher for this repository, workflow file `ci.yml`, and environment `release`;
+the job exchanges its GitHub OIDC token for a short-lived publish credential. The
+job upgrades to npm 11 because the OIDC exchange needs npm 11.5.1 or newer, and
+Node 22 bundles npm 10. `@semantic-release/npm` probes that exchange in its verify
+step, so a misconfigured publisher fails before any release commit or tag exists.
+
 Semantic release updates the manifest with `bun scripts/set-version.ts`, publishes
-with `bun publish --access public`, updates the changelog, and creates the release
-through the GitHub App token. `NPM_CONFIG_TOKEN` supplies Bun's registry credential.
-Pages requires GitHub Actions as the site's build source. Neither repository
-settings nor deployment have been verified by the local bootstrap.
+through `@semantic-release/npm` with provenance, updates `CHANGELOG.md`, and creates
+the GitHub release with generated notes through the GitHub App token. Version
+0.0.0 is a placeholder that reserved the name; tag `v0.0.0` on the commit before
+the first release so semantic-release starts the series at 0.1.0 rather than 1.0.0.
+Pages requires GitHub Actions as the site's build source.
 
 ## Community
 
