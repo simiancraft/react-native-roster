@@ -370,7 +370,8 @@ publint, size-limit, and Playwright.
   [Schedule](./src/components/schedule/README.md), [layers](./src/components/layers/README.md),
   [primitives](./src/components/primitives/README.md), [rrule adapter](./src/adapters/rrule/README.md),
   [nativewind](./src/nativewind/README.md), the [gallery](./demo/components/gallery/README.md), and the
-  [showcase](./demo/components/team-roster/README.md); [adding an adapter](./docs/adding-an-adapter.md)
+  [showcase](./demo/components/team-roster/README.md), and the [theme](./demo/components/theme/README.md);
+  [adding an adapter](./docs/adding-an-adapter.md)
   is the contributor recipe.
 - [llms.txt](./llms.txt): integration instructions for agents.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) and [AGENTS.md](./AGENTS.md): contributor workflow.

@@ -6,9 +6,9 @@ type TeamToolbarLayoutProps = {
   filterWidth: number;
   /** Stack the filter above the controls when the people column is too narrow. */
   direction: 'row' | 'column';
-  /** Sits above the people column. */
+  /** Sits above the people column; PeopleFilter by default. */
   filterZone: ReactNode;
-  /** Sits above the lanes; controls unroll in order. */
+  /** Sits above the lanes; ZoneChips and SortChips by default, unrolled in order. */
   controlsZone: ReactNode;
 };
 

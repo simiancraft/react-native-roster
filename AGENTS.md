@@ -51,6 +51,7 @@ demo/
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
   components/team-roster/  # the showcase: members, toolbar, and inspector
+  components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
 .github/                   # CI, Pages, links, Scorecard, and community templates

@@ -82,25 +82,28 @@ function ScheduleContent(props: ScheduleProps) {
           />
         );
       })}
-      daysZone={days.map((day, column) => (
-        <ScheduleDay
-          key={day.localDate}
-          day={day}
-          column={column}
-          lane={lane}
-          projection={projection}
-          geometry={geometry}
-          highlightSource={highlightSource}
-          hours={hours}
-          press={(x, y) => press(column, x, y)}
-          gridZone={gridZone}
-          columnZone={columnZone}
-          transitionZone={transitionZone}
-          intervalZone={intervalZone}
-          gapZone={gapZone}
-          nowLineZone={position?.column === column ? nowLineZone(position) : null}
-        />
-      ))}
+      daysZone={days.map((day, column) => {
+        const nowLine = position?.column === column ? nowLineZone(position) : null;
+        return (
+          <ScheduleDay
+            key={day.localDate}
+            day={day}
+            column={column}
+            lane={lane}
+            projection={projection}
+            geometry={geometry}
+            highlightSource={highlightSource}
+            hours={hours}
+            press={(x, y) => press(column, x, y)}
+            gridZone={gridZone}
+            columnZone={columnZone}
+            transitionZone={transitionZone}
+            intervalZone={intervalZone}
+            gapZone={gapZone}
+            nowLineZone={nowLine}
+          />
+        );
+      })}
     />
   );
 }

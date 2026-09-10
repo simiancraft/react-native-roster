@@ -9,7 +9,7 @@ type FixtureLayoutProps = {
   onContentLayout?: (input: LayoutChangeEvent) => void;
   /** Fixture controls and title; wraps above the bounded roster viewport. */
   controlsZone: ReactNode;
-  /** The Roster under test; fills the remaining screen height. */
+  /** The subject under test: a Roster, a Schedule, or both side by side; fills the remaining height. */
   subjectZone: ReactNode;
   /** Editable rule-set JSON and parse feedback beside the adapter roster. */
   ruleSetEditorZone?: ReactNode;
