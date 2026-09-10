@@ -1,5 +1,5 @@
-import type { Gap, Interval, Window } from '../core';
-import { sourceSpans } from '../core/spans';
+import type { Gap, Interval, Window } from '../../core';
+import { sourceSpans } from '../../core/spans';
 
 export function net(
   includes: Interval[],

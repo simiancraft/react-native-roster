@@ -7,7 +7,7 @@
     "paths": {
       "react-native-roster": ["./src/index.ts"],
       "react-native-roster/core": ["./src/core/index.ts"],
-      "react-native-roster/rrule": ["./src/rrule/index.ts"],
+      "react-native-roster/rrule": ["./src/adapters/rrule/index.ts"],
       "react-native-roster/nativewind": ["./src/nativewind/index.ts"]
     }
   },

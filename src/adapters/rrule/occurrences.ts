@@ -1,6 +1,6 @@
 import type * as TemporalModule from '@js-temporal/polyfill';
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
-import type { Weekday, Window } from '../core';
+import type { Weekday, Window } from '../../core';
 import type { Occurrences } from './cache';
 import type { RosterDate, RosterRule } from './types';
 

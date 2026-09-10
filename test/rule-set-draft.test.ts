@@ -2,9 +2,9 @@ import './render-host.test';
 import { expect, it, mock } from 'bun:test';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import * as adapter from '../src/adapters/rrule';
+import { expandRuleSet } from '../src/adapters/rrule';
 import { windowFor } from '../src/core';
-import * as adapter from '../src/rrule';
-import { expandRuleSet } from '../src/rrule';
 import { adapterFixtures } from './fixtures/adapters';
 
 mock.module('react-native-roster/rrule', () => adapter);

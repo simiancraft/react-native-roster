@@ -2,6 +2,7 @@ import './render-host.test';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { createElement, type ElementType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import * as adapter from '../src/adapters/rrule';
 import { Roster } from '../src/components/roster';
 import { intervalHoverProps as nativeHover } from '../src/components/roster/interval-hover';
 import { intervalHoverProps as webHover } from '../src/components/roster/interval-hover.web';
@@ -11,7 +12,6 @@ import type { RosterModel } from '../src/components/roster/roster.types';
 import { useRoster } from '../src/components/roster/use-roster';
 import type { Lane, LaneGeometry, Rect } from '../src/core';
 import * as core from '../src/core';
-import * as adapter from '../src/rrule';
 import { rosterFixtures, rosterWindowSpec } from './fixtures/roster';
 
 // Exercise the demo's public imports against the same real source caches as the hook.

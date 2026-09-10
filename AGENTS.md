@@ -30,7 +30,7 @@ behavior. State any interpretation in the delivery report.
 src/
   index.ts                 # public Roster, Schedule, hooks, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
-  rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
+  adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/              # Roster and Schedule chassis, hooks, zones, and rect parts
   core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
@@ -81,8 +81,10 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   the framework-required exceptions. No subdirectory barrels except the four
   declared public entry points; a feature's `index.tsx` is its chassis.
 - Core imports only standard JavaScript and `Intl`. React, React Native, Expo, and
-  `@legendapp/list` are peers. The rrule adapter alone owns Temporal and
-  recurrence dependencies; root and core must never import them. Only
+  `@legendapp/list` are peers. Adapters live under `src/adapters/<name>`; each
+  is its own entry point and imports only core, never components or another
+  adapter. `src/adapters` itself has no barrel. The rrule adapter alone owns
+  Temporal and recurrence dependencies; root and core must never import them. Only
   `src/nativewind` imports the optional `nativewind` peer; it is the package's
   one side-effect module and is listed in `sideEffects`.
 - Chrome regions expose `xxxStyle` props with `xxxClassName` twins declared on

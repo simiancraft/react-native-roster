@@ -2,6 +2,12 @@ import './render-host.test';
 import { beforeEach, describe, expect, it } from 'bun:test';
 import { createElement, type ElementType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import {
+  clearExpandCache,
+  expandRuleSet,
+  expandStats,
+  resetExpandStats,
+} from '../src/adapters/rrule';
 import { Roster } from '../src/components/roster';
 import { LaneRow } from '../src/components/roster/lane-row';
 import type { RosterProjection } from '../src/components/roster/roster.types';
@@ -18,7 +24,6 @@ import {
   timeAtY,
   windowFor,
 } from '../src/core';
-import { clearExpandCache, expandRuleSet, expandStats, resetExpandStats } from '../src/rrule';
 import { rosterFixtures } from './fixtures/roster';
 import {
   expandLanes,

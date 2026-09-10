@@ -1,8 +1,8 @@
+import type { ExpandOptions, RosterRule, RuleSet } from '../../src/adapters/rrule';
+import { expandRuleSet } from '../../src/adapters/rrule';
 import type { ScheduleWindowSpec } from '../../src/components/schedule/schedule.types';
 import type { Lane, Layer, LayerStyle } from '../../src/core';
 import { windowFor } from '../../src/core';
-import type { ExpandOptions, RosterRule, RuleSet } from '../../src/rrule';
-import { expandRuleSet } from '../../src/rrule';
 
 type ScheduleFixture = {
   title: string;

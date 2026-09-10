@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import type * as TemporalModule from '@js-temporal/polyfill';
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
-import type { Interval, Weekday, Window } from '../src/core';
-import { windowFor } from '../src/core';
-import type { RosterDate, RosterRule, RuleSet } from '../src/rrule';
+import type { RosterDate, RosterRule, RuleSet } from '../src/adapters/rrule';
 import {
   clearExpandCache,
   envelopeFor,
   expandRuleSet,
   expandStats,
   resetExpandStats,
-} from '../src/rrule';
-import { enumerate } from '../src/rrule/occurrences';
+} from '../src/adapters/rrule';
+import { enumerate } from '../src/adapters/rrule/occurrences';
+import type { Interval, Weekday, Window } from '../src/core';
+import { windowFor } from '../src/core';
 
 const { Temporal } = require('@js-temporal/polyfill') as typeof TemporalModule;
 const { RRuleTemporal, allowedWeekdays } = require('rrule-temporal') as typeof RRuleModule;
@@ -1801,7 +1801,7 @@ describe('adapter positional selection and bounded periods', () => {
           process.execPath,
           '-e',
           `
-        const { expandRuleSet } = require('./src/rrule');
+        const { expandRuleSet } = require('./src/adapters/rrule');
         const input = ${JSON.stringify(input)};
         const window = ${JSON.stringify(window)};
         const fresh = expandRuleSet(input, window);

@@ -2,6 +2,7 @@ import './render-host.test';
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
+import * as adapter from '../src/adapters/rrule';
 import { Roster } from '../src/components/roster';
 import { Schedule } from '../src/components/schedule';
 import { ScheduleDayLayout } from '../src/components/schedule/days/layout';
@@ -13,7 +14,6 @@ import { ScheduleWidth } from '../src/components/schedule/use-schedule-viewport'
 import { transitionBounds } from '../src/components/schedule/utils/days';
 import * as core from '../src/core';
 import { clearLayoutCache, layoutStats } from '../src/core';
-import * as adapter from '../src/rrule';
 import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from './fixtures/schedule';
 
 mock.module('react-native-roster/core', () => core);

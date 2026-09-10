@@ -1,4 +1,4 @@
-import type { Gap, Interval, Weekday, Window } from '../core';
+import type { Gap, Interval, Weekday, Window } from '../../core';
 
 export type RosterRule = {
   id: string;

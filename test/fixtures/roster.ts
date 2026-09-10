@@ -1,6 +1,6 @@
 import type { RosterProps } from '../../src';
+import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Lane, Source, Window, WindowSpec } from '../../src/core';
-import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/rrule';
 import { adapterFixtures } from './adapters';
 import { provenanceFixtures } from './provenance';
 import { replacedZones } from './roster-zones';

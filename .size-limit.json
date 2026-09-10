@@ -9,7 +9,7 @@
   },
   {
     "name": "react-native-roster/rrule",
-    "path": "dist/src/rrule/index.js",
+    "path": "dist/src/adapters/rrule/index.js",
     "limit": "15 kB",
     "gzip": false,
     "brotli": false,

@@ -1,4 +1,4 @@
-import type { Window } from '../core';
+import type { Window } from '../../core';
 import { envelopeFor } from './envelope';
 import type { ExpandStats } from './types';
 

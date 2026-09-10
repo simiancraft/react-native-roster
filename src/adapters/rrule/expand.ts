@@ -1,4 +1,4 @@
-import type { Interval, Source, Window } from '../core';
+import type { Interval, Source, Window } from '../../core';
 import { occurrences, recordStats, retainedEnvelope, touch, trim } from './cache';
 import { envelopeFor } from './envelope';
 import { bodyKey } from './hash';

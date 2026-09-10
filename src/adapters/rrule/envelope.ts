@@ -1,4 +1,4 @@
-import type { Window } from '../core';
+import type { Window } from '../../core';
 
 // Absolute 48-hour padding exceeds the 26-hour difference between view zones.
 // Includes, excludes, and dates share these bounds before subtraction.

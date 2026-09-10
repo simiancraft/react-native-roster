@@ -2,6 +2,7 @@ import './render-host.test';
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { clearExpandCache, expandStats, resetExpandStats } from '../src/adapters/rrule';
 import { useRoster } from '../src/components/roster/use-roster';
 import type {
   ScheduleInput,
@@ -18,7 +19,6 @@ import {
   resetStats,
   timeAtY,
 } from '../src/core';
-import { clearExpandCache, expandStats, resetExpandStats } from '../src/rrule';
 import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from './fixtures/schedule';
 
 const trees: ReactTestRenderer[] = [];

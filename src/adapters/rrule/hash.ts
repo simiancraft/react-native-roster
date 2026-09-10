@@ -1,4 +1,4 @@
-import { structuralKey } from '../core/hash';
+import { structuralKey } from '../../core/hash';
 import type { RosterDate, RosterRule } from './types';
 
 // Use the core's collision-free canonical encoding as the content hash.

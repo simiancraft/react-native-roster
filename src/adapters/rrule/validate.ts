@@ -1,4 +1,4 @@
-import type { Window } from '../core';
+import type { Window } from '../../core';
 import type { RosterDate, RosterRule } from './types';
 
 export function validateWindow(window: Window): void {

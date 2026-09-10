@@ -1,5 +1,5 @@
+import type { expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Lane, Window, WindowSpec } from '../../src/core';
-import type { expandRuleSet, RuleSet } from '../../src/rrule';
 
 export type RuleLane = Pick<Lane, 'id' | 'label' | 'timezone'> & { set: RuleSet };
 

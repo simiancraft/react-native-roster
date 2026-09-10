@@ -3,8 +3,8 @@ import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
 import type { CounterBridgeInput } from '../demo/components/gallery-route/counter-bridge.types';
+import { envelopeFor } from '../src/adapters/rrule';
 import { next, windowFor } from '../src/core';
-import { envelopeFor } from '../src/rrule';
 import { performanceRuleSet } from '../test/fixtures/performance-lanes';
 
 const rosterWindowSpec = { span: 'week' as const, anchorDate: '2024-01-01', timezone: 'UTC' };

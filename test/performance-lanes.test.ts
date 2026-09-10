@@ -1,6 +1,11 @@
 import { expect, it } from 'bun:test';
+import {
+  clearExpandCache,
+  expandRuleSet,
+  expandStats,
+  resetExpandStats,
+} from '../src/adapters/rrule';
 import { clearLayoutCache, layoutLane, next, windowFor } from '../src/core';
-import { clearExpandCache, expandRuleSet, expandStats, resetExpandStats } from '../src/rrule';
 import { performanceLanes } from './fixtures/performance-lanes';
 import { rosterWindowSpec } from './fixtures/roster';
 import { workload } from './fixtures/workload';
