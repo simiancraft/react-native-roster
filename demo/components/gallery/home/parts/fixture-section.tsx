@@ -58,5 +58,5 @@ function FixtureCard({
       {detail}
     </View>
   );
-  return linkZone({ href, children: card });
+  return linkZone({ href, cardZone: card });
 }

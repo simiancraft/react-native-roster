@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
-import { pressPoint } from '../../primitives/press-point';
+import { View } from 'react-native';
 
 type ScheduleDayLayoutProps = {
   width: number;
   height: number;
-  label: string;
-  press: (x: number, y: number) => void;
+  /** Stacking level for chrome above every rect; the engine supplies it from the lane's layers. */
   chromeZ: number;
   /** Equal wall-clock hour bands, behind all rects. */
   gridZone: ReactNode;
@@ -21,30 +19,20 @@ type ScheduleDayLayoutProps = {
 export function ScheduleDayLayout({
   width,
   height,
-  label,
-  press,
+  chromeZ,
   gridZone,
   columnZone,
   transitionZone,
   nowLineZone,
-  chromeZ,
 }: ScheduleDayLayoutProps) {
   return (
-    <Pressable
-      testID={`schedule-day-${label}`}
-      accessibilityLabel={label}
-      onPress={(input) => {
-        const point = pressPoint(input);
-        press(point.x, point.y);
-      }}
-      style={{ width, height, overflow: 'hidden' }}
-    >
+    <View style={{ width, height, overflow: 'hidden' }}>
       {gridZone}
       {columnZone}
       <View pointerEvents="none" style={{ position: 'absolute', width, height, zIndex: chromeZ }}>
         {transitionZone}
         {nowLineZone}
       </View>
-    </Pressable>
+    </View>
   );
 }

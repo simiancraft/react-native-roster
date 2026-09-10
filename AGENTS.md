@@ -64,7 +64,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   CI pins 1.4.0. Node 22 runs Expo tooling, Node export smoke tests, and releases.
 - Biome is the only formatter and general linter: two spaces, width 100, single
   quotes, semicolons, trailing commas, organized imports, and Git ignore integration.
-  The only ESLint exception is React Compiler safety over `src/components`;
+  The only ESLint exception is React Compiler safety over `src/components`, `demo/components`,
+  and `demo/app`;
   remove it when Biome ships an equivalent rule set.
 - TypeScript uses `@typescript/native-preview` (`tsgo`). Editing uses strict ESM
   bundler resolution, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, and Bun
@@ -138,7 +139,7 @@ bun run format                # format files with Biome
 bun run typecheck             # check library types with tsgo
 bun run typecheck:test        # check library, test, and maintenance-script types with tsgo
 bun run typecheck:demo        # check demo types with tsgo
-bun run check:react-compiler  # check React Compiler safety in library components
+bun run check:react-compiler  # check React Compiler safety in library and demo components
 bun run check:knip            # find unused library code and dependencies
 bun run check:package         # validate package exports and metadata with strict publint
 bun run test                  # run Bun tests with coverage; build first for export tests

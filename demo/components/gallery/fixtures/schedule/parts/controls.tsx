@@ -1,59 +1,47 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
-import { next, prev, today } from 'react-native-roster/core';
+import { next, prev } from 'react-native-roster/core';
 import { Control } from '../../parts/control';
 import type { useScheduleFixture } from '../use-schedule-fixture';
 
-export function ScheduleControls(model: ReturnType<typeof useScheduleFixture>) {
-  const {
-    fixture,
-    windowSpec,
-    navigate,
-    setSpan,
-    minuteStep,
-    setMinuteStep,
-    pxPerHour,
-    setPxPerHour,
-    setTimezone,
-    view,
-    setView,
-  } = model;
-  const zoneExamples = model.showsZoneExamples ? (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-      {(['defaults', 'replacements'] as const).map((value) => (
-        <Control
-          key={value}
-          label={`Zones: ${value}`}
-          selected={model.zoneStyle === value}
-          onPress={() => model.setZoneStyle(value)}
-        />
-      ))}
-      <Control
-        label="Apia skipped date"
-        onPress={() =>
-          navigate({ span: 'week', anchorDate: '2011-12-26', timezone: 'Pacific/Apia' })
-        }
-      />
-      <Control
-        label="Chicago spring"
-        onPress={() =>
-          navigate({ span: 'week', anchorDate: '2024-03-04', timezone: 'America/Chicago' })
-        }
-      />
-      <Control
-        label="Chicago fall"
-        onPress={() =>
-          navigate({ span: 'week', anchorDate: '2024-10-28', timezone: 'America/Chicago' })
-        }
-      />
-      <Control label="Current week: now line" onPress={() => navigate(today(windowSpec))} />
-    </View>
-  ) : null;
+type ScheduleControlsProps = Pick<
+  ReturnType<typeof useScheduleFixture>,
+  | 'fixture'
+  | 'windowSpec'
+  | 'navigate'
+  | 'setSpan'
+  | 'minuteStep'
+  | 'setMinuteStep'
+  | 'pxPerHour'
+  | 'setPxPerHour'
+  | 'setTimezone'
+  | 'view'
+  | 'setView'
+> & {
+  /** Zone replacements and date presets; the chassis supplies them only for the every-zone fixture. */
+  zoneExamplesZone: ReactNode;
+};
+
+export function ScheduleControls({
+  fixture,
+  windowSpec,
+  navigate,
+  setSpan,
+  minuteStep,
+  setMinuteStep,
+  pxPerHour,
+  setPxPerHour,
+  setTimezone,
+  view,
+  setView,
+  zoneExamplesZone,
+}: ScheduleControlsProps) {
   return (
     <View style={{ gap: 8 }}>
       <Text accessibilityRole="header" className="text-2xl font-semibold text-foreground">
         {fixture.title}
       </Text>
-      {zoneExamples}
+      {zoneExamplesZone}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         <Control label="Previous" onPress={() => navigate(prev(windowSpec))} />
         <Control label="Next" onPress={() => navigate(next(windowSpec))} />

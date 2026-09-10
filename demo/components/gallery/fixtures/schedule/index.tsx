@@ -7,15 +7,24 @@ import { FixtureLayout } from '../layout';
 import { GalleryCounters } from '../parts/counters';
 import { ScheduleControls } from './parts/controls';
 import { ExpansionNote } from './parts/expansion-note';
+import { ZoneExamples } from './parts/zone-examples';
 import { useScheduleFixture } from './use-schedule-fixture';
 
 type ScheduleFixtureModel = ReturnType<typeof useScheduleFixture>;
 
 export function ScheduleFixtureScreen({ fixtureId }: { fixtureId: ScheduleFixtureId }) {
   const model = useScheduleFixture(fixtureId);
+  const zoneExamplesZone = model.showsZoneExamples ? (
+    <ZoneExamples
+      zoneStyle={model.zoneStyle}
+      onZoneStyle={model.setZoneStyle}
+      windowSpec={model.windowSpec}
+      navigate={model.navigate}
+    />
+  ) : null;
   return (
     <FixtureLayout
-      controlsZone={<ScheduleControls {...model} />}
+      controlsZone={<ScheduleControls {...model} zoneExamplesZone={zoneExamplesZone} />}
       subjectZone={SUBJECTS[model.view](model)}
       countersZone={
         <>

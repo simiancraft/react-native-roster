@@ -57,7 +57,7 @@ export function GalleryHero({
           is a zone, and every chrome region takes a className.
         </Text>
       </View>
-      {linkZone({ href: showcaseHref, children: card })}
+      {linkZone({ href: showcaseHref, cardZone: card })}
     </View>
   );
 }

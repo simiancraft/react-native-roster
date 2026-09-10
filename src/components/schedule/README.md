@@ -2,6 +2,9 @@
 
 This feature is about a schedule; its children are days.
 
+- Root entry exports: `Schedule`, `useSchedule`, the `ScheduleXxx` parts, and
+  every `ScheduleXxxInput` zone type from `schedule.types.ts`
+
 - `index.tsx`: the chassis; measures the viewport, calls `useSchedule`, composes zones
 - `use-schedule.ts`, `use-schedule-viewport.ts`: the hook and the width context
 - `layout.tsx`: arranges header, gutter, and days regions only

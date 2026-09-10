@@ -1,5 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
+import { Pressable } from 'react-native';
 import type { DayColumn, Lane, LaneGeometry } from '../../../core';
+import { pressPoint } from '../../primitives/press-point';
 import type { ScheduleModel, ScheduleProps } from '../schedule.types';
 import { transitionBounds } from '../utils/days';
 import { ScheduleDayLayout } from './layout';
@@ -39,29 +41,36 @@ export function ScheduleDay({
   nowLineZone,
 }: ScheduleDayProps) {
   return (
-    <ScheduleDayLayout
-      label={day.localDate}
-      width={projection.columnWidth}
-      height={24 * projection.pxPerHour}
-      chromeZ={Math.max(0, ...lane.layers.map((layer) => layer.z)) + 1}
-      press={press}
-      gridZone={gridZone({ hours, pxPerHour: projection.pxPerHour })}
-      columnZone={columnZone({
-        day,
-        lane,
-        rects: geometry.rects.filter((rect) => rect.column === column),
-        gapRects: geometry.gapRects.filter((rect) => rect.column === column),
-        highlightSource,
-        intervalZone,
-        gapZone,
-        press,
-      })}
-      transitionZone={day.transitions.map((transition) => (
-        <Fragment key={transition.at}>
-          {transitionZone({ day, transition, ...transitionBounds(day, transition, projection) })}
-        </Fragment>
-      ))}
-      nowLineZone={nowLineZone}
-    />
+    <Pressable
+      testID={`schedule-day-${day.localDate}`}
+      accessibilityLabel={day.localDate}
+      onPress={(input) => {
+        const point = pressPoint(input);
+        press(point.x, point.y);
+      }}
+    >
+      <ScheduleDayLayout
+        width={projection.columnWidth}
+        height={24 * projection.pxPerHour}
+        chromeZ={Math.max(0, ...lane.layers.map((layer) => layer.z)) + 1}
+        gridZone={gridZone({ hours, pxPerHour: projection.pxPerHour })}
+        columnZone={columnZone({
+          day,
+          lane,
+          rects: geometry.rects.filter((rect) => rect.column === column),
+          gapRects: geometry.gapRects.filter((rect) => rect.column === column),
+          highlightSource,
+          intervalZone,
+          gapZone,
+          press,
+        })}
+        transitionZone={day.transitions.map((transition) => (
+          <Fragment key={transition.at}>
+            {transitionZone({ day, transition, ...transitionBounds(day, transition, projection) })}
+          </Fragment>
+        ))}
+        nowLineZone={nowLineZone}
+      />
+    </Pressable>
   );
 }

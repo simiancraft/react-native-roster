@@ -2,6 +2,9 @@
 
 This feature is about a roster; its children are lanes.
 
+- Root entry exports: `Roster`, `useRoster`, the `RosterXxx` parts, and every
+  `XxxInput` zone type from `roster.types.ts`
+
 - `index.tsx`: the chassis; calls `useRoster`, branches on `status`, composes zones
 - `use-roster.ts`: the hook; owns window, projection, scroll, geometry, and press
 - `layout.tsx`: arranges corner, header, label column, and body regions only

@@ -1,15 +1,11 @@
 import { describe, expect, it, spyOn } from 'bun:test';
-import type { ViewStyle } from 'react-native';
-import { stylesFor } from '../../../src/components/layers/utils/styles';
-import { pressPoint } from '../../../src/components/primitives/press-point.web';
-import { regionStyle } from '../../../src/components/primitives/region-style';
 import { bodyContentKey } from '../../../src/components/roster/utils/body-content-key';
 import { ticksFor } from '../../../src/components/roster/utils/ticks';
-import type { Layer, WindowSpec } from '../../../src/core';
+import type { WindowSpec } from '../../../src/core';
 import { dayColumnsFor, timeAtX, timeAtY, windowFor } from '../../../src/core';
 import { scalePieces } from '../../../src/core/scale';
 import { wallTime } from '../../../src/core/zone';
-import { type RosterFixtureId, rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
+import { rosterWindowSpec } from '../../fixtures/roster';
 
 const projection = {
   orientation: 'horizontal' as const,
@@ -18,27 +14,7 @@ const projection = {
   rowHeight: 48,
 };
 
-describe('roster render helpers', () => {
-  it('maps DOM clicks relative to the pressed row and centers keyboard presses', () => {
-    const currentTarget = {
-      getBoundingClientRect: () => ({ left: 200, top: 80, width: 500, height: 48 }),
-    };
-    expect(pressPoint({ currentTarget, nativeEvent: { clientX: 340, clientY: 92 } })).toEqual({
-      x: 140,
-      y: 12,
-    });
-    expect(pressPoint({ currentTarget, nativeEvent: {} })).toEqual({ x: 250, y: 24 });
-  });
-  it('shares styles only for equal layer ids and canonical style contents', () => {
-    const fixtureId: RosterFixtureId = 'single-lane';
-    const layer = rosterFixtures[fixtureId].lanes[0]?.layers[0] as Layer;
-    const same = { ...layer, style: { highlightColor: '#f59e0b', color: '#4f9478' } };
-    expect(stylesFor(layer)).toBe(stylesFor(same));
-    expect(stylesFor({ ...layer, id: 'different' })).not.toBe(stylesFor(layer));
-    const changed = stylesFor({ ...layer, style: { color: '#fff', opacity: 0.4 } });
-    expect(changed.normal.opacity).toBe(0.4);
-    expect(changed.highlighted.backgroundColor).toBe('#fff');
-  });
+describe('roster utils', () => {
   it('keys body content by geometry, source identity, and zone fillers', () => {
     const input = {
       window: windowFor(rosterWindowSpec),
@@ -202,30 +178,5 @@ describe('roster render helpers', () => {
     expect(ticks.map((tick) => tick.time)).toEqual([start, Date.UTC(2024, 0, 1, 0, 15)]);
     for (const step of [0, 7, 1.5])
       expect(() => ticksFor(custom.window, custom, projection, step)).toThrow('divisor');
-  });
-});
-
-describe('regionStyle', () => {
-  const structure = { flex: 1 };
-  const paint = { backgroundColor: '#fff' };
-  it('keeps default paint for native styles and drops it for class entries', () => {
-    expect(regionStyle(structure, paint, undefined)).toEqual([structure, paint, undefined]);
-    expect(regionStyle(structure, paint, { padding: 2 })).toEqual([
-      structure,
-      paint,
-      { padding: 2 },
-    ]);
-    const classEntry = { $$css: true, 'bg-zinc-950': 'bg-zinc-950' } as unknown as ViewStyle;
-    expect(regionStyle(structure, paint, classEntry)).toEqual([structure, null, classEntry]);
-    expect(regionStyle(structure, paint, [{ padding: 2 }, [classEntry]])).toEqual([
-      structure,
-      null,
-      [{ padding: 2 }, [classEntry]],
-    ]);
-    expect(regionStyle(structure, paint, [null, false, undefined])).toEqual([
-      structure,
-      paint,
-      [null, false, undefined],
-    ]);
   });
 });

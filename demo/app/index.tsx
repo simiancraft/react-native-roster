@@ -6,9 +6,9 @@ export default function HomeRoute() {
     <GalleryHomeScreen
       showcaseHref="/showcase"
       fixtureHref={(id) => `/gallery/${id}`}
-      linkZone={({ href, children }) => (
+      linkZone={({ href, cardZone }) => (
         <Link href={href} asChild>
-          {children}
+          {cardZone}
         </Link>
       )}
     />

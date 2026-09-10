@@ -12,7 +12,7 @@ import { TeamLegend } from './parts/legend';
 import { MemberLabel, type MemberLabelProps } from './parts/member-label';
 import { TeamTitle, WindowRange } from './parts/title';
 import { PeopleFilter, SortChips, SpanChips, WindowNav, ZoneChips } from './parts/window-controls';
-import type { Team } from './team-roster.types';
+import type { Density, Team } from './team-roster.types';
 import { TeamToolbarLayout } from './toolbar-layout';
 import { type TeamRosterModel, type TeamRosterReady, useTeamRoster } from './use-team-roster';
 
@@ -92,6 +92,13 @@ const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
   ),
 };
 
+/** Where the filter sits at each people-column density; avatars are too narrow for a filter beside the lanes. */
+const TOOLBAR_DIRECTION: Record<Density, 'row' | 'column'> = {
+  full: 'row',
+  compact: 'row',
+  avatar: 'column',
+};
+
 export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { team?: Team }) {
   const model = useTeamRoster({ team });
   const zones = { ...DEFAULT_ZONES, ...overrides };
@@ -112,7 +119,7 @@ export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { tea
     toolbarZone: (
       <TeamToolbarLayout
         filterWidth={model.labelWidth}
-        direction={model.density === 'avatar' ? 'column' : 'row'}
+        direction={TOOLBAR_DIRECTION[model.density]}
         filterZone={zones.filterZone(model)}
         controlsZone={zones.controlsZone(model)}
       />

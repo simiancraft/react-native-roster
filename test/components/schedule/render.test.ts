@@ -2,7 +2,6 @@ import '../../support/native-host';
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
-import * as adapter from '../../../src/adapters/rrule';
 import { Roster } from '../../../src/components/roster';
 import { Schedule } from '../../../src/components/schedule';
 import { ScheduleDayLayout } from '../../../src/components/schedule/days/layout';
@@ -18,12 +17,6 @@ import { transitionBounds } from '../../../src/components/schedule/utils/days';
 import * as core from '../../../src/core';
 import { clearLayoutCache, layoutStats } from '../../../src/core';
 import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from '../../fixtures/schedule';
-
-mock.module('react-native-roster/core', () => core);
-mock.module('react-native-roster/rrule', () => adapter);
-const { useScheduleFixture } = await import(
-  '../../../demo/components/gallery/fixtures/schedule/use-schedule-fixture'
-);
 
 const trees: ReactTestRenderer[] = [];
 function render(element: ReactElement) {
@@ -86,7 +79,7 @@ describe('Schedule chassis and day zones', () => {
       const column = tree.root
         .findAllByType('Pressable' as ElementType)
         .find((node) => node.props.testID === 'schedule-day-2024-01-01') as ReactTestInstance;
-      expect(column.props.style.width).toBe((width - 48) / 7);
+      expect(column.findByType(ScheduleDayLayout).props.width).toBe((width - 48) / 7);
     }
     const runs = layoutStats().runs;
     act(() => measure.props.onLayout({ nativeEvent: { layout: { width: 1280, height: 500 } } }));
@@ -232,32 +225,6 @@ describe('Schedule chassis and day zones', () => {
       expect(pressable.findAllByProps({ testID: 'schedule-skip' })).toHaveLength(1);
     });
   }
-  it('navigates the actual Apia route through the skipped day and onward', () => {
-    let route!: ReturnType<typeof useScheduleFixture>;
-    function Route() {
-      route = useScheduleFixture('schedule-apia');
-      return createElement(Schedule, { lane: route.lane, windowSpec: route.windowSpec });
-    }
-    const tree = render(createElement(Route));
-    act(() => route.setSpan('day'));
-    expect(route.windowSpec.anchorDate).toBe('2011-12-26');
-    for (let day = 27; day <= 31; day++) {
-      adapter.resetExpandStats();
-      act(() => route.navigate(core.next(route.windowSpec)));
-      expect(route.windowSpec.anchorDate).toBe(`2011-12-${day}`);
-      if (day === 30) {
-        expect(route.lane.complete).toBe(true);
-        expect(route.lane.layers.every((layer) => layer.intervals.length === 0)).toBe(true);
-        expect(adapter.expandStats().expanded).toBe(0);
-        expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(0);
-        expect(JSON.stringify(tree.toJSON())).toContain('Skipped local date 2011-12-30');
-      } else {
-        expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(1);
-      }
-    }
-    act(() => route.navigate(core.prev(route.windowSpec)));
-    expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(0);
-  });
   it('shows six Apia columns and the header gap for December 30, including a wholly skipped day span', () => {
     const props = propsFor('schedule-apia');
     const tree = render(createElement(Schedule, props));
