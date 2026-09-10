@@ -1,24 +1,24 @@
-import './render-host.test';
+import '../support/native-host';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { createElement, type ElementType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import * as adapter from '../src/adapters/rrule';
-import { Roster } from '../src/components/roster';
-import { intervalHoverProps as nativeHover } from '../src/components/roster/lanes/interval-hover';
-import { intervalHoverProps as webHover } from '../src/components/roster/lanes/interval-hover.web';
-import { LaneRow } from '../src/components/roster/lanes/lane';
-import { RosterIncomplete } from '../src/components/roster/lanes/parts/incomplete';
-import type { RosterModel } from '../src/components/roster/roster.types';
-import { useRoster } from '../src/components/roster/use-roster';
-import type { Lane, LaneGeometry, Rect } from '../src/core';
-import * as core from '../src/core';
-import { rosterFixtures, rosterWindowSpec } from './fixtures/roster';
+import * as adapter from '../../src/adapters/rrule';
+import { Roster } from '../../src/components/roster';
+import { intervalHoverProps as nativeHover } from '../../src/components/roster/lanes/interval-hover';
+import { intervalHoverProps as webHover } from '../../src/components/roster/lanes/interval-hover.web';
+import { LaneRow } from '../../src/components/roster/lanes/lane';
+import { RosterIncomplete } from '../../src/components/roster/lanes/parts/incomplete';
+import type { RosterModel } from '../../src/components/roster/roster.types';
+import { useRoster } from '../../src/components/roster/use-roster';
+import type { Lane, LaneGeometry, Rect } from '../../src/core';
+import * as core from '../../src/core';
+import { rosterFixtures, rosterWindowSpec } from '../fixtures/roster';
 
 // Exercise the demo's public imports against the same real source caches as the hook.
 mock.module('react-native-roster/core', () => core);
 mock.module('react-native-roster/rrule', () => adapter);
 const { useRosterFixture } = await import(
-  '../demo/components/gallery/fixtures/roster/use-roster-fixture'
+  '../../demo/components/gallery/fixtures/roster/use-roster-fixture'
 );
 
 const projection = {

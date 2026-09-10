@@ -1,4 +1,4 @@
-import './render-host.test';
+import '../../support/native-host';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { createElement } from 'react';
 import type {
@@ -8,9 +8,9 @@ import type {
   ScrollView,
 } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import type { RosterInput, RosterModel } from '../src/components/roster/roster.types';
-import { useRoster } from '../src/components/roster/use-roster';
-import type { Lane, Layer, Rect } from '../src/core';
+import type { RosterInput, RosterModel } from '../../../src/components/roster/roster.types';
+import { useRoster } from '../../../src/components/roster/use-roster';
+import type { Lane, Layer, Rect } from '../../../src/core';
 import {
   byCoverage,
   clearCoverageCache,
@@ -19,9 +19,9 @@ import {
   layoutStats,
   next,
   resetStats,
-} from '../src/core';
-import { rosterFixtures, rosterWindowSpec } from './fixtures/roster';
-import { workload } from './fixtures/workload';
+} from '../../../src/core';
+import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
+import { workload } from '../../fixtures/workload';
 
 function harness(input: RosterInput) {
   let model: RosterModel;

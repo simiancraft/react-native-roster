@@ -1,16 +1,16 @@
-import './render-host.test';
+import '../../support/native-host';
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { clearExpandCache, expandStats, resetExpandStats } from '../src/adapters/rrule';
-import { useRoster } from '../src/components/roster/use-roster';
+import { clearExpandCache, expandStats, resetExpandStats } from '../../../src/adapters/rrule';
+import { useRoster } from '../../../src/components/roster/use-roster';
 import type {
   ScheduleInput,
   ScheduleModel,
   ScheduleWindowSpec,
-} from '../src/components/schedule/schedule.types';
-import { useSchedule } from '../src/components/schedule/use-schedule';
-import type { Lane, Layer, Rect } from '../src/core';
+} from '../../../src/components/schedule/schedule.types';
+import { useSchedule } from '../../../src/components/schedule/use-schedule';
+import type { Lane, Layer, Rect } from '../../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -18,8 +18,8 @@ import {
   layoutStats,
   resetStats,
   timeAtY,
-} from '../src/core';
-import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from './fixtures/schedule';
+} from '../../../src/core';
+import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from '../../fixtures/schedule';
 
 const trees: ReactTestRenderer[] = [];
 function harness(input: ScheduleInput) {

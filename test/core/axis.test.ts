@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, setSystemTime, spyOn } from 'bun:test';
-import type { DayColumn, Interval, Lane, Layer, Projection, Rect, WindowSpec } from '../src/core';
+import type {
+  DayColumn,
+  Interval,
+  Lane,
+  Layer,
+  Projection,
+  Rect,
+  WindowSpec,
+} from '../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -14,8 +22,8 @@ import {
   timeAtY,
   today,
   windowFor,
-} from '../src/core';
-import { scalePieces } from '../src/core/scale';
+} from '../../src/core';
+import { scalePieces } from '../../src/core/scale';
 import {
   dateEpoch,
   localDateAt,
@@ -23,7 +31,7 @@ import {
   startOfDate,
   transitionsBetween,
   wallTime,
-} from '../src/core/zone';
+} from '../../src/core/zone';
 
 const hour = 3_600_000;
 const minute = 60_000;

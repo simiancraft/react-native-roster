@@ -1,25 +1,28 @@
-import './render-host.test';
+import '../../support/native-host';
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
-import * as adapter from '../src/adapters/rrule';
-import { Roster } from '../src/components/roster';
-import { Schedule } from '../src/components/schedule';
-import { ScheduleDayLayout } from '../src/components/schedule/days/layout';
-import { ScheduleColumn } from '../src/components/schedule/days/parts/column';
-import { ScheduleTransition } from '../src/components/schedule/days/parts/transition';
-import { ScheduleGutter } from '../src/components/schedule/parts/gutter';
-import type { ScheduleColumnInput, ScheduleProps } from '../src/components/schedule/schedule.types';
-import { ScheduleWidth } from '../src/components/schedule/use-schedule-viewport';
-import { transitionBounds } from '../src/components/schedule/utils/days';
-import * as core from '../src/core';
-import { clearLayoutCache, layoutStats } from '../src/core';
-import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from './fixtures/schedule';
+import * as adapter from '../../../src/adapters/rrule';
+import { Roster } from '../../../src/components/roster';
+import { Schedule } from '../../../src/components/schedule';
+import { ScheduleDayLayout } from '../../../src/components/schedule/days/layout';
+import { ScheduleColumn } from '../../../src/components/schedule/days/parts/column';
+import { ScheduleTransition } from '../../../src/components/schedule/days/parts/transition';
+import { ScheduleGutter } from '../../../src/components/schedule/parts/gutter';
+import type {
+  ScheduleColumnInput,
+  ScheduleProps,
+} from '../../../src/components/schedule/schedule.types';
+import { ScheduleWidth } from '../../../src/components/schedule/use-schedule-viewport';
+import { transitionBounds } from '../../../src/components/schedule/utils/days';
+import * as core from '../../../src/core';
+import { clearLayoutCache, layoutStats } from '../../../src/core';
+import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from '../../fixtures/schedule';
 
 mock.module('react-native-roster/core', () => core);
 mock.module('react-native-roster/rrule', () => adapter);
 const { useScheduleFixture } = await import(
-  '../demo/components/gallery/fixtures/schedule/use-schedule-fixture'
+  '../../../demo/components/gallery/fixtures/schedule/use-schedule-fixture'
 );
 
 const trees: ReactTestRenderer[] = [];
@@ -47,7 +50,7 @@ afterEach(() => {
 describe('Schedule chassis and day zones', () => {
   it('uses the React 18 provider API and mounts both read surfaces', async () => {
     const source = await Bun.file(
-      new URL('../src/components/schedule/index.tsx', import.meta.url),
+      new URL('../../../src/components/schedule/index.tsx', import.meta.url),
     ).text();
     expect(source).toContain('<ScheduleWidth.Provider value={width}>');
     const props = propsFor('schedule-layers');

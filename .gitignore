@@ -9,4 +9,4 @@ coverage/
 .DS_Store
 .check-output.txt
 .cache/
-test/.release-*/
+test/scripts/.release-*/

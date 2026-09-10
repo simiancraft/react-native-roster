@@ -1,9 +1,9 @@
 import { expect, it } from 'bun:test';
-import type { Projection } from '../src/core';
-import { coverageStats, dayColumnsFor, layoutLane, layoutStats, resetStats } from '../src/core';
-import { measureWorkload } from './fixtures/performance';
-import { workload } from './fixtures/workload';
-import baseline from './performance-baseline.json';
+import type { Projection } from '../../src/core';
+import { coverageStats, dayColumnsFor, layoutLane, layoutStats, resetStats } from '../../src/core';
+import { workload } from '../fixtures/workload';
+import baseline from './baseline.json';
+import { measureWorkload } from './measure-workload';
 
 const horizontal: Projection = {
   orientation: 'horizontal',

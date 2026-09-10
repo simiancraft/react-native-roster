@@ -1,4 +1,4 @@
-import './render-host.test';
+import '../support/native-host';
 import { beforeEach, describe, expect, it } from 'bun:test';
 import { createElement, type ElementType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
@@ -7,12 +7,12 @@ import {
   expandRuleSet,
   expandStats,
   resetExpandStats,
-} from '../src/adapters/rrule';
-import { Roster } from '../src/components/roster';
-import { LaneRow } from '../src/components/roster/lanes/lane';
-import type { RosterProjection } from '../src/components/roster/roster.types';
-import { ticksFor } from '../src/components/roster/utils/ticks';
-import type { Lane, LaneGeometry, Projection, Rect, WindowSpec } from '../src/core';
+} from '../../src/adapters/rrule';
+import { Roster } from '../../src/components/roster';
+import { LaneRow } from '../../src/components/roster/lanes/lane';
+import type { RosterProjection } from '../../src/components/roster/roster.types';
+import { ticksFor } from '../../src/components/roster/utils/ticks';
+import type { Lane, LaneGeometry, Projection, Rect, WindowSpec } from '../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -23,8 +23,8 @@ import {
   resetStats,
   timeAtY,
   windowFor,
-} from '../src/core';
-import { rosterFixtures } from './fixtures/roster';
+} from '../../src/core';
+import { rosterFixtures } from '../fixtures/roster';
 import {
   expandLanes,
   fallWeek,
@@ -32,7 +32,7 @@ import {
   type RuleLane,
   ruleLane,
   springWeek,
-} from './fixtures/timezones';
+} from '../fixtures/timezones';
 
 const hour = 3_600_000;
 const horizontal: RosterProjection = {

@@ -1,4 +1,4 @@
-import './render-host.test';
+import '../support/native-host';
 import { describe, expect, it, mock } from 'bun:test';
 
 // NativeWind's runtime resolves class strings through the app's Metro pipeline,
@@ -11,9 +11,9 @@ mock.module('nativewind', () => ({ cssInterop }));
 
 describe('nativewind entry', () => {
   it('registers Roster and Schedule with one class prop per chrome style prop', async () => {
-    const entry = await import('../src/nativewind');
-    const { Roster } = await import('../src/components/roster');
-    const { Schedule } = await import('../src/components/schedule');
+    const entry = await import('../../src/nativewind');
+    const { Roster } = await import('../../src/components/roster');
+    const { Schedule } = await import('../../src/components/schedule');
     expect(cssInterop).toHaveBeenCalledTimes(2);
     expect(cssInterop.mock.calls[0]?.[0]).toBe(Roster);
     expect(cssInterop.mock.calls[0]?.[1]).toEqual({

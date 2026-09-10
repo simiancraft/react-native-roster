@@ -43,7 +43,8 @@ src/
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
   lib/package-version.ts   # validates and rewrites only the package version
-test/                      # Bun tests and deterministic fixtures/workload.ts
+test/                      # mirrors src: core, components/{roster,schedule}, adapters/rrule,
+                           # plus integration, demo, package, scripts, performance, support, fixtures
 demo/
   app/_layout.tsx          # Expo Router root
   app/index.tsx            # home route shell; owns gallery URLs
@@ -223,7 +224,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     lint crashes on useSharedValue's built-in shape. Offsets use get/set and have no
     animations to cancel; the regular compiler gate stays enabled without suppression.
     Reanimated is an optional peer for core-only installs, required by Roster.
-13. **Bun tests use a native host preload.** react-test-renderer exercises real hooks;
+13. **Bun tests use a native host preload (`test/support/native-host.ts`).** react-test-renderer exercises real hooks;
     native Views, LegendList, and shared values use host doubles. Node export smoke
     tests stub only native peers, then load actual emitted package exports. Browser
     and device integration complement these tests; doubles do not prove native behavior.

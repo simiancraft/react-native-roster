@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import type { DayColumn, Interval, Lane, Layer, Projection, Source } from '../src/core';
+import type { DayColumn, Interval, Lane, Layer, Projection, Source } from '../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -11,8 +11,8 @@ import {
   layoutStats,
   resetStats,
   timeAtX,
-} from '../src/core';
-import { structuralKey } from '../src/core/hash';
+} from '../../src/core';
+import { structuralKey } from '../../src/core/hash';
 
 const minute = 60_000;
 const origin = Date.UTC(2024, 0, 1);

@@ -1,11 +1,11 @@
 import { describe, expect, it, spyOn } from 'bun:test';
 import type { ViewStyle } from 'react-native';
-import { stylesFor } from '../src/components/layers/utils/styles';
-import { pressPoint } from '../src/components/primitives/press-point.web';
-import { regionStyle } from '../src/components/primitives/region-style';
-import { bodyContentKey } from '../src/components/roster/utils/body-content-key';
-import { ticksFor } from '../src/components/roster/utils/ticks';
-import type { Coverage, Lane, Layer, WindowSpec } from '../src/core';
+import { stylesFor } from '../../../src/components/layers/utils/styles';
+import { pressPoint } from '../../../src/components/primitives/press-point.web';
+import { regionStyle } from '../../../src/components/primitives/region-style';
+import { bodyContentKey } from '../../../src/components/roster/utils/body-content-key';
+import { ticksFor } from '../../../src/components/roster/utils/ticks';
+import type { Coverage, Lane, Layer, WindowSpec } from '../../../src/core';
 import {
   byCoverage,
   byLabel,
@@ -14,11 +14,11 @@ import {
   timeAtX,
   timeAtY,
   windowFor,
-} from '../src/core';
-import { hitTest } from '../src/core/hit-test';
-import { scalePieces } from '../src/core/scale';
-import { wallTime } from '../src/core/zone';
-import { type RosterFixtureId, rosterFixtures, rosterWindowSpec } from './fixtures/roster';
+} from '../../../src/core';
+import { hitTest } from '../../../src/core/hit-test';
+import { scalePieces } from '../../../src/core/scale';
+import { wallTime } from '../../../src/core/zone';
+import { type RosterFixtureId, rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 
 const projection = {
   orientation: 'horizontal' as const,

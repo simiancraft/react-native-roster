@@ -7,7 +7,7 @@ import {
   layoutStats,
   resetStats,
 } from '../../src/core';
-import { workload } from './workload';
+import { workload } from '../fixtures/workload';
 
 /** Median of 11 target-cold samples after five JIT warmups; cache clearing is untimed. */
 export function measureWorkload() {

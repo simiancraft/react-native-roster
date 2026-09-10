@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { setVersion } from '../scripts/lib/package-version';
+import { setVersion } from '../../scripts/lib/package-version';
 
 const temporaryDirectories: string[] = [];
 
@@ -53,11 +53,11 @@ describe('set-version', () => {
     const script = join(path, '..', 'scripts', 'set-version.ts');
     await Bun.write(
       script,
-      await Bun.file(new URL('../scripts/set-version.ts', import.meta.url)).text(),
+      await Bun.file(new URL('../../scripts/set-version.ts', import.meta.url)).text(),
     );
     await Bun.write(
       join(script, '..', 'lib', 'package-version.ts'),
-      await Bun.file(new URL('../scripts/lib/package-version.ts', import.meta.url)).text(),
+      await Bun.file(new URL('../../scripts/lib/package-version.ts', import.meta.url)).text(),
     );
     const result = Bun.spawnSync([process.execPath, script, '3.2.1']);
     expect(result.exitCode).toBe(0);

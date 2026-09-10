@@ -1,25 +1,25 @@
-import './render-host.test';
+import '../../support/native-host';
 import { describe, expect, it, mock } from 'bun:test';
 import type { ElementType, ReactElement } from 'react';
 import { createElement, Profiler } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { RosterGap } from '../src/components/layers/parts/gap';
-import { RosterInterval } from '../src/components/layers/parts/interval';
-import { Roster } from '../src/components/roster';
-import { LaneRow } from '../src/components/roster/lanes/lane';
-import { RosterLaneLabel } from '../src/components/roster/lanes/parts/lane-label';
-import { RosterBody } from '../src/components/roster/parts/body';
-import { RosterGrid } from '../src/components/roster/parts/grid';
+import { RosterGap } from '../../../src/components/layers/parts/gap';
+import { RosterInterval } from '../../../src/components/layers/parts/interval';
+import { Roster } from '../../../src/components/roster';
+import { LaneRow } from '../../../src/components/roster/lanes/lane';
+import { RosterLaneLabel } from '../../../src/components/roster/lanes/parts/lane-label';
+import { RosterBody } from '../../../src/components/roster/parts/body';
+import { RosterGrid } from '../../../src/components/roster/parts/grid';
 import type {
   BodyInput,
   GridInput,
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
-} from '../src/components/roster/roster.types';
-import type { Lane, Layer } from '../src/core';
-import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../src/core';
-import { rosterFixtures, rosterWindowSpec } from './fixtures/roster';
+} from '../../../src/components/roster/roster.types';
+import type { Lane, Layer } from '../../../src/core';
+import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../../../src/core';
+import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 
 function render(element: ReactElement) {
   let tree!: ReactTestRenderer;

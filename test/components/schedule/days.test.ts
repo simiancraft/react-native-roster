@@ -2,10 +2,14 @@ import { describe, expect, it } from 'bun:test';
 import type {
   ScheduleProjection,
   ScheduleWindowSpec,
-} from '../src/components/schedule/schedule.types';
-import { headerDates, nowPosition, transitionBounds } from '../src/components/schedule/utils/days';
-import type { DayColumn, Transition } from '../src/core';
-import { dayColumnsFor, timeAtY, windowFor } from '../src/core';
+} from '../../../src/components/schedule/schedule.types';
+import {
+  headerDates,
+  nowPosition,
+  transitionBounds,
+} from '../../../src/components/schedule/utils/days';
+import type { DayColumn, Transition } from '../../../src/core';
+import { dayColumnsFor, timeAtY, windowFor } from '../../../src/core';
 
 function projection(anchorDate: string, timezone: string): ScheduleProjection {
   return {

@@ -1,15 +1,15 @@
-import './render-host.test';
+import '../support/native-host';
 import { expect, it, mock } from 'bun:test';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import * as adapter from '../src/adapters/rrule';
-import { expandRuleSet } from '../src/adapters/rrule';
-import { windowFor } from '../src/core';
-import { adapterFixtures } from './fixtures/adapters';
+import * as adapter from '../../src/adapters/rrule';
+import { expandRuleSet } from '../../src/adapters/rrule';
+import { windowFor } from '../../src/core';
+import { adapterFixtures } from '../fixtures/adapters';
 
 mock.module('react-native-roster/rrule', () => adapter);
 const { useRuleSetDraft } = await import(
-  '../demo/components/gallery/fixtures/roster/use-rule-set-draft'
+  '../../demo/components/gallery/fixtures/roster/use-rule-set-draft'
 );
 
 it('retains applied geometry across invalid JSON and invalid rule fields, then applies valid edits', () => {

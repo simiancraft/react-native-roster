@@ -3,23 +3,23 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import pkg from '../package.json';
+import pkg from '../../package.json';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
+const root = fileURLToPath(new URL('../../', import.meta.url));
 
 // Build first. Missing output must fail this gate, including on a fresh checkout.
 describe('subpath exports', () => {
   it('ships both sides of each browser platform remap', () => {
     for (const [native, web] of Object.entries(pkg.browser)) {
-      expect(existsSync(new URL(`../${native}`, import.meta.url))).toBe(true);
-      expect(existsSync(new URL(`../${web}`, import.meta.url))).toBe(true);
+      expect(existsSync(new URL(`../../${native}`, import.meta.url))).toBe(true);
+      expect(existsSync(new URL(`../../${web}`, import.meta.url))).toBe(true);
     }
   });
   for (const [subpath, conditions] of Object.entries(pkg.exports)) {
     it(`${subpath} resolves every declared condition to a shipped file`, () => {
       const targets = typeof conditions === 'string' ? [conditions] : Object.values(conditions);
       for (const target of targets) {
-        expect(existsSync(new URL(`../${target}`, import.meta.url))).toBe(true);
+        expect(existsSync(new URL(`../../${target}`, import.meta.url))).toBe(true);
       }
       if (typeof conditions !== 'string') {
         expect(conditions.types.startsWith('./dist/')).toBe(true);

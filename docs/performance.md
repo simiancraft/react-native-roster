@@ -27,7 +27,7 @@ Open a trace with `bunx playwright show-trace .cache/web-performance/trace.zip`.
 
 Both timing rows independently fail at 16 ms or above on every machine. Only when
 `process.env.CI` is truthy do they also fail above 1.5 times their committed CI
-runner value in `test/performance-baseline.json`. Local runs still measure and
+runner value in `test/performance/baseline.json`. Local runs still measure and
 print both rows, but skip the relative gate because hardware differs. Five untimed JIT warmup
 iterations precede 11 samples; the reported value is their median. Every sample
 clears the exact layout and coverage keys before timing. Fixture construction,
@@ -55,7 +55,7 @@ bun run bench:update --machine "GitHub Actions ubuntu-latest" --layout <ms> --co
 ```
 
 The supplied numbers are recorded without measuring locally. Set `measuredAt` in
-`test/performance-baseline.json` to the CI measurement timestamp; the script records
+`test/performance/baseline.json` to the CI measurement timestamp; the script records
 its invocation time, current commit, runtime, and working tree state. Run the full
 gate, then commit the baseline with the CI run URL in the commit message. Include
 old and new numbers and the reason in the PR. CI never updates the baseline, and

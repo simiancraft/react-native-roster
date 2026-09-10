@@ -336,7 +336,7 @@ network). The home page lists every fixture route:
 
 Workload W is 200 lanes, one week, two layers, a 24-lane viewport, and
 15-minute ticks: 63 interval rects and 7 gap rects per lane. The
-[committed CI baseline](./test/performance-baseline.json) on GitHub Actions
+[committed CI baseline](./test/performance/baseline.json) on GitHub Actions
 ubuntu-latest records target-cold layout of 24 lanes at 2.070 ms and coverage of
 all 200 lanes at 1.063 ms, gated below 16 ms everywhere and within 1.5 times the
 baseline in CI. Size gates hold core under 15 kB and root under 44 kB. Device
