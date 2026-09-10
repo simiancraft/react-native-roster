@@ -34,7 +34,7 @@ files, restages fixes, and checks library types, test types, and React Compiler 
 | iOS / Android / web demo | `bun run demo:ios` / `bun run demo:android` / `bun run demo:web` |
 
 Biome owns format and lint. ESLint is limited to React Compiler safety in
-`src/components`. Read [AGENTS.md](./AGENTS.md) for vocabulary, Zone Composer,
+`src/components`, `demo/components`, and `demo/app`. Read [AGENTS.md](./AGENTS.md) for vocabulary, Zone Composer,
 source exports, and the conventions required by later features.
 
 ## Pull requests and commits

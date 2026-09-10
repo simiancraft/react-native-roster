@@ -8,6 +8,7 @@ export function GalleryHero({
 }: {
   version: string;
   showcaseHref: string;
+  /** Wraps the showcase card in the host's link element. */
   linkZone: LinkZone;
 }) {
   const card = (

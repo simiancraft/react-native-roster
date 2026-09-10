@@ -12,6 +12,7 @@ export function FixtureSection({
   title: string;
   blurb: string;
   fixtures: FixtureCardInput[];
+  /** Wraps each fixture card in the host's link element. */
   linkZone: LinkZone;
 }) {
   return (
@@ -42,7 +43,10 @@ function FixtureCard({
   title,
   description,
   linkZone,
-}: Omit<FixtureCardInput, 'id'> & { linkZone: LinkZone }) {
+}: Omit<FixtureCardInput, 'id'> & {
+  /** Wraps this card in the host's link element. */
+  linkZone: LinkZone;
+}) {
   const detail = description ? (
     <Text numberOfLines={2} className="text-xs leading-4 text-muted-foreground">
       {description}
