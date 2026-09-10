@@ -32,8 +32,12 @@ src/
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
-  components/              # Roster and Schedule chassis, hooks, zones, and rect parts
-  core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
+  components/
+    roster/                # Roster chassis, hook, layout, and lane parts
+    schedule/              # Schedule chassis, hook, layout, and day parts
+    layers/                # interval and gap fillers shared by both projections
+    primitives/            # press-point platform pair and regionStyle
+  core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
   lib/package-version.ts   # validates and rewrites only the package version
@@ -221,9 +225,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     tests stub only native peers, then load actual emitted package exports. Browser
     and device integration complement these tests; doubles do not prove native behavior.
 
-14. **Press coordinates differ on web.** press-point.tsx reads native locationX/Y;
-    press-point.web.tsx maps DOM clientX/Y relative to currentTarget. Keep the shared
-    .types.ts and package.json browser remap together when changing this pair.
+14. **Press coordinates differ on web.** `components/primitives/press-point.tsx` reads
+    native locationX/Y; `press-point.web.tsx` maps DOM clientX/Y relative to
+    currentTarget. Keep the shared .types.ts and package.json browser remap together
+    when changing this pair. Both projections share it, as they share the interval and
+    gap fillers in `components/layers` and the pure `core/hit-test.ts` walk.
 
 15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
     transitions, preserving skips and both repeat occurrences. On a cache miss, resolve

@@ -11,8 +11,8 @@ import {
   timeAtX,
   windowFor,
 } from '../../core';
+import { hitTest } from '../../core/hit-test';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
-import { hitTest } from './utils/hit-test';
 import { ticksFor } from './utils/ticks';
 
 export function useRoster(input: RosterInput): RosterModel {

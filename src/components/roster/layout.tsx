@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
+import { regionStyle } from '../primitives/region-style';
 import type { RosterStyleProps } from './roster.types';
-import { regionStyle } from './utils/region-style';
 
 type RosterLayoutProps = Omit<RosterStyleProps, `${string}ClassName` | 'className'> & {
   /** Cell above the lane labels, beside the header. */

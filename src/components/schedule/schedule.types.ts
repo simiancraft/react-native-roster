@@ -11,7 +11,7 @@ import type {
   Window,
   WindowSpec,
 } from '../../core';
-import type { GapInput, IntervalInput } from '../roster/roster.types';
+import type { GapInput, IntervalInput } from '../layers/layers.types';
 
 export type ScheduleWindowSpec = WindowSpec & { span: 'day' | 'week' };
 export type ScheduleProjection = Extract<Projection, { orientation: 'columns' }>;

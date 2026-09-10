@@ -1,5 +1,5 @@
 import type { Lane, LaneGeometry, Rect } from '../../core';
-import type { PressPointInput } from './press-point.types';
+import type { PressPointInput } from '../primitives/press-point.types';
 
 export type IntervalHoverInput = {
   lane: Lane;

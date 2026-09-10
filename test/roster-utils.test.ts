@@ -1,10 +1,9 @@
 import { describe, expect, it, spyOn } from 'bun:test';
 import type { ViewStyle } from 'react-native';
-import { pressPoint } from '../src/components/roster/press-point.web';
+import { stylesFor } from '../src/components/layers/utils/styles';
+import { pressPoint } from '../src/components/primitives/press-point.web';
+import { regionStyle } from '../src/components/primitives/region-style';
 import { bodyContentKey } from '../src/components/roster/utils/body-content-key';
-import { hitTest } from '../src/components/roster/utils/hit-test';
-import { regionStyle } from '../src/components/roster/utils/region-style';
-import { stylesFor } from '../src/components/roster/utils/styles';
 import { ticksFor } from '../src/components/roster/utils/ticks';
 import type { Coverage, Lane, Layer, WindowSpec } from '../src/core';
 import {
@@ -16,6 +15,7 @@ import {
   timeAtY,
   windowFor,
 } from '../src/core';
+import { hitTest } from '../src/core/hit-test';
 import { scalePieces } from '../src/core/scale';
 import { wallTime } from '../src/core/zone';
 import { type RosterFixtureId, rosterFixtures, rosterWindowSpec } from './fixtures/roster';

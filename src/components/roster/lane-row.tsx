@@ -1,9 +1,9 @@
 import { Fragment } from 'react';
 import { Pressable } from 'react-native';
 import type { Lane, LaneGeometry } from '../../core';
+import { pressPoint } from '../primitives/press-point';
 import { intervalHoverProps } from './interval-hover';
 import { RosterIncomplete } from './parts/incomplete';
-import { pressPoint } from './press-point';
 import type { BodyInput } from './roster.types';
 
 export type LaneRowProps = Pick<

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-import { regionStyle } from '../roster/utils/region-style';
+import { regionStyle } from '../primitives/region-style';
 import type { ScheduleStyleProps } from './schedule.types';
 
 type ScheduleLayoutProps = Pick<ScheduleStyleProps, 'headerStyle' | 'gutterStyle' | 'daysStyle'> & {

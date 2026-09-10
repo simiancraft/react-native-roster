@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 import { View } from 'react-native';
-import { RosterGap } from '../roster/parts/gap';
-import { RosterInterval } from '../roster/parts/interval';
-import { regionStyle } from '../roster/utils/region-style';
+import { RosterGap } from '../layers/parts/gap';
+import { RosterInterval } from '../layers/parts/interval';
+import { regionStyle } from '../primitives/region-style';
 import { ScheduleDayHeaderLayout } from './days/header-layout';
 import { ScheduleDayLayout } from './days/layout';
 import { ScheduleLayout } from './layout';

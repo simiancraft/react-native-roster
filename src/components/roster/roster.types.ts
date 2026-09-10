@@ -14,13 +14,13 @@ import type {
   LaneComparator,
   LaneFlag,
   LaneGeometry,
-  Layer,
   Projection,
   Rect,
   Source,
   Window,
   WindowSpec,
 } from '../../core';
+import type { GapInput, IntervalInput } from '../layers/layers.types';
 
 export type RosterProjection = Extract<Projection, { orientation: 'horizontal' }>;
 export type RosterTick = { time: number; x: number; label: string; kind: 'day' | 'time' };
@@ -75,8 +75,6 @@ export type LaneLabelInput = {
   incompleteLabel: string;
   neverSetLabel: string;
 };
-export type IntervalInput = { rect: Rect; layer: Layer; lane: Lane; highlighted: boolean };
-export type GapInput = { rect: Rect; layer: Layer; lane: Lane };
 export type GridInput = { ticks: RosterTick[]; contentWidth: number };
 export type HeaderInput = Pick<RosterModel, 'ticks' | 'projection' | 'scroll' | 'contentWidth'> & {
   /** Time label filler, positioned by the header. */

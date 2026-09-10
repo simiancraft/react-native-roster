@@ -3,12 +3,12 @@ import { describe, expect, it, mock } from 'bun:test';
 import type { ElementType, ReactElement } from 'react';
 import { createElement, Profiler } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { RosterGap } from '../src/components/layers/parts/gap';
+import { RosterInterval } from '../src/components/layers/parts/interval';
 import { Roster } from '../src/components/roster';
 import { LaneRow } from '../src/components/roster/lane-row';
 import { RosterBody } from '../src/components/roster/parts/body';
-import { RosterGap } from '../src/components/roster/parts/gap';
 import { RosterGrid } from '../src/components/roster/parts/grid';
-import { RosterInterval } from '../src/components/roster/parts/interval';
 import { RosterLaneLabel } from '../src/components/roster/parts/lane-label';
 import type {
   BodyInput,

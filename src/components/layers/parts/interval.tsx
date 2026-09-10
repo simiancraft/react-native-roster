@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import type { IntervalInput } from '../roster.types';
+import type { IntervalInput } from '../layers.types';
 import { stylesFor } from '../utils/styles';
 
 export function RosterInterval({ rect, layer, highlighted }: IntervalInput) {

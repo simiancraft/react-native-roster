@@ -1,4 +1,4 @@
-import type { Lane, LaneGeometry, Rect } from '../../../core';
+import type { Lane, LaneGeometry, Rect } from './types';
 
 export function hitTest(
   lane: Lane,

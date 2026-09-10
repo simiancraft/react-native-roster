@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { pressPoint } from '../../roster/press-point';
+import { pressPoint } from '../../primitives/press-point';
 
 type ScheduleDayLayoutProps = {
   width: number;

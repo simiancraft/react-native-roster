@@ -1,6 +1,6 @@
+import { hitTest } from '../../core/hit-test';
+import { pressPoint } from '../primitives/press-point.web';
 import type { IntervalHoverInput, IntervalHoverProps } from './interval-hover.types';
-import { pressPoint } from './press-point.web';
-import { hitTest } from './utils/hit-test';
 
 export function intervalHoverProps({
   lane,
