@@ -22,10 +22,10 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "bun scripts/set-version.ts ${nextRelease.version}",
-        "publishCmd": "npm publish --provenance --access public"
+        "prepareCmd": "bun scripts/set-version.ts ${nextRelease.version}"
       }
     ],
+    "@semantic-release/npm",
     [
       "@semantic-release/git",
       {

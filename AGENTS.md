@@ -174,6 +174,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
 5. **Release approval is configured on GitHub.** The `release` environment needs a
    required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
    evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
+   npm authenticates through the trusted publisher registered for `ci.yml` and the
+   `release` environment; there is no `NPM_TOKEN`. The job installs npm 11 because
+   the OIDC exchange needs 11.5.1 or newer. `@semantic-release/exec` only writes the
+   version through `scripts/set-version.ts`; `@semantic-release/npm` publishes and
+   verifies the publisher before any release commit or tag is created.
 6. **Roster, Schedule, the core, the recurrence adapter, the timezone routes, and
    the provenance routes are implemented.** Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
