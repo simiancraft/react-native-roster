@@ -6,6 +6,7 @@ import { byCoverage, byLabel, next, prev, today, windowFor } from 'react-native-
 import { expandRuleSet } from 'react-native-roster/rrule';
 import type { Member } from './members/member.types';
 import type { Density, Selection, SortKey, SpanKey, Team } from './team-roster.types';
+import { selectionFor } from './utils/selection';
 import { laneFor, memberMeta, teamFor } from './utils/team';
 import { TONE_HEX } from './utils/tones';
 
@@ -56,14 +57,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   function selectRect(rect: Rect, lane: Lane) {
     const { member, events } = memberMeta(lane);
     setSelectedId(member.id);
-    const source = rect.sources[0];
-    const event = events.find((candidate) => candidate.id === source?.id);
-    if (event) setSelection({ kind: 'event', member, event });
-    else if (source?.kind === 'rule')
-      setSelection({ kind: 'timeOff', member, note: 'Lunch break' });
-    else if (source?.kind === 'date')
-      setSelection({ kind: 'timeOff', member, note: source.label ?? 'Out of office' });
-    else setSelection({ kind: 'none', member });
+    setSelection(selectionFor(member, events, rect));
   }
   const common = {
     organization: team.organization,

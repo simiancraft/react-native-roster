@@ -9,6 +9,7 @@ import {
 } from 'react-native-roster/core';
 import { clearExpandCache, expandStats, resetExpandStats } from 'react-native-roster/rrule';
 import {
+  type ScheduleFixture,
   type ScheduleFixtureId,
   scheduleFixtures,
   scheduleLane,
@@ -28,13 +29,13 @@ const bridge: CounterBridgeInput = {
 };
 
 export function useScheduleFixture(fixtureId: ScheduleFixtureId) {
-  const fixture = scheduleFixtures[fixtureId];
+  const fixture: ScheduleFixture = scheduleFixtures[fixtureId];
   const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(fixture.windowSpec);
   const [zoneStyle, setZoneStyle] = useState<'defaults' | 'replacements'>('defaults');
   const [pxPerHour, setPxPerHour] = useState(48);
   const [minuteStep, setMinuteStep] = useState(60);
   const [view, setView] = useState<'roster' | 'schedule' | 'both'>(
-    fixtureId === 'schedule-side-by-side' ? 'both' : 'schedule',
+    fixture.initialView ?? 'schedule',
   );
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
   const [snapshot, setSnapshot] = useState({
@@ -59,7 +60,7 @@ export function useScheduleFixture(fixtureId: ScheduleFixtureId) {
     status: 'ready' as const,
     zoneStyle,
     setZoneStyle,
-    showsZoneExamples: fixtureId === 'schedule-every-zone',
+    showsZoneExamples: fixture.showsZoneExamples === true,
     fixture,
     lane,
     windowSpec,

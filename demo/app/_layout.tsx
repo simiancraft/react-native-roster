@@ -2,7 +2,7 @@ import '../global.css';
 import 'react-native-roster/nativewind';
 import { Stack } from 'expo-router';
 import { View } from 'react-native';
-import { ThemeToggle } from '../components/theme-toggle';
+import { ThemeToggle } from '../components/theme';
 
 // Expo Router requires a default route export.
 export default function RootLayout() {

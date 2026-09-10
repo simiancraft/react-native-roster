@@ -83,6 +83,8 @@ export type RosterFixture = {
   windowPresets?: { label: string; windowSpec: WindowSpec }[];
   ruleLanes?: RuleLane[];
   pxPerMinute?: number;
+  /** Workload W: lanes generated per window, the performance controls, and the profiled body. */
+  workload?: boolean;
   lanes: Lane[];
   zones: Pick<RosterProps, keyof typeof replacedZones>;
   showsEmptyExample: boolean;
@@ -160,6 +162,8 @@ export const rosterFixtures: Record<
   '200-lanes': {
     highlightSource: { kind: 'rule', id: '0:a' },
     title: '200 lanes',
+    workload: true,
+    minuteStep: 15,
     lanes: workload().lanes,
     zones: {},
     showsEmptyExample: false,

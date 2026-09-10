@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
-import type { Rect, Source, Span, WindowSpec } from 'react-native-roster/core';
+import type { LaneComparator, Rect, Source, Span, WindowSpec } from 'react-native-roster/core';
 import {
   byCoverage,
   byLabel,
@@ -17,18 +17,24 @@ import {
   expandStats,
   resetExpandStats,
 } from 'react-native-roster/rrule';
-import { performanceLanes } from '../../../../../test/fixtures/performance-lanes';
 import {
   type RosterFixtureId,
   rosterFixtures,
   rosterWindowSpec,
 } from '../../../../../test/fixtures/roster';
-import { expandLanes } from '../../../../../test/fixtures/timezones';
 import { useCounterBridge } from '../counter-bridge';
 import type { CounterBridgeInput } from '../counter-bridge.types';
 import { measureLayout } from './measure-layout';
 import { profileStats } from './profile-stats';
 import { useRuleSetDraft } from './use-rule-set-draft';
+import { fixtureLanes } from './utils/lanes';
+
+type SortKey = 'label' | 'availability' | 'availabilityMinusBooking';
+const SORTS: Record<SortKey, LaneComparator> = {
+  label: byLabel,
+  availability: byCoverage({ measure: 'availability' }),
+  availabilityMinusBooking: byCoverage({ measure: 'availabilityMinusBooking' }),
+};
 
 const counterBridge: CounterBridgeInput = {
   layoutStats,
@@ -48,10 +54,8 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
   const [windowSpec, setWindowSpec] = useState<WindowSpec>(
     definition.windowSpec ?? rosterWindowSpec,
   );
-  const [minuteStep, setMinuteStep] = useState(
-    definition.minuteStep ?? (fixtureId === '200-lanes' ? 15 : 60),
-  );
-  const [sort, setSort] = useState<'label' | 'availability' | 'availabilityMinusBooking'>('label');
+  const [minuteStep, setMinuteStep] = useState(definition.minuteStep ?? 60);
+  const [sort, setSort] = useState<SortKey>('label');
   const [highlightSource, setHighlightSource] = useState<Source>();
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
   const [snapshot, setSnapshot] = useState({
@@ -67,38 +71,17 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
     : undefined;
   const fixture = {
     ...definition,
-    lanes: expansion
-      ? [
-          {
-            id: fixtureId,
-            label: definition.title,
-            complete: expansion.complete,
-            layers: [
-              {
-                id: 'open',
-                role: 'availability' as const,
-                z: 0,
-                style: { color: '#4f9478' },
-                intervals: expansion.intervals,
-                gaps: expansion.gaps,
-              },
-            ],
-          },
-        ]
-      : fixtureId === '200-lanes' && windowSpec.span !== 'custom'
-        ? performanceLanes(
-            windowFor(windowSpec),
-            windowSpec.anchorDate,
-            expandRuleSet,
-            ruleHourEnd,
-            laneTimezone,
-          )
-        : (definition.lanesFor?.(windowFor(windowSpec), expandRuleSet) ??
-          (definition.ruleLanes
-            ? expandLanes(definition.ruleLanes, windowFor(windowSpec), expandRuleSet)
-            : definition.lanes)),
+    lanes: fixtureLanes({
+      fixtureId,
+      definition,
+      windowSpec,
+      expansion,
+      expand: expandRuleSet,
+      ruleHourEnd,
+      laneTimezone,
+    }),
   };
-  const sortLanes = sort === 'label' ? byLabel : byCoverage({ measure: sort });
+  const sortLanes = SORTS[sort];
   useEffect(() => {
     const timer = setInterval(() => {
       const { expanded } = expandStats();

@@ -1,16 +1,29 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { next, prev } from 'react-native-roster/core';
 import { Control } from '../../parts/control';
 import type { useRosterFixture } from '../use-roster-fixture';
 
-type ControlsInput = ReturnType<typeof useRosterFixture>;
+type GalleryControlsProps = Pick<
+  ReturnType<typeof useRosterFixture>,
+  | 'fixture'
+  | 'windowSpec'
+  | 'setWindowSpec'
+  | 'setSpan'
+  | 'setTimezone'
+  | 'minuteStep'
+  | 'setMinuteStep'
+  | 'sort'
+  | 'setSort'
+> & {
+  /** Highlight actions; the chassis supplies them when the fixture names a highlight source. */
+  highlightZone: ReactNode;
+  /** Workload actions; the chassis supplies them for workload fixtures. */
+  performanceZone: ReactNode;
+};
 
 export function GalleryControls({
   fixture,
-  fixtureId,
-  changeRule,
-  measureColdLayout,
-  changeLaneTimezone,
   windowSpec,
   setWindowSpec,
   setSpan,
@@ -19,28 +32,9 @@ export function GalleryControls({
   setMinuteStep,
   sort,
   setSort,
-  highlightSource,
-  highlightRule,
-  clearHighlight,
-}: ControlsInput) {
-  const highlightZone = fixture.highlightSource ? (
-    <View style={{ flexDirection: 'row', gap: 8 }}>
-      <Control
-        label="Highlight rule (fresh source)"
-        selected={!!highlightSource}
-        onPress={highlightRule}
-      />
-      <Control label="Clear highlight" onPress={clearHighlight} />
-    </View>
-  ) : null;
-  const performanceZone =
-    fixtureId === '200-lanes' ? (
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Control label="Measure cold layout" onPress={measureColdLayout} />
-        <Control label="Change rule hours" onPress={changeRule} />
-        <Control label="Change last lane zone" onPress={changeLaneTimezone} />
-      </View>
-    ) : null;
+  highlightZone,
+  performanceZone,
+}: GalleryControlsProps) {
   return (
     <View style={{ gap: 8 }}>
       <Text accessibilityRole="header" className="text-2xl font-semibold text-foreground">
