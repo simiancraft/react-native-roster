@@ -1,5 +1,5 @@
+import type { expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Interval, Lane, Window } from '../../src/core';
-import type { expandRuleSet, RuleSet } from '../../src/rrule';
 import { workload } from './workload';
 
 /** A daily rule bounds W's intervals; the dated include also exercises date cache entries. */

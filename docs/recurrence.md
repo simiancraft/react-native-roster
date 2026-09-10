@@ -4,7 +4,7 @@ The `react-native-roster/rrule` adapter expands `RuleSet` rules and dates into
 intervals and gaps for one absolute window. This page records the rules the
 adapter follows so results stay identical across direct expansion, retained
 envelopes, and window navigation. The README covers the consumer view; this is
-the reference for anyone reading or changing `src/rrule`.
+the reference for anyone reading or changing `src/adapters/rrule`.
 
 ## Anchors and phase
 

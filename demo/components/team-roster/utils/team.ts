@@ -1,29 +1,8 @@
 import { en, Faker } from '@faker-js/faker';
 import type { Interval, Lane, Layer, Weekday, Window } from 'react-native-roster/core';
 import type { expandRuleSet, RuleSet } from 'react-native-roster/rrule';
-
-export type EventKind = 'meeting' | 'focus' | 'session';
-export type Member = {
-  id: string;
-  name: string;
-  initials: string;
-  role: string;
-  team: string;
-  timezone: string;
-  /** Tailwind color family used by the label avatar and the availability band. */
-  tone: 'emerald' | 'sky' | 'violet' | 'amber' | 'rose' | 'teal';
-  workdays: Weekday[];
-  hours: { start: number; end: number };
-  rules: RuleSet;
-};
-export type MemberEvent = {
-  id: string;
-  kind: EventKind;
-  title: string;
-  start: number;
-  end: number;
-};
-export type MemberLaneMeta = { member: Member; events: MemberEvent[] };
+import type { EventKind, Member, MemberEvent, MemberLaneMeta } from '../members/member.types';
+import type { Team } from '../team-roster.types';
 
 const TIMEZONES = [
   'America/Chicago',
@@ -38,8 +17,6 @@ const TONES: Member['tone'][] = ['emerald', 'sky', 'violet', 'amber', 'rose', 't
 const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4];
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
-
-export type Team = { organization: string; members: Member[] };
 
 /** A private generator so render-time calls never touch shared random state. */
 function generator(seed: number): Faker {

@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
-import type { CounterBridgeInput } from '../demo/components/gallery-route/counter-bridge.types';
+import type { CounterBridgeInput } from '../demo/components/gallery/fixtures/counter-bridge.types';
+import { envelopeFor } from '../src/adapters/rrule';
 import { next, windowFor } from '../src/core';
-import { envelopeFor } from '../src/rrule';
 import { performanceRuleSet } from '../test/fixtures/performance-lanes';
 
 const rosterWindowSpec = { span: 'week' as const, anchorDate: '2024-01-01', timezone: 'UTC' };
@@ -197,11 +197,8 @@ async function click(name: string) {
     name.startsWith('Sort:') ||
     ['UTC', 'America/Chicago', '15 min', 'Highlight rule (fresh source)'].includes(name)
   ) {
-    assert.equal(
-      await control.evaluate((node) => getComputedStyle(node).backgroundColor),
-      'rgb(199, 210, 254)',
-      `${name}: selected control`,
-    );
+    // The shared Control reports selection through accessibilityState, not paint.
+    assert.equal(await control.getAttribute('aria-selected'), 'true', `${name}: selected control`);
   }
 }
 async function scrollRange(afterScroll?: () => Promise<void>) {

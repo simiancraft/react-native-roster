@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { cpus, platform, release } from 'node:os';
 import { parseArgs } from 'node:util';
-import { measureWorkload } from '../test/fixtures/performance';
+import { measureWorkload } from '../test/performance/measure-workload';
 
 const { values } = parseArgs({
   args: process.argv.slice(2),
@@ -34,7 +34,7 @@ const baseline = {
   method: 'Median of 11 target-cold samples after five JIT warmups; W seed 1318',
 };
 await Bun.write(
-  new URL('../test/performance-baseline.json', import.meta.url),
+  new URL('../test/performance/baseline.json', import.meta.url),
   `${JSON.stringify(baseline, null, 2)}\n`,
 );
 console.log(JSON.stringify(baseline, null, 2));

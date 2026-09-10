@@ -2,19 +2,19 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { Roster } from 'react-native-roster';
 import { TeamHeaderLayout } from './header-layout';
-import { MemberInspector } from './inspector';
 import { TeamRosterLayout } from './layout';
+import { MemberInspector } from './members';
 import { GeneratedNote } from './parts/generated-note';
 import { TeamGridLines } from './parts/grid-lines';
 import { DayHeaderCell, TeamCorner } from './parts/header-cell';
-import { intervalFillerFor, TimeOffGap } from './parts/interval';
+import { intervalFillerFor, TimeOffGap } from './parts/layer-fillers';
 import { TeamLegend } from './parts/legend';
 import { MemberLabel, type MemberLabelProps } from './parts/member-label';
 import { TeamTitle, WindowRange } from './parts/title';
 import { PeopleFilter, SortChips, SpanChips, WindowNav, ZoneChips } from './parts/window-controls';
+import type { Density, Team } from './team-roster.types';
 import { TeamToolbarLayout } from './toolbar-layout';
 import { type TeamRosterModel, type TeamRosterReady, useTeamRoster } from './use-team-roster';
-import type { Team } from './utils/team';
 
 /**
  * Host-facing slots. Each receives the resolved model and defaults to the
@@ -92,11 +92,18 @@ const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
   ),
 };
 
+/** Where the filter sits at each people-column density; avatars are too narrow for a filter beside the lanes. */
+const TOOLBAR_DIRECTION: Record<Density, 'row' | 'column'> = {
+  full: 'row',
+  compact: 'row',
+  avatar: 'column',
+};
+
 export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { team?: Team }) {
   const model = useTeamRoster({ team });
   const zones = { ...DEFAULT_ZONES, ...overrides };
   const chrome = {
-    contentDirection: model.contentDirection,
+    direction: model.contentDirection,
     onContentLayout: model.measureContent,
     headerZone: (
       <TeamHeaderLayout
@@ -112,7 +119,7 @@ export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { tea
     toolbarZone: (
       <TeamToolbarLayout
         filterWidth={model.labelWidth}
-        direction={model.density === 'avatar' ? 'column' : 'row'}
+        direction={TOOLBAR_DIRECTION[model.density]}
         filterZone={zones.filterZone(model)}
         controlsZone={zones.controlsZone(model)}
       />

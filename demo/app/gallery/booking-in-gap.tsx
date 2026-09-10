@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function BookingInGapRoute() {
-  return <GalleryRoute fixtureId="booking-in-gap" />;
+  return <RosterFixtureScreen fixtureId="booking-in-gap" />;
 }

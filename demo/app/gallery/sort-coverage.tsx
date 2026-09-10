@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function SortCoverageRoute() {
-  return <GalleryRoute fixtureId="sort-coverage" />;
+  return <RosterFixtureScreen fixtureId="sort-coverage" />;
 }
