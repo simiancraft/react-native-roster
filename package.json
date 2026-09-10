@@ -76,7 +76,7 @@
     "format": "biome format --write .",
     "typecheck": "tsgo --noEmit",
     "typecheck:test": "tsgo --noEmit -p tsconfig.test.json",
-    "check:react-compiler": "eslint 'src/components/**/*.{ts,tsx}' --no-error-on-unmatched-pattern",
+    "check:react-compiler": "eslint 'src/components/**/*.{ts,tsx}' 'demo/components/**/*.{ts,tsx}' 'demo/app/**/*.tsx' --no-error-on-unmatched-pattern",
     "check:knip": "knip",
     "check:package": "publint --strict",
     "test": "bun test --coverage",

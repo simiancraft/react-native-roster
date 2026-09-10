@@ -13,6 +13,13 @@ function readStoredScheme(): 'light' | 'dark' | null {
   }
 }
 
+/** Storage is best effort; private windows and native have none. */
+function storeScheme(scheme: 'light' | 'dark'): void {
+  try {
+    globalThis.localStorage?.setItem(STORAGE_KEY, scheme);
+  } catch {}
+}
+
 /** Restores the stored scheme once on mount; storage is an external store, so this is lifecycle. */
 function useStoredScheme() {
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -30,9 +37,7 @@ export function ThemeToggle() {
   const { scheme, setColorScheme } = useStoredScheme();
   const next = scheme === 'dark' ? 'light' : 'dark';
   function toggle() {
-    try {
-      globalThis.localStorage?.setItem(STORAGE_KEY, next);
-    } catch {}
+    storeScheme(next);
     setColorScheme(next);
   }
   return (
