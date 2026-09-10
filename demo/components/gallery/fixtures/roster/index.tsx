@@ -1,14 +1,14 @@
 import { Roster } from 'react-native-roster';
-import type { RosterFixtureId } from '../../../test/fixtures/roster';
-import { GalleryRouteLayout } from './layout';
+import type { RosterFixtureId } from '../../../../../test/fixtures/roster';
+import { FixtureLayout } from '../layout';
+import { GalleryCounters } from '../parts/counters';
 import { GalleryControls } from './parts/controls';
-import { GalleryCounters } from './parts/counters';
 import { ProfiledBody } from './parts/profiled-body';
 import { RuleSetEditor } from './parts/rule-set-editor';
-import { useGalleryRoute } from './use-gallery-route';
+import { useRosterFixture } from './use-roster-fixture';
 
-export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
-  const model = useGalleryRoute(fixtureId);
+export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId }) {
+  const model = useRosterFixture(fixtureId);
   const {
     fixture,
     windowSpec,
@@ -33,7 +33,7 @@ export function GalleryRoute({ fixtureId }: { fixtureId: RosterFixtureId }) {
     />
   ) : null;
   return (
-    <GalleryRouteLayout
+    <FixtureLayout
       ruleSetEditorZone={ruleSetEditorZone}
       contentDirection={model.contentDirection}
       onContentLayout={model.measureContent}

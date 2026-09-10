@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
-import type { CounterBridgeInput } from '../demo/components/gallery-route/counter-bridge.types';
+import type { CounterBridgeInput } from '../demo/components/gallery/fixtures/counter-bridge.types';
 import { envelopeFor } from '../src/adapters/rrule';
 import { next, windowFor } from '../src/core';
 import { performanceRuleSet } from '../test/fixtures/performance-lanes';

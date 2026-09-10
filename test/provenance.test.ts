@@ -17,7 +17,9 @@ import { rosterFixtures, rosterWindowSpec } from './fixtures/roster';
 // Exercise the demo's public imports against the same real source caches as the hook.
 mock.module('react-native-roster/core', () => core);
 mock.module('react-native-roster/rrule', () => adapter);
-const { useGalleryRoute } = await import('../demo/components/gallery-route/use-gallery-route');
+const { useRosterFixture } = await import(
+  '../demo/components/gallery/fixtures/roster/use-roster-fixture'
+);
 
 const projection = {
   orientation: 'horizontal' as const,
@@ -44,11 +46,11 @@ function runs() {
 }
 
 function galleryHarness(fixtureId: keyof typeof rosterFixtures) {
-  let gallery!: ReturnType<typeof useGalleryRoute>;
+  let gallery!: ReturnType<typeof useRosterFixture>;
   let roster!: RosterModel;
   let tree!: ReactTestRenderer;
   function Hook() {
-    gallery = useGalleryRoute(fixtureId);
+    gallery = useRosterFixture(fixtureId);
     roster = useRoster({
       lanes: gallery.fixture.lanes,
       windowSpec: gallery.windowSpec,

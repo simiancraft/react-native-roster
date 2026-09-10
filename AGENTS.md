@@ -46,9 +46,10 @@ scripts/
 test/                      # Bun tests and deterministic fixtures/workload.ts
 demo/
   app/_layout.tsx          # Expo Router root
-  app/index.tsx            # gallery links and build identity
+  app/index.tsx            # home route shell; owns gallery URLs
   app/gallery/             # thin named roster and schedule fixture route shells
-  components/gallery-route/ # hook, chassis, rule-set draft/editor, and web counter bridge
+  components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
+  components/team-roster/  # the showcase: members, toolbar, and inspector
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
 .github/                   # CI, Pages, links, Scorecard, and community templates
@@ -353,7 +354,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     cover day/week/month at 15/30/60 minutes. Adapter fixtures supply ruleSet and
     optional expandOptions; useRuleSetDraft owns JSON text, parsing, and the last
     applied set. Apply validates via the actual adapter before updating the roster.
-    GalleryRouteLayout places ruleSetEditorZone beside subjectZone, or above it
+    FixtureLayout places ruleSetEditorZone beside subjectZone, or above it
     on narrow screens. The schedule
     every-zone fixture offers defaults/replacements and date presets to exercise
     skippedDateZone, transitionZone, and nowLineZone as well as the ordinary slots.

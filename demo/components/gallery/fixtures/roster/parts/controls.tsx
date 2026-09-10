@@ -1,8 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import { next, prev } from 'react-native-roster/core';
-import type { useGalleryRoute } from '../use-gallery-route';
+import type { useRosterFixture } from '../use-roster-fixture';
 
-type ControlsInput = ReturnType<typeof useGalleryRoute>;
+type ControlsInput = ReturnType<typeof useRosterFixture>;
 
 export function GalleryControls({
   fixture,

@@ -17,15 +17,15 @@ import {
   expandStats,
   resetExpandStats,
 } from 'react-native-roster/rrule';
-import { performanceLanes } from '../../../test/fixtures/performance-lanes';
+import { performanceLanes } from '../../../../../test/fixtures/performance-lanes';
 import {
   type RosterFixtureId,
   rosterFixtures,
   rosterWindowSpec,
-} from '../../../test/fixtures/roster';
-import { expandLanes } from '../../../test/fixtures/timezones';
-import { useCounterBridge } from './counter-bridge';
-import type { CounterBridgeInput } from './counter-bridge.types';
+} from '../../../../../test/fixtures/roster';
+import { expandLanes } from '../../../../../test/fixtures/timezones';
+import { useCounterBridge } from '../counter-bridge';
+import type { CounterBridgeInput } from '../counter-bridge.types';
 import { measureLayout } from './measure-layout';
 import { profileStats } from './profile-stats';
 import { useRuleSetDraft } from './use-rule-set-draft';
@@ -42,7 +42,7 @@ const counterBridge: CounterBridgeInput = {
   ...(__DEV__ ? { profileStats } : {}),
 };
 
-export function useGalleryRoute(fixtureId: RosterFixtureId) {
+export function useRosterFixture(fixtureId: RosterFixtureId) {
   const definition = rosterFixtures[fixtureId];
   const [contentWidth, setContentWidth] = useState(720);
   const [windowSpec, setWindowSpec] = useState<WindowSpec>(

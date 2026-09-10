@@ -8,7 +8,9 @@ import { windowFor } from '../src/core';
 import { adapterFixtures } from './fixtures/adapters';
 
 mock.module('react-native-roster/rrule', () => adapter);
-const { useRuleSetDraft } = await import('../demo/components/gallery-route/use-rule-set-draft');
+const { useRuleSetDraft } = await import(
+  '../demo/components/gallery/fixtures/roster/use-rule-set-draft'
+);
 
 it('retains applied geometry across invalid JSON and invalid rule fields, then applies valid edits', () => {
   const initial = adapterFixtures['adapter-weekly'].ruleSet;

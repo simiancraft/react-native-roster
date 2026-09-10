@@ -1,8 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import { next, prev, today } from 'react-native-roster/core';
-import type { useScheduleRoute } from '../use-schedule-route';
+import type { useScheduleFixture } from '../use-schedule-fixture';
 
-export function ScheduleControls(model: ReturnType<typeof useScheduleRoute>) {
+export function ScheduleControls(model: ReturnType<typeof useScheduleFixture>) {
   const {
     fixture,
     windowSpec,

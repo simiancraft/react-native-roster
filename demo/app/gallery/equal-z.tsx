@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function EqualZRoute() {
-  return <GalleryRoute fixtureId="equal-z" />;
+  return <RosterFixtureScreen fixtureId="equal-z" />;
 }

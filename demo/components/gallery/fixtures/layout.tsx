@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
 
-type GalleryRouteLayoutProps = {
+type FixtureLayoutProps = {
   contentDirection?: 'row' | 'column';
   onContentLayout?: (input: LayoutChangeEvent) => void;
   /** Fixture controls and title; wraps above the bounded roster viewport. */
@@ -15,14 +15,14 @@ type GalleryRouteLayoutProps = {
   countersZone: ReactNode;
 };
 
-export function GalleryRouteLayout({
+export function FixtureLayout({
   controlsZone,
   subjectZone,
   countersZone,
   ruleSetEditorZone,
   contentDirection = 'row',
   onContentLayout,
-}: GalleryRouteLayoutProps) {
+}: FixtureLayoutProps) {
   return (
     <View style={{ flex: 1, minHeight: 0, backgroundColor: '#f1f5f9', padding: 12, gap: 12 }}>
       <View>{controlsZone}</View>

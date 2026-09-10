@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function FixtureRoute() {
-  return <GalleryRoute fixtureId="month-60" />;
+  return <RosterFixtureScreen fixtureId="month-60" />;
 }

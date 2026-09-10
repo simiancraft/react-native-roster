@@ -1,5 +1,5 @@
-import { ScheduleRoute } from '../../components/schedule-route';
+import { ScheduleFixtureScreen } from '../../components/gallery/fixtures/schedule';
 
 export default function FixtureRoute() {
-  return <ScheduleRoute fixtureId="schedule-empty" />;
+  return <ScheduleFixtureScreen fixtureId="schedule-empty" />;
 }

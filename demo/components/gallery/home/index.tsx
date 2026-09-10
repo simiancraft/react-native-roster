@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { Text } from 'react-native';
-import { rosterFixtures } from '../../../test/fixtures/roster';
-import { scheduleFixtures } from '../../../test/fixtures/schedule';
+import { rosterFixtures } from '../../../../test/fixtures/roster';
+import { scheduleFixtures } from '../../../../test/fixtures/schedule';
 import { GalleryHomeLayout } from './layout';
 import { FixtureSection } from './parts/fixture-section';
 import { GalleryHero } from './parts/hero';

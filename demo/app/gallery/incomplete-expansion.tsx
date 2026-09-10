@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function IncompleteExpansionRoute() {
-  return <GalleryRoute fixtureId="incomplete-expansion" />;
+  return <RosterFixtureScreen fixtureId="incomplete-expansion" />;
 }

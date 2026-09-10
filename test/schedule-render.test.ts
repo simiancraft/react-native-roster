@@ -18,7 +18,9 @@ import { type ScheduleFixtureId, scheduleFixtures, scheduleLane } from './fixtur
 
 mock.module('react-native-roster/core', () => core);
 mock.module('react-native-roster/rrule', () => adapter);
-const { useScheduleRoute } = await import('../demo/components/schedule-route/use-schedule-route');
+const { useScheduleFixture } = await import(
+  '../demo/components/gallery/fixtures/schedule/use-schedule-fixture'
+);
 
 const trees: ReactTestRenderer[] = [];
 function render(element: ReactElement) {
@@ -228,9 +230,9 @@ describe('Schedule chassis and day zones', () => {
     });
   }
   it('navigates the actual Apia route through the skipped day and onward', () => {
-    let route!: ReturnType<typeof useScheduleRoute>;
+    let route!: ReturnType<typeof useScheduleFixture>;
     function Route() {
-      route = useScheduleRoute('schedule-apia');
+      route = useScheduleFixture('schedule-apia');
       return createElement(Schedule, { lane: route.lane, windowSpec: route.windowSpec });
     }
     const tree = render(createElement(Route));

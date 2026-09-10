@@ -12,9 +12,9 @@ import {
   type ScheduleFixtureId,
   scheduleFixtures,
   scheduleLane,
-} from '../../../test/fixtures/schedule';
-import { useCounterBridge } from '../gallery-route/counter-bridge';
-import type { CounterBridgeInput } from '../gallery-route/counter-bridge.types';
+} from '../../../../../test/fixtures/schedule';
+import { useCounterBridge } from '../counter-bridge';
+import type { CounterBridgeInput } from '../counter-bridge.types';
 
 const bridge: CounterBridgeInput = {
   layoutStats,
@@ -27,7 +27,7 @@ const bridge: CounterBridgeInput = {
   clearExpandCache,
 };
 
-export function useScheduleRoute(fixtureId: ScheduleFixtureId) {
+export function useScheduleFixture(fixtureId: ScheduleFixtureId) {
   const fixture = scheduleFixtures[fixtureId];
   const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(fixture.windowSpec);
   const [zoneStyle, setZoneStyle] = useState<'defaults' | 'replacements'>('defaults');

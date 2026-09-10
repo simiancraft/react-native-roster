@@ -1,16 +1,16 @@
 import { Text, View } from 'react-native';
 import { Roster, Schedule } from 'react-native-roster';
-import type { ScheduleFixtureId } from '../../../test/fixtures/schedule';
-import { replacedScheduleZones } from '../../../test/fixtures/schedule-zones';
-import { GalleryRouteLayout } from '../gallery-route/layout';
-import { GalleryCounters } from '../gallery-route/parts/counters';
+import type { ScheduleFixtureId } from '../../../../../test/fixtures/schedule';
+import { replacedScheduleZones } from '../../../../../test/fixtures/schedule-zones';
+import { FixtureLayout } from '../layout';
+import { GalleryCounters } from '../parts/counters';
 import { ScheduleControls } from './parts/controls';
-import { useScheduleRoute } from './use-schedule-route';
+import { useScheduleFixture } from './use-schedule-fixture';
 
-export function ScheduleRoute({ fixtureId }: { fixtureId: ScheduleFixtureId }) {
-  const model = useScheduleRoute(fixtureId);
+export function ScheduleFixtureScreen({ fixtureId }: { fixtureId: ScheduleFixtureId }) {
+  const model = useScheduleFixture(fixtureId);
   return (
-    <GalleryRouteLayout
+    <FixtureLayout
       controlsZone={<ScheduleControls {...model} />}
       subjectZone={<ScheduleSubject model={model} />}
       countersZone={
@@ -28,7 +28,7 @@ export function ScheduleRoute({ fixtureId }: { fixtureId: ScheduleFixtureId }) {
   );
 }
 
-function ScheduleSubject({ model }: { model: ReturnType<typeof useScheduleRoute> }) {
+function ScheduleSubject({ model }: { model: ReturnType<typeof useScheduleFixture> }) {
   const { lane, windowSpec, minuteStep, navigate, selectRect, selectCell, view } = model;
   const zones =
     model.showsZoneExamples && model.zoneStyle === 'replacements' ? replacedScheduleZones : {};
