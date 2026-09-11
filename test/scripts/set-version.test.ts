@@ -22,31 +22,25 @@ async function manifest() {
 }
 
 describe('set-version', () => {
-  it.each([
-    '1.2.3',
-    '2.0.0-rc.1',
-    '1.0.0+build.42',
-  ])('writes %s and preserves other fields', async (version) => {
-    const path = await manifest();
-    await setVersion(version, path);
-    expect(await Bun.file(path).json()).toEqual({ name: 'fixture', version, files: ['src'] });
-    expect((await Bun.file(path).text()).endsWith('\n')).toBe(true);
-  });
+  it.each(['1.2.3', '2.0.0-rc.1', '1.0.0+build.42'])(
+    'writes %s and preserves other fields',
+    async (version) => {
+      const path = await manifest();
+      await setVersion(version, path);
+      expect(await Bun.file(path).json()).toEqual({ name: 'fixture', version, files: ['src'] });
+      expect((await Bun.file(path).text()).endsWith('\n')).toBe(true);
+    },
+  );
 
-  it.each([
-    undefined,
-    '',
-    'next',
-    'v1.2.3',
-    '1.2',
-    '01.2.3',
-    '1.0.0-01',
-  ])('rejects %s without changing the manifest', async (version) => {
-    const path = await manifest();
-    const before = await Bun.file(path).text();
-    await expect(setVersion(version, path)).rejects.toThrow('canonical semantic version');
-    expect(await Bun.file(path).text()).toBe(before);
-  });
+  it.each([undefined, '', 'next', 'v1.2.3', '1.2', '01.2.3', '1.0.0-01'])(
+    'rejects %s without changing the manifest',
+    async (version) => {
+      const path = await manifest();
+      const before = await Bun.file(path).text();
+      await expect(setVersion(version, path)).rejects.toThrow('canonical semantic version');
+      expect(await Bun.file(path).text()).toBe(before);
+    },
+  );
 
   it('runs the release command against a fixture package', async () => {
     const path = await manifest();
