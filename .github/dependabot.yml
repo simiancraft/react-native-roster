@@ -32,3 +32,9 @@ updates:
       - dependency-name: babel-preset-expo
       - dependency-name: 'expo-*'
       - dependency-name: react-native-safe-area-context
+      - dependency-name: react-dom
+      - dependency-name: react-test-renderer
+      - dependency-name: react-native-screens
+      - dependency-name: '@expo/*'
+      - dependency-name: rrule-temporal
+        update-types: ['version-update:semver-major']
