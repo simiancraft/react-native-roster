@@ -139,7 +139,7 @@
     "expo": "~54.0.37",
     "knip": "^6.5.0",
     "lefthook": "^2.1.9",
-    "nativewind": "4.1.x",
+    "nativewind": "4.2.x",
     "playwright": "^1.63.0",
     "publint": "^0.3.18",
     "react": "19.1.0",

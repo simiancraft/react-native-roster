@@ -16,7 +16,7 @@
     "expo-constants": "~18.0.14",
     "expo-linking": "8.0.12",
     "expo-router": "~6.0.24",
-    "nativewind": "4.1.x",
+    "nativewind": "4.2.x",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
