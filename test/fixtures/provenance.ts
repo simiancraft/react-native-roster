@@ -1,5 +1,5 @@
+import type { expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Lane, Layer, Window } from '../../src/core';
-import type { expandRuleSet, RuleSet } from '../../src/rrule';
 import type { RosterFixture } from './roster';
 
 const start = Date.UTC(2024, 0, 1);

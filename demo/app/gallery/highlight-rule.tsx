@@ -1,5 +1,5 @@
-import { GalleryRoute } from '../../components/gallery-route';
+import { RosterFixtureScreen } from '../../components/gallery/fixtures/roster';
 
 export default function HighlightRuleRoute() {
-  return <GalleryRoute fixtureId="highlight-rule" />;
+  return <RosterFixtureScreen fixtureId="highlight-rule" />;
 }

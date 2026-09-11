@@ -1,6 +1,6 @@
 import type { RosterProps } from '../../src';
+import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Lane, Source, Window, WindowSpec } from '../../src/core';
-import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/rrule';
 import { adapterFixtures } from './adapters';
 import { provenanceFixtures } from './provenance';
 import { replacedZones } from './roster-zones';
@@ -83,6 +83,8 @@ export type RosterFixture = {
   windowPresets?: { label: string; windowSpec: WindowSpec }[];
   ruleLanes?: RuleLane[];
   pxPerMinute?: number;
+  /** Workload W: lanes generated per window, the performance controls, and the profiled body. */
+  workload?: boolean;
   lanes: Lane[];
   zones: Pick<RosterProps, keyof typeof replacedZones>;
   showsEmptyExample: boolean;
@@ -160,6 +162,8 @@ export const rosterFixtures: Record<
   '200-lanes': {
     highlightSource: { kind: 'rule', id: '0:a' },
     title: '200 lanes',
+    workload: true,
+    minuteStep: 15,
     lanes: workload().lanes,
     zones: {},
     showsEmptyExample: false,

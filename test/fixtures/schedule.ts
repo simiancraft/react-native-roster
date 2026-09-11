@@ -1,10 +1,10 @@
+import type { ExpandOptions, RosterRule, RuleSet } from '../../src/adapters/rrule';
+import { expandRuleSet } from '../../src/adapters/rrule';
 import type { ScheduleWindowSpec } from '../../src/components/schedule/schedule.types';
 import type { Lane, Layer, LayerStyle } from '../../src/core';
 import { windowFor } from '../../src/core';
-import type { ExpandOptions, RosterRule, RuleSet } from '../../src/rrule';
-import { expandRuleSet } from '../../src/rrule';
 
-type ScheduleFixture = {
+export type ScheduleFixture = {
   title: string;
   windowSpec: ScheduleWindowSpec;
   set: RuleSet;
@@ -12,6 +12,10 @@ type ScheduleFixture = {
   options?: ExpandOptions;
   earlyStyle?: LayerStyle;
   complete?: boolean;
+  /** Which projection the route opens with; defaults to the schedule alone. */
+  initialView?: 'roster' | 'schedule' | 'both';
+  /** Offers zone replacements and the date presets that exercise every zone. */
+  showsZoneExamples?: boolean;
 };
 
 function rule(
@@ -90,6 +94,7 @@ function transitionFixture(title: string, anchorDate: string, timezone: string):
 
 export const scheduleFixtures = {
   'schedule-every-zone': {
+    showsZoneExamples: true,
     ...transitionFixture(
       'Schedule: every zone, defaults and replacements',
       '2011-12-26',
@@ -161,7 +166,11 @@ export const scheduleFixtures = {
       },
     ],
   },
-  'schedule-side-by-side': { ...layered, title: 'One lane: Roster and Schedule' },
+  'schedule-side-by-side': {
+    ...layered,
+    title: 'One lane: Roster and Schedule',
+    initialView: 'both',
+  },
 } satisfies Record<string, ScheduleFixture>;
 
 export type ScheduleFixtureId = keyof typeof scheduleFixtures;

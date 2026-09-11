@@ -1,4 +1,4 @@
-import type { EventKind, Member } from './team';
+import type { EventKind, Member } from '../members/member.types';
 
 /** Literal class tables so Tailwind's scanner emits every variant. */
 export const TONE_CLASSES: Record<

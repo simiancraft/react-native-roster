@@ -1,7 +1,7 @@
 import { LegendList } from '@legendapp/list';
 import { Profiler, type ProfilerOnRenderCallback } from 'react';
 import { ScrollView, View } from 'react-native';
-import { LaneRow } from '../lane-row';
+import { LaneRow } from '../lanes/lane';
 import type { BodyInput } from '../roster.types';
 import { bodyContentKey } from '../utils/body-content-key';
 

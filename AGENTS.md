@@ -30,19 +30,28 @@ behavior. State any interpretation in the delivery report.
 src/
   index.ts                 # public Roster, Schedule, hooks, zone fillers, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
-  rrule/index.ts           # recurrence expansion, caps, provenance, and cache API
+  adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
-  components/              # Roster and Schedule chassis, hooks, zones, and rect parts
-  core/*.ts                # pure layout, provenance sweep, and Intl-only zone math
+  components/
+    roster/                # Roster chassis, hook, layout, and collection parts
+    roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
+    schedule/              # Schedule chassis, hook, layout, and collection parts
+    schedule/days/         # ScheduleDay, day layouts, and day-local parts
+    layers/                # interval and gap fillers shared by both projections
+    primitives/            # press-point platform pair and regionStyle
+  core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
   lib/package-version.ts   # validates and rewrites only the package version
-test/                      # Bun tests and deterministic fixtures/workload.ts
+test/                      # mirrors src: core, components/{roster,schedule}, adapters/rrule,
+                           # plus integration, demo, package, scripts, performance, support, fixtures
 demo/
   app/_layout.tsx          # Expo Router root
-  app/index.tsx            # gallery links and build identity
+  app/index.tsx            # home route shell; owns gallery URLs
   app/gallery/             # thin named roster and schedule fixture route shells
-  components/gallery-route/ # hook, chassis, rule-set draft/editor, and web counter bridge
+  components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
+  components/team-roster/  # the showcase: members, toolbar, and inspector
+  components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
 .github/                   # CI, Pages, links, Scorecard, and community templates
@@ -56,7 +65,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   CI pins 1.4.0. Node 22 runs Expo tooling, Node export smoke tests, and releases.
 - Biome is the only formatter and general linter: two spaces, width 100, single
   quotes, semicolons, trailing commas, organized imports, and Git ignore integration.
-  The only ESLint exception is React Compiler safety over `src/components`;
+  The only ESLint exception is React Compiler safety over `src/components`, `demo/components`,
+  and `demo/app`;
   remove it when Biome ships an equivalent rule set.
 - TypeScript uses `@typescript/native-preview` (`tsgo`). Editing uses strict ESM
   bundler resolution, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, and Bun
@@ -81,8 +91,10 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   the framework-required exceptions. No subdirectory barrels except the four
   declared public entry points; a feature's `index.tsx` is its chassis.
 - Core imports only standard JavaScript and `Intl`. React, React Native, Expo, and
-  `@legendapp/list` are peers. The rrule adapter alone owns Temporal and
-  recurrence dependencies; root and core must never import them. Only
+  `@legendapp/list` are peers. Adapters live under `src/adapters/<name>`; each
+  is its own entry point and imports only core, never components or another
+  adapter. `src/adapters` itself has no barrel. The rrule adapter alone owns
+  Temporal and recurrence dependencies; root and core must never import them. Only
   `src/nativewind` imports the optional `nativewind` peer; it is the package's
   one side-effect module and is listed in `sideEffects`.
 - Chrome regions expose `xxxStyle` props with `xxxClassName` twins declared on
@@ -105,7 +117,14 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `TeamRosterScreen` exposes host-facing zones (title, actions, filter, controls,
   corner, lane label, inspector, footer) that default to the showcase parts; the
   route shell owns router contact and passes links in as zones.
-  Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md.
+  Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
+  and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
+  page naming its subpath, exports, boundary, and file map; keep them current:
+  [core](src/core/README.md), [roster](src/components/roster/README.md),
+  [schedule](src/components/schedule/README.md), [layers](src/components/layers/README.md),
+  [primitives](src/components/primitives/README.md), [rrule](src/adapters/rrule/README.md),
+  [nativewind](src/nativewind/README.md), [gallery](demo/components/gallery/README.md),
+  [team-roster](demo/components/team-roster/README.md), and [theme](demo/components/theme/README.md).
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.
@@ -126,7 +145,7 @@ bun run format                # format files with Biome
 bun run typecheck             # check library types with tsgo
 bun run typecheck:test        # check library, test, and maintenance-script types with tsgo
 bun run typecheck:demo        # check demo types with tsgo
-bun run check:react-compiler  # check React Compiler safety in library components
+bun run check:react-compiler  # check React Compiler safety in library and demo components
 bun run check:knip            # find unused library code and dependencies
 bun run check:package         # validate package exports and metadata with strict publint
 bun run test                  # run Bun tests with coverage; build first for export tests
@@ -214,14 +233,16 @@ Do not publish, tag, change repository settings, or push without task authorizat
     lint crashes on useSharedValue's built-in shape. Offsets use get/set and have no
     animations to cancel; the regular compiler gate stays enabled without suppression.
     Reanimated is an optional peer for core-only installs, required by Roster.
-13. **Bun tests use a native host preload.** react-test-renderer exercises real hooks;
+13. **Bun tests use a native host preload (`test/support/native-host.ts`).** react-test-renderer exercises real hooks;
     native Views, LegendList, and shared values use host doubles. Node export smoke
     tests stub only native peers, then load actual emitted package exports. Browser
     and device integration complement these tests; doubles do not prove native behavior.
 
-14. **Press coordinates differ on web.** press-point.tsx reads native locationX/Y;
-    press-point.web.tsx maps DOM clientX/Y relative to currentTarget. Keep the shared
-    .types.ts and package.json browser remap together when changing this pair.
+14. **Press coordinates differ on web.** `components/primitives/press-point.tsx` reads
+    native locationX/Y; `press-point.web.tsx` maps DOM clientX/Y relative to
+    currentTarget. Keep the shared .types.ts and package.json browser remap together
+    when changing this pair. Both projections share it, as they share the interval and
+    gap fillers in `components/layers` and the pure `core/hit-test.ts` walk.
 
 15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
     transitions, preserving skips and both repeat occurrences. On a cache miss, resolve
@@ -284,9 +305,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Replayed iterator passes stop before buffering positional candidates.
     YEARLY is unsupported and rejected by input validation.
 
-19. **Provenance hover is web-only.** interval-hover.tsx attaches nothing on native;
-    interval-hover.web.tsx resolves row-relative pointer movement against existing
-    geometry. Keep the shared .types.ts and browser remap together. The body key
+19. **Provenance hover is web-only.** `roster/lanes/interval-hover.tsx` attaches nothing
+    on native; `interval-hover.web.tsx` resolves row-relative pointer movement against
+    existing geometry. Keep the shared .types.ts and browser remap together. The body key
     includes hover callback identity and incompleteLabel so mounted rows update.
 20. **Provenance fixtures include real expansion.** highlight-rule and
     incomplete-expansion expand in the gallery hook and expose expandStats through
@@ -343,7 +364,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     cover day/week/month at 15/30/60 minutes. Adapter fixtures supply ruleSet and
     optional expandOptions; useRuleSetDraft owns JSON text, parsing, and the last
     applied set. Apply validates via the actual adapter before updating the roster.
-    GalleryRouteLayout places ruleSetEditorZone beside subjectZone, or above it
+    FixtureLayout places ruleSetEditorZone beside subjectZone, or above it
     on narrow screens. The schedule
     every-zone fixture offers defaults/replacements and date presets to exercise
     skippedDateZone, transitionZone, and nowLineZone as well as the ordinary slots.

@@ -336,7 +336,7 @@ network). The home page lists every fixture route:
 
 Workload W is 200 lanes, one week, two layers, a 24-lane viewport, and
 15-minute ticks: 63 interval rects and 7 gap rects per lane. The
-[committed CI baseline](./test/performance-baseline.json) on GitHub Actions
+[committed CI baseline](./test/performance/baseline.json) on GitHub Actions
 ubuntu-latest records target-cold layout of 24 lanes at 2.070 ms and coverage of
 all 200 lanes at 1.063 ms, gated below 16 ms everywhere and within 1.5 times the
 baseline in CI. Size gates hold core under 15 kB and root under 44 kB. Device
@@ -366,6 +366,13 @@ publint, size-limit, and Playwright.
   [timezones](./docs/timezones.md), [caches](./docs/caches.md), and the
   [performance guide](./docs/performance.md).
 - [Design note](./docs/design.md): precompute, then render geometry.
+- Area landing pages: [core](./src/core/README.md), [Roster](./src/components/roster/README.md),
+  [Schedule](./src/components/schedule/README.md), [layers](./src/components/layers/README.md),
+  [primitives](./src/components/primitives/README.md), [rrule adapter](./src/adapters/rrule/README.md),
+  [nativewind](./src/nativewind/README.md), the [gallery](./demo/components/gallery/README.md), and the
+  [showcase](./demo/components/team-roster/README.md), and the [theme](./demo/components/theme/README.md);
+  [adding an adapter](./docs/adding-an-adapter.md)
+  is the contributor recipe.
 - [llms.txt](./llms.txt): integration instructions for agents.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) and [AGENTS.md](./AGENTS.md): contributor workflow.
 - [CHANGELOG.md](./CHANGELOG.md): release history, maintained by semantic-release.

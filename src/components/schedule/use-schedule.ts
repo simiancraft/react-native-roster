@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { dayColumnsFor, layoutLane, snapToStep, timeAtY, windowFor } from '../../core';
-import { hitTest } from '../roster/utils/hit-test';
+import { hitTest } from '../../core/hit-test';
 import type { ScheduleInput, ScheduleModel, ScheduleProjection } from './schedule.types';
 import { ScheduleWidth } from './use-schedule-viewport';
 

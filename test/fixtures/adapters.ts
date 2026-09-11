@@ -1,4 +1,4 @@
-import type { RuleSet } from '../../src/rrule';
+import type { RuleSet } from '../../src/adapters/rrule';
 import type { RosterFixture } from './roster';
 
 const weekly: RuleSet = {
