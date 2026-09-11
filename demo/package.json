@@ -28,10 +28,10 @@
     "@expo/metro-runtime": "~6.1.2"
   },
   "devDependencies": {
-    "@babel/core": "7.29.6",
-    "@faker-js/faker": "10.5.0",
+    "@babel/core": "7.29.7",
+    "@faker-js/faker": "10.6.0",
     "@types/react": "~19.1.10",
-    "babel-preset-expo": "~54.0.0",
+    "babel-preset-expo": "~56.0.20",
     "tailwindcss": "3.4.19"
   }
 }
