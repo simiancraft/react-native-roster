@@ -115,7 +115,7 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "0.5.1",
-    "rrule-temporal": "1.5.2"
+    "rrule-temporal": "1.6.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
