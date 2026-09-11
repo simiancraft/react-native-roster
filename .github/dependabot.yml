@@ -29,3 +29,6 @@ updates:
       - dependency-name: react-native-reanimated
       - dependency-name: expo
       - dependency-name: '@legendapp/list'
+      - dependency-name: babel-preset-expo
+      - dependency-name: 'expo-*'
+      - dependency-name: react-native-safe-area-context
