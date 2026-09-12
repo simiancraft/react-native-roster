@@ -1,5 +1,5 @@
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
-import type * as Spec from 'temporal-spec';
+import type * as Spec from 'temporal-spec' with { 'resolution-mode': 'import' };
 import type { Weekday, Window } from '../../core';
 import type { Occurrences } from './cache';
 import type { RosterDate, RosterRule } from './types';
