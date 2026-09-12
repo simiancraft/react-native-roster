@@ -1,5 +1,5 @@
-import type * as TemporalModule from '@js-temporal/polyfill';
 import type * as RRuleModule from 'rrule-temporal' with { 'resolution-mode': 'import' };
+import type * as Spec from 'temporal-spec';
 import type { Weekday, Window } from '../../core';
 import type { Occurrences } from './cache';
 import type { RosterDate, RosterRule } from './types';
@@ -9,9 +9,9 @@ import type { RosterDate, RosterRule } from './types';
 const { allowedWeekdays, RRuleTemporal } = require('rrule-temporal') as typeof RRuleModule;
 // Both engines must use the same polyfill export; mixed import/require copies
 // fail the recurrence engine's ZonedDateTime instanceof check.
-const { Temporal } = require('@js-temporal/polyfill') as typeof TemporalModule;
+const { Temporal } = require('@js-temporal/polyfill') as { Temporal: typeof Spec.Temporal };
 
-type RuleDateTime = TemporalModule.Temporal.PlainDateTime | TemporalModule.Temporal.ZonedDateTime;
+type RuleDateTime = Spec.Temporal.PlainDateTime | Spec.Temporal.ZonedDateTime;
 
 export function enumerate(
   input: RosterRule | RosterDate,
@@ -21,7 +21,7 @@ export function enumerate(
   advanceAnchor = true,
 ): Occurrences {
   const result: Occurrences = { spans: [], capped: false };
-  const admit = (date: TemporalModule.Temporal.PlainDate): boolean => {
+  const admit = (date: Spec.Temporal.PlainDate): boolean => {
     const span = hoursFor(date, input);
     if (span.start >= envelope.end || span.end <= envelope.start || span.start >= span.end)
       return true;
@@ -127,7 +127,7 @@ export function enumerate(
   // Admit each local date once so replay cannot consume COUNT or the cap twice.
   const visited = new Set<string>();
   let admitted = 0;
-  const visit = (date: TemporalModule.Temporal.PlainDate): boolean => {
+  const visit = (date: Spec.Temporal.PlainDate): boolean => {
     if (result.capped || admitted === input.count) return false;
     if (Temporal.PlainDate.compare(date, original.toPlainDate()) < 0) return true;
     const key = date.toString();
@@ -148,7 +148,7 @@ export function enumerate(
   };
   let candidateCount = 0;
   let period = '';
-  let candidates: TemporalModule.Temporal.PlainDate[] = [];
+  let candidates: Spec.Temporal.PlainDate[] = [];
   const flush = (): boolean => {
     const selected = candidates.filter((_, index) =>
       input.bysetpos?.some((position) =>
@@ -203,7 +203,7 @@ export function validateDates(input: RosterRule | RosterDate): void {
     plain(dateTime(input.until, input.timezone, true)).toZonedDateTime(input.timezone);
 }
 
-function hoursFor(date: TemporalModule.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
+function hoursFor(date: Spec.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
   const midnight = date.toPlainDateTime();
   const dayStart = date.toZonedDateTime(input.timezone);
   if (!dayStart.toPlainDate().equals(date)) {
@@ -230,17 +230,17 @@ function dateTime(value: string, timezone: string, endOfDate = false): RuleDateT
   return Temporal.PlainDateTime.from(value);
 }
 
-function plain(value: RuleDateTime): TemporalModule.Temporal.PlainDateTime {
+function plain(value: RuleDateTime): Spec.Temporal.PlainDateTime {
   return value instanceof Temporal.ZonedDateTime ? value.toPlainDateTime() : value;
 }
 
 // Keep the original wall time and back up one period so WKST/BYDAY cannot lose
 // an earlier candidate. A monthly jump must never constrain the 31st to the 28th.
 function advance(
-  original: TemporalModule.Temporal.PlainDateTime,
+  original: Spec.Temporal.PlainDateTime,
   envelope: Window,
   input: RosterRule,
-): TemporalModule.Temporal.PlainDateTime {
+): Spec.Temporal.PlainDateTime {
   // Include the local date crossing the left edge, regardless of anchor wall time.
   const lower = Temporal.Instant.fromEpochMilliseconds(envelope.start)
     .toZonedDateTimeISO(input.timezone)
@@ -266,10 +266,10 @@ function advance(
 
 // Prefer the original offset in repeated time; otherwise resolve skips compatibly.
 function anchorFor(
-  date: TemporalModule.Temporal.PlainDate,
+  date: Spec.Temporal.PlainDate,
   original: RuleDateTime,
   timezone: string,
-): TemporalModule.Temporal.ZonedDateTime {
+): Spec.Temporal.ZonedDateTime {
   return original instanceof Temporal.ZonedDateTime
     ? original.with({ year: date.year, month: date.month, day: date.day }, { offset: 'prefer' })
     : date.toPlainDateTime(original.toPlainTime()).toZonedDateTime(timezone);
@@ -279,10 +279,7 @@ function periodUnit(input: RosterRule): 'days' | 'weeks' | 'months' {
   return input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
 }
 
-function periodStart(
-  date: TemporalModule.Temporal.PlainDate,
-  input: RosterRule,
-): TemporalModule.Temporal.PlainDate {
+function periodStart(date: Spec.Temporal.PlainDate, input: RosterRule): Spec.Temporal.PlainDate {
   if (input.frequency === 'MONTHLY') return date.with({ day: 1 });
   if (input.frequency === 'WEEKLY')
     return date.subtract({ days: (date.dayOfWeek - 1 - (input.wkst ?? 0) + 7) % 7 });
