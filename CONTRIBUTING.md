@@ -2,7 +2,7 @@
 
 ## Prerequisites and setup
 
-Use Bun 1.4.0 and Node 22. Native demo testing also requires a compatible device
+Use Bun 1.4.2 and Node 22. Native demo testing also requires a compatible device
 or simulator and the platform toolchain. The demo targets Expo SDK 54.
 
 ```sh
