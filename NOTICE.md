@@ -5,7 +5,7 @@ react-native-roster uses the MIT license; see [LICENSE](./LICENSE).
 ## Adapter dependencies
 
 - **rrule-temporal**, ggaabe, MIT: <https://github.com/ggaabe/rrule-temporal>.
-  Version 1.5.2 supplies the recurrence engine.
+  Version 1.6.0 supplies the recurrence engine.
 - **@js-temporal/polyfill**, Temporal polyfill contributors, ISC:
   <https://github.com/js-temporal/temporal-polyfill>. Version 0.5.1 supplies
   the adapter's absolute-time conversion.

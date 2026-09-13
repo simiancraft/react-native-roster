@@ -1,7 +1,7 @@
 {
   "name": "react-native-roster",
   "version": "0.0.0",
-  "description": "Layered intervals with provenance across lanes and a shared time axis for React Native. API unreleased.",
+  "description": "Layered intervals with provenance across lanes and a shared time axis for React Native.",
   "keywords": [
     "react-native",
     "expo",
@@ -115,7 +115,7 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "0.5.1",
-    "rrule-temporal": "1.5.2"
+    "rrule-temporal": "1.6.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
@@ -148,7 +148,8 @@
     "react-test-renderer": "19.1.0",
     "semantic-release": "^25.0.3",
     "semver": "^7.7.0",
-    "size-limit": "^13.0.3"
+    "size-limit": "^13.0.3",
+    "temporal-spec": "1.0.1"
   },
   "publishConfig": {
     "access": "public",

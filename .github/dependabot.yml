@@ -29,6 +29,10 @@ updates:
       - dependency-name: react-native-reanimated
       - dependency-name: expo
       - dependency-name: '@legendapp/list'
+      # nativewind 4.2.x's Babel preset requires react-native-worklets/plugin,
+      # which ships with Reanimated 4; the demo pins Reanimated 3.19.
+      - dependency-name: nativewind
+        versions: ['>=4.2.0']
       - dependency-name: babel-preset-expo
       - dependency-name: 'expo-*'
       - dependency-name: react-native-safe-area-context

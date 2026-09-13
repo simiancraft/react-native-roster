@@ -258,9 +258,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     by containment; only retained per-rule entries guarantee expanded 0. The default
     LRUs retain 2000 occurrence entries and 4 envelopes shared across sets; clear discarded windows
     explicitly. Source identity and notes are attached during assembly.
-18. **The pinned recurrence engine needs compatibility handling.** 1.5.2 has a
-    CommonJS runtime with ESM declarations; typed require imports in rrule/occurrences.ts
-    select matching polyfill instances. Its iterator can replay, so deduplicate local
+18. **The pinned recurrence engine needs compatibility handling.** 1.6.0 is an ES module
+    package whose require condition serves a CommonJS build and whose one declaration set
+    is typed against temporal-spec; typed require imports in rrule/occurrences.ts
+    select matching polyfill instances, and temporal-spec stays a dev-only type
+    dependency because no emitted declaration references it. Its iterator can replay, so deduplicate local
     dates before COUNT or cap admission. Drive the engine in UTC calendar space using
     authored PlainDate and PlainTime fields for date-only or local-datetime DTSTART,
     without resolving skipped dates or hours. Only explicit-offset DTSTART resolves
