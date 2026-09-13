@@ -26,7 +26,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.1
         with:
-          bun-version: '1.4.0'
+          bun-version: '1.4.2'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -119,13 +119,13 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.1
         with:
-          bun-version: '1.4.0'
+          bun-version: '1.4.2'
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
-          # npm publishes with --provenance; Bun 1.4.0 emits no attestation.
+          # npm publishes with --provenance; Bun 1.4.2 emits no attestation.
           registry-url: https://registry.npmjs.org
 
       # npm authenticates through the trusted publisher registered on npmjs.com

@@ -62,7 +62,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
 ## Conventions
 
 - Bun for installs, scripts, tests, and publishing. Commit Bun's text lockfile;
-  CI pins 1.4.0. Node 22 runs Expo tooling, Node export smoke tests, and releases.
+  CI pins 1.4.2. Node 22 runs Expo tooling, Node export smoke tests, and releases.
 - Biome is the only formatter and general linter: two spaces, width 100, single
   quotes, semicolons, trailing commas, organized imports, and Git ignore integration.
   The only ESLint exception is React Compiler safety over `src/components`, `demo/components`,
