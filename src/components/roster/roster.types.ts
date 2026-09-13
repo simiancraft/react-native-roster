@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ComponentType, ReactNode, RefObject } from 'react';
 import type {
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -78,12 +78,12 @@ export type LaneLabelInput = {
 export type GridInput = { ticks: RosterTick[]; contentWidth: number };
 export type HeaderInput = Pick<RosterModel, 'ticks' | 'projection' | 'scroll' | 'contentWidth'> & {
   /** Time label filler, positioned by the header. */
-  headerCellZone: (input: { tick: RosterTick }) => ReactNode;
+  headerCellComponent: ComponentType<{ tick: RosterTick }>;
 };
 export type LabelColumnInput = Pick<RosterModel, 'projection' | 'scroll'> & {
   labels: LaneLabelInput[];
   /** Lane label filler, positioned at the fixed row height. */
-  laneLabelZone: (input: LaneLabelInput) => ReactNode;
+  laneLabelComponent: ComponentType<LaneLabelInput>;
 };
 export type BodyInput = Pick<
   RosterModel,
@@ -101,11 +101,11 @@ export type BodyInput = Pick<
   onIntervalHover?: (rect: Rect, lane: Lane) => void;
   incompleteLabel?: string;
   /** Covered rect view; position it using the final rect bounds, as RosterInterval does. */
-  intervalZone: (input: IntervalInput) => ReactNode;
+  intervalComponent: ComponentType<IntervalInput>;
   /** Removed rect filler, placed inside a pressable by LaneRow. */
-  gapZone: (input: GapInput) => ReactNode;
+  gapComponent: ComponentType<GapInput>;
   /** Noninteractive tick lines behind every lane, sized to the content width. */
-  gridZone: (input: GridInput) => ReactNode;
+  gridComponent: ComponentType<GridInput>;
 };
 /**
  * Chrome style props and their NativeWind class twins. Class props resolve only
@@ -133,23 +133,23 @@ export type RosterProps = RosterInput &
     incompleteLabel?: string;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */
-    laneLabelZone?: (input: LaneLabelInput) => ReactNode;
+    laneLabelComponent?: ComponentType<LaneLabelInput>;
     /** Time label within one positioned header tick. */
-    headerCellZone?: (input: { tick: RosterTick }) => ReactNode;
+    headerCellComponent?: ComponentType<{ tick: RosterTick }>;
     /** Covered rect view; use rect bounds for absolute position, rect.z for stacking, and pointerEvents="none" for row hit testing. */
-    intervalZone?: (input: IntervalInput) => ReactNode;
+    intervalComponent?: ComponentType<IntervalInput>;
     /** Removed rect content; LaneRow supplies the invisible pressable. */
-    gapZone?: (input: GapInput) => ReactNode;
+    gapComponent?: ComponentType<GapInput>;
     /** Tick lines behind the lanes; RosterGrid draws one hairline per tick. */
-    gridZone?: (input: GridInput) => ReactNode;
+    gridComponent?: ComponentType<GridInput>;
     /** Empty roster content, conventionally the text No lanes. */
-    emptyZone?: () => ReactNode;
+    emptyZone?: ReactNode;
     /** Top-left cell above the lane labels; RosterCorner renders nothing. */
-    cornerZone?: () => ReactNode;
+    cornerZone?: ReactNode;
     /** Frozen time header, supplied with ticks, scale, and shared scrolling. */
-    headerZone?: (input: HeaderInput) => ReactNode;
+    headerComponent?: ComponentType<HeaderInput>;
     /** Frozen labels, supplied with ordered lanes and per-lane flag and completeness. */
-    laneLabelColumnZone?: (input: LabelColumnInput) => ReactNode;
+    laneLabelColumnComponent?: ComponentType<LabelColumnInput>;
     /** Virtualized lane body, supplied with geometry, projection, scrolling, and press resolution. */
-    bodyZone?: (input: BodyInput) => ReactNode;
+    bodyComponent?: ComponentType<BodyInput>;
   };

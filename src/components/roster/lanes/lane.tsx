@@ -8,7 +8,12 @@ import { RosterIncomplete } from './parts/incomplete';
 
 export type LaneRowProps = Pick<
   BodyInput,
-  'press' | 'intervalZone' | 'gapZone' | 'highlightSource' | 'onIntervalHover' | 'incompleteLabel'
+  | 'press'
+  | 'intervalComponent'
+  | 'gapComponent'
+  | 'highlightSource'
+  | 'onIntervalHover'
+  | 'incompleteLabel'
 > & {
   lane: Lane;
   geometry: LaneGeometry;
@@ -22,8 +27,8 @@ export function LaneRow({
   width,
   rowHeight,
   press,
-  intervalZone,
-  gapZone,
+  intervalComponent: IntervalComponent,
+  gapComponent: GapComponent,
   highlightSource,
   onIntervalHover,
   incompleteLabel = 'Availability may be incomplete',
@@ -47,15 +52,15 @@ export function LaneRow({
             .filter((rect) => rect.layerId === layer.id)
             .map((rect) => (
               <Fragment key={`interval-${rect.x}:${rect.width}`}>
-                {intervalZone({
-                  rect,
-                  layer,
-                  lane,
-                  highlighted: rect.sources.some(
+                <IntervalComponent
+                  rect={rect}
+                  layer={layer}
+                  lane={lane}
+                  highlighted={rect.sources.some(
                     (source) =>
                       source.kind === highlightSource?.kind && source.id === highlightSource.id,
-                  ),
-                })}
+                  )}
+                />
               </Fragment>
             ))}
           {geometry.gapRects
@@ -78,7 +83,7 @@ export function LaneRow({
                   zIndex: rect.z,
                 }}
               >
-                {gapZone({ rect, layer, lane })}
+                <GapComponent rect={rect} layer={layer} lane={lane} />
               </Pressable>
             ))}
         </Fragment>

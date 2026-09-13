@@ -1,13 +1,13 @@
 import type { BodyInput } from '../roster.types';
 
-const zoneIds = new WeakMap<object, number>();
-let nextZoneId = 0;
+const identityIds = new WeakMap<object, number>();
+let nextIdentityId = 0;
 
-function zoneId(zone: object): number {
-  let id = zoneIds.get(zone);
+function identityId(identity: object): number {
+  let id = identityIds.get(identity);
   if (id === undefined) {
-    id = nextZoneId++;
-    zoneIds.set(zone, id);
+    id = nextIdentityId++;
+    identityIds.set(identity, id);
   }
   return id;
 }
@@ -16,8 +16,8 @@ export function bodyContentKey({
   window,
   projection,
   highlightSource,
-  intervalZone,
-  gapZone,
+  intervalComponent,
+  gapComponent,
   onIntervalHover,
   incompleteLabel,
 }: Pick<
@@ -25,8 +25,8 @@ export function bodyContentKey({
   | 'window'
   | 'projection'
   | 'highlightSource'
-  | 'intervalZone'
-  | 'gapZone'
+  | 'intervalComponent'
+  | 'gapComponent'
   | 'onIntervalHover'
   | 'incompleteLabel'
 >): string {
@@ -38,9 +38,9 @@ export function bodyContentKey({
     projection.pxPerMinute,
     highlightSource?.kind,
     highlightSource?.id,
-    zoneId(intervalZone),
-    zoneId(gapZone),
-    onIntervalHover && zoneId(onIntervalHover),
+    identityId(intervalComponent),
+    identityId(gapComponent),
+    onIntervalHover && identityId(onIntervalHover),
     incompleteLabel,
   ]);
 }

@@ -12,6 +12,9 @@ import { RosterLaneLabelColumn } from './parts/lane-label-column';
 import type { RosterProps } from './roster.types';
 import { useRoster } from './use-roster';
 
+const defaultEmptyZone = <RosterEmpty />;
+const defaultCornerZone = <RosterCorner />;
+
 export function Roster(props: RosterProps) {
   const {
     status,
@@ -28,20 +31,20 @@ export function Roster(props: RosterProps) {
     onLayout,
   } = useRoster(props);
   const {
-    emptyZone = RosterEmpty,
-    cornerZone = RosterCorner,
-    headerZone = RosterHeader,
-    laneLabelColumnZone = RosterLaneLabelColumn,
-    bodyZone = RosterBody,
-    headerCellZone = RosterHeaderCell,
-    laneLabelZone = RosterLaneLabel,
-    intervalZone = RosterInterval,
-    gapZone = RosterGap,
-    gridZone = RosterGrid,
+    emptyZone = defaultEmptyZone,
+    cornerZone = defaultCornerZone,
+    headerComponent: HeaderComponent = RosterHeader,
+    laneLabelColumnComponent: LaneLabelColumnComponent = RosterLaneLabelColumn,
+    bodyComponent: BodyComponent = RosterBody,
+    headerCellComponent = RosterHeaderCell,
+    laneLabelComponent = RosterLaneLabel,
+    intervalComponent = RosterInterval,
+    gapComponent = RosterGap,
+    gridComponent = RosterGrid,
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
-  if (status === 'empty') return emptyZone();
+  if (status === 'empty') return emptyZone;
   if (window.start === window.end) return null;
   return (
     <RosterLayout
@@ -51,40 +54,55 @@ export function Roster(props: RosterProps) {
       bodyStyle={props.bodyStyle}
       laneLabelWidth={props.laneLabelWidth}
       onLayout={onLayout}
-      cornerZone={cornerZone()}
-      headerZone={headerZone({ ticks, projection, scroll, contentWidth, headerCellZone })}
-      laneLabelColumnZone={laneLabelColumnZone({
-        labels: orderedLanes.map((lane) => {
-          const state = laneState.get(lane.id) ?? { flag: 'none', complete: true };
-          return {
-            lane,
-            ...state,
-            viewTimezone: projection.viewTimezone,
-            incompleteLabel,
-            neverSetLabel,
-          };
-        }),
-        projection,
-        scroll,
-        laneLabelZone,
-      })}
-      bodyZone={bodyZone({
-        lanes: orderedLanes,
-        window,
-        geometryFor,
-        projection,
-        scroll,
-        press,
-        ticks,
-        contentWidth,
-        viewport,
-        intervalZone,
-        gapZone,
-        gridZone,
-        highlightSource: props.highlightSource,
-        onIntervalHover: props.onIntervalHover,
-        incompleteLabel,
-      })}
+      cornerZone={cornerZone}
+      headerZone={
+        <HeaderComponent
+          ticks={ticks}
+          projection={projection}
+          scroll={scroll}
+          contentWidth={contentWidth}
+          headerCellComponent={headerCellComponent}
+        />
+      }
+      laneLabelColumnZone={
+        <LaneLabelColumnComponent
+          labels={orderedLanes.map((lane) => {
+            const state = laneState.get(lane.id) ?? {
+              flag: 'none',
+              complete: true,
+            };
+            return {
+              lane,
+              ...state,
+              viewTimezone: projection.viewTimezone,
+              incompleteLabel,
+              neverSetLabel,
+            };
+          })}
+          projection={projection}
+          scroll={scroll}
+          laneLabelComponent={laneLabelComponent}
+        />
+      }
+      bodyZone={
+        <BodyComponent
+          lanes={orderedLanes}
+          window={window}
+          geometryFor={geometryFor}
+          projection={projection}
+          scroll={scroll}
+          press={press}
+          ticks={ticks}
+          contentWidth={contentWidth}
+          viewport={viewport}
+          intervalComponent={intervalComponent}
+          gapComponent={gapComponent}
+          gridComponent={gridComponent}
+          highlightSource={props.highlightSource}
+          onIntervalHover={props.onIntervalHover}
+          incompleteLabel={incompleteLabel}
+        />
+      }
     />
   );
 }

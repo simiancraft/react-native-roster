@@ -2,7 +2,12 @@ import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import type { HeaderInput } from '../roster.types';
 
-export function RosterHeader({ ticks, contentWidth, scroll, headerCellZone }: HeaderInput) {
+export function RosterHeader({
+  ticks,
+  contentWidth,
+  scroll,
+  headerCellComponent: HeaderCellComponent,
+}: HeaderInput) {
   return (
     <Animated.View
       testID="roster-header"
@@ -10,7 +15,7 @@ export function RosterHeader({ ticks, contentWidth, scroll, headerCellZone }: He
     >
       {ticks.map((tick) => (
         <View key={tick.time} style={{ position: 'absolute', left: tick.x, top: 0 }}>
-          {headerCellZone({ tick })}
+          <HeaderCellComponent tick={tick} />
         </View>
       ))}
     </Animated.View>

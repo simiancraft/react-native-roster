@@ -41,7 +41,7 @@ describe('Roster zones and rect primitives', () => {
         createElement(Roster, {
           lanes: [],
           windowSpec: rosterWindowSpec,
-          emptyZone: () => createElement('custom-empty'),
+          emptyZone: createElement('custom-empty'),
         }),
       ),
     );
@@ -49,16 +49,16 @@ describe('Roster zones and rect primitives', () => {
     close(tree);
   });
   it('renders no body for a wholly skipped local day', () => {
-    const bodyZone = mock(() => createElement('custom-body'));
+    const bodyComponent = mock(() => createElement('custom-body'));
     const tree = render(
       createElement(Roster, {
         lanes: rosterFixtures['single-lane'].lanes,
         windowSpec: { span: 'day', anchorDate: '2011-12-30', timezone: 'Pacific/Apia' },
-        bodyZone,
+        bodyComponent,
       }),
     );
     expect(tree.toJSON()).toBeNull();
-    expect(bodyZone).not.toHaveBeenCalled();
+    expect(bodyComponent).not.toHaveBeenCalled();
     close(tree);
   });
   it('composes defaults, virtualizes at fixed height, and supplies all resolved label data', () => {
@@ -95,21 +95,23 @@ describe('Roster zones and rect primitives', () => {
     close(tree);
   });
   it('supplies structural replacements with all already-derived inputs', () => {
-    const headerZone = mock((_input: HeaderInput) => createElement('custom-header'));
-    const laneLabelColumnZone = mock((_input: LabelColumnInput) => createElement('custom-labels'));
-    const bodyZone = mock((_input: BodyInput) => createElement('custom-body'));
+    const headerComponent = mock((_input: HeaderInput) => createElement('custom-header'));
+    const laneLabelColumnComponent = mock((_input: LabelColumnInput) =>
+      createElement('custom-labels'),
+    );
+    const bodyComponent = mock((_input: BodyInput) => createElement('custom-body'));
     const lanes = rosterFixtures['single-lane'].lanes;
     const tree = render(
       createElement(Roster, {
         lanes,
         windowSpec: rosterWindowSpec,
-        headerZone,
-        laneLabelColumnZone,
-        bodyZone,
+        headerComponent,
+        laneLabelColumnComponent,
+        bodyComponent,
       }),
     );
-    expect(headerZone.mock.calls[0]?.[0].ticks).toHaveLength(7);
-    expect(laneLabelColumnZone.mock.calls[0]?.[0].labels).toEqual([
+    expect(headerComponent.mock.calls[0]?.[0].ticks).toHaveLength(7);
+    expect(laneLabelColumnComponent.mock.calls[0]?.[0].labels).toEqual([
       {
         lane: lanes[0] as Lane,
         flag: 'none',
@@ -119,9 +121,9 @@ describe('Roster zones and rect primitives', () => {
         neverSetLabel: 'No availability set',
       },
     ]);
-    expect(bodyZone.mock.calls[0]?.[0].scroll).toBe(headerZone.mock.calls[0]?.[0].scroll);
-    expect(typeof bodyZone.mock.calls[0]?.[0].geometryFor).toBe('function');
-    expect(typeof bodyZone.mock.calls[0]?.[0].press).toBe('function');
+    expect(bodyComponent.mock.calls[0]?.[0].scroll).toBe(headerComponent.mock.calls[0]?.[0].scroll);
+    expect(typeof bodyComponent.mock.calls[0]?.[0].geometryFor).toBe('function');
+    expect(typeof bodyComponent.mock.calls[0]?.[0].press).toBe('function');
     close(tree);
   });
   it('keeps retained row presses current without changing the list content key', () => {
@@ -176,13 +178,13 @@ describe('Roster zones and rect primitives', () => {
   });
   it('records row mount and update commits when profiling is supplied', () => {
     const onRender = mock();
-    function bodyZone(input: BodyInput) {
+    function bodyComponent(input: BodyInput) {
       return createElement(RosterBody, { ...input, onRowRender: onRender });
     }
     const input = {
       lanes: rosterFixtures['single-lane'].lanes,
       windowSpec: rosterWindowSpec,
-      bodyZone,
+      bodyComponent,
     };
     const tree = render(createElement(Roster, input));
     act(() =>
@@ -204,7 +206,7 @@ describe('Roster zones and rect primitives', () => {
   });
   it('keeps mounted LaneRow renders at zero across vertical scroll', () => {
     clearLayoutCache();
-    const intervalZone = mock(RosterInterval);
+    const intervalComponent = mock(RosterInterval);
     const onRender = mock(() => {});
     const tree = render(
       createElement(
@@ -213,7 +215,7 @@ describe('Roster zones and rect primitives', () => {
         createElement(Roster, {
           lanes: rosterFixtures['200-lanes'].lanes,
           windowSpec: rosterWindowSpec,
-          intervalZone,
+          intervalComponent,
         }),
       ),
     );
@@ -224,14 +226,14 @@ describe('Roster zones and rect primitives', () => {
     );
     const list = tree.root.findByType('LegendList' as ElementType);
     expect(tree.root.findAllByType(LaneRow)).toHaveLength(24);
-    expect(intervalZone).toHaveBeenCalledTimes(24 * 63);
-    const mountedCalls = intervalZone.mock.calls.length;
+    expect(intervalComponent).toHaveBeenCalledTimes(24 * 63);
+    const mountedCalls = intervalComponent.mock.calls.length;
     expect(onRender.mock.calls.length).toBeGreaterThan(0);
     onRender.mockClear();
     const before = layoutStats();
     for (const y of [48, 96, 144, 96, 48, 0]) {
       act(() => list.props.onScroll({ nativeEvent: { contentOffset: { x: 0, y } } }));
-      expect(intervalZone.mock.calls.length - mountedCalls).toBe(0);
+      expect(intervalComponent.mock.calls.length - mountedCalls).toBe(0);
       expect(tree.root.findByType('LegendList' as ElementType).props).toBe(list.props);
     }
     expect(onRender).not.toHaveBeenCalled();
@@ -287,8 +289,8 @@ describe('Roster zones and rect primitives', () => {
       width: 10080,
       rowHeight: 48,
       press,
-      intervalZone: RosterInterval,
-      gapZone: RosterGap,
+      intervalComponent: RosterInterval,
+      gapComponent: RosterGap,
       highlightSource: { kind: 'rule', id: 'one', label: 'Different display label' },
     };
     const tree = render(createElement(LaneRow, props));
@@ -313,7 +315,7 @@ describe('Roster zones and rect primitives', () => {
   });
   it('applies chrome styles after defaults, sizes the corner, and swaps the grid', () => {
     const lanes = rosterFixtures['single-lane'].lanes;
-    const gridZone = mock((input: GridInput) => createElement('custom-grid', input));
+    const gridComponent = mock((input: GridInput) => createElement('custom-grid', input));
     const tree = render(
       createElement(Roster, {
         lanes,
@@ -323,8 +325,8 @@ describe('Roster zones and rect primitives', () => {
         laneLabelColumnStyle: { backgroundColor: 'green' },
         bodyStyle: { backgroundColor: 'blue' },
         laneLabelWidth: 240,
-        cornerZone: () => createElement('custom-corner'),
-        gridZone,
+        cornerZone: createElement('custom-corner'),
+        gridComponent,
       }),
     );
     act(() =>
@@ -344,10 +346,10 @@ describe('Roster zones and rect primitives', () => {
       240,
     );
     expect(tree.root.findAllByProps({ testID: 'roster-grid' })).toHaveLength(0);
-    expect(gridZone).toHaveBeenCalledTimes(1);
-    expect(gridZone.mock.calls[0]?.[0].ticks).toHaveLength(7);
-    expect(gridZone.mock.calls[0]?.[0].contentWidth).toBe(5040);
-    const grid = render(createElement(RosterGrid, gridZone.mock.calls[0]?.[0] as GridInput));
+    expect(gridComponent).toHaveBeenCalledTimes(1);
+    expect(gridComponent.mock.calls[0]?.[0].ticks).toHaveLength(7);
+    expect(gridComponent.mock.calls[0]?.[0].contentWidth).toBe(5040);
+    const grid = render(createElement(RosterGrid, gridComponent.mock.calls[0]?.[0] as GridInput));
     expect(grid.root.findByProps({ testID: 'roster-grid' }).children).toHaveLength(7);
     close(grid);
     close(tree);

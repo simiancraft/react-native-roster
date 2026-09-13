@@ -6,7 +6,7 @@ export function RosterLaneLabelColumn({
   labels,
   projection,
   scroll,
-  laneLabelZone,
+  laneLabelComponent: LaneLabelComponent,
 }: LabelColumnInput) {
   return (
     <Animated.View
@@ -23,7 +23,7 @@ export function RosterLaneLabelColumn({
             width: '100%',
           }}
         >
-          {laneLabelZone(label)}
+          <LaneLabelComponent {...label} />
         </View>
       ))}
     </Animated.View>

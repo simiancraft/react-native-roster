@@ -1,11 +1,15 @@
 # layers
 
 This area is about a layer; its children are intervals and gaps. Both
-projections draw the same fillers, so they live above Roster and Schedule.
+projections draw the same components, so they live above Roster and Schedule.
 
 - Root entry exports: `RosterInterval`, `RosterGap`, `IntervalInput`, `GapInput`
-- `layers.types.ts`: the filler input contract both projections pass
-- `parts/interval.tsx`, `parts/gap.tsx`: the default fillers
+- `layers.types.ts`: the component input contract both projections pass
+- `parts/interval.tsx`, `parts/gap.tsx`: the default components
 - `utils/styles.ts`: content-keyed style objects per layer
 
 Imports core only. Tests: `test/components/layers`.
+
+Both projections accept intervalComponent and gapComponent as ComponentType inputs.
+Their data-owning lane or column mounts the component with the final rect, layer,
+and lane; interval inputs also carry highlighted. No renderer calls a slot function.
