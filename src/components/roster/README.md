@@ -6,7 +6,8 @@ This feature is about a roster; its children are lanes.
   `XxxInput` slot input type from `roster.types.ts`
 
 - `index.tsx`: the chassis; calls `useRoster`, branches on `status`, composes zones
-- `use-roster.ts`: the hook; owns window, projection, scroll, geometry, and press
+- `use-roster.ts`: the hook; owns window, projection, scroll, geometry, and selection
+- `use-roster-press.ts`: isolates the stable press ref so React Compiler can retain derived body inputs
 - `layout.tsx`: arranges corner, header, label column, and body regions only
 - `roster.types.ts`: props, model, and every slot input type
 - `body-layout.tsx`: arranges grid and list nodes with horizontal scroll wiring
@@ -25,3 +26,23 @@ measurement and composes the body layout and lane list.
 Input-bearing slots accept component types and mount in the data-owning parts.
 The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body
 content key tracks interval and gap component identity, including class components.
+
+This feature is about a selection; its children are zones.
+
+- `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
+  and detail nodes, anchor bounds, open, dismissal, host name, and shared scroll
+- `selection/selection-layout.tsx`: exported native `RosterSelectionPopover`, local
+  portal host, outside press, hardware back, measured flip, and shared translation
+- `selection/selection-layout.web.tsx`: Radix presentation with a browser remap
+
+`intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
+`start` and `end` and `viewTimezone`, and enables selection in `useRoster`; presses still invoke
+onIntervalPress. `selectionLayout` defaults once in the chassis and wraps the body
+before RosterLayout receives bodyZone. The selection never enters the body content
+key. Missing lane/layer/bounds clear selection; valid selections use current data.
+`portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
+to an inspector column with the same node contract. Schedule does not yet support selection.
+
+The private reconcileSelection helper resolves the stored absolute bounds against the
+current lanes and window each render. The browser gate isolates selection updates from Pressable state,
+and separately exercises complete pointer presses and outside dismissal.

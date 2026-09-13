@@ -23,3 +23,6 @@ no React Native, no dependencies.
 
 Reference: [design](../../docs/design.md), [timezones](../../docs/timezones.md),
 [caches](../../docs/caches.md). Tests: `test/core`.
+
+The public entry binds immutable function aliases directly to preserve implementation
+identity while avoiding repeated CommonJS getter wrappers in consumer bundles.

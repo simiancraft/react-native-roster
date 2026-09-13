@@ -21,6 +21,14 @@ import type {
   WindowSpec,
 } from '../../core';
 import type { GapInput, IntervalInput } from '../layers/layers.types';
+import type { SelectionLayoutProps } from './selection/selection-layout.types';
+
+/** A selected interval: the rect input plus its absolute bounds and the view zone for formatting. */
+export type IntervalDetailInput = IntervalInput & {
+  start: number;
+  end: number;
+  viewTimezone: string;
+};
 
 export type RosterProjection = Extract<Projection, { orientation: 'horizontal' }>;
 export type RosterTick = { time: number; x: number; label: string; kind: 'day' | 'time' };
@@ -35,6 +43,8 @@ export type RosterScroll = {
   labelStyle: StyleProp<ViewStyle>;
 };
 export type RosterInput = {
+  /** Selected interval content; absent means interval presses retain no selection. */
+  intervalDetailComponent?: ComponentType<IntervalDetailInput>;
   lanes: Lane[];
   windowSpec: WindowSpec;
   minuteStep?: number;
@@ -52,6 +62,10 @@ export type RosterInput = {
   pxPerMinute?: number;
 };
 export type RosterModel = {
+  /** Current interval with fresh lane, layer, and rect references and its absolute bounds, or null. */
+  selection: Omit<IntervalDetailInput, 'highlighted' | 'viewTimezone'> | null;
+  /** Close the selected interval details. */
+  dismissSelection: () => void;
   window: Window;
   projection: RosterProjection;
   orderedLanes: Lane[];
@@ -130,6 +144,10 @@ export type RosterStyleProps = {
 };
 export type RosterProps = RosterInput &
   RosterStyleProps & {
+    /** Presentation strategy for the body and selected details; defaults to RosterSelectionPopover. */
+    selectionLayout?: ComponentType<SelectionLayoutProps>;
+    /** Native portal host name; defaults to a unique useId name for this roster. */
+    portalHost?: string;
     incompleteLabel?: string;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */

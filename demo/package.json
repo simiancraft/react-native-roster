@@ -25,7 +25,8 @@
     "react-native-screens": "~4.16.0",
     "react-native-web": "0.21.2",
     "react-native-roster": "file:..",
-    "@expo/metro-runtime": "~6.1.2"
+    "@expo/metro-runtime": "~6.1.2",
+    "@radix-ui/react-popover": "1.1.23"
   },
   "devDependencies": {
     "@babel/core": "7.29.7",

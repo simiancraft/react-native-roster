@@ -134,6 +134,28 @@ try {
   console.log(
     `Web performance: all action budgets pass; 24-row viewport, ${mounted} mounted lanes.`,
   );
+  await page.goto(`${server.url}gallery/interval-detail`, { waitUntil: 'networkidle' });
+  const detailLane = page.getByTestId('roster-lane-one');
+  await detailLane.waitFor();
+  const laneWidth = await detailLane.evaluate((node) => node.clientWidth);
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  assert.match(await page.getByTestId('interval-detail').innerText(), /Lane one/);
+  await page.getByRole('heading', { name: 'Interval details', exact: true }).click();
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  await page.keyboard.press('Escape');
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  await page.getByRole('button', { name: 'Show inspector', exact: true }).click();
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  await page.getByRole('button', { name: 'Close details', exact: true }).click();
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  assert.deepEqual(errors, [], 'Selection browser runtime errors');
+  console.log(
+    'Selection: popover opens, outside press and Escape dismiss, and inspector opens and dismisses.',
+  );
   root = resolve('demo/.cache/dev-dist');
   assert(
     await Bun.file(`${root}/gallery/200-lanes.html`).exists(),
@@ -179,6 +201,32 @@ try {
   console.log(
     `LaneRow profiler: ${continuous.size} continuously mounted lanes, zero updates on the second scroll pass; mount and update controls pass.`,
   );
+  await page.goto(`${server.url}gallery/interval-detail`, { waitUntil: 'networkidle' });
+  await page.getByTestId('roster-lane-one').waitFor();
+  await settle(page);
+  const selectionBefore = await profileStats();
+  const selectedLane = page.getByTestId('roster-lane-one');
+  // Isolate selection from Pressable's own hover, focus, and pressed-state commits.
+  // The production case above exercises the complete pointer interaction.
+  await selectedLane.evaluate((node) => {
+    const bounds = node.getBoundingClientRect();
+    node.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        clientX: bounds.left + (bounds.width * 10) / 24,
+        clientY: bounds.top + 20,
+      }),
+    );
+  });
+  await page.getByTestId('interval-detail').waitFor();
+  const selectionAfter = await profileStats();
+  assert(selectionBefore.lanes.one?.mounts, 'Selection row must record a mount');
+  assert.equal(
+    selectionAfter.lanes.one?.updates,
+    selectionBefore.lanes.one?.updates,
+    'Opening details must not update the mounted row',
+  );
+  console.log('Selection profiler: zero mounted-row updates when opening details.');
 } finally {
   await page.context().tracing.stop({ path: '.cache/web-performance/trace.zip' });
   await browser.close();

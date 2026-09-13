@@ -19,6 +19,7 @@ import {
   layoutStats,
   next,
   resetStats,
+  timeAtX,
 } from '../../../src/core';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 import { workload } from '../../fixtures/workload';
@@ -292,4 +293,56 @@ describe('useRoster hook without native rendering', () => {
         'positive finite',
       );
   });
+});
+
+it('selects only with detail content, dismisses, reconciles current data, and clears removed bounds', () => {
+  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const onIntervalPress = mock();
+  const input: RosterInput = { lanes: [lane], windowSpec: rosterWindowSpec, onIntervalPress };
+  const h = harness(input);
+  const press = h.model.press;
+  act(() => press(lane, 300, 10));
+  expect(h.model.selection).toBeNull();
+  const enabled = { ...input, intervalDetailComponent: () => null };
+  h.update(enabled);
+  act(() => press(lane, 300, 10));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(h.model.selection).toEqual({
+    lane,
+    layer: lane.layers[0] as Layer,
+    rect,
+    start: timeAtX(h.model.projection, h.model.window, rect.x),
+    end: timeAtX(h.model.projection, h.model.window, rect.x + rect.width),
+  });
+  expect(onIntervalPress).toHaveBeenCalledTimes(2);
+  const fresh = {
+    ...lane,
+    label: 'Fresh label',
+    layers: lane.layers.map((layer) => ({ ...layer, label: 'Fresh layer' })),
+  };
+  h.update({ ...enabled, lanes: [fresh] });
+  expect(h.model.selection?.lane).toBe(fresh);
+  expect(h.model.selection?.layer).toBe(fresh.layers[0]);
+  act(() => h.model.onLayout(layoutInput(20_160, 480)));
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(fresh).rects[0] as Rect);
+  expect(h.model.press).toBe(press);
+  act(() => h.model.dismissSelection());
+  expect(h.model.selection).toBeNull();
+  act(() => press(fresh, 1200, 10));
+  h.update({ ...enabled, lanes: [] });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  expect(h.model.selection).toBeNull();
+  act(() => press(lane, 1200, 10));
+  h.update({ ...enabled, lanes: [{ ...lane, layers: [] }] });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  act(() => press(lane, 1200, 10));
+  h.update({ ...enabled, windowSpec: next(rosterWindowSpec) });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  act(() => press(lane, 1200, 10));
+  h.update(input);
+  expect(h.model.selection).toBeNull();
+  h.close();
 });

@@ -379,3 +379,95 @@ describe('Roster zones and rect primitives', () => {
     close(tree);
   });
 });
+
+it('mounts selection content outside the body, supplies current inputs, and isolates host names', () => {
+  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const detail = mock((input: import('../../../src').IntervalDetailInput) =>
+    createElement('detail', input),
+  );
+  const strategy = mock((input: import('../../../src').SelectionLayoutProps) =>
+    createElement('selection-layout', input, input.anchorZone, input.contentZone),
+  );
+  const input = {
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    intervalDetailComponent: detail,
+    selectionLayout: strategy,
+  };
+  const tree = render(createElement(Roster, input));
+  const hostName = tree.root.findByType('selection-layout' as ElementType).props.portalHost;
+  const body = tree.root.findByType(RosterBody);
+  act(() => body.props.press(lane, 300, 10));
+  const selected = tree.root.findByType('selection-layout' as ElementType).props;
+  expect(selected.open).toBe(true);
+  expect(selected.anchor).toEqual({ x: 270, y: 0, width: 240, height: 48 });
+  expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(false);
+  act(() =>
+    tree.update(
+      createElement(Roster, {
+        ...input,
+        highlightSource: { kind: 'rule', id: 'one' },
+        portalHost: 'custom',
+      }),
+    ),
+  );
+  expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(true);
+  expect(tree.root.findByType('selection-layout' as ElementType).props.portalHost).toBe('custom');
+  act(() => selected.onDismiss());
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(0);
+  const second = render(createElement(Roster, input));
+  expect(second.root.findByType('selection-layout' as ElementType).props.portalHost).not.toBe(
+    hostName,
+  );
+  close(second);
+  close(tree);
+});
+
+it('renders the fixture detail in the view timezone and switches its inspector presentation', () => {
+  const { lanes, zones, inspectorLayout: Inspector } = rosterFixtures['interval-detail'];
+  const lane = lanes[0] as Lane;
+  const layer = lane.layers[0] as Layer;
+  const window = { start: Date.UTC(2024, 0, 1, 10), end: Date.UTC(2024, 0, 1, 12) };
+  const projection = {
+    orientation: 'horizontal' as const,
+    viewTimezone: 'UTC',
+    pxPerMinute: 1,
+    rowHeight: 48,
+  };
+  const rect = layoutLane(lane, window, projection).rects[0] as import('../../../src').Rect;
+  const Detail = zones.intervalDetailComponent as NonNullable<typeof zones.intervalDetailComponent>;
+  const detailInput = {
+    lane,
+    layer,
+    rect,
+    highlighted: false,
+    start: window.start,
+    end: window.end,
+    viewTimezone: 'UTC',
+  };
+  const tree = render(createElement(Detail, detailInput));
+  const text = JSON.stringify(tree.toJSON());
+  expect(text).toContain('10:00 AM');
+  expect(text).toContain('12:00 PM');
+  expect(text).toContain('Open hours');
+  expect(text).toContain('09:00 to 17:00');
+  act(() =>
+    tree.update(createElement(Detail, { ...detailInput, layer: { ...layer, intervals: [] } })),
+  );
+  expect(JSON.stringify(tree.toJSON())).toContain('UTC');
+  const onDismiss = mock();
+  const model = {
+    anchorZone: createElement('body'),
+    contentZone: createElement('detail'),
+    open: false,
+    onDismiss,
+  };
+  act(() => tree.update(createElement(Inspector as ElementType, model)));
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(0);
+  act(() => tree.update(createElement(Inspector as ElementType, { ...model, open: true })));
+  expect(tree.root.findAllByType('body' as ElementType)).toHaveLength(1);
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(1);
+  act(() => tree.root.findByType('Pressable' as ElementType).props.onPress());
+  expect(onDismiss).toHaveBeenCalledTimes(1);
+  close(tree);
+});

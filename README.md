@@ -167,12 +167,13 @@ and "Availability may be incomplete"; both are localizable props.
 
 | Import | Shipped surface |
 | --- | --- |
-| `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, slot components, and all core exports. |
+| `react-native-roster` | `Roster`, `Schedule`, hooks, slot components, `RosterSelectionPopover`, `PortalHost`, `Portal`, and all core exports. |
 | `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
 
-Root and core never import recurrence dependencies. Metro selects TypeScript
+Root and core never import recurrence dependencies. Public entry aliases retain the
+implementation function identities while keeping CommonJS export overhead within the size gates. Metro selects TypeScript
 source through the `react-native` export condition; other bundlers select
 emitted CommonJS with declarations in `dist/src`. The emit is CommonJS, so
 importing one function from the root costs the whole root bundle; import from
@@ -216,6 +217,8 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `laneLabelComponent` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
 | `headerCellComponent` | `tick` | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
+| `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
+| `selectionLayout` | `SelectionLayoutProps`: nodes, anchor, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
@@ -248,6 +251,65 @@ Chrome regions take style props: `style`, `headerStyle` (the 40 px header row
 holding the corner and ticks), `laneLabelColumnStyle`, and `bodyStyle`.
 `laneLabelWidth` sizes the corner and label column, default 180. Each style
 prop has a `className` twin; see [NativeWind](#nativewind).
+
+### Selection
+
+Add `intervalDetailComponent` to enable pressed-interval details. The press still
+fires `onIntervalPress`; without the component, presses retain no selection.
+`useRoster` owns `selection` and `dismissSelection`. Removing the selected lane,
+layer, or interval bounds clears selection. Current data and geometry replace old
+references, including after resizing or sorting.
+
+```tsx
+import { Text, View } from 'react-native';
+import { Roster } from 'react-native-roster';
+import type { IntervalDetailInput, Lane } from 'react-native-roster';
+
+function IntervalDetails({ lane, layer, rect, start, end, viewTimezone }: IntervalDetailInput) {
+  const format = new Intl.DateTimeFormat('en-US', { timeZone: viewTimezone, timeStyle: 'short' });
+  return <View style={{ padding: 16, backgroundColor: 'white' }}>
+    <Text>{lane.label}: {layer.label ?? layer.id}</Text>
+    <Text>{format.format(start)} to {format.format(end)}</Text>
+    {rect.sources.map((source) =>
+      <Text key={JSON.stringify([source.kind, source.id])}>
+        {source.label ?? source.id}
+      </Text>)}
+  </View>;
+}
+
+export function SelectionExample({ lanes }: { lanes: Lane[] }) {
+  return <Roster lanes={lanes}
+    windowSpec={{ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' }}
+    style={{ height: 480, flex: undefined }}
+    intervalDetailComponent={IntervalDetails} />;
+}
+```
+
+Web consumers install `bun add @radix-ui/react-popover`. It is an optional peer
+for native and core-only consumers, and required by the web root entry.
+`RosterSelectionPopover` selects native or web through platform resolution.
+Native mounts a local `PortalHost` and registers `Portal` content; web uses Radix
+for portal placement, outside click, Escape, focus, and collision handling.
+The overlay tracks both scroll offsets with Reanimated shared values, without
+React scroll state. Native also dismisses on outside press and hardware back.
+
+`selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
+naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`
+(the body), `contentZone` (details or null), `anchor` (body-content bounds), `open`,
+`onDismiss`, `portalHost`, and `scroll`. Render each node once. A consumer inspector
+can arrange the nodes in columns and call `onDismiss` from its close button.
+The [interval-detail gallery route](./demo/app/gallery/interval-detail.tsx)
+switches presentations at runtime.
+
+`portalHost` overrides the native destination name, whose default uses a unique
+per-roster `useId`. Give separate rosters separate override names. The default
+layout owns its host; do not also mount that name at an ancestor. Custom layouts
+can instead target their own ancestor host, using the exported `PortalHost` and
+`Portal`. A store-based portal does not preserve context from the registration
+site; place required providers above the host or re-provide them in the content.
+Selection never enters the lane list's body content key.
+
+Schedule does not yet support selection; it is a later change.
 
 ## Schedule and its zones
 
