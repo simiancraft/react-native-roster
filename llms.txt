@@ -23,8 +23,9 @@ bun run demo:web
 
 The root install also installs demo dependencies. Use `EXPO_OFFLINE=1 bun run
 demo:web` if Expo cannot write its online dependency-validation cache. To consume from another app,
-run `bun pm pack --destination .cache` in this checkout, then `bun add` the actual
-absolute tarball path in your app. Add `@legendapp/list` and install the SDK's
+`bun add react-native-roster`; for an unreleased checkout, run
+`bun pm pack --destination .cache` here, then `bun add` the actual absolute
+tarball path in your app. Add `@legendapp/list` and install the SDK's
 compatible Reanimated with `bunx expo install react-native-reanimated --bun`.
 Keep React, React Native, and Expo aligned with the app's SDK. The demo uses Expo
 54, React 19.1, RN 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5. NativeWind is
