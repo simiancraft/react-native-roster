@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-The API has not shipped. Report issues against the current `main` branch; after
-release, the latest major will receive security fixes.
+The latest release receives security fixes. Report issues against the current
+`main` branch.
 
 ## Reporting a vulnerability
 

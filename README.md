@@ -46,9 +46,9 @@ bun add react-native-roster @legendapp/list
 bunx expo install react-native-reanimated --bun
 ```
 
-The package is not yet on npm. Until the first release, build and pack this
-checkout with `bun pm pack --destination .cache` and `bun add` the printed
-tarball path. Keep React, React Native, and Expo aligned with your SDK; the
+To try an unreleased checkout instead, pack it with `bun pm pack --destination
+.cache` and `bun add` the printed tarball path. Keep React, React Native, and
+Expo aligned with your SDK; the
 tested demo uses Expo SDK 54, React 19.1, React Native 0.81.5, LegendList
 2.0.19, and Reanimated 3.19.5. Web also needs React DOM and React Native Web.
 Peer ranges are React 18.2+, React Native 0.74+, and LegendList 2+; Reanimated
