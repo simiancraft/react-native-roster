@@ -77,7 +77,8 @@ Semantic release updates the manifest with `bun scripts/set-version.ts`, publish
 through `@semantic-release/npm` with provenance, updates `CHANGELOG.md`, and creates
 the GitHub release with generated notes through the GitHub App token. Version
 0.0.0 is a placeholder that reserved the name; tag `v0.0.0` on the commit before
-the first release so semantic-release starts the series at 0.1.0 rather than 1.0.0.
+the first release so semantic-release starts the series below 1.0.0; fix commits
+alone yield 0.0.1 and a feat yields 0.1.0.
 Pages requires GitHub Actions as the site's build source.
 
 ## Community
