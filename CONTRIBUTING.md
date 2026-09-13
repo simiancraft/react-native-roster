@@ -59,12 +59,13 @@ creating those directories.
 
 ## Releases
 
-Release automation is dormant until the repository variable `RELEASE_ENABLED=true`
-and the `APP_ID` and `APP_PRIVATE_KEY` secrets are configured. Configure the GitHub
-`release` environment with a **required reviewer before enabling releases**. The
-reviewer must verify issue #9's device fps and layout evidence, including screenshots
-on the pull request for the exact commit being released, before approving the job.
-The YAML references the environment; required reviewers are a repository setting.
+Release automation runs on every push to `main` while the repository variable
+`RELEASE_ENABLED` is `true`; the `APP_ID` and `APP_PRIVATE_KEY` secrets are inherited
+from the organization. Set the variable to any other value to pause releases. The
+GitHub `release` environment requires a reviewer, who must verify issue #9's device
+fps and layout evidence, including screenshots on the pull request for the exact
+commit being released, before approving the job. The YAML references the
+environment; required reviewers are a repository setting.
 
 npm has no token secret. The package's npmjs.com settings register a trusted
 publisher for this repository, workflow file `ci.yml`, and environment `release`;
