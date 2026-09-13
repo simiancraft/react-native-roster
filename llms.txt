@@ -150,7 +150,7 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 
 No default exports. Root exports renderer inputs/models/zone types as well as
 core types. Core imports standard JS and Intl only. Only /rrule imports
-rrule-temporal 1.5.2 and @js-temporal/polyfill 0.5.1. Those are installed runtime
+rrule-temporal 1.6.0 and @js-temporal/polyfill 0.5.1. Those are installed runtime
 dependencies but cannot enter root/core bundles through library imports.
 
 Metro selects TS source via exports' react-native condition. Keep package exports

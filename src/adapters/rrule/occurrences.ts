@@ -4,8 +4,9 @@ import type { Weekday, Window } from '../../core';
 import type { Occurrences } from './cache';
 import type { RosterDate, RosterRule } from './types';
 
-// 1.5.2 ships a CJS runtime but ESM-only declarations. Keep its actual types
-// while selecting the require export for our CJS build and Metro source entry.
+// 1.6.0 is an ES module package with a CommonJS build under its require condition
+// and declarations resolved under import. Keep its actual types while selecting
+// the require export for our CJS build and Metro source entry.
 const { allowedWeekdays, RRuleTemporal } = require('rrule-temporal') as typeof RRuleModule;
 // Both engines must use the same polyfill export; mixed import/require copies
 // fail the recurrence engine's ZonedDateTime instanceof check.
