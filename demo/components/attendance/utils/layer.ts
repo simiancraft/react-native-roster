@@ -1,7 +1,15 @@
 import type { Layer, Window } from 'react-native-roster/core';
 
+export const ATTENDANCE_LAYER = {
+  plan: 'plan',
+  presence: 'presence',
+  together: 'together',
+} as const;
+
+export type AttendanceLayer = (typeof ATTENDANCE_LAYER)[keyof typeof ATTENDANCE_LAYER];
+
 export function layer(
-  id: string,
+  id: AttendanceLayer,
   role: Layer['role'],
   z: number,
   bounds: Window,

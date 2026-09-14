@@ -374,6 +374,12 @@ it('treats zero presence segments as a no-show in everyone and anchor modes', ()
       status: 'missed',
       minutes: { present: 0, together: 0, dead: 0 },
     });
+    if (mode.kind === 'anchor' && mode.attendeeId === 'absent') {
+      expect(lanes.every((lane) => lane.layers.every((layer) => layer.id !== 'together'))).toBe(
+        true,
+      );
+      expect(tree.root.findAllByType(AttendanceApartNotice)).toHaveLength(1);
+    }
   }
 });
 

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import type { IntervalDetailInput } from 'react-native-roster';
 import { attendanceMeta } from '../utils/attendance';
 import { clockLabel, dateLabel, offsetLabel } from '../utils/format';
+import { ATTENDANCE_LAYER } from '../utils/layer';
 import { KIND_COLORS, STATUS_COLORS } from '../utils/tones';
 
 export function AttendanceIntervalDetail(input: IntervalDetailInput) {
@@ -81,7 +82,7 @@ function TogetherDetail(input: IntervalDetailInput) {
   );
 }
 const DETAILS: Record<string, ComponentType<IntervalDetailInput>> = {
-  plan: PlanDetail,
-  presence: PresenceDetail,
-  together: TogetherDetail,
+  [ATTENDANCE_LAYER.plan]: PlanDetail,
+  [ATTENDANCE_LAYER.presence]: PresenceDetail,
+  [ATTENDANCE_LAYER.together]: TogetherDetail,
 };

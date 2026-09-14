@@ -3,7 +3,7 @@ import { useRoster } from 'react-native-roster';
 import type { Lane, WindowSpec } from 'react-native-roster/core';
 import type { Attendance, AttendanceMeta, AttendanceMode } from './attendance.types';
 import { attendanceMinutes } from './utils/attendance';
-import { layer } from './utils/layer';
+import { ATTENDANCE_LAYER, layer } from './utils/layer';
 import { collapse, togetherFor } from './utils/overlap';
 import { statusFor } from './utils/status';
 
@@ -25,9 +25,9 @@ export function useAttendance(attendance: Attendance) {
   };
   const baseLanes: Lane[] = attendance.attendees.map((attendee) => {
     const presence = collapse(attendee.presence);
-    const layers = [layer('plan', 'custom', 0, attendance.plan, 0)];
-    if (presence) layers.push(layer('presence', 'availability', 1, presence, 8));
-    if (together) layers.push(layer('together', 'booking', 2, together, 0));
+    const layers = [layer(ATTENDANCE_LAYER.plan, 'custom', 0, attendance.plan, 0)];
+    if (presence) layers.push(layer(ATTENDANCE_LAYER.presence, 'availability', 1, presence, 8));
+    if (together) layers.push(layer(ATTENDANCE_LAYER.together, 'booking', 2, together, 0));
     return {
       id: `${attendance.id}:${attendee.id}`,
       version,

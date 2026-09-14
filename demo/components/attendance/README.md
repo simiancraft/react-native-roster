@@ -28,7 +28,9 @@ together is booking at z 2 with no inset, visually spanning adjacent lanes.
 No intersection means no together layer. Anchor mode uses the designated bar
 without clipping the common block to other attendees.
 
-Coverage's availabilityMinusBookingMinutes is dead time. Per-attendee together
+Presence must use role `availability`, and together must use role `booking`, because
+coverage's `availabilityMinusBookingMinutes` produces dead time. Other roles would
+silently produce incorrect minutes. Per-attendee together
 minutes are availabilityMinutes minus that difference, rather than bookingMinutes,
 which measures the whole common block even outside that attendee's presence.
 Missed means no overlap with the current together block. Other statuses compare

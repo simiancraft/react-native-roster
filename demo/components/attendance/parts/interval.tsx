@@ -1,13 +1,14 @@
 import type { ComponentType } from 'react';
 import type { IntervalInput } from 'react-native-roster';
+import { ATTENDANCE_LAYER } from '../utils/layer';
 import { PlanBand } from './plan-band';
 import { PresenceBar } from './presence-bar';
 import { TogetherBlock } from './together-block';
 
 const INTERVALS: Record<string, ComponentType<IntervalInput>> = {
-  plan: PlanBand,
-  presence: PresenceBar,
-  together: TogetherBlock,
+  [ATTENDANCE_LAYER.plan]: PlanBand,
+  [ATTENDANCE_LAYER.presence]: PresenceBar,
+  [ATTENDANCE_LAYER.together]: TogetherBlock,
 };
 
 export function AttendanceInterval(input: IntervalInput) {
