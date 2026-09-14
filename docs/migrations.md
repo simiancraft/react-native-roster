@@ -19,7 +19,7 @@ Props ending in `Zone` accept `ReactNode`. Press callbacks (`onIntervalPress`,
 | `headerZone={(input) => ...}` | `headerComponent={Header}` | `HeaderInput` |
 | `laneLabelColumnZone={(input) => ...}` | `laneLabelColumnComponent={LabelColumn}` | `LabelColumnInput` |
 | `bodyZone={(input) => ...}` | `bodyComponent={Body}` | `BodyInput` |
-| `headerCellZone={({ tick }) => ...}` | `headerCellComponent={HeaderCell}` | `{ tick: RosterTick }` |
+| `headerCellZone={({ tick }) => ...}` | `headerCellComponent={HeaderCell}` | `HeaderCellInput` |
 | `laneLabelZone={(input) => ...}` | `laneLabelComponent={LaneLabel}` | `LaneLabelInput` |
 | `intervalZone={(input) => ...}` | `intervalComponent={Interval}` | `IntervalInput` |
 | `gapZone={(input) => ...}` | `gapComponent={Gap}` | `GapInput` |

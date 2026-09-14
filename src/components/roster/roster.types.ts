@@ -75,10 +75,11 @@ export type LaneLabelInput = {
   incompleteLabel: string;
   neverSetLabel: string;
 };
+export type HeaderCellInput = { tick: RosterTick };
 export type GridInput = { ticks: RosterTick[]; contentWidth: number };
 export type HeaderInput = Pick<RosterModel, 'ticks' | 'projection' | 'scroll' | 'contentWidth'> & {
   /** Time label filler, positioned by the header. */
-  headerCellComponent: ComponentType<{ tick: RosterTick }>;
+  headerCellComponent: ComponentType<HeaderCellInput>;
 };
 export type LabelColumnInput = Pick<RosterModel, 'projection' | 'scroll'> & {
   labels: LaneLabelInput[];
@@ -135,7 +136,7 @@ export type RosterProps = RosterInput &
     /** Label, differing lane zone, effective flag, and completeness notice. */
     laneLabelComponent?: ComponentType<LaneLabelInput>;
     /** Time label within one positioned header tick. */
-    headerCellComponent?: ComponentType<{ tick: RosterTick }>;
+    headerCellComponent?: ComponentType<HeaderCellInput>;
     /** Covered rect view; use rect bounds for absolute position, rect.z for stacking, and pointerEvents="none" for row hit testing. */
     intervalComponent?: ComponentType<IntervalInput>;
     /** Removed rect content; LaneRow supplies the invisible pressable. */

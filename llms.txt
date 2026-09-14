@@ -160,6 +160,14 @@ from dist/src; declarations use the types condition. Build before Node export
 tests. Root needs a native renderer or web bundler; direct Node use of root is
 not a substitute for a React Native app. Core and /rrule work in Node/Bun.
 
+## 0.1.0 slot prop rename
+
+0.1.0 renamed every input-bearing render-function Zone prop to a Component prop;
+use the current names below instead of the 0.0.x props. Singleton emptyZone and
+cornerZone keep their names and now take nodes. See [docs/migrations.md](./docs/migrations.md).
+Zone props are ReactNode.
+Component props are ComponentType<Input>.
+
 ## Renderer contracts
 
 Roster required props: lanes: Lane[], windowSpec: WindowSpec.
@@ -202,7 +210,9 @@ Props ending in Component accept ComponentType<Input>, mounted as React elements
 Props ending in Zone accept ReactNode; pass null to suppress a singleton default.
 Define component types at module scope; hooks and class components work normally.
 Use exported defaults inside replacements to preserve geometry, scrolling, and
-interaction. Input types are exported from root.
+interaction. Input types, including HeaderCellInput, are exported from root.
+Mount a React context provider above Roster for extra consumer data, and read it with useContext in a module-scope slot component.
+Avoid inline closures or memoized factories returning a new component per render; new interval types remount every interval and defeat the body's content key.
 
 RosterBody composes the exported RosterBodyLayout (gridZone/listZone nodes with
 scroll wiring) and RosterLaneList (LegendList, geometryFor, and LaneRow mounting).
@@ -214,7 +224,7 @@ Keep its viewport gate and measured estimatedListSize in custom compositions.
 | --- | --- | --- |
 | `emptyZone` | `ReactNode` | `RosterEmpty`: No lanes. |
 | `laneLabelComponent` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
-| `headerCellComponent` | `tick` | `RosterHeaderCell`: tick label. |
+| `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |

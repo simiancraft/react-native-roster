@@ -15,6 +15,7 @@ export { RosterLaneList } from './components/roster/parts/lane-list';
 export type {
   BodyInput,
   GridInput,
+  HeaderCellInput,
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
