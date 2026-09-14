@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { ComponentType } from 'react';
+import { createContext, useContext } from 'react';
 import { Text, View } from 'react-native';
 import type { GapInput, IntervalInput } from 'react-native-roster';
 import type { LayerRole } from 'react-native-roster/core';
@@ -69,15 +70,19 @@ export function EventCard({
   );
 }
 
-const ROLE_FILLERS: Record<LayerRole, (input: IntervalInput, timezone: string) => ReactNode> = {
-  availability: (input) => <AvailabilityBand {...input} />,
-  booking: (input, timezone) => <EventCard {...input} timezone={timezone} />,
-  custom: (input) => <AvailabilityBand {...input} />,
+export const TeamTimezone = createContext('UTC');
+
+const ROLE_COMPONENTS: Record<LayerRole, ComponentType<IntervalInput & { timezone: string }>> = {
+  availability: AvailabilityBand,
+  booking: EventCard,
+  custom: AvailabilityBand,
 };
 
-/** One interval filler for both projections; the layer role picks the part. */
-export function intervalFillerFor(timezone: string) {
-  return (input: IntervalInput) => ROLE_FILLERS[input.layer.role](input, timezone);
+/** One interval component for both projections; the layer role selects the part. */
+export function TeamInterval(input: IntervalInput) {
+  const timezone = useContext(TeamTimezone);
+  const Component = ROLE_COMPONENTS[input.layer.role];
+  return <Component {...input} timezone={timezone} />;
 }
 
 const GAP = {

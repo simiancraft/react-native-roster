@@ -2,6 +2,7 @@ export type { GapInput, IntervalInput } from './components/layers/layers.types';
 export { RosterGap } from './components/layers/parts/gap';
 export { RosterInterval } from './components/layers/parts/interval';
 export { Roster } from './components/roster';
+export { RosterBodyLayout } from './components/roster/body-layout';
 export { RosterLaneLabel } from './components/roster/lanes/parts/lane-label';
 export { RosterBody } from './components/roster/parts/body';
 export { RosterCorner } from './components/roster/parts/corner';
@@ -10,9 +11,11 @@ export { RosterGrid } from './components/roster/parts/grid';
 export { RosterHeader } from './components/roster/parts/header';
 export { RosterHeaderCell } from './components/roster/parts/header-cell';
 export { RosterLaneLabelColumn } from './components/roster/parts/lane-label-column';
+export { RosterLaneList } from './components/roster/parts/lane-list';
 export type {
   BodyInput,
   GridInput,
+  HeaderCellInput,
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,

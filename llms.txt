@@ -144,12 +144,12 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 
 | Import | Runtime exports and purpose |
 | --- | --- |
-| react-native-roster | Roster, Schedule, useRoster, useSchedule, default zone fillers, and core re-exports. |
+| react-native-roster | Roster, Schedule, useRoster, useSchedule, default slot components, and core re-exports. |
 | react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
 | react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
 
-No default exports. Root exports renderer inputs/models/zone types as well as
+No default exports. Root exports renderer inputs/models/slot input types as well as
 core types. Core imports standard JS and Intl only. Only /rrule imports
 rrule-temporal 1.6.0 and @js-temporal/polyfill 0.5.1. Those are installed runtime
 dependencies but cannot enter root/core bundles through library imports.
@@ -159,6 +159,14 @@ enabled and one React copy in a workspace. Other resolvers load built CommonJS
 from dist/src; declarations use the types condition. Build before Node export
 tests. Root needs a native renderer or web bundler; direct Node use of root is
 not a substitute for a React Native app. Core and /rrule work in Node/Bun.
+
+## 0.1.0 slot prop rename
+
+0.1.0 renamed every input-bearing render-function Zone prop to a Component prop;
+use the current names below instead of the 0.0.x props. Singleton emptyZone and
+cornerZone keep their names and now take nodes. See [docs/migrations.md](./docs/migrations.md).
+Zone props are ReactNode.
+Component props are ComponentType<Input>.
 
 ## Renderer contracts
 
@@ -198,44 +206,53 @@ The chassis measures width, reserves a 48 px gutter, and fits all actual day
 columns without horizontal scrolling; the body scrolls vertically. now updates
 every minute and is null outside the selected window.
 
-Zone props are optional render functions. Use exported fillers inside replacements
-to preserve geometry, scrolling, and interaction. Types are exported from root.
+Props ending in Component accept ComponentType<Input>, mounted as React elements.
+Props ending in Zone accept ReactNode; pass null to suppress a singleton default.
+Define component types at module scope; hooks and class components work normally.
+Use exported defaults inside replacements to preserve geometry, scrolling, and
+interaction. Input types, including HeaderCellInput, are exported from root.
+Mount a React context provider above Roster for extra consumer data, and read it with useContext in a module-scope slot component.
+Avoid inline closures or memoized factories returning a new component per render; new interval types remount every interval and defeat the body's content key.
+
+RosterBody composes the exported RosterBodyLayout (gridZone/listZone nodes with
+scroll wiring) and RosterLaneList (LegendList, geometryFor, and LaneRow mounting).
+Keep its viewport gate and measured estimatedListSize in custom compositions.
 
 ## Roster zones
 
-| Zone | Receives | Default filler and behavior |
+| Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
-| `emptyZone` | Nothing | `RosterEmpty`: No lanes. |
-| `laneLabelZone` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
-| `headerCellZone` | `tick` | `RosterHeaderCell`: tick label. |
-| `intervalZone` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
-| `gapZone` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
-| `gridZone` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
-| `cornerZone` | Nothing | `RosterCorner`: nothing; the cell above the labels, laneLabelWidth wide. |
-| `headerZone` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellZone` | `RosterHeader`: frozen header following horizontal offset. |
-| `laneLabelColumnZone` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelZone` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyZone` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect zones | `RosterBody`: virtualized lanes. |
+| `emptyZone` | `ReactNode` | `RosterEmpty`: No lanes. |
+| `laneLabelComponent` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
+| `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
+| `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
+| `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
+| `cornerZone` | `ReactNode` | `RosterCorner`: nothing; the cell above the labels, laneLabelWidth wide. |
+| `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
+| `laneLabelColumnComponent` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
 
 ## Schedule zones
 
-| Zone | Receives | Default filler and behavior |
+| Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
-| `gutterZone` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
-| `gridZone` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
-| `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
-| `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
-| `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap zones | `ScheduleColumn`: final rect bounds in layer order. |
-| `transitionZone` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
-| `nowLineZone` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
-| `intervalZone`, `gapZone` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
-| `incompleteZone` | `lane`, `label` | `ScheduleIncomplete`: notice in reserved space above the grid when incomplete. |
+| `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+| `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+| `dayHeaderComponent` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
+| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
+| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap components | `ScheduleColumn`: final rect bounds in layer order. |
+| `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+| `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
+| `intervalComponent`, `gapComponent` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
+| `incompleteComponent` | `lane`, `label` | `ScheduleIncomplete`: notice in reserved space above the grid when incomplete. |
 
 Position custom interval content at rect.x/y with width/height/z and
 pointerEvents="none". Gap content already sits in a positioned pressable.
 Column x coordinates are local; select the column through rect.column.
-Zone fillers are plain React Native views; under NativeWind they take className
+Slot components are plain React Native views; under NativeWind they take className
 directly. The default RosterLaneLabel owns its row's bottom border, so a custom
-laneLabelZone draws its own separators.
+laneLabelComponent draws its own separators.
 
 ## Navigation and zones
 
@@ -255,7 +272,7 @@ Schedule always uses 24 equal wall-hour bands. Positive deltaMinutes means a
 skipped empty region; negative means two half-height repeat regions. Rects split
 at column edges, source changes, and every scale boundary. For repeat at T with
 magnitude d, boundaries are T-d, T, and T+d. A wholly skipped date produces no
-column; skippedDateZone labels the header gap (Apia 2011-12-30).
+column; skippedDateComponent labels the header gap (Apia 2011-12-30).
 Each column spans the first instant of its date to the first instant of the next.
 Skipped wall spans belong to the date they interrupt. Its transitions include a
 skip at the exclusive end when it empties that date's final wall bands (Nuuk
@@ -457,7 +474,7 @@ W: seed 1318, 200 lanes, week, two layers, 24-lane layout batch, 15-minute ticks
 Bun 1.4.0, 2026-09-08T05:18:00Z, commit
 1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa. Median of 11 target-cold samples after
 five runtime warmups. Each timing must stay below 16 ms; CI also enforces <=1.5x
-its baseline. Size gates: core <15 kB, root <40 kB minified/uncompressed, peers
+its baseline. Size gates: core <15 kB, root <44 kB minified/uncompressed, peers
 external. Phone fps and cold-layout numbers are not yet captured; the paired
 react-big-scheduler comparison is not yet measured. Do not claim relative speed.
 

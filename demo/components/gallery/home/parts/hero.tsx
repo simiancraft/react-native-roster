@@ -1,15 +1,15 @@
 import { Text, View } from 'react-native';
-import type { LinkZone } from '../home.types';
+import type { LinkComponent } from '../home.types';
 
 export function GalleryHero({
   version,
   showcaseHref,
-  linkZone,
+  linkComponent: Link,
 }: {
   version: string;
   showcaseHref: string;
   /** Wraps the showcase card in the host's link element. */
-  linkZone: LinkZone;
+  linkComponent: LinkComponent;
 }) {
   const card = (
     <View
@@ -58,7 +58,7 @@ export function GalleryHero({
           is a zone, and every chrome region takes a className.
         </Text>
       </View>
-      {linkZone({ href: showcaseHref, cardZone: card })}
+      <Link href={showcaseHref} cardZone={card} />
     </View>
   );
 }

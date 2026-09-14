@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { Text } from 'react-native';
 import { rosterFixtures } from '../../../../test/fixtures/roster';
 import { scheduleFixtures } from '../../../../test/fixtures/schedule';
-import type { LinkZone } from './home.types';
+import type { LinkComponent } from './home.types';
 import { GalleryHomeLayout } from './layout';
 import { FixtureSection } from './parts/fixture-section';
 import { GalleryHero } from './parts/hero';
@@ -19,10 +19,14 @@ type GalleryHomeScreenProps = {
   /** Resolves a fixture id to its route. */
   fixtureHref: (id: string) => string;
   /** The host's link element around each card. */
-  linkZone: LinkZone;
+  linkComponent: LinkComponent;
 };
 
-export function GalleryHomeScreen({ showcaseHref, fixtureHref, linkZone }: GalleryHomeScreenProps) {
+export function GalleryHomeScreen({
+  showcaseHref,
+  fixtureHref,
+  linkComponent,
+}: GalleryHomeScreenProps) {
   const rosterCards = Object.entries(rosterFixtures).map(([id, fixture]) => ({
     id,
     href: fixtureHref(id),
@@ -36,20 +40,22 @@ export function GalleryHomeScreen({ showcaseHref, fixtureHref, linkZone }: Galle
   }));
   return (
     <GalleryHomeLayout
-      heroZone={<GalleryHero version={VERSION} showcaseHref={showcaseHref} linkZone={linkZone} />}
+      heroZone={
+        <GalleryHero version={VERSION} showcaseHref={showcaseHref} linkComponent={linkComponent} />
+      }
       sectionsZone={
         <>
           <FixtureSection
             title="Roster fixtures"
             blurb="Many lanes on one horizontal axis: zones, axis steps, provenance, sorting, timezones, and the 200-lane workload."
             fixtures={rosterCards}
-            linkZone={linkZone}
+            linkComponent={linkComponent}
           />
           <FixtureSection
             title="Schedule fixtures"
             blurb="One lane projected into day columns: layers, exclusions, clock changes, skipped dates, and every zone."
             fixtures={scheduleCards}
-            linkZone={linkZone}
+            linkComponent={linkComponent}
           />
         </>
       }

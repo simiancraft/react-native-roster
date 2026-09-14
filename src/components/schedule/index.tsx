@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { View } from 'react-native';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
@@ -50,40 +49,40 @@ function ScheduleContent(props: ScheduleProps) {
     lane,
     windowSpec,
     highlightSource,
-    gutterZone = ScheduleGutter,
-    dayHeaderZone = ScheduleDayHeader,
-    skippedDateZone = ScheduleSkippedDate,
-    columnZone = ScheduleColumn,
-    gridZone = ScheduleGrid,
-    transitionZone = ScheduleTransition,
-    nowLineZone = ScheduleNowLine,
-    intervalZone = RosterInterval,
-    gapZone = RosterGap,
-    incompleteZone = ScheduleIncomplete,
+    gutterComponent: GutterComponent = ScheduleGutter,
+    dayHeaderComponent: DayHeaderComponent = ScheduleDayHeader,
+    skippedDateComponent: SkippedDateComponent = ScheduleSkippedDate,
+    columnComponent = ScheduleColumn,
+    gridComponent = ScheduleGrid,
+    transitionComponent = ScheduleTransition,
+    nowLineComponent: NowLineComponent = ScheduleNowLine,
+    intervalComponent = RosterInterval,
+    gapComponent = RosterGap,
+    incompleteComponent: IncompleteComponent = ScheduleIncomplete,
     incompleteLabel = 'Availability may be incomplete',
   } = props;
   const position = nowPosition(projection, now);
   const incomplete =
-    lane.complete === false ? incompleteZone({ lane, label: incompleteLabel }) : null;
+    lane.complete === false ? <IncompleteComponent lane={lane} label={incompleteLabel} /> : null;
   return (
     <ScheduleLayout
       headerStyle={props.headerStyle}
       gutterStyle={props.gutterStyle}
       daysStyle={props.daysStyle}
       incompleteZone={incomplete}
-      gutterZone={gutterZone({ hours, pxPerHour: projection.pxPerHour })}
+      gutterZone={<GutterComponent hours={hours} pxPerHour={projection.pxPerHour} />}
       dayHeaderZone={headerDates(windowSpec, days).map(({ localDate, day }) => {
-        if (!day) return <Fragment key={localDate}>{skippedDateZone({ localDate })}</Fragment>;
+        if (!day) return <SkippedDateComponent key={localDate} localDate={localDate} />;
         return (
           <ScheduleDayHeaderLayout
             key={localDate}
             width={projection.columnWidth}
-            headerZone={dayHeaderZone({ day })}
+            headerZone={<DayHeaderComponent day={day} />}
           />
         );
       })}
       daysZone={days.map((day, column) => {
-        const nowLine = position?.column === column ? nowLineZone(position) : null;
+        const nowLine = position?.column === column ? <NowLineComponent {...position} /> : null;
         return (
           <ScheduleDay
             key={day.localDate}
@@ -95,11 +94,11 @@ function ScheduleContent(props: ScheduleProps) {
             highlightSource={highlightSource}
             hours={hours}
             press={(x, y) => press(column, x, y)}
-            gridZone={gridZone}
-            columnZone={columnZone}
-            transitionZone={transitionZone}
-            intervalZone={intervalZone}
-            gapZone={gapZone}
+            gridComponent={gridComponent}
+            columnComponent={columnComponent}
+            transitionComponent={transitionComponent}
+            intervalComponent={intervalComponent}
+            gapComponent={gapComponent}
             nowLineZone={nowLine}
           />
         );
