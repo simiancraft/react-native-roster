@@ -34,7 +34,7 @@ hundred people without lying about time zones, this is the one.
   z-order; coverage math unions availability, subtracts bookings, and sorts.
 - **Recurrence adapter.** Weekly, daily, and monthly rules with exclusions,
   caps, and content-keyed caches, kept out of the core.
-- **Zones everywhere.** Every visual region is an optional render function, and
+- **Zones everywhere.** Input-bearing regions accept component types, singletons accept nodes, and
   every chrome region takes `style` plus a NativeWind `className` twin.
 - **Virtualized and measured.** Geometry runs only for mounted lanes; CI gates
   layout, coverage, bundle size, and browser action budgets.
@@ -130,7 +130,7 @@ export function RecurringExample() {
 
 Tuesday is a gap carrying the dated exclusion; the other weekdays carry the
 include rule. Expand once per `windowFor(spec)` in your screen's hook, never
-inside a zone filler; content-keyed caches reuse unchanged occurrences. The
+inside a slot component; content-keyed caches reuse unchanged occurrences. The
 [adapter guide](./docs/adapters.md) covers validation, caps, cache lifetime,
 and mapping tables or feeds without a recurrence dependency;
 [recurrence semantics](./docs/recurrence.md) records the exact anchor, UNTIL,
@@ -167,7 +167,7 @@ and "Availability may be incomplete"; both are localizable props.
 
 | Import | Shipped surface |
 | --- | --- |
-| `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, zone fillers, and all core exports. |
+| `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, slot components, and all core exports. |
 | `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `extentOf`, `intersectionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
@@ -241,23 +241,42 @@ to `byLabel`; `byCoverage({ measure })` sorts by coverage descending.
 
 ## Roster zones
 
-Every zone is an optional render function. Compose the exported default filler
-inside a replacement to retain scrolling, geometry, or press behavior.
+Props ending in `Component` accept `ComponentType<Input>` and are mounted by React.
+Props ending in `Zone` accept `ReactNode`. Define components at module scope so
+state survives rerenders; hooks and class components are supported. Compose the
+exported default components inside replacements to retain scrolling, geometry,
+or press behavior. Pass `null` to a node slot to suppress its default.
 
-| Zone | Receives | Default filler and behavior |
+| Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
-| `emptyZone` | Nothing | `RosterEmpty`: No lanes. |
-| `cornerZone` | Nothing | `RosterCorner`: nothing; the cell above the labels, `laneLabelWidth` wide. |
-| `laneLabelZone` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
-| `headerCellZone` | `tick` | `RosterHeaderCell`: tick label. |
-| `intervalZone` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
-| `gapZone` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
-| `gridZone` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
-| `headerZone` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellZone` | `RosterHeader`: frozen header following horizontal offset. |
-| `laneLabelColumnZone` | `labels`, `projection`, `scroll`, `laneLabelZone` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyZone` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight and hover, incomplete label, and rect zones | `RosterBody`: virtualized lanes. |
+| `emptyZone` | `ReactNode` | `RosterEmpty`: No lanes. |
+| `cornerZone` | `ReactNode` | `RosterCorner`: nothing; the cell above the labels, `laneLabelWidth` wide. |
+| `laneLabelComponent` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
+| `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
+| `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
+| `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
+| `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
+| `laneLabelColumnComponent` | `labels`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
 
-A custom interval filler positions at `rect.x/y`, uses `rect.width/height/z`,
+`RosterBody` composes `RosterBodyLayout`, which arranges `gridZone` and `listZone`
+nodes with scroll wiring, and `RosterLaneList`, which owns LegendList and its
+per-lane callback. The body waits for viewport measurement before mounting the list.
+
+```tsx
+import type { LaneLabelInput } from 'react-native-roster';
+import { Text } from 'react-native';
+
+function LaneLabel({ lane }: LaneLabelInput) {
+  return <Text>{lane.label}</Text>;
+}
+
+<Roster lanes={lanes} windowSpec={windowSpec}
+  laneLabelComponent={LaneLabel} cornerZone={<Text>People</Text>} />
+```
+
+A custom interval component positions at `rect.x/y`, uses `rect.width/height/z`,
 and sets `pointerEvents="none"` so the parent hit-test walk owns presses. Gap
 fillers are already inside positioned pressables. `useRoster` exposes ordered
 lanes, coverage, lane state, ticks, `geometryFor`, shared scrolling, `press`,
@@ -267,6 +286,63 @@ Chrome regions take style props: `style`, `headerStyle` (the 40 px header row
 holding the corner and ticks), `laneLabelColumnStyle`, and `bodyStyle`.
 `laneLabelWidth` sizes the corner and label column, default 180. Each style
 prop has a `className` twin; see [NativeWind](#nativewind).
+
+### Consumer data in slot components
+
+For consumer data beyond a slot's Input, mount a React context provider above
+`Roster` and read it with `useContext` in a module-scope slot component. This
+example supplies density and locale while keeping the header cell type stable:
+
+```tsx
+import { createContext, useContext } from 'react';
+import { Text } from 'react-native';
+import type { HeaderCellInput, RosterProps } from 'react-native-roster';
+import { Roster } from 'react-native-roster';
+
+type SlotPreferences = {
+  density: 'compact' | 'comfortable';
+  locale: string;
+};
+
+const SlotPreferencesContext = createContext<SlotPreferences>({
+  density: 'comfortable',
+  locale: 'en-US',
+});
+
+function LocalizedHeaderCell({ tick }: HeaderCellInput) {
+  const { density, locale } = useContext(SlotPreferencesContext);
+  const label = new Intl.DateTimeFormat(locale, {
+    timeZone: 'UTC',
+    ...(tick.kind === 'day'
+      ? { month: 'short', day: 'numeric' }
+      : { hour: 'numeric', minute: '2-digit' }),
+  }).format(tick.time);
+
+  return (
+    <Text numberOfLines={1} style={{ padding: density === 'compact' ? 2 : 6 }}>
+      {label}
+    </Text>
+  );
+}
+
+export function ConsumerRoster({ lanes }: Pick<RosterProps, 'lanes'>) {
+  return (
+    <SlotPreferencesContext.Provider value={{ density: 'compact', locale: 'en-GB' }}>
+      <Roster
+        lanes={lanes}
+        windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+        style={{ height: 480, flex: undefined }}
+        headerCellComponent={LocalizedHeaderCell}
+      />
+    </SlotPreferencesContext.Provider>
+  );
+}
+```
+
+An inline closure or a memoized factory that returns a new component per render
+is not the recommended path. A new interval component type remounts every interval
+and defeats the body's content key. Context supplies changing consumer data while
+preserving the module-scope component type.
 
 ## Schedule and its zones
 
@@ -287,17 +363,17 @@ reserves a 48 px gutter, and fits the day columns without horizontal scrolling.
 `pxPerHour` defaults to 48. Chrome takes `style`, `headerStyle`, `gutterStyle`,
 and `daysStyle`, each with a `className` twin.
 
-| Zone | Receives | Default filler and behavior |
+| Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
-| `gutterZone` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
-| `gridZone` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
-| `dayHeaderZone` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
-| `skippedDateZone` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
-| `columnZone` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap zones | `ScheduleColumn`: final rect bounds in layer order. |
-| `transitionZone` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
-| `nowLineZone` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
-| `intervalZone`, `gapZone` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
-| `incompleteZone` | `lane`, `label` | `ScheduleIncomplete`: notice above the grid when the lane is incomplete. |
+| `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+| `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+| `dayHeaderComponent` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
+| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
+| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
+| `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+| `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
+| `intervalComponent`, `gapComponent` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
+| `incompleteComponent` | `lane`, `label` | `ScheduleIncomplete`: notice above the grid when the lane is incomplete. |
 
 ## NativeWind
 
@@ -335,8 +411,8 @@ import { Roster } from 'react-native-roster';
 />
 ```
 
-Zone fillers are ordinary React Native views, so a custom `laneLabelZone` or
-`intervalZone` uses `className` on `View` and `Text` directly. Without the
+Slot components are ordinary React Native views, so a custom `laneLabelComponent` or
+`intervalComponent` uses `className` on `View` and `Text` directly. Without the
 entry point, class props are ignored and style props still work. The entry
 point is the package's only module with side effects and is listed in
 `sideEffects`. The [showcase route](./demo/app/showcase.tsx) styles every region
@@ -359,7 +435,7 @@ network). The home page lists every fixture route:
 - The showcase at `/showcase`: twelve generated people across seven zones,
   weekly hours and exclusions from the recurrence adapter, booked events, day
   and week spans, sorting, filtering, and a per-person Schedule, styled with
-  NativeWind class props and zone fillers, with a sun and moon theme toggle.
+  NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
   seed; any resemblance to real people is coincidental.
 
@@ -400,6 +476,7 @@ bun run check
 the library build, the static web export, tests with coverage, knip, strict
 publint, size-limit, and Playwright.
 
+- [Migrations](https://github.com/simiancraft/react-native-roster/blob/main/docs/migrations.md) lists prop renames by version with before-and-after examples.
 - [Adapter guide](./docs/adapters.md), [recurrence semantics](./docs/recurrence.md),
   [timezones](./docs/timezones.md), [caches](./docs/caches.md), and the
   [performance guide](./docs/performance.md).

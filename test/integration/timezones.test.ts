@@ -249,9 +249,13 @@ describe('rule, lane, and view zones end to end', () => {
         expect(rect.sources).toEqual([{ kind: 'rule', id: 'London-daily' }]);
         const header = h.tree.root.findByProps({ testID: 'roster-header' });
         const tick = header
-          .findAllByType('Text' as ElementType)
-          .find((text) => text.props.children === `0${expectedHour}:00`);
-        expect(tick?.parent?.props.style.left).toBe(rect.x);
+          .findAllByType('View' as ElementType)
+          .find((view) =>
+            view
+              .findAllByType('Text' as ElementType)
+              .some((text) => text.props.children === `0${expectedHour}:00`),
+          );
+        expect(tick?.props.style.left).toBe(rect.x);
         const row = h.tree.root.findByType(LaneRow);
         expect(row.findByType('View' as ElementType).props.style[1].left).toBe(rect.x);
         const labels = h.tree.root.findByProps({ testID: 'roster-labels' });

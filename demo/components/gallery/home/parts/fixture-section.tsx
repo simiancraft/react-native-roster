@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import type { LinkZone } from '../home.types';
+import type { LinkComponent } from '../home.types';
 
 export type FixtureCardInput = { id: string; href: string; title: string; description?: string };
 
@@ -7,13 +7,13 @@ export function FixtureSection({
   title,
   blurb,
   fixtures,
-  linkZone,
+  linkComponent,
 }: {
   title: string;
   blurb: string;
   fixtures: FixtureCardInput[];
   /** Wraps each fixture card in the host's link element. */
-  linkZone: LinkZone;
+  linkComponent: LinkComponent;
 }) {
   return (
     <View className="gap-4">
@@ -30,7 +30,7 @@ export function FixtureSection({
             href={fixture.href}
             title={fixture.title}
             description={fixture.description}
-            linkZone={linkZone}
+            linkComponent={linkComponent}
           />
         ))}
       </View>
@@ -42,10 +42,10 @@ function FixtureCard({
   href,
   title,
   description,
-  linkZone,
+  linkComponent,
 }: Omit<FixtureCardInput, 'id'> & {
   /** Wraps this card in the host's link element. */
-  linkZone: LinkZone;
+  linkComponent: LinkComponent;
 }) {
   const detail = description ? (
     <Text numberOfLines={2} className="text-xs leading-4 text-muted-foreground">
@@ -62,5 +62,6 @@ function FixtureCard({
       {detail}
     </View>
   );
-  return linkZone({ href, cardZone: card });
+  const Link = linkComponent;
+  return <Link href={href} cardZone={card} />;
 }

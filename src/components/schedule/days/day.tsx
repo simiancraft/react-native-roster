@@ -7,7 +7,14 @@ import { transitionBounds } from '../utils/days';
 import { ScheduleDayLayout } from './layout';
 
 type ScheduleDayZones = Required<
-  Pick<ScheduleProps, 'gridZone' | 'columnZone' | 'transitionZone' | 'intervalZone' | 'gapZone'>
+  Pick<
+    ScheduleProps,
+    | 'gridComponent'
+    | 'columnComponent'
+    | 'transitionComponent'
+    | 'intervalComponent'
+    | 'gapComponent'
+  >
 >;
 
 type ScheduleDayProps = ScheduleDayZones & {
@@ -33,11 +40,11 @@ export function ScheduleDay({
   highlightSource,
   hours,
   press,
-  gridZone,
-  columnZone,
-  transitionZone,
-  intervalZone,
-  gapZone,
+  gridComponent: GridComponent,
+  columnComponent: ColumnComponent,
+  transitionComponent: TransitionComponent,
+  intervalComponent,
+  gapComponent,
   nowLineZone,
 }: ScheduleDayProps) {
   return (
@@ -53,20 +60,26 @@ export function ScheduleDay({
         width={projection.columnWidth}
         height={24 * projection.pxPerHour}
         chromeZ={Math.max(0, ...lane.layers.map((layer) => layer.z)) + 1}
-        gridZone={gridZone({ hours, pxPerHour: projection.pxPerHour })}
-        columnZone={columnZone({
-          day,
-          lane,
-          rects: geometry.rects.filter((rect) => rect.column === column),
-          gapRects: geometry.gapRects.filter((rect) => rect.column === column),
-          highlightSource,
-          intervalZone,
-          gapZone,
-          press,
-        })}
+        gridZone={<GridComponent hours={hours} pxPerHour={projection.pxPerHour} />}
+        columnZone={
+          <ColumnComponent
+            day={day}
+            lane={lane}
+            rects={geometry.rects.filter((rect) => rect.column === column)}
+            gapRects={geometry.gapRects.filter((rect) => rect.column === column)}
+            highlightSource={highlightSource}
+            intervalComponent={intervalComponent}
+            gapComponent={gapComponent}
+            press={press}
+          />
+        }
         transitionZone={day.transitions.map((transition) => (
           <Fragment key={transition.at}>
-            {transitionZone({ day, transition, ...transitionBounds(day, transition, projection) })}
+            <TransitionComponent
+              day={day}
+              transition={transition}
+              {...transitionBounds(day, transition, projection)}
+            />
           </Fragment>
         ))}
         nowLineZone={nowLineZone}

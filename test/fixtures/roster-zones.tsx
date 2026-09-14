@@ -5,39 +5,39 @@ import { RosterBody, RosterHeader, RosterLaneLabelColumn } from '../../src';
 export const replacedZones: Pick<
   RosterProps,
   | 'emptyZone'
-  | 'headerZone'
-  | 'headerCellZone'
-  | 'laneLabelColumnZone'
-  | 'laneLabelZone'
-  | 'bodyZone'
-  | 'intervalZone'
-  | 'gapZone'
+  | 'headerComponent'
+  | 'headerCellComponent'
+  | 'laneLabelColumnComponent'
+  | 'laneLabelComponent'
+  | 'bodyComponent'
+  | 'intervalComponent'
+  | 'gapComponent'
 > = {
-  emptyZone: () => <Text>Custom empty roster</Text>,
-  headerZone: (input) => (
+  emptyZone: <Text>Custom empty roster</Text>,
+  headerComponent: (input) => (
     <View style={{ backgroundColor: '#e0e7ff' }}>
       <RosterHeader {...input} />
     </View>
   ),
-  headerCellZone: ({ tick }) => (
+  headerCellComponent: ({ tick }) => (
     <Text style={{ color: '#4338ca', padding: 4, fontSize: 11 }}>{tick.label.toUpperCase()}</Text>
   ),
-  laneLabelColumnZone: (input) => (
+  laneLabelColumnComponent: (input) => (
     <View style={{ flex: 1, backgroundColor: '#e0e7ff' }}>
       <RosterLaneLabelColumn {...input} />
     </View>
   ),
-  laneLabelZone: ({ lane, complete }) => (
+  laneLabelComponent: ({ lane, complete }) => (
     <Text style={{ padding: 8, color: '#4338ca' }}>
       {lane.label} · {complete ? 'Complete' : 'Partial'}
     </Text>
   ),
-  bodyZone: (input) => (
+  bodyComponent: (input) => (
     <View style={{ flex: 1, backgroundColor: '#faf5ff' }}>
       <RosterBody {...input} />
     </View>
   ),
-  intervalZone: ({ rect, layer }) => (
+  intervalComponent: ({ rect, layer }) => (
     <View
       pointerEvents="none"
       style={{
@@ -54,7 +54,7 @@ export const replacedZones: Pick<
       }}
     />
   ),
-  gapZone: () => (
+  gapComponent: () => (
     <View pointerEvents="none" style={{ flex: 1, backgroundColor: '#fef3c7' }}>
       <Text style={{ color: '#92400e', fontSize: 11 }}>Excluded</Text>
     </View>

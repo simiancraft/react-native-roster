@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 type ScheduleDayHeaderLayoutProps = {
   width: number;
-  /** Day heading supplied by dayHeaderZone, aligned with its column. */
+  /** Day heading supplied by dayHeaderComponent, aligned with its column. */
   headerZone: ReactNode;
 };
 

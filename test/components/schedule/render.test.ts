@@ -100,13 +100,13 @@ describe('Schedule chassis and day zones', () => {
   });
   it('passes a changed hour scale to the gutter and matches the grid and day heights', () => {
     const props = propsFor('schedule-empty');
-    const gutterZone = mock((input: { hours: number[]; pxPerHour: number }) =>
+    const gutterComponent = mock((input: { hours: number[]; pxPerHour: number }) =>
       createElement(ScheduleGutter, input),
     );
-    const tree = render(createElement(Schedule, { ...props, gutterZone }));
+    const tree = render(createElement(Schedule, { ...props, gutterComponent }));
     expect(tree.root.findByType(ScheduleGutter).props.pxPerHour).toBe(48);
-    act(() => tree.update(createElement(Schedule, { ...props, pxPerHour: 64, gutterZone })));
-    expect(gutterZone).toHaveBeenCalledWith({
+    act(() => tree.update(createElement(Schedule, { ...props, pxPerHour: 64, gutterComponent })));
+    expect(gutterComponent.mock.calls.at(-1)?.[0]).toEqual({
       hours: Array.from({ length: 24 }, (_, hour) => hour),
       pxPerHour: 64,
     });
@@ -244,11 +244,11 @@ describe('Schedule chassis and day zones', () => {
     );
     expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(0);
     expect(JSON.stringify(tree.toJSON())).toContain('Skipped local date 2011-12-30');
-    const skippedDateZone = mock(({ localDate }: { localDate: string }) =>
+    const skippedDateComponent = mock(({ localDate }: { localDate: string }) =>
       createElement('custom-skipped-date', { localDate }),
     );
-    act(() => tree.update(createElement(Schedule, { ...props, skippedDateZone })));
-    expect(skippedDateZone).toHaveBeenCalledWith({ localDate: '2011-12-30' });
+    act(() => tree.update(createElement(Schedule, { ...props, skippedDateComponent })));
+    expect(skippedDateComponent.mock.calls.at(-1)?.[0].localDate).toBe('2011-12-30');
     expect(tree.root.findByType('custom-skipped-date' as ElementType).props.localDate).toBe(
       '2011-12-30',
     );
@@ -268,20 +268,22 @@ describe('Schedule chassis and day zones', () => {
       headerStyle: { backgroundColor: 'red' },
       gutterStyle: { backgroundColor: 'green' },
       daysStyle: { backgroundColor: 'blue' },
-      gutterZone: mock(({ hours, pxPerHour }) =>
+      gutterComponent: mock(({ hours, pxPerHour }) =>
         createElement('custom-gutter', { hours, pxPerHour }),
       ),
-      gridZone: mock(({ hours, pxPerHour }) => createElement('custom-grid', { hours, pxPerHour })),
-      dayHeaderZone: mock(({ day }) => createElement('custom-header', { day })),
-      columnZone: mock((input) => {
+      gridComponent: mock(({ hours, pxPerHour }) =>
+        createElement('custom-grid', { hours, pxPerHour }),
+      ),
+      dayHeaderComponent: mock(({ day }) => createElement('custom-header', { day })),
+      columnComponent: mock((input) => {
         columns.push(input);
         return createElement(ScheduleColumn, input);
       }),
-      transitionZone: mock((input) => createElement('custom-transition', input)),
-      nowLineZone: mock((input) => createElement('custom-now', input)),
-      intervalZone: mock((input) => createElement('custom-interval', input)),
-      gapZone: mock((input) => createElement('custom-gap', input)),
-      incompleteZone: mock((input) => createElement('custom-incomplete', input)),
+      transitionComponent: mock((input) => createElement('custom-transition', input)),
+      nowLineComponent: mock((input) => createElement('custom-now', input)),
+      intervalComponent: mock((input) => createElement('custom-interval', input)),
+      gapComponent: mock((input) => createElement('custom-gap', input)),
+      incompleteComponent: mock((input) => createElement('custom-incomplete', input)),
     };
     const withGaps = {
       ...fall.lane,

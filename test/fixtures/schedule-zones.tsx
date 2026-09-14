@@ -11,37 +11,37 @@ import { replacedZones } from './roster-zones';
 
 export const replacedScheduleZones: Pick<
   ScheduleProps,
-  | 'gutterZone'
-  | 'dayHeaderZone'
-  | 'skippedDateZone'
-  | 'columnZone'
-  | 'transitionZone'
-  | 'nowLineZone'
-  | 'intervalZone'
-  | 'gapZone'
-  | 'incompleteZone'
+  | 'gutterComponent'
+  | 'dayHeaderComponent'
+  | 'skippedDateComponent'
+  | 'columnComponent'
+  | 'transitionComponent'
+  | 'nowLineComponent'
+  | 'intervalComponent'
+  | 'gapComponent'
+  | 'incompleteComponent'
 > = {
-  gutterZone: (input) => (
+  gutterComponent: (input) => (
     <View style={{ backgroundColor: '#e0e7ff' }}>
       <ScheduleGutter {...input} />
     </View>
   ),
-  dayHeaderZone: (input) => (
+  dayHeaderComponent: (input) => (
     <View style={{ backgroundColor: '#e0e7ff' }}>
       <ScheduleDayHeader {...input} />
     </View>
   ),
-  skippedDateZone: (input) => (
+  skippedDateComponent: (input) => (
     <View style={{ width: 0, borderLeftWidth: 2, borderColor: '#7c3aed' }}>
       <ScheduleSkippedDate {...input} />
     </View>
   ),
-  columnZone: (input) => (
+  columnComponent: (input) => (
     <View style={{ flex: 1, backgroundColor: '#faf5ff' }}>
       <ScheduleColumn {...input} />
     </View>
   ),
-  transitionZone: (input) => (
+  transitionComponent: (input) => (
     <>
       <ScheduleTransition {...input} />
       <Text
@@ -52,7 +52,7 @@ export const replacedScheduleZones: Pick<
       </Text>
     </>
   ),
-  nowLineZone: ({ y, column }) => (
+  nowLineComponent: ({ y, column }) => (
     <View
       testID={`custom-now-${column}`}
       pointerEvents="none"
@@ -65,9 +65,9 @@ export const replacedScheduleZones: Pick<
       }}
     />
   ),
-  intervalZone: replacedZones.intervalZone,
-  gapZone: replacedZones.gapZone,
-  incompleteZone: ({ lane, label }) => (
+  intervalComponent: replacedZones.intervalComponent,
+  gapComponent: replacedZones.gapComponent,
+  incompleteComponent: ({ lane, label }) => (
     <Text style={{ padding: 8, backgroundColor: '#ede9fe', color: '#5b21b6' }}>
       {lane.label}: {label}
     </Text>

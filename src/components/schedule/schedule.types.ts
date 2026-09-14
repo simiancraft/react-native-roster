@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   DayColumn,
@@ -53,9 +53,9 @@ export type ScheduleColumnInput = {
   highlightSource?: Source;
   press: (x: number, y: number) => void;
   /** Covered rect filler shared with Roster; final bounds and stacking belong to the rect. */
-  intervalZone: (input: IntervalInput) => ReactNode;
+  intervalComponent: ComponentType<IntervalInput>;
   /** Removed rect content shared with Roster; the column supplies its pressable bounds. */
-  gapZone: (input: GapInput) => ReactNode;
+  gapComponent: ComponentType<GapInput>;
 };
 export type ScheduleHoursInput = { hours: number[]; pxPerHour: number };
 /**
@@ -81,23 +81,23 @@ export type ScheduleProps = ScheduleInput &
   ScheduleStyleProps & {
     incompleteLabel?: string;
     /** Frozen left hour labels; ScheduleGutter receives hours 0 through 23 and their scale. */
-    gutterZone?: (input: ScheduleHoursInput) => ReactNode;
+    gutterComponent?: ComponentType<ScheduleHoursInput>;
     /** Hour bands behind each day's rects; ScheduleGrid draws 24 bordered bands. */
-    gridZone?: (input: ScheduleHoursInput) => ReactNode;
+    gridComponent?: ComponentType<ScheduleHoursInput>;
     /** Frozen day heading; ScheduleDayHeader shows weekday, localDate, and a transition badge. */
-    dayHeaderZone?: (input: { day: DayColumn }) => ReactNode;
+    dayHeaderComponent?: ComponentType<{ day: DayColumn }>;
     /** Wholly skipped local date marker; ScheduleSkippedDate labels its zero-width header gap. */
-    skippedDateZone?: (input: { localDate: string }) => ReactNode;
+    skippedDateComponent?: ComponentType<{ localDate: string }>;
     /** The day's covered and removed rects; ScheduleColumn draws final bounds in layer order. */
-    columnZone?: (input: ScheduleColumnInput) => ReactNode;
+    columnComponent?: ComponentType<ScheduleColumnInput>;
     /** Transition chrome only; ScheduleTransition hatches skips and divides repeats with again. */
-    transitionZone?: (input: ScheduleTransitionInput) => ReactNode;
+    transitionComponent?: ComponentType<ScheduleTransitionInput>;
     /** Current day's line at y; ScheduleNowLine spans the containing column. */
-    nowLineZone?: (input: { y: number; column: number }) => ReactNode;
+    nowLineComponent?: ComponentType<{ y: number; column: number }>;
     /** Covered rect filler shared with Roster; position using rect bounds and use pointerEvents="none". */
-    intervalZone?: (input: IntervalInput) => ReactNode;
+    intervalComponent?: ComponentType<IntervalInput>;
     /** Removed rect content shared with Roster; ScheduleColumn supplies the invisible pressable. */
-    gapZone?: (input: GapInput) => ReactNode;
+    gapComponent?: ComponentType<GapInput>;
     /** Completeness notice in reserved empty space above the day grid; receives the lane and localized label. */
-    incompleteZone?: (input: { lane: Lane; label: string }) => ReactNode;
+    incompleteComponent?: ComponentType<{ lane: Lane; label: string }>;
   };

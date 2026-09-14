@@ -23,7 +23,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
     selection,
   } = model;
   const { zones, showsEmptyExample } = fixture;
-  const bodyZone = __DEV__ && fixture.workload ? ProfiledBody : zones?.bodyZone;
+  const bodyComponent = __DEV__ && fixture.workload ? ProfiledBody : zones?.bodyComponent;
   const emptyExample = showsEmptyExample ? (
     <Roster lanes={[]} windowSpec={windowSpec} {...zones} />
   ) : null;
@@ -74,7 +74,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
           onGapPress={selectRect}
           onCellPress={selectCell}
           {...zones}
-          bodyZone={bodyZone}
+          bodyComponent={bodyComponent}
         />
       }
       countersZone={

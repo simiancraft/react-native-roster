@@ -28,7 +28,7 @@ behavior. State any interpretation in the delivery report.
 
 ```text
 src/
-  index.ts                 # public Roster, Schedule, hooks, zone fillers, and core re-exports
+  index.ts                 # public Roster, Schedule, hooks, slot components, and core re-exports
   core/index.ts            # pure types, geometry, coverage, caches, and axis helpers
   adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
@@ -37,7 +37,7 @@ src/
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
-    layers/                # interval and gap fillers shared by both projections
+    layers/                # interval and gap components shared by both projections
     primitives/            # press-point platform pair and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
@@ -77,8 +77,11 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   schedule has days; a gallery route has fixtures.
 - Each feature has a `useXxx` hook owning state and derived values. Its `index.tsx`
   chassis calls the hook, branches flat on `status`, and composes named zones.
-  Zone prop names end in `Zone`; every zone prop has a doc comment describing what
-  fills it. Layouts only arrange zones. Parts receive domain data, never relayed
+  Node prop names end in `Zone` and accept `ReactNode`; input-bearing slots end in
+  `Component` and accept `ComponentType<XxxInput>`. Default and bind component types
+  once in the chassis; parts mount them as JSX with their own data, never call them.
+  Every zone and component prop has a doc comment describing what fills it.
+  Layouts only arrange nodes. Parts receive domain data, never relayed
   flags such as `disabled` or `loading`. Primitives without hooks use plain composition.
 - No `useMemo`, `useCallback`, or `React.memo`; consumers use React Compiler.
   The SDK 54 demo enables `experiments.reactCompiler: true` in app.config.js.
@@ -101,7 +104,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   root props; the nativewind entry maps each twin with `cssInterop`. Layouts
   compose region styles with `regionStyle(structure, paint, override)`, which
   drops the default paint when the override carries a class entry. Fine detail
-  is styled through zones, whose fillers accept `className` as plain views.
+  is styled through slot components, which accept `className` as plain views.
 - Work outside the render path: geometry for visible lanes, coverage for every
   lane. Preserve exact provenance by `(kind, id)` and end-exclusive epoch bounds.
   Window is only `{ start, end }`; span and minute step belong to the axis.
@@ -114,8 +117,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   feature generates people with seeded Faker and styles everything with NativeWind
   semantic tokens (`bg-background`, `text-muted-foreground`, `border-border`, and the
   `grid` pair) declared in `demo/global.css` and swapped by the `dark` root class.
-  `TeamRosterScreen` exposes host-facing zones (title, actions, filter, controls,
-  corner, lane label, inspector, footer) that default to the showcase parts; the
+  `TeamRosterScreen` exposes host-facing component slots (title, actions, filter, controls,
+  corner, lane label, inspector, and footer) that default to the showcase parts; the
   route shell owns router contact and passes links in as zones.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
@@ -222,10 +225,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     gate runs only when process.env.CI is truthy so hardware classes are comparable.
     Local runs still measure and print both rows. Device gates remain manual.
 
-11. **Roster waits for viewport measurement before mounting LegendList.** LegendList
+11. **Roster waits for viewport measurement before mounting LegendList.** RosterBody
+    composes a node-only RosterBodyLayout and the RosterLaneList collection part. LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
-    keys window, projection, highlight identity, and rect zone fillers. Vertical scroll
+    keys window, projection, highlight identity, and interval and gap component identities. Vertical scroll
     must not update React state; all lane labels share one translated column.
     Roster and Schedule retain a stable press function that reads current inputs
     from a ref; inline consumer callbacks must not enter the body content key.
@@ -242,7 +246,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     native locationX/Y; `press-point.web.tsx` maps DOM clientX/Y relative to
     currentTarget. Keep the shared .types.ts and package.json browser remap together
     when changing this pair. Both projections share it, as they share the interval and
-    gap fillers in `components/layers` and the pure `core/hit-test.ts` walk.
+    gap components in `components/layers` and the pure `core/hit-test.ts` walk.
 
 15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
     transitions, preserving skips and both repeat occurrences. On a cache miss, resolve
@@ -252,7 +256,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     timezone, span, minuteStep, and pxPerMinute; identical calls must do no Intl work.
 16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
     renders; only on-screen counters sample every 500 ms. Fixture records own zones
-    and showsEmptyExample, with visual fillers in test/fixtures/roster-zones.tsx.
+    and showsEmptyExample, with visual components in test/fixtures/roster-zones.tsx.
 17. **Adapter caches retain occurrences only.** Every call nets and applies the total
     cap fresh in rule id order, then date id order. Retained envelopes select bounds
     by containment; only retained per-rule entries guarantee expanded 0. The default
@@ -316,7 +320,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     the stable counter bridge. Sort tests warm only the target mounted lanes;
     sorting itself never lays out offscreen lanes. Incomplete row notices occupy
     the first empty span and leave interval bounds untouched.
-21. **Sorting retains the viewport offset, not a lane anchor.** RosterBody disables
+21. **Sorting retains the viewport offset, not a lane anchor.** RosterLaneList disables
     LegendList maintainVisibleContentPosition. The pinned 2.x anchoring otherwise
     moves mounted containers outside the viewport on repeated coverage sorts.
 22. **Timezone gallery fixtures expand at the selected window.** `test/fixtures/timezones.ts`
@@ -338,7 +342,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     hooks use a 280 px grid; the chassis subtracts the 48 px gutter from measured width.
     pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
     walk, filtering rects by column and keeping the original pointer for final bounds.
-    Skipped dates have a zero-width header marker supplied by skippedDateZone and
+    Skipped dates have a zero-width header marker supplied by skippedDateComponent and
     ScheduleSkippedDate, never a fabricated day column.
     Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
     bridge and supply the actual adapter expanded counter.
@@ -369,7 +373,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     FixtureLayout places ruleSetEditorZone beside subjectZone, or above it
     on narrow screens. The schedule
     every-zone fixture offers defaults/replacements and date presets to exercise
-    skippedDateZone, transitionZone, and nowLineZone as well as the ordinary slots.
+    skippedDateComponent, transitionComponent, and nowLineComponent as well as the ordinary slots.
 
 29. **Cross-date rollbacks retain absolute column spans.** A local date's column
     spans the first instant of that date to the first instant of the next.

@@ -32,7 +32,7 @@ heights.
 Skipped wall spans belong to the date they interrupt; its transitions include a
 skip at the column's exclusive end when it empties that date's final bands, such
 as Nuuk's 23:00 to 24:00 on 2024-03-30. Those bands are hatched and reject
-presses. A wholly skipped date has no column; `skippedDateZone` labels the
+presses. A wholly skipped date has no column; `skippedDateComponent` labels the
 header gap (Apia, 2011-12-30).
 
 Column x coordinates reset per column; `rect.column` selects it.

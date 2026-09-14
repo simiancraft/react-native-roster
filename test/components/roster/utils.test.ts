@@ -15,12 +15,12 @@ const projection = {
 };
 
 describe('roster utils', () => {
-  it('keys body content by geometry, source identity, and zone fillers', () => {
+  it('keys body content by geometry, source identity, and component identities', () => {
     const input = {
       window: windowFor(rosterWindowSpec),
       projection,
-      intervalZone: () => null,
-      gapZone: () => null,
+      intervalComponent: () => null,
+      gapComponent: () => null,
       highlightSource: { kind: 'rule', id: 'one' },
     };
     const key = bodyContentKey(input);
@@ -40,8 +40,8 @@ describe('roster utils', () => {
       { projection: { ...projection, rowHeight: 64 } },
       { highlightSource: { kind: 'date', id: 'one' } },
       { highlightSource: { kind: 'rule', id: 'two' } },
-      { intervalZone: () => null },
-      { gapZone: () => null },
+      { intervalComponent: () => null },
+      { gapComponent: () => null },
       { onIntervalHover: () => {} },
       { incompleteLabel: 'Partial data' },
     ])

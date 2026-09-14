@@ -8,8 +8,8 @@ export function ScheduleColumn({
   rects,
   gapRects,
   press,
-  intervalZone,
-  gapZone,
+  intervalComponent: IntervalComponent,
+  gapComponent: GapComponent,
   highlightSource,
 }: ScheduleColumnInput) {
   return [...lane.layers]
@@ -20,15 +20,15 @@ export function ScheduleColumn({
           .filter((rect) => rect.layerId === layer.id)
           .map((rect) => (
             <Fragment key={`interval-${rect.y}:${rect.height}`}>
-              {intervalZone({
-                rect,
-                layer,
-                lane,
-                highlighted: rect.sources.some(
+              <IntervalComponent
+                rect={rect}
+                layer={layer}
+                lane={lane}
+                highlighted={rect.sources.some(
                   (source) =>
                     source.kind === highlightSource?.kind && source.id === highlightSource.id,
-                ),
-              })}
+                )}
+              />
             </Fragment>
           ))}
         {gapRects
@@ -51,7 +51,7 @@ export function ScheduleColumn({
                 zIndex: rect.z,
               }}
             >
-              {gapZone({ rect, layer, lane })}
+              <GapComponent rect={rect} layer={layer} lane={lane} />
             </Pressable>
           ))}
       </Fragment>
