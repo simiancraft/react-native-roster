@@ -21,7 +21,9 @@ in `../primitives`. Zone contracts are documented in the README's Roster zones
 section and in `llms.txt`. Tests: `test/components/roster`.
 
 This feature is about a roster body; its children are lanes. `RosterBody` gates
-measurement and composes the body layout and lane list.
+measurement and composes the body layout and lane list. The `onRowRender` prop on
+`RosterBody` and `RosterLaneList` is a development-only Profiler hook used by the
+gallery, not a supported customization point. Production Profiler callbacks are disabled.
 
 Input-bearing slots accept component types and mount in the data-owning parts.
 The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body

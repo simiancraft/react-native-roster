@@ -5,7 +5,7 @@ import { RosterLaneList } from './lane-list';
 
 export function RosterBody(
   props: BodyInput & {
-    /** Optional per-lane commit observer; used by the development gallery's Profiler gate. */
+    /** Development-only Profiler hook used by the gallery; not a supported customization point. */
     onRowRender?: ProfilerOnRenderCallback;
   },
 ) {

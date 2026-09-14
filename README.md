@@ -215,7 +215,7 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `emptyZone` | `ReactNode` | `RosterEmpty`: No lanes. |
 | `cornerZone` | `ReactNode` | `RosterCorner`: nothing; the cell above the labels, `laneLabelWidth` wide. |
 | `laneLabelComponent` | `lane`, `flag`, `complete`, `viewTimezone`, localized labels | `RosterLaneLabel`: label, differing IANA zone badge, and notices. |
-| `headerCellComponent` | `tick` | `RosterHeaderCell`: tick label. |
+| `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
 | `selectionLayout` | `SelectionLayoutProps`: nodes, anchor, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
@@ -328,6 +328,63 @@ site; place required providers above the host or re-provide them in the content.
 Selection never enters the lane list's body content key.
 
 Schedule does not yet support selection; it is a later change.
+
+### Consumer data in slot components
+
+For consumer data beyond a slot's Input, mount a React context provider above
+`Roster` and read it with `useContext` in a module-scope slot component. This
+example supplies density and locale while keeping the header cell type stable:
+
+```tsx
+import { createContext, useContext } from 'react';
+import { Text } from 'react-native';
+import type { HeaderCellInput, RosterProps } from 'react-native-roster';
+import { Roster } from 'react-native-roster';
+
+type SlotPreferences = {
+  density: 'compact' | 'comfortable';
+  locale: string;
+};
+
+const SlotPreferencesContext = createContext<SlotPreferences>({
+  density: 'comfortable',
+  locale: 'en-US',
+});
+
+function LocalizedHeaderCell({ tick }: HeaderCellInput) {
+  const { density, locale } = useContext(SlotPreferencesContext);
+  const label = new Intl.DateTimeFormat(locale, {
+    timeZone: 'UTC',
+    ...(tick.kind === 'day'
+      ? { month: 'short', day: 'numeric' }
+      : { hour: 'numeric', minute: '2-digit' }),
+  }).format(tick.time);
+
+  return (
+    <Text numberOfLines={1} style={{ padding: density === 'compact' ? 2 : 6 }}>
+      {label}
+    </Text>
+  );
+}
+
+export function ConsumerRoster({ lanes }: Pick<RosterProps, 'lanes'>) {
+  return (
+    <SlotPreferencesContext.Provider value={{ density: 'compact', locale: 'en-GB' }}>
+      <Roster
+        lanes={lanes}
+        windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+        style={{ height: 480, flex: undefined }}
+        headerCellComponent={LocalizedHeaderCell}
+      />
+    </SlotPreferencesContext.Provider>
+  );
+}
+```
+
+An inline closure or a memoized factory that returns a new component per render
+is not the recommended path. A new interval component type remounts every interval
+and defeats the body's content key. Context supplies changing consumer data while
+preserving the module-scope component type.
 
 ## Schedule and its zones
 
@@ -461,6 +518,7 @@ bun run check
 the library build, the static web export, tests with coverage, knip, strict
 publint, size-limit, and Playwright.
 
+- [Migrations](https://github.com/simiancraft/react-native-roster/blob/main/docs/migrations.md) lists prop renames by version with before-and-after examples.
 - [Adapter guide](./docs/adapters.md), [recurrence semantics](./docs/recurrence.md),
   [timezones](./docs/timezones.md), [caches](./docs/caches.md), and the
   [performance guide](./docs/performance.md).

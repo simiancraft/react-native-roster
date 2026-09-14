@@ -20,7 +20,7 @@ export function RosterLaneList({
   incompleteLabel,
   onRowRender,
 }: Omit<BodyInput, 'ticks' | 'gridComponent'> & {
-  /** Optional per-lane commit observer for the development gallery's Profiler gate. */
+  /** Development-only Profiler hook used by the gallery; not a supported customization point. */
   onRowRender?: ProfilerOnRenderCallback;
 }) {
   return (
