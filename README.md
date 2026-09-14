@@ -258,8 +258,10 @@ Add `intervalDetailComponent` to enable pressed-interval details. The press stil
 fires `onIntervalPress`; without the component, presses retain no selection.
 `useRoster` owns `selection` and `dismissSelection`. Removing the selected lane,
 layer, or interval bounds clears selection. Current data and geometry replace old
-references, including after resizing or sorting. Reconciliation compares bounds rounded
-to whole milliseconds so fitted scales do not clear valid selection.
+references, including after resizing or sorting. Reconciliation matches the layer id and
+order-insensitive source identities, then chooses the nearest absolute bounds. The sum
+of bound differences must be less than one pixel of time at the current projection
+scale or 1 ms, whichever is larger. Stored bounds remain the display values.
 
 `intervalDetailComponent` lives on `RosterInput` because `useRoster` owns selection
 and must know whether presses select. `selectionLayout` and `portalHost` live on
@@ -303,7 +305,10 @@ for portal placement, outside click, Escape, focus, and collision handling.
 The overlay tracks both scroll offsets with Reanimated shared values, without
 React scroll state. Native clamps details horizontally to the measured viewport,
 flips above when that fits, and uses the top edge when neither vertical placement
-fits. Native also dismisses on outside press and hardware back.
+fits. The default native popover waits for viewport measurement and scrolls oversized
+content on both axes within a maximum size of the viewport minus 8 px on each axis.
+Consumers wanting a different presentation supply `selectionLayout`.
+Native also dismisses on outside press and hardware back.
 
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`

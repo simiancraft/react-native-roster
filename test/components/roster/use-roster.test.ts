@@ -382,3 +382,165 @@ it('retains selection when a fitted resize introduces sub-millisecond projection
   expect(h.model.selection?.rect).toBe(h.model.geometryFor(lane).rects[0] as Rect);
   h.close();
 });
+
+it('selects the correct adjacent sub-millisecond interval despite rounded bounds colliding', () => {
+  const lane: Lane = {
+    id: 'fractional',
+    label: 'Fractional',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [
+          { start: 1000.1, end: 1000.2, sources: [{ kind: 'rule', id: 'first' }] },
+          { start: 1000.2, end: 1000.3, sources: [{ kind: 'rule', id: 'second' }] },
+        ],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1001 } },
+    intervalDetailComponent: () => null,
+  });
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  const rect = h.model.geometryFor(lane).rects[1] as Rect;
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  expect(h.model.selection?.rect).toBe(rect);
+  expect(h.model.selection).toMatchObject({ start: 1000.2, end: 1000.3 });
+  h.close();
+});
+
+it('retains stored half-millisecond bounds when resizing to 721 px', () => {
+  const lane: Lane = {
+    id: 'half',
+    label: 'Half',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [{ start: 6.5, end: 60_000, sources: [] }],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
+    intervalDetailComponent: () => null,
+  });
+  act(() => h.model.press(lane, 0.25, 10));
+  expect(h.model.selection).toMatchObject({ start: 6.5, end: 60_000 });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(timeAtX(h.model.projection, h.model.window, rect.x)).toBe(6.499999999999999);
+  expect(h.model.selection?.rect).toBe(rect);
+  expect(h.model.selection).toMatchObject({ start: 6.5, end: 60_000 });
+  h.close();
+});
+
+it('chooses nearest neighboring bounds for repeated source sets and rejects changed identity or distant bounds', () => {
+  const sources = [
+    { kind: 'rule', id: 'weekly' },
+    { kind: 'date', id: 'include' },
+  ];
+  const lane: Lane = {
+    id: 'repeated',
+    label: 'Repeated',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        // A small gap keeps identical source spans from merging into one rect.
+        intervals: [
+          { start: 1000.1, end: 1000.19, sources },
+          { start: 1000.2, end: 1000.3, sources },
+        ],
+      },
+      {
+        id: 'other',
+        role: 'custom',
+        z: -1,
+        style: { color: 'blue' },
+        intervals: [{ start: 1000.2, end: 1000.3, sources }],
+      },
+    ],
+  };
+  const input: RosterInput = {
+    lanes: [lane],
+    windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1010 } },
+    intervalDetailComponent: () => null,
+  };
+  const h = harness(input);
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  const rect = h.model.geometryFor(lane).rects[1] as Rect;
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  expect(h.model.selection?.rect).toBe(rect);
+  const stored = h.model.selection;
+  const fresh: Lane = {
+    ...lane,
+    layers: lane.layers.map((layer) => ({
+      ...layer,
+      intervals: layer.intervals.map((interval) => ({
+        ...interval,
+        sources: [...sources].reverse().map((source) => ({ ...source, label: 'Fresh' })),
+      })),
+    })),
+  };
+  h.update({ ...input, lanes: [fresh] });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(fresh).rects[1] as Rect);
+  expect(h.model.selection).toMatchObject({ start: stored?.start, end: stored?.end });
+  for (const replacement of [
+    [
+      { kind: 'date', id: 'weekly' },
+      { kind: 'date', id: 'include' },
+    ],
+    [{ kind: 'rule', id: 'weekly' }],
+    [
+      { kind: 'rule', id: 'different' },
+      { kind: 'date', id: 'include' },
+    ],
+  ]) {
+    h.update(input);
+    act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+    h.update({
+      ...input,
+      lanes: [
+        {
+          ...lane,
+          layers: lane.layers.map((layer) => ({
+            ...layer,
+            intervals: layer.intervals.map((interval) => ({ ...interval, sources: replacement })),
+          })),
+        },
+      ],
+    });
+    expect(h.model.selection).toBeNull();
+  }
+  h.update(input);
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  h.update({
+    ...input,
+    lanes: [
+      {
+        ...lane,
+        layers: lane.layers.map((layer) => ({
+          ...layer,
+          intervals: layer.intervals.map((interval) => ({
+            ...interval,
+            start: interval.start + 2,
+            end: interval.end + 2,
+          })),
+        })),
+      },
+    ],
+  });
+  expect(h.model.selection).toBeNull();
+  h.close();
+});

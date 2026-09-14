@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BackHandler, Pressable, View } from 'react-native';
+import { BackHandler, Pressable, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Portal, PortalHost } from '../../primitives/portal';
 import type { SelectionLayoutProps } from './selection-layout.types';
@@ -17,6 +17,9 @@ export function RosterSelectionPopover({
   const name = useId();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [content, setContent] = useState({ width: 0, height: 0 });
+  const maxWidth = Math.max(0, viewport.width - 8);
+  const maxHeight = Math.max(0, viewport.height - 8);
+  const size = { maxWidth, maxHeight, flexShrink: 1 };
   const { x, y } = scroll;
   const position = useAnimatedStyle(() => {
     const below = anchor ? anchor.y + anchor.height + 4 - y.get() : 0;
@@ -49,16 +52,17 @@ export function RosterSelectionPopover({
       <View pointerEvents="box-none" style={overlay}>
         <PortalHost name={portalHost} />
       </View>
-      {open && anchor ? (
+      {open && anchor && maxWidth > 0 && maxHeight > 0 ? (
         <Portal hostName={portalHost} name={name}>
           <Pressable
             accessibilityLabel="Dismiss interval details"
             style={overlay}
             onPress={onDismiss}
           />
-          <Animated.View style={[{ position: 'absolute' }, position]}>
+          <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
             <View
               accessibilityRole="summary"
+              style={size}
               onLayout={({ nativeEvent }) =>
                 setContent({
                   width: nativeEvent.layout.width,
@@ -66,7 +70,15 @@ export function RosterSelectionPopover({
                 })
               }
             >
-              {contentZone}
+              <ScrollView style={size} nestedScrollEnabled>
+                <ScrollView
+                  horizontal
+                  style={{ maxWidth, flexGrow: 0, flexShrink: 0 }}
+                  nestedScrollEnabled
+                >
+                  {contentZone}
+                </ScrollView>
+              </ScrollView>
             </View>
           </Animated.View>
         </Portal>

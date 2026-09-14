@@ -1,6 +1,7 @@
 import { expect, it, mock } from 'bun:test';
 import * as Popover from '@radix-ui/react-popover';
 import type { ElementType } from 'react';
+import { View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { RosterSelectionPopover } from '../../../src/components/roster/selection/selection-layout';
 import type { SelectionLayoutProps } from '../../../src/components/roster/selection/selection-layout.types';
@@ -110,5 +111,84 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   const overlays = tree.root.findAllByType('AnimatedView' as ElementType);
   expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }]);
   expect(overlays[1]?.props.style.transform).toEqual([{ translateY: -24 }]);
+  act(() => tree.unmount());
+});
+
+it('constrains oversized native details and scrolls them on both axes', () => {
+  let tree!: ReactTestRenderer;
+  function Example() {
+    const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
+    return (
+      <RosterSelectionPopover
+        open
+        anchor={{ x: 290, y: 290, width: 100, height: 48 }}
+        anchorZone="body"
+        contentZone={<View style={{ width: 900, height: 800 }}>Large details</View>}
+        portalHost="oversized-test"
+        scroll={scroll}
+        onDismiss={() => {}}
+      />
+    );
+  }
+  act(() => {
+    tree = create(<Example />);
+  });
+  act(() =>
+    tree.root.findAllByType('View' as ElementType)[0]?.props.onLayout({
+      nativeEvent: { layout: { width: 300, height: 200 } },
+    }),
+  );
+  const summary = tree.root.findByProps({ accessibilityRole: 'summary' });
+  expect(summary.props.style).toEqual({ maxWidth: 292, maxHeight: 192, flexShrink: 1 });
+  const scrolls = summary.findAllByType('ScrollView' as ElementType);
+  expect(scrolls).toHaveLength(2);
+  expect(scrolls[0]?.props.horizontal).toBeUndefined();
+  expect(scrolls[1]?.props.horizontal).toBe(true);
+  expect(scrolls[1]?.findByType('View' as ElementType).props.style).toEqual({
+    width: 900,
+    height: 800,
+  });
+  expect(scrolls[0]?.props.style).toEqual(summary.props.style);
+  // Preserve the inner content height so the outer view can scroll it vertically.
+  expect(scrolls[1]?.props.style).toEqual({ maxWidth: 292, flexGrow: 0, flexShrink: 0 });
+  act(() => summary.props.onLayout({ nativeEvent: { layout: { width: 292, height: 192 } } }));
+  const styles = tree.root.findByType('AnimatedView' as ElementType).props.style;
+  expect(styles[0]).toMatchObject({ maxWidth: 292, maxHeight: 192 });
+  expect(styles[1]).toEqual({ left: 8, top: 0 });
+  act(() => tree.unmount());
+});
+
+it('waits for viewport measurement with an open selection and then places details without negative offsets', () => {
+  let tree!: ReactTestRenderer;
+  function Example() {
+    const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
+    scroll.x.set(100);
+    scroll.y.set(100);
+    return (
+      <RosterSelectionPopover
+        open
+        anchor={{ x: 0, y: 0, width: 100, height: 48 }}
+        anchorZone="body"
+        contentZone="details"
+        portalHost="unmeasured-test"
+        scroll={scroll}
+        onDismiss={() => {}}
+      />
+    );
+  }
+  act(() => {
+    tree = create(<Example />);
+  });
+  expect(tree.root.findAllByType('AnimatedView' as ElementType)).toHaveLength(0);
+  expect(tree.root.findAllByType('ScrollView' as ElementType)).toHaveLength(0);
+  const measure = tree.root.findAllByType('View' as ElementType)[0]?.props.onLayout;
+  act(() => measure({ nativeEvent: { layout: { width: 300, height: 0 } } }));
+  expect(tree.root.findAllByType('AnimatedView' as ElementType)).toHaveLength(0);
+  act(() => measure({ nativeEvent: { layout: { width: 300, height: 200 } } }));
+  expect(tree.root.findByType('AnimatedView' as ElementType).props.style[1]).toEqual({
+    left: 0,
+    top: 0,
+  });
+  expect(tree.root.findAllByType('ScrollView' as ElementType)[1]?.props.children).toBe('details');
   act(() => tree.unmount());
 });

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ScrollView } from 'react-native';
 import { makeMutable, useAnimatedStyle } from 'react-native-reanimated';
-import type { Lane, LaneGeometry, Window } from '../../core';
+import type { Lane, LaneGeometry, Rect, Window } from '../../core';
 import { byLabel, coverageFor, flagFor, layoutLane, timeAtX, windowFor } from '../../core';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
 import { type SelectedInterval, useRosterPress } from './use-roster-press';
@@ -105,7 +105,7 @@ export function useRoster(input: RosterInput): RosterModel {
   };
 }
 
-// Resolve absolute bounds at millisecond precision to ignore projection roundoff on resize.
+// Match provenance and nearest bounds while preserving the stored display values.
 function reconcileSelection(
   selected: SelectedInterval | null,
   lanes: Lane[],
@@ -117,12 +117,26 @@ function reconcileSelection(
     const lane = lanes.find((lane) => lane.id === selected.lane.id);
     const layer = lane?.layers.find((layer) => layer.id === selected.layer.id);
     if (lane && layer) {
-      const rect = layoutLane(lane, window, projection).rects.find(
-        (rect) =>
-          rect.layerId === layer.id &&
-          Math.round(timeAtX(projection, window, rect.x)) === Math.round(selected.start) &&
-          Math.round(timeAtX(projection, window, rect.x + rect.width)) === Math.round(selected.end),
+      const sources = new Set(
+        selected.rect.sources.map((source) => JSON.stringify([source.kind, source.id])),
       );
+      let rect: Rect | undefined;
+      let nearest = Math.max(1, 60_000 / projection.pxPerMinute);
+      for (const candidate of layoutLane(lane, window, projection).rects) {
+        if (candidate.layerId !== layer.id) continue;
+        const identities = new Set(
+          candidate.sources.map((source) => JSON.stringify([source.kind, source.id])),
+        );
+        if (identities.size !== sources.size || ![...identities].every((id) => sources.has(id)))
+          continue;
+        const difference =
+          Math.abs(timeAtX(projection, window, candidate.x) - selected.start) +
+          Math.abs(timeAtX(projection, window, candidate.x + candidate.width) - selected.end);
+        if (difference < nearest) {
+          nearest = difference;
+          rect = candidate;
+        }
+      }
       if (rect) return { rect, layer, lane, start: selected.start, end: selected.end };
     }
   }
