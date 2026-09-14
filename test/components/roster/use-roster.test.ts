@@ -346,3 +346,39 @@ it('selects only with detail content, dismisses, reconciles current data, and cl
   expect(h.model.selection).toBeNull();
   h.close();
 });
+
+it('retains selection when a fitted resize introduces sub-millisecond projection roundoff', () => {
+  const lane: Lane = {
+    id: 'resize',
+    label: 'Resize',
+    layers: [
+      {
+        id: 'open',
+        role: 'availability',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [{ start: 32_400_000, end: 61_200_000, sources: [] }],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
+    intervalDetailComponent: () => null,
+  });
+  act(() => h.model.press(lane, 300, 10));
+  expect(h.model.selection).toMatchObject({ start: 32_400_000, end: 61_200_000 });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(Number.isInteger(h.model.projection.pxPerMinute)).toBe(false);
+  expect(timeAtX(h.model.projection, h.model.window, rect.x + rect.width)).not.toBe(61_200_000);
+  expect(h.model.selection).toMatchObject({ start: 32_400_000, end: 61_200_000 });
+  expect(h.model.selection?.rect).toBe(rect);
+  // Selection captured at a fractional scale also survives returning to the original scale.
+  act(() => h.model.dismissSelection());
+  act(() => h.model.press(lane, 300, 10));
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  expect(h.model.selection).not.toBeNull();
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(lane).rects[0] as Rect);
+  h.close();
+});

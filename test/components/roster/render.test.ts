@@ -381,7 +381,14 @@ describe('Roster zones and rect primitives', () => {
 });
 
 it('mounts selection content outside the body, supplies current inputs, and isolates host names', () => {
-  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const original = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const lane = {
+    ...original,
+    layers: original.layers.map((layer) => ({
+      ...layer,
+      style: { ...layer.style, inset: 6 },
+    })),
+  };
   const detail = mock((input: import('../../../src').IntervalDetailInput) =>
     createElement('detail', input),
   );
@@ -389,7 +396,7 @@ it('mounts selection content outside the body, supplies current inputs, and isol
     createElement('selection-layout', input, input.anchorZone, input.contentZone),
   );
   const input = {
-    lanes: [lane],
+    lanes: [{ id: 'first', label: 'A', layers: [] }, lane],
     windowSpec: rosterWindowSpec,
     intervalDetailComponent: detail,
     selectionLayout: strategy,
@@ -400,7 +407,7 @@ it('mounts selection content outside the body, supplies current inputs, and isol
   act(() => body.props.press(lane, 300, 10));
   const selected = tree.root.findByType('selection-layout' as ElementType).props;
   expect(selected.open).toBe(true);
-  expect(selected.anchor).toEqual({ x: 270, y: 0, width: 240, height: 48 });
+  expect(selected.anchor).toEqual({ x: 270, y: 54, width: 240, height: 36 });
   expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(false);
   act(() =>
     tree.update(

@@ -38,20 +38,33 @@ it('keeps a native host mounted, positions and flips details, and dismisses on o
   act(() =>
     tree.root
       .findAllByType('View' as ElementType)[0]
-      ?.props.onLayout({ nativeEvent: { layout: { height: 300 } } }),
+      ?.props.onLayout({ nativeEvent: { layout: { width: 300, height: 300 } } }),
   );
   act(() => tree.update(<Example open />));
   expect(tree.root.findByType('AnimatedView' as ElementType).props.style[1]).toEqual({
-    left: 40,
-    top: 102,
-    transform: [{ translateX: -10 }, { translateY: -20 }],
+    left: 30,
+    top: 82,
   });
   act(() =>
     tree.root
       .findByProps({ accessibilityRole: 'summary' })
-      .props.onLayout({ nativeEvent: { layout: { height: 250 } } }),
+      .props.onLayout({ nativeEvent: { layout: { width: 200, height: 250 } } }),
   );
-  expect(tree.root.findByType('AnimatedView' as ElementType).props.style[1].top).toBe(-204);
+  function expectInside(left: number, top: number) {
+    const position = tree.root.findByType('AnimatedView' as ElementType).props.style[1];
+    expect(position).toEqual({ left, top });
+    expect(position.left).toBeGreaterThanOrEqual(0);
+    expect(position.left + 200).toBeLessThanOrEqual(300);
+    expect(position.top).toBeGreaterThanOrEqual(0);
+    expect(position.top + 250).toBeLessThanOrEqual(300);
+  }
+  // Neither below nor above fits, so use the viewport's top edge.
+  expectInside(30, 0);
+  act(() => tree.update(<Example open anchor={{ x: 250, y: 290, width: 100, height: 48 }} />));
+  expectInside(100, 16);
+  // Horizontal scrolling leaves the interval partly beyond the left edge.
+  act(() => tree.update(<Example open anchor={{ x: 5, y: 50, width: 100, height: 48 }} />));
+  expectInside(0, 0);
   act(() => tree.root.findByType('Pressable' as ElementType).props.onPress());
   expect(onDismiss).toHaveBeenCalledTimes(1);
   act(() => {

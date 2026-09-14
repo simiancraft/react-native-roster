@@ -15,16 +15,16 @@ export function RosterSelectionPopover({
   scroll,
 }: SelectionLayoutProps) {
   const name = useId();
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const [contentHeight, setContentHeight] = useState(0);
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const [content, setContent] = useState({ width: 0, height: 0 });
   const { x, y } = scroll;
   const position = useAnimatedStyle(() => {
-    const top = anchor ? anchor.y + anchor.height + 4 : 0;
-    const flip = top - y.get() + contentHeight > viewportHeight;
+    const below = anchor ? anchor.y + anchor.height + 4 - y.get() : 0;
+    const above = anchor ? anchor.y - content.height - 4 - y.get() : 0;
+    const maxTop = Math.max(0, viewport.height - content.height);
     return {
-      left: anchor?.x ?? 0,
-      top: flip && anchor ? anchor.y - contentHeight - 4 : top,
-      transform: [{ translateX: -x.get() }, { translateY: -y.get() }],
+      left: Math.max(0, Math.min((anchor?.x ?? 0) - x.get(), viewport.width - content.width)),
+      top: below >= 0 && below <= maxTop ? below : above >= 0 && above <= maxTop ? above : 0,
     };
   });
   useEffect(() => {
@@ -38,7 +38,12 @@ export function RosterSelectionPopover({
   return (
     <View
       style={{ flex: 1, minHeight: 0 }}
-      onLayout={({ nativeEvent }) => setViewportHeight(nativeEvent.layout.height)}
+      onLayout={({ nativeEvent }) =>
+        setViewport({
+          width: nativeEvent.layout.width,
+          height: nativeEvent.layout.height,
+        })
+      }
     >
       {anchorZone}
       <View pointerEvents="box-none" style={overlay}>
@@ -54,7 +59,12 @@ export function RosterSelectionPopover({
           <Animated.View style={[{ position: 'absolute' }, position]}>
             <View
               accessibilityRole="summary"
-              onLayout={({ nativeEvent }) => setContentHeight(nativeEvent.layout.height)}
+              onLayout={({ nativeEvent }) =>
+                setContent({
+                  width: nativeEvent.layout.width,
+                  height: nativeEvent.layout.height,
+                })
+              }
             >
               {contentZone}
             </View>

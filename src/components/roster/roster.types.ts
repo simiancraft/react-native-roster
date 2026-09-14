@@ -43,7 +43,10 @@ export type RosterScroll = {
   labelStyle: StyleProp<ViewStyle>;
 };
 export type RosterInput = {
-  /** Selected interval content; absent means interval presses retain no selection. */
+  /**
+   * Selected interval content; absent means interval presses retain no selection.
+   * Lives on RosterInput because useRoster owns selection and needs this to enable it.
+   */
   intervalDetailComponent?: ComponentType<IntervalDetailInput>;
   lanes: Lane[];
   windowSpec: WindowSpec;
@@ -144,9 +147,15 @@ export type RosterStyleProps = {
 };
 export type RosterProps = RosterInput &
   RosterStyleProps & {
-    /** Presentation strategy for the body and selected details; defaults to RosterSelectionPopover. */
+    /**
+     * Presentation strategy for the body and selected details; defaults to RosterSelectionPopover.
+     * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
+     */
     selectionLayout?: ComponentType<SelectionLayoutProps>;
-    /** Native portal host name; defaults to a unique useId name for this roster. */
+    /**
+     * Native portal host name; defaults to a unique useId name for this roster.
+     * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
+     */
     portalHost?: string;
     incompleteLabel?: string;
     neverSetLabel?: string;

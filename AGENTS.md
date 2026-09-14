@@ -421,7 +421,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     portalHost overrides it; independent rosters must use different names. Do not mount
     duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
     Portal uses an external Map store and does not preserve caller context automatically.
-    The overlay follows negative x/y shared offsets with Animated.View, never scroll state.
+    Anchors include the lane offset and rect.y inset. Reconciliation compares rounded
+    millisecond bounds so fitted-scale roundoff does not clear selection. The native overlay
+    uses measured viewport and content sizes to clamp horizontally and falls back to top zero
+    when neither below nor above fits. It follows shared offsets with Animated.View, never scroll state.
     Keep selection out of the body content key. selection-layout.web.tsx uses the optional
     Radix peer and a zero-size pointer-transparent anchor; preserve its package.json browser
     remap and selection-layout.types.ts. Schedule selection is a later change.

@@ -103,7 +103,8 @@ export function Roster(props: RosterProps) {
                   x: selection.rect.x,
                   y:
                     orderedLanes.findIndex((lane) => lane.id === selection.lane.id) *
-                    projection.rowHeight,
+                      projection.rowHeight +
+                    selection.rect.y,
                   width: selection.rect.width,
                   height: selection.rect.height,
                 }

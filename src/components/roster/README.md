@@ -32,17 +32,21 @@ This feature is about a selection; its children are zones.
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
   and detail nodes, anchor bounds, open, dismissal, host name, and shared scroll
 - `selection/selection-layout.tsx`: exported native `RosterSelectionPopover`, local
-  portal host, outside press, hardware back, measured flip, and shared translation
+  portal host, outside press, hardware back, measured viewport clamping, and shared scroll positioning
 - `selection/selection-layout.web.tsx`: Radix presentation with a browser remap
 
 `intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
 `start` and `end` and `viewTimezone`, and enables selection in `useRoster`; presses still invoke
-onIntervalPress. `selectionLayout` defaults once in the chassis and wraps the body
+onIntervalPress. It belongs to `RosterInput` so the hook knows whether presses select.
+`selectionLayout` and `portalHost` belong to `RosterProps` because only the chassis mounts
+the layout. `selectionLayout` defaults once in the chassis and wraps the body
 before RosterLayout receives bodyZone. The selection never enters the body content
 key. Missing lane/layer/bounds clear selection; valid selections use current data.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 
 The private reconcileSelection helper resolves the stored absolute bounds against the
-current lanes and window each render. The browser gate isolates selection updates from Pressable state,
+current lanes and window each render, comparing rounded whole milliseconds to tolerate
+projection roundoff. Anchors include the lane offset and interval inset. Native details
+clamp horizontally and use the top edge when neither below nor above fits. The browser gate isolates selection updates from Pressable state,
 and separately exercises complete pointer presses and outside dismissal.

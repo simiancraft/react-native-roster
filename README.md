@@ -258,7 +258,14 @@ Add `intervalDetailComponent` to enable pressed-interval details. The press stil
 fires `onIntervalPress`; without the component, presses retain no selection.
 `useRoster` owns `selection` and `dismissSelection`. Removing the selected lane,
 layer, or interval bounds clears selection. Current data and geometry replace old
-references, including after resizing or sorting.
+references, including after resizing or sorting. Reconciliation compares bounds rounded
+to whole milliseconds so fitted scales do not clear valid selection.
+
+`intervalDetailComponent` lives on `RosterInput` because `useRoster` owns selection
+and must know whether presses select. `selectionLayout` and `portalHost` live on
+`RosterProps` because only the chassis mounts the layout. When building a custom
+chassis, pass `intervalDetailComponent` to `useRoster` and mount your layout with
+the returned selection, dismissal, and scroll inputs.
 
 ```tsx
 import { Text, View } from 'react-native';
@@ -286,17 +293,23 @@ export function SelectionExample({ lanes }: { lanes: Lane[] }) {
 ```
 
 Web consumers install `bun add @radix-ui/react-popover`. It is an optional peer
-for native and core-only consumers, and required by the web root entry.
+for native and core-only consumers, and required by the web root entry. Consumers
+resolving the library from source with a web bundler (Vite, Storybook, or Metro web)
+must install it even without enabling selection because `selection-layout.web.tsx`
+is in the module graph. Native and core-only consumers do not need it.
 `RosterSelectionPopover` selects native or web through platform resolution.
 Native mounts a local `PortalHost` and registers `Portal` content; web uses Radix
 for portal placement, outside click, Escape, focus, and collision handling.
 The overlay tracks both scroll offsets with Reanimated shared values, without
-React scroll state. Native also dismisses on outside press and hardware back.
+React scroll state. Native clamps details horizontally to the measured viewport,
+flips above when that fits, and uses the top edge when neither vertical placement
+fits. Native also dismisses on outside press and hardware back.
 
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`
 (the body), `contentZone` (details or null), `anchor` (body-content bounds), `open`,
-`onDismiss`, `portalHost`, and `scroll`. Render each node once. A consumer inspector
+`onDismiss`, `portalHost`, and `scroll`. The anchor includes the lane offset and
+interval inset. Render each node once. A consumer inspector
 can arrange the nodes in columns and call `onDismiss` from its close button.
 The [interval-detail gallery route](./demo/app/gallery/interval-detail.tsx)
 switches presentations at runtime.

@@ -105,7 +105,7 @@ export function useRoster(input: RosterInput): RosterModel {
   };
 }
 
-// Resolve the selected interval against the current lanes and window by absolute bounds.
+// Resolve absolute bounds at millisecond precision to ignore projection roundoff on resize.
 function reconcileSelection(
   selected: SelectedInterval | null,
   lanes: Lane[],
@@ -120,8 +120,8 @@ function reconcileSelection(
       const rect = layoutLane(lane, window, projection).rects.find(
         (rect) =>
           rect.layerId === layer.id &&
-          timeAtX(projection, window, rect.x) === selected.start &&
-          timeAtX(projection, window, rect.x + rect.width) === selected.end,
+          Math.round(timeAtX(projection, window, rect.x)) === Math.round(selected.start) &&
+          Math.round(timeAtX(projection, window, rect.x + rect.width)) === Math.round(selected.end),
       );
       if (rect) return { rect, layer, lane, start: selected.start, end: selected.end };
     }
