@@ -381,6 +381,7 @@ bun run check
 the library build, the static web export, tests with coverage, knip, strict
 publint, size-limit, and Playwright.
 
+- [Migrations](./docs/migrations.md) lists prop renames by version with before-and-after examples.
 - [Adapter guide](./docs/adapters.md), [recurrence semantics](./docs/recurrence.md),
   [timezones](./docs/timezones.md), [caches](./docs/caches.md), and the
   [performance guide](./docs/performance.md).
