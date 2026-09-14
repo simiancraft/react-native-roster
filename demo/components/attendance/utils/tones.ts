@@ -1,5 +1,7 @@
 import type { AttendanceStatus, EventKind } from '../attendance.types';
 
+export const TOGETHER_FILL = 'bg-attendance-together/[0.12] dark:bg-attendance-together/[0.16]';
+
 /** Semantic tokens: kinds tint the plan and detail header; statuses fill presence bars. */
 export const KIND_COLORS: Record<EventKind, { label: string; fill: string }> = {
   standup: { label: 'Standup', fill: 'bg-attendance-standup' },

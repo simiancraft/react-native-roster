@@ -33,7 +33,9 @@ export function PresenceBar({ rect, lane }: IntervalInput) {
           style={{ width: (rect.width * dead.waiting) / duration }}
         >
           {(rect.width * dead.waiting) / duration >= 40 ? (
-            <Text className="text-[9px] text-attendance-ink">{dead.waiting / 60_000}m wait</Text>
+            <Text className="text-[9px] text-attendance-ink">
+              {dead.waiting / 60_000}m {together ? 'wait' : 'dead'}
+            </Text>
           ) : null}
         </View>
         <View

@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import type { IntervalInput } from 'react-native-roster';
+import { TOGETHER_FILL } from '../utils/tones';
 
 export function TogetherBlock({ rect, lane }: IntervalInput) {
   const id = lane.id;
@@ -15,7 +16,7 @@ export function TogetherBlock({ rect, lane }: IntervalInput) {
         height: rect.height,
         zIndex: rect.z,
       }}
-      className="bg-attendance-together/5 border-x-2 border-attendance-together"
+      className={`${TOGETHER_FILL} border-x-2 border-attendance-together`}
     />
   );
 }

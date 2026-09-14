@@ -303,6 +303,53 @@ it('keeps a rejoining attendee in one bar and scales both dead-time regions to t
   }
 });
 
+it('labels fully missed presence dead and retains wait and linger around a together block', () => {
+  for (const fixtureIndex of [2, 1]) {
+    const attendance = attendanceFixtures[fixtureIndex];
+    if (!attendance) throw new Error('Expected attendance fixture');
+    const panel = render(<AttendancePanel attendance={attendance} />);
+    const lanes = panel.root.findByType(Roster).props.lanes as IntervalDetailInput['lane'][];
+    const labels = lanes.map((lane) => {
+      const layer = lane.layers.find((layer) => layer.id === 'presence');
+      const interval = layer?.intervals[0];
+      if (!layer || !interval) throw new Error('Expected presence');
+      const bar = render(
+        <PresenceBar
+          lane={lane}
+          layer={layer}
+          highlighted={false}
+          rect={{
+            x: 0,
+            y: 8,
+            width: 900,
+            height: 32,
+            z: 1,
+            layerId: layer.id,
+            sources: interval.sources,
+          }}
+        />,
+      );
+      return bar.root
+        .findAll((node) => String(node.type) === 'Text')
+        .map((node) => node.children.join(''));
+    });
+    if (fixtureIndex === 2) {
+      expect(lanes.every((lane) => attendanceMeta(lane).together === null)).toBe(true);
+      for (const captions of labels) {
+        expect(captions).toContain('40m dead');
+        expect(captions.some((caption) => /wait|linger/.test(caption))).toBe(false);
+      }
+    } else {
+      expect(lanes.every((lane) => attendanceMeta(lane).together !== null)).toBe(true);
+      expect(attendanceMeta(lanes[1] as IntervalDetailInput['lane']).status).toBe('late');
+      expect(labels[0]).toContain('10m wait');
+      expect(labels[0]).toContain('15m linger');
+      expect(labels[1]).toContain('15m linger');
+      expect(labels.flat().some((caption) => caption.includes('dead'))).toBe(false);
+    }
+  }
+});
+
 it('treats zero presence segments as a no-show in everyone and anchor modes', () => {
   const fixture = attendanceFixtures[0];
   if (!fixture) throw new Error('Expected standup');
