@@ -3,7 +3,8 @@
 This feature is about a gallery; its children are fixtures.
 
 - `home/`: the landing page; `GalleryHomeScreen` lists fixture records and takes
-  the route shell's `showcaseHref`, `fixtureHref`, and `linkComponent`
+  the route shell's `showcaseHref`, `fixtureHref`, `linkComponent`, and
+  `attendanceZone` linking to the independent `/attendance` demo
 - `fixtures/`: what every fixture route shares: `FixtureLayout`, the `Control`
   and counters parts, and the counter-bridge platform trio
 - `fixtures/roster/`: `RosterFixtureScreen`, `useRosterFixture`, the rule-set

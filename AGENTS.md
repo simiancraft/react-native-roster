@@ -51,6 +51,8 @@ demo/
   app/index.tsx            # home route shell; owns gallery URLs
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
+  app/attendance.tsx      # three attendance panels with independent anchors
+  components/attendance/  # attendance: attendee presence, plan, and together layers
   components/team-roster/  # the showcase: members, toolbar, and inspector
   components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
@@ -114,7 +116,12 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   target-cold means they are absent. Do not restate these as whole-cache states.
 - The Expo app is the gallery; a "story" means a fixture route under
   `demo/app/gallery/` using a named fixture from `test/fixtures`. No Storybook.
-  `demo/app/showcase.tsx` is the one non-fixture route; its `team-roster`
+  `demo/app/attendance.tsx` shows three fixed attendance cases with independent
+  everyone/anchor controls, public interval details, and semantic theme tokens.
+  Its attendance feature has attendees; plan and together are layers across them.
+  Presence segments collapse from first arrival to last departure; empty segments
+  are no-shows. Together details describe the attendee inside the block.
+  `demo/app/showcase.tsx` is the generated-data route; its `team-roster`
   feature generates people with seeded Faker and styles everything with NativeWind
   semantic tokens (`bg-background`, `text-muted-foreground`, `border-border`, and the
   `grid` pair) declared in `demo/global.css` and swapped by the `dark` root class.
@@ -128,7 +135,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   [schedule](src/components/schedule/README.md), [layers](src/components/layers/README.md),
   [primitives](src/components/primitives/README.md), [rrule](src/adapters/rrule/README.md),
   [nativewind](src/nativewind/README.md), [gallery](demo/components/gallery/README.md),
-  [team-roster](demo/components/team-roster/README.md), and [theme](demo/components/theme/README.md).
+  [team-roster](demo/components/team-roster/README.md),
+  [attendance](demo/components/attendance/README.md), and [theme](demo/components/theme/README.md).
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.

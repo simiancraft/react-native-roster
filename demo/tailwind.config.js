@@ -10,6 +10,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        attendance: {
+          standup: 'hsl(var(--attendance-standup))',
+          workshop: 'hsl(var(--attendance-workshop))',
+          review: 'hsl(var(--attendance-review))',
+          'on-time': 'hsl(var(--attendance-on-time))',
+          late: 'hsl(var(--attendance-late))',
+          'left-early': 'hsl(var(--attendance-left-early))',
+          'late-and-left-early': 'hsl(var(--attendance-late-and-left-early))',
+          missed: 'hsl(var(--attendance-missed))',
+          together: 'hsl(var(--attendance-together))',
+          dead: 'hsl(var(--attendance-dead))',
+          'dead-band': 'hsl(var(--attendance-dead-band))',
+          ink: 'hsl(var(--attendance-ink))',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },

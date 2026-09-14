@@ -399,6 +399,11 @@ network). The home page lists every fixture route:
 - Chicago DST weeks, mixed rule, lane, and view zones, and editable adapter routes.
 - Schedule empty, layered, excluded, spring, fall, Lord Howe, Apia, incomplete,
   midnight, side-by-side projections, and every zone.
+- Attendance at `/attendance`: three fixed cases compare a plan with attendee
+  presence and the actual together block. Independent everyone/anchor controls,
+  visible waiting and lingering, popover details, and semantic light/dark colors
+  demonstrate the public roster API. Presence segments collapse across rejoins;
+  empty presence is a no-show, and together details describe the attendee in the block. See the [attendance area](./demo/components/attendance/README.md).
 - The showcase at `/showcase`: twelve generated people across seven zones,
   weekly hours and exclusions from the recurrence adapter, booked events, day
   and week spans, sorting, filtering, and a per-person Schedule, styled with

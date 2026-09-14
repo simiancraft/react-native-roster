@@ -475,6 +475,14 @@ export function laneFromRules(set: RuleSet): Lane {
 ## Gallery, evidence, and non-goals
 
 The home page derives links from named roster and schedule fixture records.
+It also links to /showcase and /attendance. Attendance uses public Roster slots,
+intervalDetailComponent, selectionLayout, and useRoster coverage with three fixed
+plan/presence/together cases. Everyone intersects all attendees; anchor mode uses
+one attendee. Per-attendee together minutes subtract availabilityMinusBookingMinutes
+from availabilityMinutes. Presence segments collapse across rejoins; empty presence
+is a no-show. Together details describe the attendee in the block.
+The attendance feature is demo-only; see
+[attendance](./demo/components/attendance/README.md).
 Explicit routes cover each day/week/month at 15/30/60-minute steps, lane counts,
 provenance, flags, timezones, Schedule transitions, and default/replaced zones.
 Adapter weekly/override/cap routes render editable JSON beside the roster through

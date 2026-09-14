@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import type { ReactNode } from 'react';
 import { Text } from 'react-native';
 import { rosterFixtures } from '../../../../test/fixtures/roster';
 import { scheduleFixtures } from '../../../../test/fixtures/schedule';
@@ -14,6 +15,8 @@ const BUILT_AT = BUILD.builtAt ? `${BUILD.builtAt.replace('T', ' ').slice(0, 16)
 const BUILD_LINE = `v${VERSION} · ${GIT_SHA} · ${BUILT_AT}`;
 
 type GalleryHomeScreenProps = {
+  /** Attendance route link supplied by the home shell. */
+  attendanceZone?: ReactNode;
   /** Where the showcase lives; the route shell owns the URL space. */
   showcaseHref: string;
   /** Resolves a fixture id to its route. */
@@ -23,6 +26,7 @@ type GalleryHomeScreenProps = {
 };
 
 export function GalleryHomeScreen({
+  attendanceZone,
   showcaseHref,
   fixtureHref,
   linkComponent,
@@ -41,7 +45,14 @@ export function GalleryHomeScreen({
   return (
     <GalleryHomeLayout
       heroZone={
-        <GalleryHero version={VERSION} showcaseHref={showcaseHref} linkComponent={linkComponent} />
+        <>
+          <GalleryHero
+            version={VERSION}
+            showcaseHref={showcaseHref}
+            linkComponent={linkComponent}
+          />
+          {attendanceZone}
+        </>
       }
       sectionsZone={
         <>
