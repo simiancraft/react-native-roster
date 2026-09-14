@@ -168,7 +168,7 @@ and "Availability may be incomplete"; both are localizable props.
 | Import | Shipped surface |
 | --- | --- |
 | `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, zone fillers, and all core exports. |
-| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `spanOf`, `intersectionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
+| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `extentOf`, `intersectionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
 
@@ -178,6 +178,44 @@ emitted CommonJS with declarations in `dist/src`. The emit is CommonJS, so
 importing one function from the root costs the whole root bundle; import from
 `/core` for a core-only bundle. Cache keys, counters, and clearing are in
 [caches](./docs/caches.md).
+
+## Core
+
+### Interval helpers
+
+Collapse each person's segments with `extentOf`, then use `intersectionOf` to
+find the shared time across those windows. Each extent bridges gaps between
+segments, so the result describes the collapsed windows.
+
+```ts
+import type { Window } from 'react-native-roster/core';
+import { extentOf, intersectionOf } from 'react-native-roster/core';
+
+const people: { name: string; segments: Window[] }[] = [
+  {
+    name: 'Alex',
+    segments: [
+      { start: 1_000, end: 3_000 },
+      { start: 4_000, end: 8_000 },
+    ],
+  },
+  {
+    name: 'Sam',
+    segments: [
+      { start: 2_000, end: 5_000 },
+      { start: 6_000, end: 9_000 },
+    ],
+  },
+];
+
+const windows = people.map((person): Window => {
+  const extent = extentOf(person.segments);
+  if (extent === null) throw new Error(`${person.name} has no segments`);
+  return extent;
+});
+const sharedTime = intersectionOf(windows); // { start: 2_000, end: 8_000 }
+// A null result from intersectionOf means there is no shared time.
+```
 
 ## Navigation and interaction
 

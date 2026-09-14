@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'bun:test';
-import { intersectionOf as rootIntersectionOf, spanOf as rootSpanOf } from '../../src';
+import { extentOf as rootExtentOf, intersectionOf as rootIntersectionOf } from '../../src';
 import type { Window } from '../../src/core';
-import { intersectionOf, spanOf } from '../../src/core';
+import { extentOf, intersectionOf } from '../../src/core';
 
-describe('span helpers', () => {
+describe('interval helpers', () => {
   it('exports the same helpers from root and core', () => {
-    expect(rootSpanOf).toBe(spanOf);
+    expect(rootExtentOf).toBe(extentOf);
     expect(rootIntersectionOf).toBe(intersectionOf);
   });
 
   it('returns null for empty input', () => {
-    expect(spanOf([])).toBeNull();
+    expect(extentOf([])).toBeNull();
     expect(intersectionOf([])).toBeNull();
   });
 
   it('returns the bounds of one segment without copying metadata', () => {
     const segment = Object.freeze({ start: -10, end: 20, label: 'One' });
     const segments: readonly Window[] = Object.freeze([segment]);
-    expect(spanOf(segments)).toEqual({ start: -10, end: 20 });
+    expect(extentOf(segments)).toEqual({ start: -10, end: 20 });
     expect(intersectionOf(segments)).toEqual({ start: -10, end: 20 });
   });
 
@@ -28,7 +28,7 @@ describe('span helpers', () => {
       Object.freeze({ start: 10, end: 60 }),
     ]);
     for (const input of [segments, [...segments].reverse()]) {
-      expect(spanOf(input)).toEqual({ start: 0, end: 60 });
+      expect(extentOf(input)).toEqual({ start: 0, end: 60 });
       expect(intersectionOf(input)).toEqual({ start: 20, end: 40 });
     }
   });
@@ -39,7 +39,7 @@ describe('span helpers', () => {
       { start: 0, end: 10 },
       { start: 5, end: 35 },
     ];
-    expect(spanOf(segments)).toEqual({ start: 0, end: 40 });
+    expect(extentOf(segments)).toEqual({ start: 0, end: 40 });
     expect(intersectionOf(segments)).toBeNull();
   });
 
@@ -48,7 +48,7 @@ describe('span helpers', () => {
       { start: 0, end: 10 },
       { start: 10, end: 20 },
     ];
-    expect(spanOf(segments)).toEqual({ start: 0, end: 20 });
+    expect(extentOf(segments)).toEqual({ start: 0, end: 20 });
     expect(intersectionOf(segments)).toBeNull();
   });
 
@@ -58,12 +58,12 @@ describe('span helpers', () => {
         { start, end: start + 10 },
         { start: start + 9, end: start + 20 },
       ];
-      expect(spanOf(segments)).toEqual({ start, end: start + 20 });
+      expect(extentOf(segments)).toEqual({ start, end: start + 20 });
       expect(intersectionOf(segments)).toEqual({ start: start + 9, end: start + 10 });
     }
   });
 
-  for (const helper of [spanOf, intersectionOf]) {
+  for (const helper of [extentOf, intersectionOf]) {
     it(`${helper.name} rejects invalid bounds even after disjoint segments`, () => {
       for (const invalid of [
         { start: Number.NaN, end: 10 },

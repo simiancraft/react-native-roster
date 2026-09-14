@@ -14,7 +14,7 @@ export { layoutLane } from './layout';
 export type { LaneComparator } from './order';
 export { byCoverage, byLabel } from './order';
 export { snapToStep, timeAtX, timeAtY } from './snap';
-export { intersectionOf, spanOf } from './spans';
+export { extentOf, intersectionOf } from './spans';
 export type {
   Coverage,
   DayColumn,

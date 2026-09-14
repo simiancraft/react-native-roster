@@ -1,5 +1,6 @@
-// Sweep boundaries once; reference counts preserve provenance through nested
-// intervals and equal-time ends/starts. Labels never affect source identity.
+// Provenance sweep logic and the extentOf and intersectionOf interval helpers.
+// The sweep uses reference counts to preserve provenance through nested intervals
+// and equal-time ends/starts. Labels never affect source identity.
 import type { Interval, Source, Window } from './types';
 
 type Boundary = { at: number; delta: number; sources: Source[] };
@@ -57,8 +58,12 @@ export function sourceSpans(intervals: Interval[], window: Window): Interval[] {
   return spans;
 }
 
-/** Earliest start through latest end in epoch milliseconds, end-exclusive; empty input returns null. Throws RangeError for non-finite bounds or end <= start. */
-export function spanOf(segments: readonly Window[]): Window | null {
+/**
+ * Earliest start through latest end in epoch milliseconds, end-exclusive; empty input returns null.
+ * Throws RangeError for non-finite bounds or end <= start.
+ * Inputs may be unsorted, overlapping, nested, or duplicated; inputs are not mutated.
+ */
+export function extentOf(segments: readonly Window[]): Window | null {
   let start = Infinity;
   let end = -Infinity;
   for (const segment of segments) {
@@ -69,7 +74,11 @@ export function spanOf(segments: readonly Window[]): Window | null {
   return start < end ? { start, end } : null;
 }
 
-/** Shared epoch milliseconds, end-exclusive; empty input or an empty intersection returns null. Throws RangeError for non-finite bounds or end <= start. */
+/**
+ * Shared epoch milliseconds, end-exclusive; empty input or an empty intersection returns null.
+ * Throws RangeError for non-finite bounds or end <= start.
+ * Inputs may be unsorted, overlapping, nested, or duplicated; inputs are not mutated.
+ */
 export function intersectionOf(spans: readonly Window[]): Window | null {
   if (spans.length === 0) return null;
   let start = -Infinity;
