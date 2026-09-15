@@ -52,8 +52,8 @@ Pressing the selected interval again dismisses it; pressing another interval
 switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
-On web, the layout captures document.activeElement before opening autofocus and uses
-onCloseAutoFocus to return focus after Escape only, leaving outside pointer focus intact. The browser's focus-visible ring styling is left to the host page.
+On web, the layout captures document.activeElement before opening autofocus and
+recaptures the focused lane when targetBounds changes while open. It uses onCloseAutoFocus to return focus after Escape only, leaving outside pointer focus intact. The browser's focus-visible ring styling is left to the host page.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 

@@ -1,4 +1,5 @@
 import { type ReactNode, useId } from 'react';
+import { hasSource } from '../../core';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
 import { RosterLaneLabel } from './lanes/parts/lane-label';
@@ -71,10 +72,7 @@ export function Roster(props: RosterProps) {
       <IntervalDetailComponent
         {...selection}
         viewTimezone={projection.viewTimezone}
-        highlighted={selection.rect.sources.some(
-          (source) =>
-            source.kind === props.highlightSource?.kind && source.id === props.highlightSource.id,
-        )}
+        highlighted={hasSource(selection.rect.sources, props.highlightSource)}
       />
     );
   }

@@ -18,3 +18,6 @@ Mount one host per destination name. The default Roster selection layout owns it
 per-instance host; custom layouts can target an ancestor host they own. Caller
 context does not cross the store; provide it above the host or inside the node.
 Schedule does not yet support selection.
+
+As a primitive, `Portal` takes `children` rather than a named zone; named zones belong
+to the machine and feature tiers.

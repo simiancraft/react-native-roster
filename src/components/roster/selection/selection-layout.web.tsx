@@ -1,5 +1,5 @@
 import { Anchor, Content, Portal, Root } from '@radix-ui/react-popover';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Animated from 'react-native-reanimated';
 import type { SelectionLayoutProps } from './selection-layout.types';
 
@@ -15,6 +15,11 @@ export function RosterSelectionPopover({
   const bodyRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<Element | null>(null);
   const keyboardDismissRef = useRef(false);
+  useEffect(() => {
+    if (open && targetBounds && bodyRef.current?.contains(document.activeElement)) {
+      returnFocusRef.current = document.activeElement;
+    }
+  }, [open, targetBounds]);
   return (
     <Root
       open={open}
