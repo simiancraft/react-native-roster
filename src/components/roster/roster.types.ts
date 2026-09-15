@@ -147,7 +147,7 @@ export type RosterStyleProps = {
   /** Width of the corner and lane label column, default 180. */
   laneLabelWidth?: number;
 };
-export type RosterProps = RosterInput &
+export type RosterProps = Omit<RosterInput, 'selectable'> &
   RosterStyleProps & {
     /**
      * Selected interval content; absent means interval presses retain no selection.

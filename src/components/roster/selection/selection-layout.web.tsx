@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import Animated from 'react-native-reanimated';
 import type { SelectionLayoutProps } from './selection-layout.types';
 
-/** Web selection presentation; Radix owns focus, outside press, Escape, and collisions. */
+/** Web selection presentation; Radix owns outside press, Escape, and collisions. */
 export function RosterSelectionPopover({
   anchorZone,
   contentZone,
@@ -13,6 +13,8 @@ export function RosterSelectionPopover({
   scroll,
 }: SelectionLayoutProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef<Element | null>(null);
+  const keyboardDismissRef = useRef(false);
   return (
     <Root
       open={open}
@@ -35,6 +37,7 @@ export function RosterSelectionPopover({
           <Animated.View style={scroll.labelStyle}>
             <Anchor asChild>
               <div
+                data-testid="roster-selection-target"
                 style={{
                   position: 'absolute',
                   left: targetBounds?.x ?? 0,
@@ -50,6 +53,19 @@ export function RosterSelectionPopover({
       </div>
       <Portal>
         <Content
+          onOpenAutoFocus={() => {
+            returnFocusRef.current = document.activeElement;
+            keyboardDismissRef.current = false;
+          }}
+          onEscapeKeyDown={() => {
+            keyboardDismissRef.current = true;
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            if (keyboardDismissRef.current && returnFocusRef.current instanceof HTMLElement) {
+              returnFocusRef.current.focus({ preventScroll: true });
+            }
+          }}
           onInteractOutside={(event) => {
             if (bodyRef.current?.contains(event.target as Node)) event.preventDefault();
           }}

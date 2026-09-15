@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { type ReactNode, useEffect, useId, useState } from 'react';
 import { BackHandler, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Portal, PortalHost } from '../../primitives/portal';
@@ -38,6 +38,36 @@ export function RosterSelectionPopover({
     });
     return () => subscription.remove();
   }, [open, onDismiss]);
+  let detailZone: ReactNode = null;
+  if (open && targetBounds && maxWidth > 0 && maxHeight > 0) {
+    detailZone = (
+      <Portal hostName={portalHost} name={name}>
+        <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
+          <View
+            accessibilityRole="summary"
+            onStartShouldSetResponder={() => true}
+            style={size}
+            onLayout={({ nativeEvent }) =>
+              setContent({
+                width: nativeEvent.layout.width,
+                height: nativeEvent.layout.height,
+              })
+            }
+          >
+            <ScrollView style={size} nestedScrollEnabled>
+              <ScrollView
+                horizontal
+                style={{ maxWidth, flexGrow: 0, flexShrink: 0 }}
+                nestedScrollEnabled
+              >
+                {contentZone}
+              </ScrollView>
+            </ScrollView>
+          </View>
+        </Animated.View>
+      </Portal>
+    );
+  }
   return (
     <View
       style={{ flex: 1, minHeight: 0 }}
@@ -52,33 +82,7 @@ export function RosterSelectionPopover({
       <View pointerEvents="box-none" style={overlay}>
         <PortalHost name={portalHost} />
       </View>
-      {open && targetBounds && maxWidth > 0 && maxHeight > 0 ? (
-        <Portal hostName={portalHost} name={name}>
-          <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
-            <View
-              accessibilityRole="summary"
-              onStartShouldSetResponder={() => true}
-              style={size}
-              onLayout={({ nativeEvent }) =>
-                setContent({
-                  width: nativeEvent.layout.width,
-                  height: nativeEvent.layout.height,
-                })
-              }
-            >
-              <ScrollView style={size} nestedScrollEnabled>
-                <ScrollView
-                  horizontal
-                  style={{ maxWidth, flexGrow: 0, flexShrink: 0 }}
-                  nestedScrollEnabled
-                >
-                  {contentZone}
-                </ScrollView>
-              </ScrollView>
-            </View>
-          </Animated.View>
-        </Portal>
-      ) : null}
+      {detailZone}
     </View>
   );
 }

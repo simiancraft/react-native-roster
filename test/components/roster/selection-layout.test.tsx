@@ -108,6 +108,47 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
         element.type === 'div' ? { contains: (target: unknown) => target === 'body' } : null,
     });
   });
+  const content = tree.root.findByType(Popover.Portal).props.children.props;
+  const originalDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  const originalHTMLElement = Object.getOwnPropertyDescriptor(globalThis, 'HTMLElement');
+  class FocusTarget {
+    focus = mock();
+  }
+  const lane = new FocusTarget();
+  const detail = new FocusTarget();
+  const documentDouble = { activeElement: lane as FocusTarget | null };
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: documentDouble });
+  Object.defineProperty(globalThis, 'HTMLElement', { configurable: true, value: FocusTarget });
+  try {
+    const preventCloseAutoFocus = mock();
+    content.onOpenAutoFocus();
+    documentDouble.activeElement = detail;
+    content.onEscapeKeyDown();
+    content.onCloseAutoFocus({ preventDefault: preventCloseAutoFocus });
+    expect(preventCloseAutoFocus).toHaveBeenCalledTimes(1);
+    expect(lane.focus).toHaveBeenLastCalledWith({ preventScroll: true });
+    expect(detail.focus).not.toHaveBeenCalled();
+    // A new open resets keyboard dismissal; outside pointer focus stays put.
+    content.onOpenAutoFocus();
+    content.onCloseAutoFocus({ preventDefault: preventCloseAutoFocus });
+    expect(preventCloseAutoFocus).toHaveBeenCalledTimes(2);
+    expect(lane.focus).toHaveBeenCalledTimes(1);
+    expect(detail.focus).not.toHaveBeenCalled();
+    documentDouble.activeElement = null;
+    content.onOpenAutoFocus();
+    content.onEscapeKeyDown();
+    content.onCloseAutoFocus({ preventDefault: preventCloseAutoFocus });
+    expect(preventCloseAutoFocus).toHaveBeenCalledTimes(3);
+    expect(lane.focus).toHaveBeenCalledTimes(1);
+  } finally {
+    for (const [name, descriptor] of [
+      ['document', originalDocument],
+      ['HTMLElement', originalHTMLElement],
+    ] as const) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor);
+      else Reflect.deleteProperty(globalThis, name);
+    }
+  }
   const outside = tree.root.findByType(Popover.Portal).props.children.props.onInteractOutside;
   const preventDefault = mock();
   outside({ target: 'body', preventDefault });

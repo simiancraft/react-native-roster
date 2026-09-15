@@ -459,6 +459,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The hook toggles the selected interval closed, switches to another interval, and dismisses
     on cell or gap presses while preserving their callbacks. The body restores horizontal
     and vertical offsets from shared values on remount when selectionLayout changes.
+    A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+    native also retains contentOffset. LegendList restores initialScrollOffset through
+    its own web mount effect and native initial offset.
     Keep selection out of the body content key. selection-layout.web.tsx uses the optional
     Radix peer and a zero-size pointer-transparent anchor; preserve its package.json browser
     remap and selection-layout.types.ts. Schedule selection is a later change.

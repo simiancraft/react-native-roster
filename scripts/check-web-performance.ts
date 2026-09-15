@@ -137,7 +137,7 @@ try {
   await page.goto(`${server.url}gallery/interval-detail`, { waitUntil: 'networkidle' });
   const detailLane = page.getByTestId('roster-lane-one');
   await detailLane.waitFor();
-  const laneWidth = await detailLane.evaluate((node) => node.clientWidth);
+  let laneWidth = await detailLane.evaluate((node) => node.clientWidth);
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
   assert.match(await page.getByTestId('interval-detail').innerText(), /Lane one/);
@@ -158,12 +158,57 @@ try {
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
-  await page.getByRole('heading', { name: 'Interval details', exact: true }).click();
+  const outsideButton = page.getByRole('button', { name: 'Next', exact: true });
+  await outsideButton.click();
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  assert.equal(await outsideButton.evaluate((node) => document.activeElement === node), true);
+  await page.getByRole('button', { name: 'Previous', exact: true }).click();
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
   await page.keyboard.press('Escape');
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  assert.equal(
+    await page.getByTestId('interval-detail').count(),
+    0,
+    'Escape must close selection while body presses are excluded from outside dismissal',
+  );
+  await page.waitForFunction(
+    () => document.activeElement?.getAttribute('data-testid') === 'roster-lane-one',
+  );
+  await page.setViewportSize({ width: 600, height: 900 });
+  await settle(page);
+  laneWidth = await detailLane.evaluate((node) => node.clientWidth);
+  const horizontal = page.getByTestId('roster-horizontal-scroll');
+  await horizontal.evaluate((node) => {
+    node.scrollLeft = 80;
+  });
+  await settle(page);
+  assert.equal(await horizontal.evaluate((node) => node.scrollLeft), 80);
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  await page.getByRole('button', { name: 'Show inspector', exact: true }).click();
+  await settle(page);
+  assert.equal(await horizontal.evaluate((node) => node.scrollLeft), 80);
+  assert.equal(
+    await page
+      .getByTestId('roster-header')
+      .evaluate((node) => -new DOMMatrixReadOnly(getComputedStyle(node).transform).m41),
+    80,
+  );
+  await page.getByRole('button', { name: 'Show popover', exact: true }).click();
+  await page.getByTestId('interval-detail').waitFor();
+  await settle(page);
+  const target = await page.getByTestId('roster-selection-target').boundingBox();
+  const laneBounds = await detailLane.boundingBox();
+  assert(target && laneBounds);
+  assert(
+    Math.abs(target.x - (laneBounds.x + (laneWidth * 9) / 24)) < 1,
+    'Selection target must follow the interval after restoring horizontal scroll',
+  );
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width: 1440, height: 1600 });
+  await settle(page);
+  laneWidth = await detailLane.evaluate((node) => node.clientWidth);
   await page.getByRole('button', { name: 'Show inspector', exact: true }).click();
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
@@ -171,8 +216,9 @@ try {
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   assert.deepEqual(errors, [], 'Selection browser runtime errors');
   console.log(
-    'Selection: popover toggles, cell press, outside press, and Escape dismiss, and inspector opens and dismisses.',
+    'Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.',
   );
+  await page.setViewportSize({ width: 1440, height: 1600 });
   root = resolve('demo/.cache/dev-dist');
   assert(
     await Bun.file(`${root}/gallery/200-lanes.html`).exists(),

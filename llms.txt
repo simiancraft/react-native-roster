@@ -275,7 +275,8 @@ current lane/layer/rect references and clears removed lane or absolute rect boun
 Resizing and sorting retain valid selection with current geometry; reconciliation
 uses the private reconcileSelection helper to match source identity sets and choose
 nearest bounds with a total difference of at most 1 ms for projection roundoff.
-selectable?: boolean belongs to RosterInput and defaults to false; hook consumers pass
+selectable?: boolean belongs only to the hook input, RosterInput, and defaults to false.
+It is excluded from RosterProps; hook consumers pass
 selectable: true to retain selection. intervalDetailComponent, selectionLayout, and
 portalHost belong to RosterProps because the chassis mounts content and the layout.
 The chassis passes selectable: Boolean(intervalDetailComponent) to useRoster.
@@ -310,6 +311,9 @@ dismissal, leaving body presses to the hook while preserving true outside presse
 The hook toggles the selected interval closed, switches to another interval, and dismisses
 on cell or gap presses while preserving their callbacks. The body restores horizontal
 and vertical offsets from shared values on remount when selectionLayout changes.
+A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+native also retains contentOffset. LegendList restores initialScrollOffset through
+its own web mount effect and native initial offset.
 
 selection-layout.web.tsx uses @radix-ui/react-popover, required by the web root entry
 but an optional peer for native/core-only consumers. Source web bundlers (Vite,
