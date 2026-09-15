@@ -257,7 +257,7 @@ function attendanceFor(
     ),
   ].map(({ id, name }) => ({ id, name }));
   const description = `The group will review ${faker.company.buzzNoun()} and agree on the next steps.`;
-  const shape = (Number(member.id.split('-').at(-1)) + index) % 6;
+  const shape = (hashSeed(member.id) + index) % 6;
   const facts = expected.map((attendee, i) => {
     const offset = faker.number.int({ min: 5, max: 15 }) * 60_000;
     if (shape === 5 && i === 1) return { attendeeId: attendee.id, arrival: null, departure: null };

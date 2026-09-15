@@ -65,16 +65,6 @@ export function TeamRosterScreen({
   footerComponent: Footer = DefaultFooter,
 }: TeamRosterZones & { team?: Team }) {
   const model = useTeamRoster({ team });
-  const zones = {
-    titleComponent: Title,
-    actionsComponent: Actions,
-    filterComponent: Filter,
-    controlsComponent: Controls,
-    cornerComponent: Corner,
-    laneLabelComponent: Label,
-    inspectorComponent: Inspector,
-    footerComponent: Footer,
-  };
   const chrome = {
     direction: model.contentDirection,
     onContentLayout: model.measureContent,
@@ -111,7 +101,9 @@ export function TeamRosterScreen({
     <TeamRosterLayout
       {...chrome}
       inspectorZone={<Inspector {...model} />}
-      subjectZone={<TeamRoster model={model} zones={zones} />}
+      subjectZone={
+        <TeamRoster model={model} zones={{ cornerComponent: Corner, laneLabelComponent: Label }} />
+      }
     />
   );
 }
@@ -121,7 +113,7 @@ function TeamRoster({
   zones,
 }: {
   model: TeamRosterReady;
-  zones: Required<Omit<TeamRosterZones, 'backZone'>>;
+  zones: Required<Pick<TeamRosterZones, 'cornerComponent' | 'laneLabelComponent'>>;
 }) {
   const Corner = zones.cornerComponent;
   return (
@@ -136,7 +128,7 @@ function TeamRoster({
           rowHeight={56}
           laneLabelWidth={model.labelWidth}
           sortLanes={model.sortLanes}
-          onIntervalPress={model.selectRect}
+          onIntervalPress={model.selectInterval}
           onGapPress={model.selectGap}
           onCellPress={model.selectCell}
           className="flex-1 rounded-xl border border-border bg-background"

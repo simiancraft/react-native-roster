@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { ScrollView, View } from 'react-native';
 
-type TeamRosterZones = {
+type TeamRosterLayoutZones = {
   /** Title, window range, span, and navigation; whatever is placed here unrolls in order. */
   headerZone: ReactNode;
   /** Filter beside the people column and controls beside the lanes. */
@@ -15,7 +15,7 @@ type TeamRosterZones = {
   footerZone: ReactNode;
 };
 
-type TeamRosterLayoutProps = TeamRosterZones & {
+type TeamRosterLayoutProps = TeamRosterLayoutZones & {
   /** Inspector beside the roster, or stacked under it on narrow screens. */
   direction: 'row' | 'column';
   /** Measures the content region so the chassis can choose the direction. */

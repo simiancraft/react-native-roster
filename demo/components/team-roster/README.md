@@ -16,7 +16,9 @@ Styled with the semantic tokens in `demo/global.css`; the route shell owns route
 Host slots with inputs use ComponentType; backZone is a node. Stable interval,
 header-cell, and lane-label components read display settings from context.
 The member Schedule uses TeamScheduleInterval and omits the horizontal attendance strip.
-Its lane is expanded separately for the full inspector week, including in day mode.
+Its lane is expanded separately for the full inspector week, including in day mode,
+and indexed by member id. Interval presses retain the member with no inspector detail;
+gap presses resolve time-off notes from source id suffixes (lunch or pto).
 Generated lanes are retained by team identity, window bounds, and now; selection changes
 preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
@@ -50,6 +52,7 @@ of actual and scheduled time. Source lookup lives in lane metadata, so module-sc
 slots work through native portals without inherited context. The member inspector
 retains identity, facts, and Schedule; event details live in the popover.
 
+Attendance shapes use a deterministic member-id hash, including host-supplied non-numeric ids.
 Events are seeded by member identity and authored local date, so day and week views
 agree. Resolve authored daytime hours in the member's zone across DST, then clip
 layer intervals to the view window while preserving scheduled event bounds for detail.

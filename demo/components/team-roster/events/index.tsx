@@ -8,6 +8,8 @@ import { EventAxis, FutureCaption, LiveCaption, PastCaption } from './parts/axis
 import { EventHeading } from './parts/heading';
 import { attendanceModelFor, eventFor } from './utils/attendance';
 
+const CAPTIONS = { future: FutureCaption, live: LiveCaption, past: PastCaption };
+
 /** Selection detail resolves lane metadata, including through portals. */
 export function EventDetail(input: IntervalDetailInput) {
   const event = eventFor(input);
@@ -35,5 +37,3 @@ function WorkingHoursDetail(input: IntervalDetailInput) {
     </Text>
   );
 }
-
-const CAPTIONS = { future: FutureCaption, live: LiveCaption, past: PastCaption };

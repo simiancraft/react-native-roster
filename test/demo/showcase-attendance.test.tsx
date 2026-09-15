@@ -24,6 +24,11 @@ import {
   barOffsets,
   eventFor,
 } from '../../demo/components/team-roster/events/utils/attendance';
+import { MemberInspector } from '../../demo/components/team-roster/members';
+import {
+  NoSelection,
+  TimeOffSelection,
+} from '../../demo/components/team-roster/members/parts/selection';
 import {
   TeamInterval,
   TeamScheduleInterval,
@@ -40,6 +45,7 @@ import {
   seededNow,
   teamFor,
 } from '../../demo/components/team-roster/utils/team';
+import { timeOffNote } from '../../demo/components/team-roster/utils/time-off';
 import { expandRuleSet } from '../../src/adapters/rrule';
 import type { IntervalDetailInput } from '../../src/components/roster/roster.types';
 import { layoutLane, windowFor } from '../../src/core';
@@ -504,4 +510,84 @@ it('defaults every host component when explicitly undefined', () => {
   const result = Bun.spawnSync(['bun', '-e', script], { cwd: process.cwd() });
   expect(result.stderr.toString()).not.toContain('Error');
   expect(result.exitCode).toBe(0);
+});
+
+it('clears lunch detail from the inspector when working hours or an event is pressed', () => {
+  let model!: TeamRosterModel;
+  function Probe() {
+    model = useTeamRoster({ team });
+    if (model.status !== 'ready') return null;
+    return (
+      <MemberInspector
+        lane={model.weekLane}
+        member={model.selectedMember}
+        selection={model.selection}
+        windowSpec={model.weekWindowSpec}
+      />
+    );
+  }
+  const tree = render(<Probe />);
+  const lane = model.lanes.find((item) =>
+    item.layers[0]?.gaps?.some((gap) => gap.sources.some((source) => source.id.endsWith(':lunch'))),
+  );
+  if (!lane) throw new Error('Expected lunch lane');
+  const geometry = layoutLane(lane, window, {
+    orientation: 'horizontal',
+    viewTimezone: 'America/Chicago',
+    pxPerMinute: 1,
+    rowHeight: 56,
+  });
+  const lunch = geometry.gapRects.find((rect) =>
+    rect.sources.some((source) => source.id.endsWith(':lunch')),
+  );
+  const availability = geometry.rects.find((rect) => rect.layerId === 'availability');
+  const event = geometry.rects.find((rect) => rect.layerId === 'events');
+  if (!lunch || !availability || !event) throw new Error('Expected press geometry');
+  for (const rect of [availability, event]) {
+    act(() => model.selectGap(lunch, lane));
+    expect(tree.root.findAllByType(TimeOffSelection)).toHaveLength(1);
+    expect(JSON.stringify(tree.toJSON())).toContain('Lunch break');
+    act(() => model.selectInterval(rect, lane));
+    if (model.status !== 'ready') throw new Error('Expected ready roster');
+    expect(model.selection).toEqual({ kind: 'none', member: memberMeta(lane).member });
+    expect(tree.root.findAllByType(TimeOffSelection)).toHaveLength(0);
+    expect(tree.root.findAllByType(NoSelection)).toHaveLength(1);
+    expect(JSON.stringify(tree.toJSON())).not.toContain('Lunch break');
+  }
+});
+
+it('identifies time off by source id suffix rather than source kind', () => {
+  expect(timeOffNote({ kind: 'rule', id: 'host:hours' })).toBeUndefined();
+  expect(timeOffNote({ kind: 'date', id: 'host:unknown' })).toBeUndefined();
+  expect(timeOffNote({ kind: 'date', id: 'host:lunch' })).toBe('Lunch break');
+  expect(timeOffNote({ kind: 'rule', id: 'host:pto', label: 'Vacation' })).toBe('Vacation');
+  expect(timeOffNote({ kind: 'date', id: 'host:pto' })).toBe('Out of office');
+  expect(timeOffNote(undefined)).toBeUndefined();
+});
+
+it('generates deterministic varied attendance for non-numeric host member ids', () => {
+  const original = team.members[0];
+  if (!original) throw new Error('Expected member');
+  const host = {
+    ...original,
+    id: 'host-alex',
+    timezone: 'America/Chicago',
+    workdays: [...original.workdays],
+    hours: { start: 9, end: 17 },
+  };
+  const week = windowFor({ span: 'week', anchorDate: '2026-01-05', timezone: host.timezone });
+  const generated = eventsFor(host, week, [host], week.end + 86400000);
+  expect(generated.length).toBeGreaterThan(0);
+  expect(eventsFor(host, week, [host], week.end + 86400000)).toEqual(generated);
+  expect(
+    generated.some((event) =>
+      event.facts.some((fact) => fact.arrival !== event.start || fact.departure !== event.end),
+    ),
+  ).toBe(true);
+  for (const event of generated) {
+    for (const fact of event.facts) {
+      expect(Number.isFinite(fact.arrival)).toBe(true);
+      expect(Number.isFinite(fact.departure)).toBe(true);
+    }
+  }
 });

@@ -68,10 +68,15 @@ export function useTeamRoster(input: { team?: Team } = {}) {
       .includes(query.toLowerCase());
   });
   const density = densityFor(contentWidth);
-  function selectRect(rect: Rect, lane: Lane) {
+  function selectGap(rect: Rect, lane: Lane) {
     const { member } = memberMeta(lane);
     setSelectedId(member.id);
     setSelection(selectionFor(member, rect));
+  }
+  function selectInterval(_rect: Rect, lane: Lane) {
+    const { member } = memberMeta(lane);
+    setSelectedId(member.id);
+    setSelection({ kind: 'none', member });
   }
   const common = {
     now,
@@ -101,8 +106,8 @@ export function useTeamRoster(input: { team?: Team } = {}) {
       setSelectedId(id);
       setSelection(null);
     },
-    selectRect,
-    selectGap: selectRect,
+    selectInterval,
+    selectGap,
     selectCell: (lane: Lane, time: number) => {
       const { member } = memberMeta(lane);
       setSelectedId(member.id);
@@ -111,6 +116,8 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   };
   const selectedLane = lanes.find((lane) => lane.id === selectedId) ?? lanes[0];
   if (!selectedLane) return { status: 'empty' as const, ...common };
+  const weekLane = data.weekLanes.get(selectedLane.id);
+  if (!weekLane) throw new Error('Expected a week lane for the selected member');
   const selectedMember: Member = memberMeta(selectedLane).member;
   const currentSelection: Selection =
     selection && selection.member.id === selectedMember.id
@@ -120,7 +127,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     status: 'ready' as const,
     ...common,
     selectedLane,
-    weekLane: data.weekLanes.find((lane) => lane.id === selectedLane.id) as Lane,
+    weekLane,
     weekWindowSpec,
     selectedMember,
     selection: currentSelection,
@@ -154,6 +161,6 @@ function generatedLanes(
     weekStart: week.start,
     weekEnd: week.end,
     lanes: team.members.map((member) => expand(member, window)),
-    weekLanes: team.members.map((member) => expand(member, week)),
+    weekLanes: new Map(team.members.map((member) => [member.id, expand(member, week)])),
   };
 }

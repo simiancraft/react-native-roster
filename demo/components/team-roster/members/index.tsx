@@ -9,23 +9,6 @@ import { Fact, MemberIdentity } from './parts/identity';
 import { NoSelection, SlotSelection, TimeOffSelection } from './parts/selection';
 import { WeekSchedule } from './parts/week-schedule';
 
-function SelectionDetail({
-  selection,
-  timezone,
-}: {
-  selection: Selection;
-  timezone: string;
-}): ReactNode {
-  switch (selection.kind) {
-    case 'timeOff':
-      return <TimeOffSelection selection={selection} />;
-    case 'slot':
-      return <SlotSelection selection={selection} timezone={timezone} />;
-    case 'none':
-      return <NoSelection />;
-  }
-}
-
 /** The selected member's card, selection detail, and week; a composer nested in the roster. */
 export function MemberInspector({
   lane,
@@ -52,4 +35,21 @@ export function MemberInspector({
       scheduleZone={<WeekSchedule lane={lane} windowSpec={windowSpec} />}
     />
   );
+}
+
+function SelectionDetail({
+  selection,
+  timezone,
+}: {
+  selection: Selection;
+  timezone: string;
+}): ReactNode {
+  switch (selection.kind) {
+    case 'timeOff':
+      return <TimeOffSelection selection={selection} />;
+    case 'slot':
+      return <SlotSelection selection={selection} timezone={timezone} />;
+    case 'none':
+      return <NoSelection />;
+  }
 }
