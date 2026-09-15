@@ -24,7 +24,7 @@ import { timeLabel } from './utils/format';
  * Host-facing slots. Each receives the resolved model and defaults to the
  * showcase part, so an app swaps one region without touching the others.
  */
-export type TeamRosterZones = {
+export type TeamRosterSlots = {
   /** Above the title: a back link or breadcrumb. */
   backZone?: ReactNode;
   /** Title and window range; defaults to the organization name and the visible range. */
@@ -63,7 +63,7 @@ export function TeamRosterScreen({
   laneLabelComponent: Label = MemberLabel,
   inspectorComponent: Inspector = DefaultInspector,
   footerComponent: Footer = DefaultFooter,
-}: TeamRosterZones & { team?: Team }) {
+}: TeamRosterSlots & { team?: Team }) {
   const model = useTeamRoster({ team });
   const chrome = {
     direction: model.contentDirection,
@@ -113,7 +113,7 @@ function TeamRoster({
   zones,
 }: {
   model: TeamRosterReady;
-  zones: Required<Pick<TeamRosterZones, 'cornerComponent' | 'laneLabelComponent'>>;
+  zones: Required<Pick<TeamRosterSlots, 'cornerComponent' | 'laneLabelComponent'>>;
 }) {
   const Corner = zones.cornerComponent;
   return (

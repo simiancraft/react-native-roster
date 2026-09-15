@@ -5,7 +5,14 @@ import type { Lane, LaneComparator, Rect, WindowSpec } from 'react-native-roster
 import { byCoverage, byLabel, next, prev, windowFor } from 'react-native-roster/core';
 import { expandRuleSet } from 'react-native-roster/rrule';
 import type { Member } from './members/member.types';
-import type { Density, Selection, SortKey, SpanKey, Team } from './team-roster.types';
+import type {
+  Density,
+  Selection,
+  SortKey,
+  SpanKey,
+  Team,
+  WeekWindowSpec,
+} from './team-roster.types';
 import { selectionFor } from './utils/selection';
 import { laneFor, memberMeta, seededNow, teamFor } from './utils/team';
 import { TONE_HEX } from './utils/tones';
@@ -46,7 +53,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [contentWidth, setContentWidth] = useState(1280);
   const window = windowFor(windowSpec);
-  const weekWindowSpec: ScheduleWindowSpec = { ...windowSpec, span: 'week' };
+  const weekWindowSpec: WeekWindowSpec = { ...windowSpec, span: 'week' };
   const weekWindow = windowFor(weekWindowSpec);
   const [retained, setRetained] = useState(() => generatedLanes(team, window, weekWindow, now));
   let data = retained;

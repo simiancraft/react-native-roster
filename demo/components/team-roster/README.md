@@ -2,9 +2,10 @@
 
 The showcase. This feature is about a team roster; its children are members.
 
-- `index.tsx`: `TeamRosterScreen`; host-facing component slots default to the parts here
+- `index.tsx`: `TeamRosterScreen` and `TeamRosterSlots`; host-facing slots default to the parts here
 - `use-team-roster.ts`: window, filter, sort, zone, density, and selection
-- `screen-layout.tsx`, `header-layout.tsx`, `toolbar-layout.tsx`: row and column strategies
+- `screen-layout.tsx` and `toolbar-layout.tsx`: row and column strategies
+- `header-layout.tsx`: wrapping title and actions arrangement
 - `events/`: `EventDetail`, its layout, heading, axis captions, and attendance rows
 - `members/`: `MemberInspector`, `member.types.ts`, and member-local parts
 - `parts/`: title, chips, window controls, member label, header cell, grid
@@ -13,9 +14,11 @@ The showcase. This feature is about a team roster; its children are members.
 
 Styled with the semantic tokens in `demo/global.css`; the route shell owns router contact.
 
-Host slots with inputs use ComponentType; backZone is a node. Stable interval,
+The `TeamRosterSlots` type groups component slots with inputs using `ComponentType`
+and the `backZone` node. Stable interval,
 header-cell, and lane-label components read display settings from context.
 The member Schedule uses TeamScheduleInterval and omits the horizontal attendance strip.
+Its automatic system-clock now line is suppressed because Schedule has no controlled clock.
 Its lane is expanded separately for the full inspector week, including in day mode,
 and indexed by member id. Interval presses retain the member with no inspector detail;
 gap presses resolve time-off notes from source id suffixes (lunch or pto).

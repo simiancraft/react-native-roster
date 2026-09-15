@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import type { ScheduleWindowSpec } from 'react-native-roster';
 import type { Lane } from 'react-native-roster/core';
-import type { Selection } from '../team-roster.types';
+import type { Selection, WeekWindowSpec } from '../team-roster.types';
 import { hoursLabel, zoneShort } from '../utils/format';
 import { MemberInspectorLayout } from './layout';
 import type { Member } from './member.types';
@@ -19,7 +18,7 @@ export function MemberInspector({
   lane: Lane;
   member: Member;
   selection: Selection;
-  windowSpec: ScheduleWindowSpec;
+  windowSpec: WeekWindowSpec;
 }) {
   return (
     <MemberInspectorLayout

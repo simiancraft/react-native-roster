@@ -38,6 +38,9 @@ export const TONE_CLASSES: Record<
   },
 };
 
+/** Muted foreground for native props that require a color value. */
+export const MUTED_FOREGROUND_HEX = { light: '#62626a', dark: '#a1a1aa' } as const;
+
 export const TONE_HEX: Record<Member['tone'], string> = {
   emerald: '#10b981',
   sky: '#0ea5e9',

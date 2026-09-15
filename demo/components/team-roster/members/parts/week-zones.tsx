@@ -33,12 +33,7 @@ export function WeekDayHeader({ day }: { day: DayColumn }) {
   );
 }
 
-export function WeekNowLine({ y }: { y: number }) {
-  return (
-    <View
-      pointerEvents="none"
-      style={{ top: y }}
-      className="absolute left-0 right-0 h-0.5 bg-rose-500"
-    />
-  );
+/** Schedule has no controlled clock; omit its system-clock line in the seeded showcase. */
+export function WeekNowLine() {
+  return null;
 }

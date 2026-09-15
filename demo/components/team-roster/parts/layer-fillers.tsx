@@ -133,9 +133,7 @@ export function TimeOffGap({ rect }: GapInput) {
   );
 }
 
-/** Schedule columns omit the horizontal attendance strip. Detail keeps the shared scale. */
-export function TeamScheduleInterval(input: IntervalInput) {
-  if (input.layer.role !== 'booking') return <AvailabilityBand {...input} />;
+function ScheduleEventCard(input: IntervalInput) {
   const source = input.rect.sources[0];
   const kind = KIND_CLASSES[eventKindOf(source?.kind ?? 'meeting')];
   return (
@@ -150,4 +148,16 @@ export function TeamScheduleInterval(input: IntervalInput) {
       </Text>
     </View>
   );
+}
+
+const SCHEDULE_ROLE_COMPONENTS: Record<LayerRole, ComponentType<IntervalInput>> = {
+  availability: AvailabilityBand,
+  booking: ScheduleEventCard,
+  custom: AvailabilityBand,
+};
+
+/** Schedule columns omit the horizontal attendance strip. Detail keeps the shared scale. */
+export function TeamScheduleInterval(input: IntervalInput) {
+  const Component = SCHEDULE_ROLE_COMPONENTS[input.layer.role];
+  return <Component {...input} />;
 }

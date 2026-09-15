@@ -1,6 +1,8 @@
+import { useColorScheme } from 'nativewind';
 import { TextInput } from 'react-native';
 import { type SortKey, type SpanKey, VIEW_TIMEZONES } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
+import { MUTED_FOREGROUND_HEX } from '../utils/tones';
 import { Chip, ChipGroup, ToolbarButton } from './chips';
 
 const SPAN_LABELS: Record<SpanKey, string> = { day: 'Day', week: 'Week' };
@@ -103,11 +105,12 @@ export function PeopleFilter({
   query: string;
   onChange: (query: string) => void;
 }) {
+  const { colorScheme } = useColorScheme();
   return (
     <TextInput
       accessibilityLabel="Filter people"
       placeholder="Filter people"
-      placeholderTextColor="#71717a"
+      placeholderTextColor={MUTED_FOREGROUND_HEX[colorScheme ?? 'light']}
       value={query}
       onChangeText={onChange}
       autoCapitalize="none"

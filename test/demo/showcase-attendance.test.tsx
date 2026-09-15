@@ -1,6 +1,6 @@
 /// <reference types="nativewind/types" />
 import '../support/native-host';
-import { afterEach, expect, it } from 'bun:test';
+import { afterEach, expect, it, spyOn } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
@@ -27,16 +27,22 @@ import {
 import { MemberInspector } from '../../demo/components/team-roster/members';
 import {
   NoSelection,
+  SlotSelection,
   TimeOffSelection,
 } from '../../demo/components/team-roster/members/parts/selection';
+import { WeekSchedule } from '../../demo/components/team-roster/members/parts/week-schedule';
+import { WeekNowLine } from '../../demo/components/team-roster/members/parts/week-zones';
 import {
+  AvailabilityBand,
   TeamInterval,
   TeamScheduleInterval,
+  TimeOffGap,
 } from '../../demo/components/team-roster/parts/layer-fillers';
 import {
   type TeamRosterModel,
   useTeamRoster,
 } from '../../demo/components/team-roster/use-team-roster';
+import { dayLabel, timeLabel } from '../../demo/components/team-roster/utils/format';
 import { selectionFor } from '../../demo/components/team-roster/utils/selection';
 import {
   eventsFor,
@@ -482,7 +488,7 @@ it('retains lane identities on selection and expands the inspector week in day m
   expect(memberMeta(model.weekLane).events.some((event) => event.start >= window.end)).toBe(true);
 });
 
-it('defaults every host component when explicitly undefined', () => {
+it('defaults host slots and dispatches measured layouts, scheme colors, and empty filters', () => {
   // Isolate the additional TextInput host from the suite's already loaded native module.
   const hosts = readFileSync(new URL('../support/native-host.ts', import.meta.url), 'utf8').replace(
     "Text: 'Text',",
@@ -491,10 +497,16 @@ it('defaults every host component when explicitly undefined', () => {
   const script =
     hosts +
     `
+    let scheme = 'light';
+    mock.module('nativewind', () => ({ useColorScheme: () => ({ colorScheme: scheme }) }));
     const { strict: assert } = await import('node:assert');
     const { act, create } = await import('react-test-renderer');
     const { TeamRosterScreen } = await import('./demo/components/team-roster');
     const { teamFor } = await import('./demo/components/team-roster/utils/team');
+    const { TeamRosterLayout } = await import('./demo/components/team-roster/screen-layout');
+    const { TeamToolbarLayout } = await import('./demo/components/team-roster/toolbar-layout');
+    const { Roster } = await import('react-native-roster');
+    const { MUTED_FOREGROUND_HEX } = await import('./demo/components/team-roster/utils/tones');
     const team = teamFor();
     let tree;
     act(() => { tree = create(createElement(TeamRosterScreen, {
@@ -505,6 +517,34 @@ it('defaults every host component when explicitly undefined', () => {
     })); });
     assert.ok(JSON.stringify(tree.toJSON()).includes(team.organization));
     assert.ok(JSON.stringify(tree.toJSON()).includes('Now'));
+    for (const [width, density, labelWidth, direction, toolbar] of [
+      [500, 'avatar', 56, 'column', 'column'],
+      [700, 'compact', 148, 'column', 'row'],
+      [1000, 'full', 232, 'row', 'row'],
+    ]) {
+      act(() => tree.root.findByType(TeamRosterLayout).props.onContentLayout({
+        nativeEvent: { layout: { width, height: 800, x: 0, y: 0 } },
+      }));
+      const layout = tree.root.findByType(TeamRosterLayout);
+      assert.equal(layout.props.direction, direction);
+      assert.equal(layout.findAllByProps({ className: 'h-[600px]' }).length, direction === 'column' ? 1 : 0);
+      const controls = tree.root.findByType(TeamToolbarLayout);
+      assert.equal(controls.props.direction, toolbar);
+      assert.equal(controls.props.filterWidth, labelWidth);
+      const filterRegion = controls.findAllByType('View')[1];
+      assert.deepEqual(filterRegion.props.style, toolbar === 'row' ? { width: labelWidth } : undefined);
+      assert.equal(tree.root.findByType(Roster).props.laneLabelWidth, labelWidth);
+      assert.equal(controls.props.filterZone.props.density, density);
+    }
+    assert.equal(tree.root.findByType('TextInput').props.placeholderTextColor, MUTED_FOREGROUND_HEX.light);
+    scheme = 'dark';
+    act(() => tree.root.findByType('TextInput').props.onChangeText('a'));
+    assert.equal(tree.root.findByType('TextInput').props.placeholderTextColor, MUTED_FOREGROUND_HEX.dark);
+    act(() => tree.root.findByType('TextInput').props.onChangeText('nobody-matches-this-query'));
+    assert.equal(tree.root.findAllByType(Roster).length, 0);
+    assert.equal(tree.root.findAllByType('Text').filter(node => node.props.children === 'Nobody matches that filter.').length, 2);
+    act(() => tree.root.findByType('TextInput').props.onChangeText(''));
+    assert.equal(tree.root.findAllByType(Roster).length, 1);
     act(() => tree.unmount());
   `;
   const result = Bun.spawnSync(['bun', '-e', script], { cwd: process.cwd() });
@@ -558,7 +598,15 @@ it('clears lunch detail from the inspector when working hours or an event is pre
 
 it('identifies time off by source id suffix rather than source kind', () => {
   expect(timeOffNote({ kind: 'rule', id: 'host:hours' })).toBeUndefined();
-  expect(timeOffNote({ kind: 'date', id: 'host:unknown' })).toBeUndefined();
+  for (const suffix of ['unknown', '__proto__', 'constructor', 'toString', 'hasOwnProperty']) {
+    const source = { kind: 'date', id: `host:${suffix}` };
+    expect(timeOffNote(source)).toBeUndefined();
+    const input = inputFor([]);
+    const tree = render(
+      <TimeOffGap {...input} rect={{ ...input.rect, width: 240, sources: [source] }} />,
+    );
+    expect(JSON.stringify(tree.toJSON())).toContain('Out of office');
+  }
   expect(timeOffNote({ kind: 'date', id: 'host:lunch' })).toBe('Lunch break');
   expect(timeOffNote({ kind: 'rule', id: 'host:pto', label: 'Vacation' })).toBe('Vacation');
   expect(timeOffNote({ kind: 'date', id: 'host:pto' })).toBe('Out of office');
@@ -589,5 +637,87 @@ it('generates deterministic varied attendance for non-numeric host member ids', 
       expect(Number.isFinite(fact.arrival)).toBe(true);
       expect(Number.isFinite(fact.departure)).toBe(true);
     }
+  }
+});
+
+it('returns an empty model for an unmatched query and restores the roster when cleared', () => {
+  let model!: TeamRosterModel;
+  function Probe() {
+    model = useTeamRoster({ team });
+    return null;
+  }
+  render(<Probe />);
+  act(() => model.setQuery('nobody-matches-this-query'));
+  expect(model.status).toBe('empty');
+  expect(model.lanes).toEqual([]);
+  expect(model.query).toBe('nobody-matches-this-query');
+  act(() => model.setQuery(''));
+  expect(model.status).toBe('ready');
+  expect(model.lanes).toHaveLength(team.members.length);
+});
+
+it('selects a cell for its member and renders the slot in the view timezone', () => {
+  let model!: TeamRosterModel;
+  function Probe() {
+    model = useTeamRoster({ team });
+    if (model.status !== 'ready') return null;
+    return (
+      <MemberInspector
+        lane={model.weekLane}
+        member={model.selectedMember}
+        selection={model.selection}
+        windowSpec={model.weekWindowSpec}
+      />
+    );
+  }
+  const tree = render(<Probe />);
+  const lane = model.lanes[1];
+  if (!lane) throw new Error('Expected second lane');
+  const time = window.start + 3600000;
+  act(() => model.selectCell(lane, time));
+  if (model.status !== 'ready') throw new Error('Expected ready roster');
+  expect(model.selectedLane.id).toBe(lane.id);
+  expect(model.selection).toEqual({ kind: 'slot', member: memberMeta(lane).member, time });
+  expect(tree.root.findAllByType(SlotSelection)).toHaveLength(1);
+  const output = JSON.stringify(tree.toJSON());
+  expect(output).toContain('Open slot');
+  expect(output).toContain(dayLabel(time, model.timezone));
+  expect(output).toContain(timeLabel(time, model.timezone));
+  expect(output).toContain('Snapped to the hour.');
+  act(() => model.selectMember(lane.id));
+  expect(tree.root.findAllByType(SlotSelection)).toHaveLength(0);
+});
+
+it('suppresses the inspector system-clock line even when that clock falls within its week', () => {
+  const clock = spyOn(Date, 'now').mockReturnValue(now + 3600000);
+  try {
+    const lane = lanes[0];
+    if (!lane) throw new Error('Expected lane');
+    const spec = { span: 'week' as const, anchorDate: '2026-01-05', timezone: 'America/Chicago' };
+    const tree = render(<WeekSchedule lane={lane} windowSpec={spec} />);
+    act(() =>
+      tree.root
+        .find((node) => typeof node.props.onLayout === 'function')
+        .props.onLayout({
+          nativeEvent: { layout: { width: 380, height: 600, x: 0, y: 0 } },
+        }),
+    );
+    expect(clock).toHaveBeenCalled();
+    expect(Date.now()).not.toBe(now);
+    const line = tree.root.findByType(WeekNowLine);
+    expect(line.props.y).toBeGreaterThan(0);
+    expect(line.children).toEqual([]);
+    expect(JSON.stringify(tree.toJSON())).not.toContain('bg-rose-500');
+  } finally {
+    clock.mockRestore();
+  }
+});
+
+it('dispatches availability and custom schedule layers to the member band', () => {
+  const input = inputFor([]);
+  for (const role of ['availability', 'custom'] as const) {
+    const tree = render(<TeamScheduleInterval {...input} layer={{ ...input.layer, role }} />);
+    expect(tree.root.findAllByType(AvailabilityBand)).toHaveLength(1);
+    expect(tree.root.findAllByProps({ testID: 'team-schedule-event' })).toHaveLength(0);
   }
 });
