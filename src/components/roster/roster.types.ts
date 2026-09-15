@@ -51,6 +51,8 @@ export type RosterInput = {
   lanes: Lane[];
   windowSpec: WindowSpec;
   minuteStep?: number;
+  /** Current instant in epoch milliseconds; default null draws no now line. */
+  now?: number | null;
   sortLanes?: LaneComparator;
   highlightSource?: Source;
   onNavigate?: (next: WindowSpec) => void;
@@ -79,6 +81,8 @@ export type RosterModel = {
   press: (lane: Lane, x: number, y: number) => void;
   status: 'empty' | 'ready';
   ticks: RosterTick[];
+  now: number | null;
+  nowLine: RosterNowLineInput | null;
   contentWidth: number;
   viewport: { width: number; height: number };
   onLayout: (input: LayoutChangeEvent) => void;
@@ -92,6 +96,7 @@ export type LaneLabelInput = {
   incompleteLabel: string;
   neverSetLabel: string;
 };
+export type RosterNowLineInput = { x: number; now: number };
 export type HeaderCellInput = { tick: RosterTick };
 export type GridInput = { ticks: RosterTick[]; contentWidth: number };
 export type HeaderInput = Pick<RosterModel, 'ticks' | 'projection' | 'scroll' | 'contentWidth'> & {
@@ -103,16 +108,9 @@ export type LabelColumnInput = Pick<RosterModel, 'projection' | 'scroll'> & {
   /** Lane label filler, positioned at the fixed row height. */
   laneLabelComponent: ComponentType<LaneLabelInput>;
 };
-export type BodyInput = Pick<
+export type LaneListInput = Pick<
   RosterModel,
-  | 'geometryFor'
-  | 'projection'
-  | 'scroll'
-  | 'press'
-  | 'ticks'
-  | 'contentWidth'
-  | 'viewport'
-  | 'window'
+  'geometryFor' | 'projection' | 'scroll' | 'press' | 'contentWidth' | 'viewport' | 'window'
 > & {
   lanes: Lane[];
   highlightSource?: Source;
@@ -122,6 +120,12 @@ export type BodyInput = Pick<
   intervalComponent: ComponentType<IntervalInput>;
   /** Removed rect filler, placed inside a pressable by LaneRow. */
   gapComponent: ComponentType<GapInput>;
+};
+export type BodyInput = LaneListInput & {
+  ticks: RosterTick[];
+  nowLine: RosterNowLineInput | null;
+  /** Noninteractive current-time line positioned in body content pixels. */
+  nowLineComponent: ComponentType<RosterNowLineInput>;
   /** Noninteractive tick lines behind every lane, sized to the content width. */
   gridComponent: ComponentType<GridInput>;
 };
@@ -158,6 +162,8 @@ export type RosterProps = RosterInput &
      * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
      */
     portalHost?: string;
+    /** Noninteractive current-time line; RosterNowLine spans the body height at x. */
+    nowLineComponent?: ComponentType<RosterNowLineInput>;
     incompleteLabel?: string;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */

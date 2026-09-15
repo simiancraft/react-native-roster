@@ -202,6 +202,19 @@ Roster's web-only pointer callback. `highlightSource={{ kind, id }}` applies
 `highlightColor` to every matching rect without new geometry. Sorting defaults
 to `byLabel`; `byCoverage({ measure })` sorts by coverage descending.
 
+## Now line
+
+The optional `now` prop accepts epoch milliseconds or `null` (the default, which
+draws nothing). Pass `now={timestamp}` to draw a vertical 2 px red line across the
+body at the projected instant. Only `window.start <= now < window.end` is visible.
+The caller owns clock updates; Roster starts no timer. `useRoster` exposes `now` and `nowLine`.
+`now` retains the raw instant. `nowLine` (`{ x, now }`) uses the fitted
+`pxPerMinute` scale and is null when `now` is null or outside the window.
+Replace `nowLineComponent` to customize the line using `RosterNowLineInput`
+(`{ x, now }`). The line follows horizontal scrolling; changing `now` does not
+invalidate mounted lanes. The every-zone gallery fixture can toggle a fixed
+instant at the window midpoint.
+
 ## Roster zones
 
 Props ending in `Component` accept `ComponentType<Input>` and are mounted by React.
@@ -220,12 +233,13 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
 | `selectionLayout` | `SelectionLayoutProps`: nodes, anchor, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive vertical red line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
 
-`RosterBody` composes `RosterBodyLayout`, which arranges `gridZone` and `listZone`
+`RosterBody` composes `RosterBodyLayout`, which arranges `gridZone`, `listZone`, and optional `overlayZone`
 nodes with scroll wiring, and `RosterLaneList`, which owns LegendList and its
 per-lane callback. The body waits for viewport measurement before mounting the list.
 

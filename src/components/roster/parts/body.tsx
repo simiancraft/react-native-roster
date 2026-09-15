@@ -9,7 +9,26 @@ export function RosterBody(
     onRowRender?: ProfilerOnRenderCallback;
   },
 ) {
-  const { viewport, scroll, contentWidth, ticks, gridComponent: GridComponent } = props;
+  const {
+    nowLine,
+    nowLineComponent: NowLineComponent,
+    ticks,
+    gridComponent: GridComponent,
+    lanes,
+    geometryFor,
+    projection,
+    scroll,
+    press,
+    contentWidth,
+    viewport,
+    window,
+    intervalComponent,
+    gapComponent,
+    highlightSource,
+    onIntervalHover,
+    incompleteLabel,
+    onRowRender,
+  } = props;
   // LegendList requires a measured viewport and does not support static rendering.
   if (viewport.width <= 0 || viewport.height <= 0) return null;
   return (
@@ -18,7 +37,25 @@ export function RosterBody(
       contentWidth={contentWidth}
       viewport={viewport}
       gridZone={<GridComponent ticks={ticks} contentWidth={contentWidth} />}
-      listZone={<RosterLaneList {...props} />}
+      listZone={
+        <RosterLaneList
+          lanes={lanes}
+          geometryFor={geometryFor}
+          projection={projection}
+          scroll={scroll}
+          press={press}
+          contentWidth={contentWidth}
+          viewport={viewport}
+          window={window}
+          intervalComponent={intervalComponent}
+          gapComponent={gapComponent}
+          highlightSource={highlightSource}
+          onIntervalHover={onIntervalHover}
+          incompleteLabel={incompleteLabel}
+          onRowRender={onRowRender}
+        />
+      }
+      overlayZone={nowLine ? <NowLineComponent {...nowLine} /> : null}
     />
   );
 }

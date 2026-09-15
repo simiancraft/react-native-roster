@@ -91,6 +91,7 @@ export type RosterFixture = {
   /** Optional second presentation for the detail fixture. */
   inspectorLayout?: ComponentType<SelectionLayoutProps>;
   showsEmptyExample: boolean;
+  showsNowToggle?: boolean;
 };
 
 export const rosterFixtures: Record<
@@ -169,6 +170,7 @@ export const rosterFixtures: Record<
     ] as Lane[],
   },
   'every-zone': {
+    showsNowToggle: true,
     title: 'Every zone replaced',
     lanes: [inset, excluded],
     zones: replacedZones,

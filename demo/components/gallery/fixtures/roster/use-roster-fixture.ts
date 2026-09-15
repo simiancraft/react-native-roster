@@ -56,6 +56,9 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
     definition.windowSpec ?? rosterWindowSpec,
   );
   const [minuteStep, setMinuteStep] = useState(definition.minuteStep ?? 60);
+  const [showNow, setShowNow] = useState(false);
+  const rosterWindow = windowFor(windowSpec);
+  const now = showNow ? rosterWindow.start + (rosterWindow.end - rosterWindow.start) / 2 : null;
   const [sort, setSort] = useState<SortKey>('label');
   const [highlightSource, setHighlightSource] = useState<Source>();
   const [selection, setSelection] = useState('Press an interval, gap, or empty space.');
@@ -68,7 +71,7 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
   const [laneTimezone, setLaneTimezone] = useState('UTC');
   const ruleSetDraft = useRuleSetDraft(definition.ruleSet);
   const expansion = ruleSetDraft.applied
-    ? expandRuleSet(ruleSetDraft.applied, windowFor(windowSpec), definition.expandOptions)
+    ? expandRuleSet(ruleSetDraft.applied, rosterWindow, definition.expandOptions)
     : undefined;
   const fixture = {
     ...definition,
@@ -118,14 +121,17 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
     status: 'ready' as const,
     presentation,
     setPresentation,
+    now,
+    showNow,
+    toggleNow: () => setShowNow((previous) => !previous),
     contentDirection: contentWidth < 720 ? ('column' as const) : ('row' as const),
     measureContent: (input: LayoutChangeEvent) => setContentWidth(input.nativeEvent.layout.width),
     ruleSetDraft,
     expansion,
-    applyRuleSet: () => ruleSetDraft.apply(windowFor(windowSpec), definition.expandOptions),
+    applyRuleSet: () => ruleSetDraft.apply(rosterWindow, definition.expandOptions),
     fixtureId,
     measureColdLayout: () =>
-      setSelection(measureLayout(fixture.lanes, windowFor(windowSpec), windowSpec.timezone)),
+      setSelection(measureLayout(fixture.lanes, rosterWindow, windowSpec.timezone)),
     changeRule: () => setRuleHourEnd((hour) => (hour === 24 ? 10 : 24)),
     changeLaneTimezone: () =>
       setLaneTimezone((zone) => (zone === 'UTC' ? 'Pacific/Auckland' : 'UTC')),

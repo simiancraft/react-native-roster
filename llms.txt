@@ -144,8 +144,8 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 
 | Import | Runtime exports and purpose |
 | --- | --- |
-| react-native-roster | Roster, Schedule, hooks, default slot components, RosterSelectionPopover, PortalHost, Portal, and core re-exports. |
-| react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
+| react-native-roster | Roster, Schedule, useRoster, useSchedule, default slot components, RosterSelectionPopover, PortalHost, Portal, and core re-exports. |
+| react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, xAtTime, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
 | react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
 
@@ -171,7 +171,8 @@ Component props are ComponentType<Input>.
 ## Renderer contracts
 
 Roster required props: lanes: Lane[], windowSpec: WindowSpec.
-Optional: minuteStep (60), rowHeight (48), pxPerMinute (minimum 0.5, fits viewport),
+Optional: now (epoch ms or null, default null), minuteStep (60), rowHeight (48),
+pxPerMinute (minimum 0.5, fits viewport),
 sortLanes (byLabel), highlightSource, onNavigate, onIntervalPress, onGapPress,
 onCellPress, onIntervalHover (web only), style, headerStyle, laneLabelColumnStyle,
 bodyStyle, laneLabelWidth (180), neverSetLabel, incompleteLabel, and zones below.
@@ -186,9 +187,14 @@ outside React state.
 
 useRoster returns window, projection, orderedLanes, coverage, laneState,
 geometryFor(lane), scroll, press(lane,x,y), ticks, contentWidth, viewport,
-onLayout, navigate, selection, dismissSelection, and status ('empty' or 'ready'). There is no visibleRange
-field in the shipped public model. Custom layouts must wire onLayout. Custom
+now, nowLine, onLayout, navigate, selection, dismissSelection, and status ('empty' or 'ready').
+There is no visibleRange field in the shipped public model. Custom layouts must wire onLayout. Custom
 bodies compute geometry only for mounted lanes, preserving virtualization.
+now retains the raw instant. nowLine is { x, now }, using xAtTime with the fitted
+projection.pxPerMinute scale; it is null when now is null or outside the
+end-exclusive window. The caller owns clock updates.
+The vertical now line follows horizontal scroll without invalidating mounted lanes.
+The every-zone gallery offers a fixed window-midpoint now toggle.
 A zero-duration window has contentWidth=0 and renders no Roster body. Positive
 windows use their exact elapsed duration, including sub-minute spans. Cell times
 are clamped up to window.start and rejected at or beyond window.end.
@@ -214,8 +220,11 @@ interaction. Input types, including HeaderCellInput, are exported from root.
 Mount a React context provider above Roster for extra consumer data, and read it with useContext in a module-scope slot component.
 Avoid inline closures or memoized factories returning a new component per render; new interval types remount every interval and defeat the body's content key.
 
-RosterBody composes the exported RosterBodyLayout (gridZone/listZone nodes with
-scroll wiring) and RosterLaneList (LegendList, geometryFor, and LaneRow mounting).
+RosterBody composes the exported RosterBodyLayout (gridZone/listZone and optional
+absolute overlayZone nodes with scroll wiring) and RosterLaneList (LegendList,
+geometryFor, and LaneRow mounting). BodyInput extends LaneListInput with ticks,
+gridComponent, nowLine, and nowLineComponent. The body picks lane-list props
+explicitly; the overlay wrapper mounts only when overlayZone is provided.
 Keep its viewport gate and measured estimatedListSize in custom compositions.
 
 ## Roster zones
@@ -227,11 +236,12 @@ Keep its viewport gate and measured estimatedListSize in custom compositions.
 | `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive 2 px red vertical line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `cornerZone` | `ReactNode` | `RosterCorner`: nothing; the cell above the labels, laneLabelWidth wide. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight/hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
 
 ## Selection
 
@@ -246,7 +256,8 @@ IntervalDetailInput is IntervalInput plus absolute start and end and viewTimezon
 useRoster owns selection: {rect,layer,lane,start,end}|null and dismissSelection(). It resolves
 current lane/layer/rect references and clears removed lane or absolute rect bounds.
 Resizing and sorting retain valid selection with current geometry; reconciliation
-compares absolute bounds rounded to whole milliseconds.
+matches source identity sets and chooses the nearest absolute bounds within
+max(1 ms, 60000 / pxPerMinute).
 intervalDetailComponent belongs to RosterInput so useRoster knows whether presses select.
 selectionLayout and portalHost belong to RosterProps because only the chassis mounts
 the layout; custom chassis pass the detail component to the hook and mount the layout themselves.
@@ -334,6 +345,7 @@ ordinary wall time resumes. timeAtY inverts this region to the absolute occurren
 The repeat divider uses dividerY, the projected transition instant, even when
 the surviving repeat regions have unequal heights.
 
+xAtTime(projection,window,time) returns horizontal pixels from the window origin.
 timeAtX(projection,window,x) returns absolute time with origin from window.
 timeAtY(projection,columnIndex,y) returns an absolute occurrence or null for
 skipped time/outside bounds. Inverse times stay below each scale piece's exclusive
