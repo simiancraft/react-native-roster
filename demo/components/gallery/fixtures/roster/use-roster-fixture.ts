@@ -70,7 +70,7 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
   const [laneTimezone, setLaneTimezone] = useState('UTC');
   const ruleSetDraft = useRuleSetDraft(definition.ruleSet);
   const expansion = ruleSetDraft.applied
-    ? expandRuleSet(ruleSetDraft.applied, rosterWindow, definition.expandOptions)
+    ? expandRuleSet(ruleSetDraft.applied, windowFor(windowSpec), definition.expandOptions)
     : undefined;
   const fixture = {
     ...definition,
