@@ -284,6 +284,9 @@ dismissal, leaving body presses to the hook while preserving true outside presse
 The hook toggles the selected interval closed, switches to another interval, and dismisses
 on cell or gap presses while preserving their callbacks. The body restores horizontal
 and vertical offsets from shared values on remount when selectionLayout changes.
+A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+native also retains contentOffset. LegendList restores initialScrollOffset through
+its own web mount effect and native initial offset.
 
 selection-layout.web.tsx uses @radix-ui/react-popover, required by the web root entry
 but an optional peer for native/core-only consumers. Source web bundlers (Vite,

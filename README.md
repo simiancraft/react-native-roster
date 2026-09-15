@@ -271,6 +271,9 @@ dismissal, leaving body presses to the hook while preserving true outside presse
 The hook toggles the selected interval closed, switches to another interval, and dismisses
 on cell or gap presses while preserving their callbacks. The body restores horizontal
 and vertical offsets from shared values on remount when selectionLayout changes.
+A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+native also retains contentOffset. LegendList restores initialScrollOffset through
+its own web mount effect and native initial offset.
 
 Current data and geometry replace old references, including after resizing or sorting. Reconciliation matches the layer id and
 order-insensitive source identities, then chooses the nearest absolute bounds. The sum

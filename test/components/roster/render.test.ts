@@ -22,10 +22,10 @@ import type { Lane, Layer } from '../../../src/core';
 import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../../../src/core';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 
-function render(element: ReactElement) {
+function render(element: ReactElement, createNodeMock?: (element: ReactElement) => unknown) {
   let tree!: ReactTestRenderer;
   act(() => {
-    tree = create(element);
+    tree = create(element, createNodeMock ? { createNodeMock } : undefined);
   });
   return tree;
 }
@@ -503,7 +503,8 @@ it('routes native body presses through an open selection and restores scroll whe
     windowSpec: fixture.windowSpec ?? rosterWindowSpec,
     intervalDetailComponent: fixture.zones.intervalDetailComponent,
   };
-  const tree = render(createElement(Roster, input));
+  const scrollTo = mock(() => {});
+  const tree = render(createElement(Roster, input), () => ({ scrollTo }));
   // The chassis viewport and the native portal viewport measure independently.
   act(() => {
     for (const node of tree.root.findAllByType('View' as ElementType)) {
@@ -542,9 +543,10 @@ it('routes native body presses through an open selection and restores scroll whe
   expect(strategy.targetBounds).toEqual({ x: 270, y: 0, width: 240, height: 48 });
   expect(strategy.scroll.x.get()).toBe(80);
   expect(strategy.scroll.y.get()).toBe(24);
-  expect(tree.root.findByProps({ testID: 'roster-horizontal-scroll' }).props.contentOffset).toEqual(
-    { x: 80, y: 0 },
-  );
+  expect(scrollTo).toHaveBeenLastCalledWith({ x: 80, animated: false });
+  const restorationCalls = scrollTo.mock.calls.length;
+  act(() => tree.update(createElement(Roster, { ...input, selectionLayout: Strategy })));
+  expect(scrollTo).toHaveBeenCalledTimes(restorationCalls);
   expect(tree.root.findByType('LegendList' as ElementType).props.initialScrollOffset).toBe(24);
   expect(strategy.scroll.headerStyle.transform).toEqual([{ translateX: -80 }]);
   expect(strategy.scroll.labelStyle.transform).toEqual([{ translateY: -24 }]);
