@@ -139,6 +139,7 @@ export const rosterFixtures: Record<
           ],
         })),
       },
+      { ...single, id: 'two', label: 'Lane two' },
     ],
     zones: { intervalDetailComponent: IntervalDetail },
     inspectorLayout: InspectorSelectionLayout,

@@ -378,7 +378,8 @@ must install it even without enabling selection because `selection-layout.web.ts
 is in the module graph. Native and core-only consumers do not need it.
 `RosterSelectionPopover` selects native or web through platform resolution.
 Native mounts a local `PortalHost` and registers `Portal` content; web uses Radix
-for portal placement, outside click, Escape, focus, and collision handling.
+for portal placement, outside press, Escape, and collisions. The layout returns focus
+to the previously focused element only after Escape.
 The overlay tracks both scroll offsets with Reanimated shared values, without
 React scroll state. Native clamps details horizontally to the measured viewport,
 flips above when that fits, and uses the top edge when neither vertical placement

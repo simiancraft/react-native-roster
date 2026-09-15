@@ -19,7 +19,9 @@ export function useRoster(input: RosterInput): RosterModel {
     onNavigate,
   } = input;
   const [selected, setSelected] = useState<SelectedInterval | null>(null);
-  const [dismissSelection] = useState(() => () => setSelected(null));
+  function dismissSelection() {
+    setSelected(null);
+  }
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   // The pinned compiler lint cannot resolve useSharedValue's built-in type.
   // These shared values only track offsets, so no animation needs cancellation.

@@ -175,6 +175,18 @@ try {
   await page.waitForFunction(
     () => document.activeElement?.getAttribute('data-testid') === 'roster-lane-one',
   );
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  const secondDetailLane = page.getByTestId('roster-lane-two');
+  await secondDetailLane.click({ position: { x: (laneWidth * 16) / 24, y: 20 } });
+  await page.waitForFunction(() =>
+    document.querySelector('[data-testid="interval-detail"]')?.textContent?.includes('Lane two'),
+  );
+  await page.keyboard.press('Escape');
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  await page.waitForFunction(
+    () => document.activeElement?.getAttribute('data-testid') === 'roster-lane-two',
+  );
   await page.setViewportSize({ width: 600, height: 900 });
   await settle(page);
   laneWidth = await detailLane.evaluate((node) => node.clientWidth);

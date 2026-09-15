@@ -321,8 +321,9 @@ Storybook, or Metro web) require it even with selection disabled because the web
 layout is in the module graph. Install with Bun. The emitted
 browser remap must travel with the shared selection-layout.types.ts contract, just
 like press-point and interval-hover. Its zero-size, pointer-transparent anchor follows
-the shared translation; Radix's portal follows anchor movement and owns outside click,
-Escape, focus, and collision handling.
+the shared translation; Radix's portal follows anchor movement and owns outside press,
+Escape, and collisions. The layout returns focus to the previously focused element
+only after Escape.
 
 ## Schedule zones
 

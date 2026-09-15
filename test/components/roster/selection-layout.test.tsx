@@ -86,13 +86,13 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
 it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   let tree!: ReactTestRenderer;
   const onDismiss = mock();
-  function Example({ targetBounds = null }: Partial<SelectionLayoutProps>) {
+  function Example({ open = false, targetBounds = null }: Partial<SelectionLayoutProps>) {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     scroll.x.set(12);
     scroll.y.set(24);
     return (
       <WebPopover
-        open={false}
+        open={open}
         targetBounds={targetBounds}
         anchorZone="body"
         contentZone={null}
@@ -105,7 +105,13 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   act(() => {
     tree = create(<Example />, {
       createNodeMock: (element) =>
-        element.type === 'div' ? { contains: (target: unknown) => target === 'body' } : null,
+        element.type === 'div'
+          ? {
+              contains: (target: unknown) =>
+                target === 'body' ||
+                (typeof document !== 'undefined' && target === document.activeElement),
+            }
+          : null,
     });
   });
   const content = tree.root.findByType(Popover.Portal).props.children.props;
@@ -128,6 +134,16 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
     expect(preventCloseAutoFocus).toHaveBeenCalledTimes(1);
     expect(lane.focus).toHaveBeenLastCalledWith({ preventScroll: true });
     expect(detail.focus).not.toHaveBeenCalled();
+    const secondLane = new FocusTarget();
+    documentDouble.activeElement = secondLane;
+    act(() =>
+      tree.update(<Example open targetBounds={{ x: 30, y: 88, width: 100, height: 48 }} />),
+    );
+    content.onEscapeKeyDown();
+    content.onCloseAutoFocus({ preventDefault: mock() });
+    expect(secondLane.focus).toHaveBeenLastCalledWith({ preventScroll: true });
+    expect(lane.focus).toHaveBeenCalledTimes(1);
+    act(() => tree.update(<Example />));
     // A new open resets keyboard dismissal; outside pointer focus stays put.
     content.onOpenAutoFocus();
     content.onCloseAutoFocus({ preventDefault: preventCloseAutoFocus });

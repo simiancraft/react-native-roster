@@ -4,6 +4,8 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Portal, PortalHost } from '../../primitives/portal';
 import type { SelectionLayoutProps } from './selection-layout.types';
 
+const overlay = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } as const;
+
 /** Native selection presentation with a local portal destination and shared scroll translation. */
 export function RosterSelectionPopover({
   anchorZone,
@@ -86,4 +88,3 @@ export function RosterSelectionPopover({
     </View>
   );
 }
-const overlay = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } as const;

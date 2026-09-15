@@ -456,6 +456,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
     card captures its own presses. Web excludes the body wrapper from Radix outside
     dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+    Web recaptures the focused lane when selection switches and returns focus only after Escape.
     The hook toggles the selected interval closed, switches to another interval, and dismisses
     on cell or gap presses while preserving their callbacks. The body restores horizontal
     and vertical offsets from shared values on remount when selectionLayout changes.
