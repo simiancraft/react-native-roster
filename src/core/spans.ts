@@ -1,5 +1,6 @@
-// Sweep boundaries once; reference counts preserve provenance through nested
-// intervals and equal-time ends/starts. Labels never affect source identity.
+// Provenance sweep logic and the extentOf and intersectionOf interval helpers.
+// The sweep uses reference counts to preserve provenance through nested intervals
+// and equal-time ends/starts. Labels never affect source identity.
 import type { Interval, Source, Window } from './types';
 
 type Boundary = { at: number; delta: number; sources: Source[] };
@@ -55,4 +56,43 @@ export function sourceSpans(intervals: Interval[], window: Window): Interval[] {
     previous = at;
   }
   return spans;
+}
+
+/**
+ * Earliest start through latest end in epoch milliseconds, end-exclusive; empty input returns null.
+ * Throws RangeError for non-finite bounds or end <= start.
+ * Inputs may be unsorted, overlapping, nested, or duplicated; inputs are not mutated.
+ */
+export function extentOf(segments: readonly Window[]): Window | null {
+  let start = Infinity;
+  let end = -Infinity;
+  for (const segment of segments) {
+    validateSpan(segment);
+    start = Math.min(start, segment.start);
+    end = Math.max(end, segment.end);
+  }
+  return start < end ? { start, end } : null;
+}
+
+/**
+ * Shared epoch milliseconds, end-exclusive; empty input or an empty intersection returns null.
+ * Throws RangeError for non-finite bounds or end <= start.
+ * Inputs may be unsorted, overlapping, nested, or duplicated; inputs are not mutated.
+ */
+export function intersectionOf(spans: readonly Window[]): Window | null {
+  if (spans.length === 0) return null;
+  let start = -Infinity;
+  let end = Infinity;
+  for (const span of spans) {
+    validateSpan(span);
+    start = Math.max(start, span.start);
+    end = Math.min(end, span.end);
+  }
+  return start < end ? { start, end } : null;
+}
+
+function validateSpan(span: Window): void {
+  if (!Number.isFinite(span.start) || !Number.isFinite(span.end) || span.end <= span.start) {
+    throw new RangeError('Span bounds must be finite with end greater than start');
+  }
 }
