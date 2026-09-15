@@ -58,7 +58,7 @@ export function attendanceModelFor(event: MemberEvent, now: number, timezone = '
       attendee,
       bar: actual ? barOffsets(actual, scale) : null,
       glyph: glyphFor(attendance.state),
-      tooltip: tooltipTextFor(attendance, event, timezone),
+      detail: detailTextFor(attendance, event, timezone),
     };
   });
   return {
@@ -89,7 +89,7 @@ export function glyphFor(state: Presence['state']) {
   return { expected: '', pending: '○', absent: '×', present: '●', attended: '' }[state];
 }
 
-export function tooltipTextFor(attendance: Attendance, event: MemberEvent, timezone: string) {
+export function detailTextFor(attendance: Attendance, event: MemberEvent, timezone: string) {
   switch (attendance.state) {
     case 'expected':
       return 'Expected to attend';

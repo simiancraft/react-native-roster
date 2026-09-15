@@ -2,12 +2,19 @@ import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { KIND_CLASSES } from '../../utils/tones';
 import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
+import { attendanceInteraction } from './attendance-interaction';
 import { EventAxis } from './axis';
-import { AttendanceTooltip } from './tooltip';
-import { useAttendanceTooltip } from './use-attendance-tooltip';
+import type { useActiveAttendance } from './use-active-attendance';
 
-export function Attendances({ model, timezone }: { model: AttendanceModel; timezone: string }) {
-  const tooltip = useAttendanceTooltip();
+export function Attendances({
+  model,
+  timezone,
+  active,
+}: {
+  model: AttendanceModel;
+  timezone: string;
+  active: ReturnType<typeof useActiveAttendance>;
+}) {
   return (
     <View className="relative">
       <View pointerEvents="none" className="absolute inset-0">
@@ -27,22 +34,15 @@ export function Attendances({ model, timezone }: { model: AttendanceModel; timez
       </View>
       <EventAxis scale={model.scale} timezone={timezone} />
       <View className="gap-1">
-        {model.rows.map((row) => {
-          let tooltipZone: ReactNode = null;
-          if (tooltip.activeId === row.attendee.id)
-            tooltipZone = <AttendanceTooltip text={row.tooltip} />;
-          return (
-            <AttendanceRow
-              key={row.attendee.id}
-              row={row}
-              tone={KIND_CLASSES[model.event.kind].dot}
-              tooltipZone={tooltipZone}
-              onHoverIn={() => tooltip.show(row.attendee.id)}
-              onHoverOut={() => tooltip.hide(row.attendee.id)}
-              onPress={() => tooltip.toggle(row.attendee.id)}
-            />
-          );
-        })}
+        {model.rows.map((row) => (
+          <AttendanceRow
+            key={row.attendee.id}
+            row={row}
+            tone={KIND_CLASSES[model.event.kind].dot}
+            onActivate={() => active.show(row.attendee.id)}
+            onDeactivate={() => active.hide(row.attendee.id)}
+          />
+        ))}
       </View>
     </View>
   );
@@ -51,18 +51,13 @@ export function Attendances({ model, timezone }: { model: AttendanceModel; timez
 function AttendanceRow({
   row,
   tone,
-  tooltipZone,
-  onHoverIn,
-  onHoverOut,
-  onPress,
+  onActivate,
+  onDeactivate,
 }: {
   row: AttendanceRowModel;
   tone: string;
-  /** Attendance timing detail anchored above this row's bar. */
-  tooltipZone: ReactNode;
-  onHoverIn: () => void;
-  onHoverOut: () => void;
-  onPress: () => void;
+  onActivate: () => void;
+  onDeactivate: () => void;
 }) {
   let barZone: ReactNode = (
     <View testID="attendance-empty" className="absolute top-1 left-0 right-0 h-px bg-border" />
@@ -77,7 +72,7 @@ function AttendanceRow({
     );
   const glyphClass = row.attendance.state === 'present' ? 'text-primary' : 'text-muted-foreground';
   return (
-    <View testID={`attendance-row-${row.attendee.id}`} style={{ zIndex: tooltipZone ? 1 : 0 }}>
+    <View testID={`attendance-row-${row.attendee.id}`}>
       <Text numberOfLines={1} className="text-[10px] leading-3 text-muted-foreground">
         {row.attendee.name}{' '}
         <Text accessibilityLabel={row.attendance.state} className={glyphClass}>
@@ -86,20 +81,13 @@ function AttendanceRow({
       </Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${row.attendee.name}: ${row.tooltip}`}
+        accessibilityLabel={`${row.attendee.name}: ${row.detail}`}
         className="relative h-[10px]"
-        onHoverIn={onHoverIn}
-        onHoverOut={onHoverOut}
-        onFocus={onHoverIn}
-        onBlur={onHoverOut}
-        onPress={(event) => {
-          event.stopPropagation();
-          onPress();
-        }}
+        {...attendanceInteraction(onActivate, onDeactivate)}
+        onPress={(event) => event.stopPropagation()}
       >
         {barZone}
       </Pressable>
-      {tooltipZone}
     </View>
   );
 }

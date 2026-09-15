@@ -58,9 +58,15 @@ of actual and scheduled time. One shaded scheduled band sits behind all rows, wi
 hourly tick lines (half-hourly below three hours) connecting the axis to the last row.
 Names sit directly above 10px tone-colored bars, with 4px between rows. Pending uses
 a hollow dot, absent a cross, and present a steady filled dot; completed rows have no glyph.
-Future rows use hairlines. Timing sentences appear only on hover, focus, or press in a
-tooltip above the row's bar, inside the popover. This interaction never changes roster selection.
-The footer explains the shaded band after the data. Source lookup lives in lane metadata, so module-scope
+Future rows use hairlines. The popover footer is a status line: by default it explains
+actual attendance (expected attendees for future events) and the shaded scheduled band.
+The event detail's `useActiveAttendance` hook replaces that legend with the active row's
+name and detail sentence during web hover, web focus matching `:focus-visible`, or
+native press-in. Hover-out, blur, or native press-out restores the legend.
+Programmatic focus without `:focus-visible` leaves the legend in place.
+The footer status node is passed through `footerZone`; the layout only arranges nodes.
+No floating tooltip covers attendee names or neighboring rows, and interaction never
+changes roster selection. Source lookup lives in lane metadata, so module-scope
 slots work through native portals without inherited context. The member inspector
 retains identity, facts, and Schedule; event details live in the popover.
 

@@ -2,23 +2,31 @@ import { Text } from 'react-native';
 import type { IntervalDetailInput } from 'react-native-roster';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
+import type { MemberEvent } from './event.types';
 import { EventLayout } from './layout';
 import { Attendances } from './parts/attendances';
 import { EventFooter } from './parts/footer';
 import { EventHeading } from './parts/heading';
+import { useActiveAttendance } from './parts/use-active-attendance';
 import { attendanceModelFor, eventFor } from './utils/attendance';
 
 /** Selection detail resolves lane metadata, including through portals. */
 export function EventDetail(input: IntervalDetailInput) {
   const event = eventFor(input);
   if (!event) return <WorkingHoursDetail {...input} />;
+  return <AttendanceDetail key={event.id} event={event} input={input} />;
+}
+
+function AttendanceDetail({ event, input }: { event: MemberEvent; input: IntervalDetailInput }) {
   const timezone = input.viewTimezone;
   const model = attendanceModelFor(event, memberMeta(input.lane).now, timezone);
+  const active = useActiveAttendance();
+  const row = model.rows.find((row) => row.attendee.id === active.activeId);
   return (
     <EventLayout
       headerZone={<EventHeading event={event} timezone={timezone} />}
-      chartZone={<Attendances key={event.id} model={model} timezone={timezone} />}
-      footerZone={<EventFooter status={model.status} />}
+      chartZone={<Attendances model={model} timezone={timezone} active={active} />}
+      footerZone={<EventFooter status={model.status} row={row} />}
     />
   );
 }

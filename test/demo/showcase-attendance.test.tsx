@@ -1,20 +1,19 @@
 /// <reference types="nativewind/types" />
 import '../support/native-host';
-import { afterEach, expect, it, spyOn } from 'bun:test';
+import { afterEach, expect, it, mock, spyOn } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { Pressable } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
-import { EventDetail } from '../../demo/components/team-roster/events';
 import type { Attendance, MemberEvent } from '../../demo/components/team-roster/events/event.types';
 import {
   actualExtent,
   attendanceModelFor,
   barOffsets,
+  detailTextFor,
   eventFor,
   glyphFor,
   ticksFor,
-  tooltipTextFor,
 } from '../../demo/components/team-roster/events/utils/attendance';
 import { MemberInspector } from '../../demo/components/team-roster/members';
 import {
@@ -47,6 +46,20 @@ import { timeOffNote } from '../../demo/components/team-roster/utils/time-off';
 import { expandRuleSet } from '../../src/adapters/rrule';
 import type { IntervalDetailInput } from '../../src/components/roster/roster.types';
 import { layoutLane, windowFor } from '../../src/core';
+
+const Platform = { OS: 'ios' };
+const { attendanceInteraction: nativeInteraction } = await import(
+  '../../demo/components/team-roster/events/parts/attendance-interaction'
+);
+const { attendanceInteraction: webInteraction } = await import(
+  '../../demo/components/team-roster/events/parts/attendance-interaction.web'
+);
+mock.module('../../demo/components/team-roster/events/parts/attendance-interaction', () => ({
+  attendanceInteraction(onActivate: () => void, onDeactivate: () => void) {
+    return (Platform.OS === 'web' ? webInteraction : nativeInteraction)(onActivate, onDeactivate);
+  },
+}));
+const { EventDetail } = await import('../../demo/components/team-roster/events');
 
 const team = teamFor();
 const window = windowFor({ span: 'day', anchorDate: '2026-01-05', timezone: 'America/Chicago' });
@@ -237,17 +250,17 @@ it('models one scheduled band and five completed bars including both overhangs',
   expect(futureTree.root.findAllByProps({ testID: 'attendance-scheduled' })).toHaveLength(1);
 });
 
-it('formats tooltip text for every state and early, on-plan, and late timings', () => {
+it('formats detail text for every state and early, on-plan, and late timings', () => {
   const event = { ...requiredEvent(inputFor([])), start: 3 * 3600000, end: 4.5 * 3600000 };
   for (const [state, text] of [
     ['expected', 'Expected to attend'],
     ['pending', 'Not yet arrived'],
     ['absent', 'Did not attend'],
   ] as const) {
-    expect(tooltipTextFor({ attendeeId: 'a', state }, event, 'UTC')).toBe(text);
+    expect(detailTextFor({ attendeeId: 'a', state }, event, 'UTC')).toBe(text);
   }
   expect(
-    tooltipTextFor(
+    detailTextFor(
       {
         attendeeId: 'a',
         state: 'attended',
@@ -259,7 +272,7 @@ it('formats tooltip text for every state and early, on-plan, and late timings', 
     ),
   ).toBe('Arrived 3:15 AM (15 min late) · Left 4:20 AM (10 min early)');
   expect(
-    tooltipTextFor(
+    detailTextFor(
       {
         attendeeId: 'a',
         state: 'attended',
@@ -271,52 +284,111 @@ it('formats tooltip text for every state and early, on-plan, and late timings', 
     ),
   ).toBe('Arrived 2:45 AM (15 min early) · Left 4:40 AM (10 min late)');
   expect(
-    tooltipTextFor({ attendeeId: 'a', state: 'present', arrival: event.start }, event, 'UTC'),
+    detailTextFor({ attendeeId: 'a', state: 'present', arrival: event.start }, event, 'UTC'),
   ).toBe('Arrived 3:00 AM (on plan) · Still here');
 });
 
-it('anchors one tooltip to the hovered or pressed row without changing roster selection', () => {
-  const tree = render(
-    <EventDetail
-      {...inputFor([
-        { attendeeId: 'a', state: 'attended', start: 0, end: 120000 },
-        { attendeeId: 'b', state: 'pending' },
-      ])}
-    />,
-  );
-  const a = tree.root.findByProps({ testID: 'attendance-row-a' }).findByType(Pressable);
-  const b = tree.root.findByProps({ testID: 'attendance-row-b' }).findByType(Pressable);
-  act(() => a.props.onHoverIn());
-  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(1);
-  expect(
-    tree.root
-      .findByProps({ testID: 'attendance-row-a' })
-      .findAllByProps({ testID: 'attendance-tooltip' }),
-  ).toHaveLength(1);
-  act(() => b.props.onHoverIn());
-  act(() => a.props.onHoverOut());
-  expect(
-    tree.root
-      .findByProps({ testID: 'attendance-row-b' })
-      .findAllByProps({ testID: 'attendance-tooltip' }),
-  ).toHaveLength(1);
-  act(() => b.props.onHoverOut());
-  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
-  let stopped = 0;
-  const press = {
-    stopPropagation() {
-      stopped++;
-    },
-  };
-  act(() => a.props.onPress(press));
-  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(1);
-  act(() => a.props.onPress(press));
-  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
-  expect(stopped).toBe(2);
-  act(() => b.props.onFocus());
-  expect(JSON.stringify(tree.toJSON())).toContain('Not yet arrived');
-  act(() => b.props.onBlur());
-  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
+for (const platform of ['web', 'ios'] as const) {
+  it(`shows each attendance detail in the footer during ${platform} interaction`, () => {
+    const previous = Platform.OS;
+    Platform.OS = platform;
+    try {
+      const cases: [Attendance, number, string][] = [
+        [{ attendeeId: 'a', state: 'expected' }, 0, 'Expected to attend'],
+        [{ attendeeId: 'a', state: 'pending' }, 120000, 'Not yet arrived'],
+        [
+          { attendeeId: 'a', state: 'present', arrival: 0 },
+          120000,
+          'Arrived 12:00 AM (on plan) · Still here',
+        ],
+        [
+          { attendeeId: 'a', state: 'attended', start: 0, end: 120000 },
+          240000,
+          'Arrived 12:00 AM (on plan) · Left 12:02 AM (1 min early)',
+        ],
+        [{ attendeeId: 'a', state: 'absent' }, 240000, 'Did not attend'],
+      ];
+      for (const [attendance, clock, detail] of cases) {
+        const tree = render(<EventDetail {...inputFor([attendance], clock)} />);
+        const bar = tree.root.findByType(Pressable);
+        const footer = () => tree.root.findByProps({ testID: 'attendance-status' }).props.children;
+        const legend = `${attendance.state === 'expected' ? 'Expected attendees' : 'Actual attendance'}; the shaded band is the scheduled window`;
+        expect(footer()).toBe(legend);
+        expect(bar.props.accessibilityLabel).toBe(`Person a: ${detail}`);
+        const activate = platform === 'web' ? 'onHoverIn' : 'onPressIn';
+        const deactivate = platform === 'web' ? 'onHoverOut' : 'onPressOut';
+        act(() => bar.props[activate]());
+        expect(footer()).toBe(`Person a · ${detail}`);
+        expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
+        act(() => bar.props[deactivate]());
+        expect(footer()).toBe(legend);
+        if (platform === 'web') {
+          for (const visible of [false, true]) {
+            act(() =>
+              bar.props.onFocus({
+                currentTarget: {
+                  matches(selector: string) {
+                    expect(selector).toBe(':focus-visible');
+                    return visible;
+                  },
+                },
+              }),
+            );
+            expect(footer()).toBe(visible ? `Person a · ${detail}` : legend);
+            act(() => bar.props.onBlur());
+            expect(footer()).toBe(legend);
+          }
+        } else {
+          expect(bar.props.onFocus).toBeUndefined();
+          expect(bar.props.onBlur).toBeUndefined();
+        }
+        let stopped = false;
+        act(() =>
+          bar.props.onPress({
+            stopPropagation() {
+              stopped = true;
+            },
+          }),
+        );
+        expect(stopped).toBe(true);
+        expect(footer()).toBe(legend);
+      }
+    } finally {
+      Platform.OS = previous;
+    }
+  });
+}
+
+it('keeps the latest active row when an earlier row interaction ends', () => {
+  const previous = Platform.OS;
+  Platform.OS = 'web';
+  try {
+    const tree = render(
+      <EventDetail
+        {...inputFor([
+          { attendeeId: 'a', state: 'pending' },
+          { attendeeId: 'b', state: 'absent' },
+        ])}
+      />,
+    );
+    const a = tree.root.findByProps({ testID: 'attendance-row-a' }).findByType(Pressable);
+    const b = tree.root.findByProps({ testID: 'attendance-row-b' }).findByType(Pressable);
+    act(() => a.props.onHoverIn());
+    expect(tree.root.findByProps({ testID: 'attendance-status' }).props.children).toBe(
+      'Person a · Not yet arrived',
+    );
+    act(() => b.props.onHoverIn());
+    act(() => a.props.onHoverOut());
+    expect(tree.root.findByProps({ testID: 'attendance-status' }).props.children).toBe(
+      'Person b · Did not attend',
+    );
+    act(() => b.props.onHoverOut());
+    expect(tree.root.findByProps({ testID: 'attendance-status' }).props.children).toBe(
+      'Actual attendance; the shaded band is the scheduled window',
+    );
+  } finally {
+    Platform.OS = previous;
+  }
 });
 
 it('spans live arrivals through the latest departure or present clock and omits pending-only strips', () => {

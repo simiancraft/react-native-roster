@@ -10,7 +10,7 @@ export function EventLayout({
   headerZone: ReactNode;
   /** Shared axis, tick lines, scheduled band, and compact attendance rows. */
   chartZone: ReactNode;
-  /** Muted explanation of attendance and the scheduled band. */
+  /** Attendance legend or the active row’s detail sentence. */
   footerZone: ReactNode;
 }) {
   return (

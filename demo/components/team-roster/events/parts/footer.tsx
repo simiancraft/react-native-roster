@@ -1,11 +1,17 @@
 import { Text } from 'react-native';
-import type { AttendanceModel } from '../utils/attendance';
+import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
 
-export function EventFooter({ status }: Pick<AttendanceModel, 'status'>) {
+export function EventFooter({
+  status,
+  row,
+}: Pick<AttendanceModel, 'status'> & { row: AttendanceRowModel | undefined }) {
   const subject = status === 'future' ? 'Expected attendees' : 'Actual attendance';
+  const text = row
+    ? `${row.attendee.name} · ${row.detail}`
+    : `${subject}; the shaded band is the scheduled window`;
   return (
-    <Text className="text-[10px] text-muted-foreground">
-      {subject}; the shaded band is the scheduled window
+    <Text testID="attendance-status" className="text-[10px] text-muted-foreground">
+      {text}
     </Text>
   );
 }
