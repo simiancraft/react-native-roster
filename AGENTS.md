@@ -420,12 +420,17 @@ Do not publish, tag, change repository settings, or push without task authorizat
     switches selection. Cell and gap presses dismiss selection while still firing
     `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
     and web; web outside press and Escape still dismiss.
+    RosterInput.selectable defaults to false for hook consumers. intervalDetailComponent,
+    selectionLayout, and portalHost live on RosterProps; the chassis passes
+    selectable: Boolean(intervalDetailComponent) to useRoster.
     The chassis defaults selectionLayout once and passes mounted body and detail nodes.
+    targetBounds names the selected bounds; anchorZone holds the mounted body.
+    Layout scroll inputs contain only x, y, headerStyle, and labelStyle.
     The default native layout owns PortalHost, named from the roster's useId unless
     portalHost overrides it; independent rosters must use different names. Do not mount
     duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
     Portal uses an external Map store and does not preserve caller context automatically.
-    Anchors include the lane offset and rect.y inset. The private reconcileSelection helper
+    Target bounds include the lane offset and rect.y inset. The private reconcileSelection helper
     matches source identity sets and chooses nearest bounds with a total difference of at
     most 1 ms for projection roundoff. The native detail card
     uses measured viewport and content sizes to clamp horizontally and falls back to top zero

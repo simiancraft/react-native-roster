@@ -218,7 +218,7 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
-| `selectionLayout` | `SelectionLayoutProps`: nodes, anchor, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
+| `selectionLayout` | `SelectionLayoutProps`: nodes, targetBounds, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
@@ -276,11 +276,12 @@ Current data and geometry replace old references, including after resizing or so
 order-insensitive source identities, then chooses the nearest absolute bounds. The sum
 of bound differences must be at most 1 ms. Stored bounds remain the display values.
 
-`intervalDetailComponent` lives on `RosterInput` because `useRoster` owns selection
-and must know whether presses select. `selectionLayout` and `portalHost` live on
-`RosterProps` because only the chassis mounts the layout. When building a custom
-chassis, pass `intervalDetailComponent` to `useRoster` and mount your layout with
-the returned selection, dismissal, and scroll inputs.
+`selectable?: boolean` lives on `RosterInput` and defaults to false. Hook consumers
+pass `selectable: true` to `useRoster` to retain selection. `intervalDetailComponent`,
+`selectionLayout`, and `portalHost` live on `RosterProps` because the chassis mounts
+the content and layout. The chassis enables selection with
+`selectable: Boolean(intervalDetailComponent)`. Custom chassis mount their layout
+with the returned selection, dismissal, and scroll inputs.
 
 ```tsx
 import { Text, View } from 'react-native';
@@ -325,9 +326,10 @@ Native also dismisses on hardware back.
 
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`
-(the body), `contentZone` (details or null), `anchor` (body-content bounds), `open`,
-`onDismiss`, `portalHost`, and `scroll`. The anchor includes the lane offset and
-interval inset. Render each node once. A consumer inspector
+(the body), `contentZone` (details or null), `targetBounds` (body-content bounds), `open`,
+`onDismiss`, `portalHost`, and `scroll`. The target bounds include the lane offset and
+interval inset. Layout scroll inputs are limited to `x`, `y`, `headerStyle`, and
+`labelStyle`. Render each node once. A consumer inspector
 can arrange the nodes in columns and call `onDismiss` from its close button.
 The [interval-detail gallery route](./demo/app/gallery/interval-detail.tsx)
 switches presentations at runtime.

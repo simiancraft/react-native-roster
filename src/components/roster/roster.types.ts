@@ -43,11 +43,8 @@ export type RosterScroll = {
   labelStyle: StyleProp<ViewStyle>;
 };
 export type RosterInput = {
-  /**
-   * Selected interval content; absent means interval presses retain no selection.
-   * Lives on RosterInput because useRoster owns selection and needs this to enable it.
-   */
-  intervalDetailComponent?: ComponentType<IntervalDetailInput>;
+  /** Retain interval selection on press, default false. Lives on RosterInput for hook consumers. */
+  selectable?: boolean;
   lanes: Lane[];
   windowSpec: WindowSpec;
   minuteStep?: number;
@@ -148,6 +145,11 @@ export type RosterStyleProps = {
 };
 export type RosterProps = RosterInput &
   RosterStyleProps & {
+    /**
+     * Selected interval content; absent means interval presses retain no selection.
+     * Lives on RosterProps because the chassis mounts content and enables useRoster selection.
+     */
+    intervalDetailComponent?: ComponentType<IntervalDetailInput>;
     /**
      * Presentation strategy for the body and selected details; defaults to RosterSelectionPopover.
      * Lives on RosterProps because only the chassis mounts the layout, not useRoster.

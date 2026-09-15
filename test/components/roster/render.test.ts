@@ -407,7 +407,7 @@ it('mounts selection content outside the body, supplies current inputs, and isol
   act(() => body.props.press(lane, 300, 10));
   const selected = tree.root.findByType('selection-layout' as ElementType).props;
   expect(selected.open).toBe(true);
-  expect(selected.anchor).toEqual({ x: 270, y: 54, width: 240, height: 36 });
+  expect(selected.targetBounds).toEqual({ x: 270, y: 54, width: 240, height: 36 });
   expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(false);
   act(() =>
     tree.update(
@@ -528,7 +528,8 @@ it('routes native body presses through an open selection and restores scroll whe
   act(() => tree.update(createElement(Roster, { ...input, selectionLayout: Strategy })));
   const strategy = tree.root.findByType('strategy' as ElementType).props;
   expect(strategy.open).toBe(true);
-  expect(strategy.anchor).toEqual({ x: 270, y: 0, width: 240, height: 48 });
+  expect(Object.keys(strategy.scroll).sort()).toEqual(['headerStyle', 'labelStyle', 'x', 'y']);
+  expect(strategy.targetBounds).toEqual({ x: 270, y: 0, width: 240, height: 48 });
   expect(strategy.scroll.x.get()).toBe(80);
   expect(strategy.scroll.y.get()).toBe(24);
   expect(tree.root.findByProps({ testID: 'roster-horizontal-scroll' }).props.contentOffset).toEqual(

@@ -8,7 +8,7 @@ import type { SelectionLayoutProps } from './selection-layout.types';
 export function RosterSelectionPopover({
   anchorZone,
   contentZone,
-  anchor,
+  targetBounds,
   open,
   onDismiss,
   portalHost,
@@ -22,11 +22,11 @@ export function RosterSelectionPopover({
   const size = { maxWidth, maxHeight, flexShrink: 1 };
   const { x, y } = scroll;
   const position = useAnimatedStyle(() => {
-    const below = anchor ? anchor.y + anchor.height + 4 - y.get() : 0;
-    const above = anchor ? anchor.y - content.height - 4 - y.get() : 0;
+    const below = targetBounds ? targetBounds.y + targetBounds.height + 4 - y.get() : 0;
+    const above = targetBounds ? targetBounds.y - content.height - 4 - y.get() : 0;
     const maxTop = Math.max(0, viewport.height - content.height);
     return {
-      left: Math.max(0, Math.min((anchor?.x ?? 0) - x.get(), viewport.width - content.width)),
+      left: Math.max(0, Math.min((targetBounds?.x ?? 0) - x.get(), viewport.width - content.width)),
       top: below >= 0 && below <= maxTop ? below : above >= 0 && above <= maxTop ? above : 0,
     };
   });
@@ -52,7 +52,7 @@ export function RosterSelectionPopover({
       <View pointerEvents="box-none" style={overlay}>
         <PortalHost name={portalHost} />
       </View>
-      {open && anchor && maxWidth > 0 && maxHeight > 0 ? (
+      {open && targetBounds && maxWidth > 0 && maxHeight > 0 ? (
         <Portal hostName={portalHost} name={name}>
           <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
             <View

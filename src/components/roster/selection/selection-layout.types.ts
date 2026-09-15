@@ -8,7 +8,7 @@ export type SelectionLayoutProps = {
   /** Mounted detail node, or null when closed. */
   contentZone: ReactNode;
   /** Interval bounds in body-content coordinates, before scroll translation. */
-  anchor: { x: number; y: number; width: number; height: number } | null;
+  targetBounds: { x: number; y: number; width: number; height: number } | null;
   /** Whether the detail presentation is open. */
   open: boolean;
   /** Report outside press, hardware back, Escape, or a presentation close action. */
@@ -16,5 +16,5 @@ export type SelectionLayoutProps = {
   /** Unique native destination name owned by this selection layout. */
   portalHost: string;
   /** Shared offsets follow body scrolling without updating React state. */
-  scroll: RosterScroll;
+  scroll: Pick<RosterScroll, 'x' | 'y' | 'headerStyle' | 'labelStyle'>;
 };

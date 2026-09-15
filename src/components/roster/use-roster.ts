@@ -59,7 +59,7 @@ export function useRoster(input: RosterInput): RosterModel {
     lanes,
     window,
     projection,
-    !!input.intervalDetailComponent,
+    input.selectable ?? false,
   );
   // Discard invalid selection during reconciliation, before rendering any stale detail.
   if (selected && !selection) setSelected(null);

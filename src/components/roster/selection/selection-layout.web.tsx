@@ -7,7 +7,7 @@ import type { SelectionLayoutProps } from './selection-layout.types';
 export function RosterSelectionPopover({
   anchorZone,
   contentZone,
-  anchor,
+  targetBounds,
   open,
   onDismiss,
   scroll,
@@ -37,8 +37,8 @@ export function RosterSelectionPopover({
               <div
                 style={{
                   position: 'absolute',
-                  left: anchor?.x ?? 0,
-                  top: anchor ? anchor.y + anchor.height : 0,
+                  left: targetBounds?.x ?? 0,
+                  top: targetBounds ? targetBounds.y + targetBounds.height : 0,
                   width: 0,
                   height: 0,
                   pointerEvents: 'none',

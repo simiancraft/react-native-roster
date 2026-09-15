@@ -15,7 +15,7 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
   const onDismiss = mock();
   function Example({
     open = false,
-    anchor = { x: 40, y: 50, width: 100, height: 48 },
+    targetBounds = { x: 40, y: 50, width: 100, height: 48 },
   }: Partial<SelectionLayoutProps>) {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     scroll.x.set(10);
@@ -23,7 +23,7 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
     return (
       <RosterSelectionPopover
         open={open}
-        anchor={anchor}
+        targetBounds={targetBounds}
         anchorZone="body"
         contentZone="details"
         portalHost="layout-test"
@@ -33,7 +33,7 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
     );
   }
   act(() => {
-    tree = create(<Example anchor={null} />);
+    tree = create(<Example targetBounds={null} />);
   });
   expect(backHandlers.size).toBe(0);
   act(() =>
@@ -61,10 +61,12 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
   }
   // Neither below nor above fits, so use the viewport's top edge.
   expectInside(30, 0);
-  act(() => tree.update(<Example open anchor={{ x: 250, y: 290, width: 100, height: 48 }} />));
+  act(() =>
+    tree.update(<Example open targetBounds={{ x: 250, y: 290, width: 100, height: 48 }} />),
+  );
   expectInside(100, 16);
   // Horizontal scrolling leaves the interval partly beyond the left edge.
-  act(() => tree.update(<Example open anchor={{ x: 5, y: 50, width: 100, height: 48 }} />));
+  act(() => tree.update(<Example open targetBounds={{ x: 5, y: 50, width: 100, height: 48 }} />));
   expectInside(0, 0);
   expect(tree.root.findAllByType('Pressable' as ElementType)).toHaveLength(0);
   expect(
@@ -74,7 +76,7 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
     for (const handler of backHandlers) expect(handler()).toBe(true);
   });
   expect(onDismiss).toHaveBeenCalledTimes(1);
-  act(() => tree.update(<Example open anchor={null} />));
+  act(() => tree.update(<Example open targetBounds={null} />));
   expect(tree.root.findAllByType('Pressable' as ElementType)).toHaveLength(0);
   act(() => tree.update(<Example />));
   expect(backHandlers.size).toBe(0);
@@ -84,14 +86,14 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
 it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   let tree!: ReactTestRenderer;
   const onDismiss = mock();
-  function Example({ anchor = null }: Partial<SelectionLayoutProps>) {
+  function Example({ targetBounds = null }: Partial<SelectionLayoutProps>) {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     scroll.x.set(12);
     scroll.y.set(24);
     return (
       <WebPopover
         open={false}
-        anchor={anchor}
+        targetBounds={targetBounds}
         anchorZone="body"
         contentZone={null}
         portalHost="unused"
@@ -117,7 +119,7 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   expect(onDismiss).not.toHaveBeenCalled();
   act(() => tree.root.findByType(Popover.Root).props.onOpenChange(false));
   expect(onDismiss).toHaveBeenCalledTimes(1);
-  act(() => tree.update(<Example anchor={{ x: 30, y: 40, width: 100, height: 48 }} />));
+  act(() => tree.update(<Example targetBounds={{ x: 30, y: 40, width: 100, height: 48 }} />));
   expect(tree.root.findAllByType('div')[1]?.props.style).toMatchObject({ left: 30, top: 88 });
   const overlays = tree.root.findAllByType('AnimatedView' as ElementType);
   expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }]);
@@ -132,7 +134,7 @@ it('constrains oversized native details and scrolls them on both axes', () => {
     return (
       <RosterSelectionPopover
         open
-        anchor={{ x: 290, y: 290, width: 100, height: 48 }}
+        targetBounds={{ x: 290, y: 290, width: 100, height: 48 }}
         anchorZone="body"
         contentZone={<View style={{ width: 900, height: 800 }}>Large details</View>}
         portalHost="oversized-test"
@@ -178,7 +180,7 @@ it('waits for viewport measurement with an open selection and then places detail
     return (
       <RosterSelectionPopover
         open
-        anchor={{ x: 0, y: 0, width: 100, height: 48 }}
+        targetBounds={{ x: 0, y: 0, width: 100, height: 48 }}
         anchorZone="body"
         contentZone="details"
         portalHost="unmeasured-test"

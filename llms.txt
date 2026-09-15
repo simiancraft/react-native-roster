@@ -248,17 +248,19 @@ current lane/layer/rect references and clears removed lane or absolute rect boun
 Resizing and sorting retain valid selection with current geometry; reconciliation
 uses the private reconcileSelection helper to match source identity sets and choose
 nearest bounds with a total difference of at most 1 ms for projection roundoff.
-intervalDetailComponent belongs to RosterInput so useRoster knows whether presses select.
-selectionLayout and portalHost belong to RosterProps because only the chassis mounts
-the layout; custom chassis pass the detail component to the hook and mount the layout themselves.
+selectable?: boolean belongs to RosterInput and defaults to false; hook consumers pass
+selectable: true to retain selection. intervalDetailComponent, selectionLayout, and
+portalHost belong to RosterProps because the chassis mounts content and the layout.
+The chassis passes selectable: Boolean(intervalDetailComponent) to useRoster.
+Custom chassis mount their content and layout using the returned model.
 
 selectionLayout?: ComponentType<SelectionLayoutProps> defaults to the root-exported
 RosterSelectionPopover. It is the explicit naming exception to the Component suffix.
 The chassis mounts the strategy once around the body node, then passes that node
 to RosterLayout.bodyZone. SelectionLayoutProps is exported: anchorZone and contentZone
-are ReactNode; anchor is {x,y,width,height}|null in body-content coordinates, including
+are ReactNode; targetBounds is {x,y,width,height}|null in body-content coordinates, including
 the lane offset and interval inset; open is
-boolean; onDismiss is () => void; portalHost is string; scroll is RosterScroll.
+boolean; onDismiss is () => void; portalHost is string; scroll is Pick<RosterScroll, 'x' | 'y' | 'headerStyle' | 'labelStyle'>.
 Layouts receive no lane, layer, or rect. Render anchorZone once and arrange contentZone
 above or beside it. The interval-detail fixture demonstrates a runtime inspector toggle.
 

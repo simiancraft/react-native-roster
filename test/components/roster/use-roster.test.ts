@@ -303,7 +303,7 @@ it('selects only with detail content, dismisses, reconciles current data, and cl
   const press = h.model.press;
   act(() => press(lane, 300, 10));
   expect(h.model.selection).toBeNull();
-  const enabled = { ...input, intervalDetailComponent: () => null };
+  const enabled = { ...input, selectable: true };
   h.update(enabled);
   act(() => press(lane, 300, 10));
   const rect = h.model.geometryFor(lane).rects[0] as Rect;
@@ -357,7 +357,7 @@ it('toggles intervals, switches lanes, and dismisses on cells and gaps with call
   const h = harness({
     lanes: [lane, other, gapLane],
     windowSpec: rosterWindowSpec,
-    intervalDetailComponent: () => null,
+    selectable: true,
     onIntervalPress,
     onCellPress,
     onGapPress,
@@ -419,7 +419,7 @@ it('switches between intervals in the same lane and between overlapping layers',
   const h = harness({
     lanes: [lane],
     windowSpec: rosterWindowSpec,
-    intervalDetailComponent: () => null,
+    selectable: true,
   });
   act(() => h.model.press(lane, 275, 10));
   expect(h.model.selection?.layer.id).toBe(layer.id);
@@ -447,7 +447,7 @@ it('retains selection when a fitted resize introduces sub-millisecond projection
   const h = harness({
     lanes: [lane],
     windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
-    intervalDetailComponent: () => null,
+    selectable: true,
   });
   act(() => h.model.press(lane, 300, 10));
   expect(h.model.selection).toMatchObject({ start: 32_400_000, end: 61_200_000 });
@@ -486,7 +486,7 @@ it('selects the correct adjacent sub-millisecond interval despite rounded bounds
   const h = harness({
     lanes: [lane],
     windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1001 } },
-    intervalDetailComponent: () => null,
+    selectable: true,
   });
   act(() => h.model.onLayout(layoutInput(720, 480)));
   const rect = h.model.geometryFor(lane).rects[1] as Rect;
@@ -513,7 +513,7 @@ it('retains stored half-millisecond bounds when resizing to 721 px', () => {
   const h = harness({
     lanes: [lane],
     windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
-    intervalDetailComponent: () => null,
+    selectable: true,
   });
   act(() => h.model.press(lane, 0.25, 10));
   expect(h.model.selection).toMatchObject({ start: 6.5, end: 60_000 });
@@ -557,7 +557,7 @@ it('chooses nearest neighboring bounds for repeated source sets and rejects chan
   const input: RosterInput = {
     lanes: [lane],
     windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1010 } },
-    intervalDetailComponent: () => null,
+    selectable: true,
   };
   const h = harness(input);
   act(() => h.model.onLayout(layoutInput(720, 480)));
@@ -638,7 +638,7 @@ it('clears moved bounds and does not jump to a nearby occurrence with the same s
   const input = {
     lanes: [lane],
     windowSpec: rosterWindowSpec,
-    intervalDetailComponent: () => null,
+    selectable: true,
   };
   const h = harness(input);
   for (const intervals of [
