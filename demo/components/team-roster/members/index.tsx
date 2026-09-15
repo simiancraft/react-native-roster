@@ -6,7 +6,7 @@ import { hoursLabel, zoneShort } from '../utils/format';
 import { MemberInspectorLayout } from './layout';
 import type { Member } from './member.types';
 import { Fact, MemberIdentity } from './parts/identity';
-import { EventSelection, NoSelection, SlotSelection, TimeOffSelection } from './parts/selection';
+import { NoSelection, SlotSelection, TimeOffSelection } from './parts/selection';
 import { WeekSchedule } from './parts/week-schedule';
 
 const SELECTION: {
@@ -15,7 +15,6 @@ const SELECTION: {
     timezone: string,
   ) => ReactNode;
 } = {
-  event: (selection, timezone) => <EventSelection selection={selection} timezone={timezone} />,
   timeOff: (selection) => <TimeOffSelection selection={selection} />,
   slot: (selection, timezone) => <SlotSelection selection={selection} timezone={timezone} />,
   none: () => <NoSelection />,
@@ -23,8 +22,6 @@ const SELECTION: {
 
 function selectionZoneFor(selection: Selection, timezone: string): ReactNode {
   switch (selection.kind) {
-    case 'event':
-      return SELECTION.event(selection, timezone);
     case 'timeOff':
       return SELECTION.timeOff(selection, timezone);
     case 'slot':

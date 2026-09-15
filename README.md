@@ -536,7 +536,11 @@ network). The home page lists every fixture route:
   and week spans, sorting, filtering, and a per-person Schedule, styled with
   NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
-  seed; any resemblance to real people is coincidental.
+  seed. Each event compares scheduled time with seeded attendee arrivals and departures,
+  using a bottom strip and selection popover. A fixed demo clock separates future, live, and
+  past events. Attendees are expected, pending, present, attended, or absent;
+  present bars extend to now without recording a departure.
+  Any resemblance to real people is coincidental.
 
 | Platform | Support and evidence |
 | --- | --- |

@@ -518,6 +518,17 @@ export function laneFromRules(set: RuleSet): Lane {
 ## Gallery, evidence, and non-goals
 
 The home page derives links from named roster and schedule fixture records.
+It also links to /showcase. Every generated event has a scheduled window, title,
+description, expected attendees, and seeded attendance for elapsed time. The hook
+owns a fixed seeded now inside the initial demo day. Attendees have expected,
+pending, present, attended, or absent presence states. Present spans draw through
+now without recording departures; lane owners are never absent. TeamInterval shows
+a darker extent strip on the lighter scheduled block, retaining overhang.
+EventDetail in team-roster/events is the intervalDetailComponent; it shows named
+presence rows against a shared scheduled outline and scale. Pure attendance models
+live in utils/attendance.ts. Event presses retain the member inspector without
+adding event selection detail. See
+[showcase](./demo/components/team-roster/README.md).
 Explicit routes cover each day/week/month at 15/30/60-minute steps, lane counts,
 provenance, flags, timezones, Schedule transitions, and default/replaced zones.
 Adapter weekly/override/cap routes render editable JSON beside the roster through

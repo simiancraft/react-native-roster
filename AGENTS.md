@@ -51,7 +51,7 @@ demo/
   app/index.tsx            # home route shell; owns gallery URLs
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
-  components/team-roster/  # the showcase: members, toolbar, and inspector
+  components/team-roster/  # the showcase: members, attendance, toolbar, and inspector
   components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -121,6 +121,11 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `TeamRosterScreen` exposes host-facing component slots (title, actions, filter, controls,
   corner, lane label, inspector, and footer) that default to the showcase parts; the
   route shell owns router contact and passes links in as zones.
+  Generated events carry attendance with expected, pending, present, attended, or
+  absent presence states. A fixed seeded clock separates past, live, and future
+  events; the toolbar displays now, and present spans extend through now without
+  recording a departure. Event attendance detail lives in the selection popover;
+  the inspector retains member selection.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
   page naming its subpath, exports, boundary, and file map; keep them current:
@@ -455,3 +460,15 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The development detail fixture dispatches the click callback to verify zero selection-driven
     mounted-row updates, separately from Pressable's hover, focus, and pressed-state commits.
     The production case retains a complete pointer click.
+
+35. **Showcase attendance belongs to generated events.** This feature is about an
+    event; its children are attendances. The events/ chassis exports EventDetail.
+    The hook owns a fixed seeded now within the initial demo day; the demo passes
+    now to Roster to draw the now line at that instant. Attendees have
+    expected, pending, present, attended, or absent presence states. Present rows
+    draw arrival through now without recording a departure. Owners are never absent.
+    Lane metadata carries the source lookup for module-scope interval and detail
+    slots, including portals. The bottom strip retains overhang; detail rows share
+    one scale and scheduled outlines. The inspector retains member selection;
+    event detail belongs to the popover. Pure attendance models live in utils/attendance.ts
+    and import extentOf from react-native-roster for presence extent.

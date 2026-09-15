@@ -2,12 +2,12 @@ import { useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ScheduleWindowSpec } from 'react-native-roster';
 import type { Lane, LaneComparator, Rect, WindowSpec } from 'react-native-roster/core';
-import { byCoverage, byLabel, next, prev, today, windowFor } from 'react-native-roster/core';
+import { byCoverage, byLabel, next, prev, windowFor } from 'react-native-roster/core';
 import { expandRuleSet } from 'react-native-roster/rrule';
 import type { Member } from './members/member.types';
 import type { Density, Selection, SortKey, SpanKey, Team } from './team-roster.types';
 import { selectionFor } from './utils/selection';
-import { laneFor, memberMeta, teamFor } from './utils/team';
+import { laneFor, memberMeta, seededNow, teamFor } from './utils/team';
 import { TONE_HEX } from './utils/tones';
 
 const INITIAL: ScheduleWindowSpec = {
@@ -38,7 +38,8 @@ function densityFor(width: number): Density {
 export function useTeamRoster(input: { team?: Team } = {}) {
   const [generated] = useState(() => input.team ?? teamFor());
   const team = input.team ?? generated;
-  const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(() => bounded(today(INITIAL)));
+  const [now] = useState(seededNow);
+  const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(INITIAL);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
   const [selectedId, setSelectedId] = useState(team.members[0]?.id ?? '');
@@ -51,7 +52,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
       .includes(query.toLowerCase()),
   );
   const lanes = visible.map((member) =>
-    laneFor(member, window, expandRuleSet, (person) => TONE_HEX[person.tone]),
+    laneFor(member, window, expandRuleSet, (person) => TONE_HEX[person.tone], team.members, now),
   );
   const density = densityFor(contentWidth);
   function selectRect(rect: Rect, lane: Lane) {
@@ -60,6 +61,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setSelection(selectionFor(member, events, rect));
   }
   const common = {
+    now,
     organization: team.organization,
     members: team.members,
     lanes,
@@ -80,7 +82,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setSpan: (span: SpanKey) => setWindowSpec((spec) => ({ ...spec, span })),
     goPrev: () => setWindowSpec((spec) => bounded(prev(spec))),
     goNext: () => setWindowSpec((spec) => bounded(next(spec))),
-    goToday: () => setWindowSpec((spec) => bounded(today(spec))),
+    goToday: () => setWindowSpec((spec) => ({ ...spec, anchorDate: INITIAL.anchorDate })),
     setTimezone: (timezone: string) => setWindowSpec((spec) => ({ ...spec, timezone })),
     selectMember: (id: string) => {
       setSelectedId(id);

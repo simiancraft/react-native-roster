@@ -3,6 +3,7 @@ import { createContext, useContext } from 'react';
 import { Text, View } from 'react-native';
 import type { GapInput, IntervalInput } from 'react-native-roster';
 import type { LayerRole } from 'react-native-roster/core';
+import { actualExtent, barOffsets, eventFor } from '../utils/attendance';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
 import { timeOffNote } from '../utils/time-off';
@@ -41,8 +42,9 @@ export function EventCard({
   timezone,
 }: IntervalInput & { timezone: string }) {
   const source = rect.sources[0];
-  const { events } = memberMeta(lane);
-  const event = events.find((candidate) => candidate.id === source?.id);
+  const event = eventFor({ rect, lane });
+  const actual = event ? actualExtent(event) : null;
+  const bar = actual && event ? barOffsets(actual, event, rect.width) : null;
   const kind = KIND_CLASSES[eventKindOf(source?.kind ?? 'meeting')];
   const title = event?.title ?? source?.label ?? 'Event';
   const time = event ? timeLabel(event.start, timezone) : '';
@@ -62,10 +64,17 @@ export function EventCard({
     <View
       pointerEvents="none"
       style={bounds(rect)}
-      className={`justify-center rounded-md border px-1.5 ${kind.card} ${HIGHLIGHT[highlighted ? 'on' : 'off']}`}
+      className={`overflow-visible justify-center rounded-md border px-1.5 ${kind.card} ${HIGHLIGHT[highlighted ? 'on' : 'off']}`}
     >
       {label}
       {clock}
+      {bar ? (
+        <View
+          testID="team-attendance-strip"
+          className={`absolute bottom-0 h-1 ${kind.dot}`}
+          style={bar}
+        />
+      ) : null}
     </View>
   );
 }

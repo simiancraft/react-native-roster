@@ -3,6 +3,7 @@ import { createContext, useContext } from 'react';
 import { Text, View } from 'react-native';
 import type { LaneLabelInput, RosterTick } from 'react-native-roster';
 import { Roster } from 'react-native-roster';
+import { EventDetail } from './events';
 import { TeamHeaderLayout } from './header-layout';
 import { TeamRosterLayout } from './layout';
 import { MemberInspector } from './members';
@@ -17,6 +18,7 @@ import { PeopleFilter, SortChips, SpanChips, WindowNav, ZoneChips } from './part
 import type { Density, Team } from './team-roster.types';
 import { TeamToolbarLayout } from './toolbar-layout';
 import { type TeamRosterModel, type TeamRosterReady, useTeamRoster } from './use-team-roster';
+import { timeLabel } from './utils/format';
 
 /**
  * Host-facing slots. Each receives the resolved model and defaults to the
@@ -43,8 +45,8 @@ export type TeamRosterZones = {
   footerComponent?: ComponentType<TeamRosterModel>;
 };
 
-const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
-  titleComponent: (model) => (
+function DefaultTitle(model: TeamRosterModel) {
+  return (
     <>
       <TeamTitle title={model.organization} />
       <WindowRange
@@ -55,8 +57,10 @@ const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
         total={model.members.length}
       />
     </>
-  ),
-  actionsComponent: (model) => (
+  );
+}
+function DefaultActions(model: TeamRosterModel) {
+  return (
     <>
       <SpanChips span={model.span} onChange={model.setSpan} />
       <WindowNav
@@ -66,32 +70,52 @@ const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
         onNext={model.goNext}
       />
     </>
-  ),
-  filterComponent: (model) => <PeopleFilter query={model.query} onChange={model.setQuery} />,
-  controlsComponent: (model) => (
+  );
+}
+function DefaultFilter(model: TeamRosterModel) {
+  return <PeopleFilter query={model.query} onChange={model.setQuery} />;
+}
+function DefaultControls(model: TeamRosterModel) {
+  return (
     <>
       <ZoneChips timezone={model.timezone} onChange={model.setTimezone} />
       <SortChips sort={model.sort} onChange={model.setSort} />
+      <Text className="text-xs text-muted-foreground">
+        Now {timeLabel(model.now, model.timezone)}
+      </Text>
     </>
-  ),
-  cornerComponent: (model) => (
-    <TeamCorner label="Team" count={model.lanes.length} density={model.density} />
-  ),
-  laneLabelComponent: (input) => <MemberLabel {...input} />,
-  inspectorComponent: (model) => (
+  );
+}
+function DefaultCorner(model: TeamRosterModel) {
+  return <TeamCorner label="Team" count={model.lanes.length} density={model.density} />;
+}
+function DefaultInspector(model: TeamRosterReady) {
+  return (
     <MemberInspector
       lane={model.selectedLane}
       member={model.selectedMember}
       selection={model.selection}
       windowSpec={model.windowSpec}
     />
-  ),
-  footerComponent: () => (
+  );
+}
+function DefaultFooter() {
+  return (
     <>
       <TeamLegend />
       <GeneratedNote />
     </>
-  ),
+  );
+}
+const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
+  titleComponent: DefaultTitle,
+  actionsComponent: DefaultActions,
+  filterComponent: DefaultFilter,
+  controlsComponent: DefaultControls,
+  cornerComponent: DefaultCorner,
+  laneLabelComponent: MemberLabel,
+  inspectorComponent: DefaultInspector,
+  footerComponent: DefaultFooter,
 };
 
 /** Where the filter sits at each people-column density; avatars are too narrow for a filter beside the lanes. */
@@ -165,6 +189,7 @@ function TeamRoster({
     <TeamTimezone.Provider value={model.timezone}>
       <TeamLaneContext.Provider value={{ model, laneLabelComponent: zones.laneLabelComponent }}>
         <Roster
+          now={model.now}
           lanes={model.lanes}
           windowSpec={model.windowSpec}
           minuteStep={60}
@@ -184,6 +209,7 @@ function TeamRoster({
           gridComponent={TeamGridLines}
           laneLabelComponent={TeamLaneLabel}
           intervalComponent={TeamInterval}
+          intervalDetailComponent={EventDetail}
           gapComponent={TimeOffGap}
         />
       </TeamLaneContext.Provider>

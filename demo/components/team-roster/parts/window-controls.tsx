@@ -46,7 +46,7 @@ export function WindowNav({
   return (
     <>
       <ToolbarButton label="‹" accessibilityLabel={`Previous ${span}`} onPress={onPrev} />
-      <ToolbarButton label="Today" accessibilityLabel="Today" onPress={onToday} />
+      <ToolbarButton label="Demo day" accessibilityLabel="Return to demo day" onPress={onToday} />
       <ToolbarButton label="›" accessibilityLabel={`Next ${span}`} onPress={onNext} />
     </>
   );

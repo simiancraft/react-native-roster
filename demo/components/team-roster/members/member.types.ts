@@ -19,7 +19,19 @@ export type MemberEvent = {
   id: string;
   kind: EventKind;
   title: string;
+  description: string;
+  expected: Pick<Member, 'id' | 'name'>[];
+  now: number;
+  attendances: Attendance[];
   start: number;
   end: number;
 };
 export type MemberLaneMeta = { member: Member; events: MemberEvent[] };
+
+export type Presence =
+  | { state: 'expected' }
+  | { state: 'pending' }
+  | { state: 'present'; arrival: number }
+  | { state: 'attended'; start: number; end: number }
+  | { state: 'absent' };
+export type Attendance = { attendeeId: string } & Presence;

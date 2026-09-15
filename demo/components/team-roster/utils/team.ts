@@ -1,7 +1,13 @@
 import { en, Faker } from '@faker-js/faker';
 import type { Interval, Lane, Layer, Weekday, Window } from 'react-native-roster/core';
 import type { expandRuleSet, RuleSet } from 'react-native-roster/rrule';
-import type { EventKind, Member, MemberEvent, MemberLaneMeta } from '../members/member.types';
+import type {
+  Attendance,
+  EventKind,
+  Member,
+  MemberEvent,
+  MemberLaneMeta,
+} from '../members/member.types';
 import type { Team } from '../team-roster.types';
 
 const TIMEZONES = [
@@ -126,7 +132,12 @@ const EVENT_TITLES: Record<EventKind, (faker: Faker) => string> = {
 };
 
 /** Events for one member inside a window, stable for the same member and window. */
-export function eventsFor(member: Member, window: Window): MemberEvent[] {
+export function eventsFor(
+  member: Member,
+  window: Window,
+  members: Member[] = [member],
+  now = seededNow(),
+): MemberEvent[] {
   const faker = generator(hashSeed(`${member.id}:${window.start}`));
   const events: MemberEvent[] = [];
   const dayCount = Math.round((window.end - window.start) / DAY);
@@ -160,6 +171,7 @@ export function eventsFor(member: Member, window: Window): MemberEvent[] {
         id: `${member.id}:${day}:${hour}`,
         kind,
         title: EVENT_TITLES[kind](faker),
+        ...attendanceFor(faker, member, members, { start, end }, now, events.length),
         start,
         end,
       });
@@ -173,9 +185,11 @@ export function laneFor(
   window: Window,
   expand: typeof expandRuleSet,
   tone: (member: Member) => string,
+  members: Member[] = [member],
+  now = seededNow(),
 ): Lane {
   const expansion = expand(member.rules, window);
-  const events = eventsFor(member, window);
+  const events = eventsFor(member, window, members, now);
   const availability: Layer = {
     id: 'availability',
     role: 'availability',
@@ -219,4 +233,43 @@ function hashSeed(text: string): number {
     hash = Math.imul(hash, 16777619);
   }
   return hash >>> 0;
+}
+
+/** Fixed seeded demo clock, inside the initial day in Chicago. */
+export function seededNow(seed = 1318): number {
+  return Date.UTC(2026, 0, 5, 18, generator(seed).number.int({ min: 0, max: 29 }));
+}
+
+function attendanceFor(
+  faker: Faker,
+  member: Member,
+  members: Member[],
+  scheduled: Window,
+  now: number,
+  index: number,
+): Pick<MemberEvent, 'description' | 'expected' | 'attendances' | 'now'> {
+  const expected = [
+    member,
+    ...faker.helpers.arrayElements(
+      members.filter((person) => person.id !== member.id),
+      Math.min(3, members.length - 1),
+    ),
+  ].map(({ id, name }) => ({ id, name }));
+  const description = `The group will review ${faker.company.buzzNoun()} and agree on the next steps.`;
+  const shape = (Number(member.id.split('-').at(-1)) + index) % 6;
+  const attendances = expected.map((attendee, i): Attendance => {
+    const attendeeId = attendee.id;
+    const offset = faker.number.int({ min: 5, max: 15 }) * 60_000;
+    const start = scheduled.start + (shape === 1 ? offset : shape === 3 ? -offset : 0);
+    // Past examples use late departures only when the full seeded offset has elapsed.
+    const lateDeparture = shape === 4 && (scheduled.end > now || scheduled.end + offset <= now);
+    const end = scheduled.end + (shape === 2 ? -offset : lateDeparture ? offset : 0);
+    if (scheduled.start >= now) return { attendeeId, state: 'expected' };
+    if (shape === 5 && i === 1)
+      return { attendeeId, state: scheduled.end > now ? 'pending' : 'absent' };
+    if (start > now) return { attendeeId, state: 'pending' };
+    if (end > now) return { attendeeId, state: 'present', arrival: start };
+    return { attendeeId, state: 'attended', start, end };
+  });
+  return { description, expected, now, attendances };
 }
