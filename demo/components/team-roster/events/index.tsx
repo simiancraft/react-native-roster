@@ -4,27 +4,21 @@ import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
 import { EventLayout } from './layout';
 import { Attendances } from './parts/attendances';
-import { EventAxis, FutureCaption, LiveCaption, PastCaption } from './parts/axis';
+import { EventFooter } from './parts/footer';
 import { EventHeading } from './parts/heading';
 import { attendanceModelFor, eventFor } from './utils/attendance';
-
-const CAPTIONS = { future: FutureCaption, live: LiveCaption, past: PastCaption };
 
 /** Selection detail resolves lane metadata, including through portals. */
 export function EventDetail(input: IntervalDetailInput) {
   const event = eventFor(input);
   if (!event) return <WorkingHoursDetail {...input} />;
-  const model = attendanceModelFor(event, memberMeta(input.lane).now);
   const timezone = input.viewTimezone;
-  const zones = {
-    headingZone: <EventHeading event={event} timezone={timezone} />,
-    attendancesZone: <Attendances {...model} timezone={timezone} />,
-  };
-  const Caption = CAPTIONS[model.status];
+  const model = attendanceModelFor(event, memberMeta(input.lane).now, timezone);
   return (
     <EventLayout
-      {...zones}
-      axisZone={<EventAxis scale={model.scale} timezone={timezone} captionZone={<Caption />} />}
+      headerZone={<EventHeading event={event} timezone={timezone} />}
+      chartZone={<Attendances key={event.id} model={model} timezone={timezone} />}
+      footerZone={<EventFooter status={model.status} />}
     />
   );
 }

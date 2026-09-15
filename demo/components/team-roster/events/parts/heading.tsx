@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { dayLabel, timeLabel } from '../../utils/format';
+import { timeLabel } from '../../utils/format';
 import type { MemberEvent } from '../event.types';
 
 export function EventHeading({ event, timezone }: { event: MemberEvent; timezone: string }) {
@@ -7,8 +7,7 @@ export function EventHeading({ event, timezone }: { event: MemberEvent; timezone
     <View className="gap-1">
       <Text className="font-semibold text-foreground">{event.title}</Text>
       <Text className="text-xs text-muted-foreground">
-        {dayLabel(event.start, timezone)} · {timeLabel(event.start, timezone)} to{' '}
-        {timeLabel(event.end, timezone)} · {timezone}
+        {timeLabel(event.start, timezone)} to {timeLabel(event.end, timezone)} · {timezone}
       </Text>
       <Text className="text-xs text-foreground">{event.description}</Text>
     </View>

@@ -6,7 +6,7 @@ The showcase. This feature is about a team roster; its children are members.
 - `use-team-roster.ts`: window, filter, sort, zone, density, and selection
 - `screen-layout.tsx` and `toolbar-layout.tsx`: row and column strategies
 - `header-layout.tsx`: wrapping title and actions arrangement
-- `events/`: `EventDetail`, its layout, heading, axis captions, and attendance rows
+- `events/`: `EventDetail`, its layout, heading, shared chart, footer, and attendance tooltips
 - `members/`: `MemberInspector`, `member.types.ts`, and member-local parts
 - `parts/`: title, chips, window controls, member label, header cell, grid
   lines, layer fillers, legend, and the generated-data note
@@ -32,13 +32,16 @@ This feature is about an event; its children are attendances, one per expected
 attendee. All bounds are epoch milliseconds and end-exclusive.
 
 - `events/index.tsx`: `EventDetail`, the interval detail slot chassis.
-- `events/layout.tsx`: heading, axis, and attendances zones.
+- `events/layout.tsx`: headerZone, chartZone, and footerZone.
 - `events/parts/heading.tsx`: title, scheduled range, and description.
-- `events/parts/axis.tsx`: shared scale and future, live, and past captions.
-- `events/parts/attendances.tsx`: named rows selected by presence state.
+- `events/parts/axis.tsx`: start and end labels for the shared scale.
+- `events/parts/attendances.tsx`: shared tick lines, one scheduled band, and compact attendance rows.
+- `events/parts/footer.tsx`: one muted reading key below the chart.
+- `events/parts/tooltip.tsx` and `use-attendance-tooltip.ts`: row timing detail and local hover,
+  focus, and press state, without another portal.
 - `events/event.types.ts`: event, attendance, presence, and immutable fact contracts.
 - `events/utils/attendance.ts`: exact source-set lookup, joined attendee rows, presence union
-  using `unionOf`, detail extent using `extentOf`, model, and bar offsets.
+  using `unionOf`, detail extent using `extentOf`, model, percentage band and bar offsets, wall-clock ticks, glyphs, and tooltip text.
 - `utils/team.ts`: member-local dates, nonoverlapping events, seeded arrival and departure
   facts, and presence states derived from those facts plus now.
 
@@ -51,7 +54,13 @@ attended or absent. The lane owner is never absent. Present rows run from arriva
 through now without exposing a future departure. The interval strip draws one segment
 per union window, preserving disjoint gaps and overhang.
 A live event with only pending attendees has no strip. Detail rows share the extent
-of actual and scheduled time. Source lookup lives in lane metadata, so module-scope
+of actual and scheduled time. One shaded scheduled band sits behind all rows, with
+hourly tick lines (half-hourly below three hours) connecting the axis to the last row.
+Names sit directly above 10px tone-colored bars, with 4px between rows. Pending uses
+a hollow dot, absent a cross, and present a steady filled dot; completed rows have no glyph.
+Future rows use hairlines. Timing sentences appear only on hover, focus, or press in a
+tooltip above the row's bar, inside the popover. This interaction never changes roster selection.
+The footer explains the shaded band after the data. Source lookup lives in lane metadata, so module-scope
 slots work through native portals without inherited context. The member inspector
 retains identity, facts, and Schedule; event details live in the popover.
 

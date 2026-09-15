@@ -1,125 +1,105 @@
 import type { ReactNode } from 'react';
-import { Text, View } from 'react-native';
-import type { Window } from 'react-native-roster/core';
-import { offsetLabel, timeLabel } from '../../utils/format';
+import { Pressable, Text, View } from 'react-native';
 import { KIND_CLASSES } from '../../utils/tones';
-import type { Attendance, MemberEvent, Presence } from '../event.types';
-import { barOffsets } from '../utils/attendance';
+import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
+import { EventAxis } from './axis';
+import { AttendanceTooltip } from './tooltip';
+import { useAttendanceTooltip } from './use-attendance-tooltip';
 
-type RowInput<S extends Presence['state'] = Presence['state']> = {
-  attendance: Extract<Attendance, { state: S }>;
-  attendee: { id: string; name: string };
-  now: number;
-  event: MemberEvent;
-  scale: Window;
-  timezone: string;
-};
-
-export function Attendances({
-  rows,
-  ...input
-}: Omit<RowInput, 'attendance' | 'attendee'> & {
-  rows: { attendance: Attendance; attendee: { id: string; name: string } }[];
-}) {
-  return rows.map(({ attendance, attendee }) => (
-    <PresenceRow key={attendee.id} {...input} attendance={attendance} attendee={attendee} />
-  ));
-}
-
-function PresenceRow({ attendance, ...input }: RowInput) {
-  switch (attendance.state) {
-    case 'expected':
-      return <ExpectedRow {...input} attendance={attendance} />;
-    case 'pending':
-      return <PendingRow {...input} attendance={attendance} />;
-    case 'present':
-      return <PresentRow {...input} attendance={attendance} />;
-    case 'attended':
-      return <AttendedRow {...input} attendance={attendance} />;
-    case 'absent':
-      return <AbsentRow {...input} attendance={attendance} />;
-  }
-}
-
-export function ExpectedRow(input: RowInput<'expected'>) {
-  return <AttendanceRow {...input} caption="scheduled" />;
-}
-export function PendingRow(input: RowInput<'pending'>) {
-  return <AttendanceRow {...input} caption="not yet arrived" />;
-}
-export function AbsentRow(input: RowInput<'absent'>) {
-  return <AttendanceRow {...input} caption="no-show" />;
-}
-export function PresentRow(input: RowInput<'present'>) {
+export function Attendances({ model, timezone }: { model: AttendanceModel; timezone: string }) {
+  const tooltip = useAttendanceTooltip();
   return (
-    <AttendanceRow
-      {...input}
-      caption={`arrived ${offsetLabel(input.attendance.arrival, input.event.start)}, still here`}
-      barZone={
-        <ActualBar
-          event={input.event}
-          scale={input.scale}
-          actual={{ start: input.attendance.arrival, end: input.now }}
-        />
-      }
-    />
-  );
-}
-export function AttendedRow(input: RowInput<'attended'>) {
-  const { attendance, event, timezone } = input;
-  return (
-    <AttendanceRow
-      {...input}
-      caption={`${timeLabel(attendance.start, timezone)} to ${timeLabel(attendance.end, timezone)} · arrival ${offsetLabel(attendance.start, event.start)} · departure ${offsetLabel(attendance.end, event.end)}`}
-      barZone={<ActualBar event={event} scale={input.scale} actual={attendance} />}
-    />
-  );
-}
-
-function AttendanceRow({
-  attendance,
-  attendee,
-  event,
-  scale,
-  caption,
-  barZone,
-}: RowInput & {
-  caption: string;
-  /** The recorded presence span within the scheduled outline. */
-  barZone?: ReactNode;
-}) {
-  const scheduled = barOffsets(event, scale);
-  return (
-    <View testID={`attendance-row-${attendance.attendeeId}`} className="gap-1">
-      <Text className="text-xs font-medium text-foreground">{attendee.name}</Text>
-      <Text className="text-[10px] text-muted-foreground">{caption}</Text>
-      <View className="relative h-5">
+    <View className="relative">
+      <View pointerEvents="none" className="absolute inset-0">
+        {model.ticks.map((tick) => (
+          <View
+            key={tick.time}
+            testID="attendance-tick"
+            className="absolute top-0 bottom-0 border-l border-border/40"
+            style={{ left: `${tick.left}%` }}
+          />
+        ))}
         <View
           testID="attendance-scheduled"
-          className="absolute top-0 bottom-0 rounded-sm border border-foreground/60"
-          style={{ left: `${scheduled.left}%`, width: `${scheduled.width}%` }}
+          className="absolute top-4 bottom-0 bg-foreground/10"
+          style={{ left: `${model.band.left}%`, width: `${model.band.width}%` }}
         />
-        {barZone}
+      </View>
+      <EventAxis scale={model.scale} timezone={timezone} />
+      <View className="gap-1">
+        {model.rows.map((row) => {
+          let tooltipZone: ReactNode = null;
+          if (tooltip.activeId === row.attendee.id)
+            tooltipZone = <AttendanceTooltip text={row.tooltip} />;
+          return (
+            <AttendanceRow
+              key={row.attendee.id}
+              row={row}
+              tone={KIND_CLASSES[model.event.kind].dot}
+              tooltipZone={tooltipZone}
+              onHoverIn={() => tooltip.show(row.attendee.id)}
+              onHoverOut={() => tooltip.hide(row.attendee.id)}
+              onPress={() => tooltip.toggle(row.attendee.id)}
+            />
+          );
+        })}
       </View>
     </View>
   );
 }
 
-function ActualBar({
-  event,
-  scale,
-  actual,
+function AttendanceRow({
+  row,
+  tone,
+  tooltipZone,
+  onHoverIn,
+  onHoverOut,
+  onPress,
 }: {
-  event: MemberEvent;
-  scale: Window;
-  actual: Window;
+  row: AttendanceRowModel;
+  tone: string;
+  /** Attendance timing detail anchored above this row's bar. */
+  tooltipZone: ReactNode;
+  onHoverIn: () => void;
+  onHoverOut: () => void;
+  onPress: () => void;
 }) {
-  const bar = barOffsets(actual, scale);
+  let barZone: ReactNode = (
+    <View testID="attendance-empty" className="absolute top-1 left-0 right-0 h-px bg-border" />
+  );
+  if (row.bar)
+    barZone = (
+      <View
+        testID="attendance-actual"
+        className={`absolute top-0 h-[10px] rounded-sm ${tone}`}
+        style={{ left: `${row.bar.left}%`, width: `${row.bar.width}%` }}
+      />
+    );
+  const glyphClass = row.attendance.state === 'present' ? 'text-primary' : 'text-muted-foreground';
   return (
-    <View
-      testID="attendance-actual"
-      className={`absolute top-1 h-3 rounded-sm ${KIND_CLASSES[event.kind].dot}`}
-      style={{ left: `${bar.left}%`, width: `${bar.width}%` }}
-    />
+    <View testID={`attendance-row-${row.attendee.id}`} style={{ zIndex: tooltipZone ? 1 : 0 }}>
+      <Text numberOfLines={1} className="text-[10px] leading-3 text-muted-foreground">
+        {row.attendee.name}{' '}
+        <Text accessibilityLabel={row.attendance.state} className={glyphClass}>
+          {row.glyph}
+        </Text>
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${row.attendee.name}: ${row.tooltip}`}
+        className="relative h-[10px]"
+        onHoverIn={onHoverIn}
+        onHoverOut={onHoverOut}
+        onFocus={onHoverIn}
+        onBlur={onHoverOut}
+        onPress={(event) => {
+          event.stopPropagation();
+          onPress();
+        }}
+      >
+        {barZone}
+      </Pressable>
+      {tooltipZone}
+    </View>
   );
 }

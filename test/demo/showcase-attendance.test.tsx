@@ -2,27 +2,19 @@
 import '../support/native-host';
 import { afterEach, expect, it, spyOn } from 'bun:test';
 import { readFileSync } from 'node:fs';
+import { Pressable } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
 import { EventDetail } from '../../demo/components/team-roster/events';
 import type { Attendance, MemberEvent } from '../../demo/components/team-roster/events/event.types';
 import {
-  AbsentRow,
-  AttendedRow,
-  ExpectedRow,
-  PendingRow,
-  PresentRow,
-} from '../../demo/components/team-roster/events/parts/attendances';
-import {
-  FutureCaption,
-  LiveCaption,
-  PastCaption,
-} from '../../demo/components/team-roster/events/parts/axis';
-import {
   actualExtent,
   attendanceModelFor,
   barOffsets,
   eventFor,
+  glyphFor,
+  ticksFor,
+  tooltipTextFor,
 } from '../../demo/components/team-roster/events/utils/attendance';
 import { MemberInspector } from '../../demo/components/team-roster/members';
 import {
@@ -168,40 +160,163 @@ it('keeps a solo lane owner present in the no-show shape', () => {
   }
 });
 
-it('selects the named row, caption, and bar for each presence state', () => {
+it('selects compact glyphs and actual bars for every presence state', () => {
   const cases = [
-    [{ state: 'expected' }, ExpectedRow, 'scheduled', 0],
-    [{ state: 'pending' }, PendingRow, 'not yet arrived', 0],
-    [{ state: 'present', arrival: 0 }, PresentRow, 'arrived on plan, still here', 1],
-    [{ state: 'present', arrival: 60000 }, PresentRow, 'arrived 1 min late, still here', 1],
-    [{ state: 'present', arrival: -60000 }, PresentRow, 'arrived 1 min early, still here', 1],
-    [{ state: 'attended', start: 0, end: 120000 }, AttendedRow, 'departure 1 min early', 1],
-    [{ state: 'absent' }, AbsentRow, 'no-show', 0],
+    [{ state: 'expected' }, '', 0],
+    [{ state: 'pending' }, '○', 0],
+    [{ state: 'present', arrival: 0 }, '●', 1],
+    [{ state: 'attended', start: 0, end: 120000 }, '', 1],
+    [{ state: 'absent' }, '×', 0],
   ] as const;
-  for (const [presence, Component, caption, bars] of cases) {
+  for (const [presence, glyph, bars] of cases) {
     const input = inputFor(
       [{ attendeeId: 'a', ...presence }],
-      presence.state === 'expected'
-        ? 0
-        : presence.state === 'absent' || presence.state === 'attended'
-          ? 240000
-          : 120000,
+      presence.state === 'expected' ? 0 : 240000,
     );
     const tree = render(<EventDetail {...input} />);
-    expect(tree.root.findAllByType(Component)).toHaveLength(1);
-    expect(JSON.stringify(tree.toJSON())).toContain(caption);
+    expect(glyphFor(presence.state)).toBe(glyph);
+    expect(tree.root.findByProps({ accessibilityLabel: presence.state }).props.children).toBe(
+      glyph,
+    );
     expect(tree.root.findAllByProps({ testID: 'attendance-scheduled' })).toHaveLength(1);
     expect(tree.root.findAllByProps({ testID: 'attendance-actual' })).toHaveLength(bars);
-    if (presence.state === 'present') {
-      const event = requiredEvent(input);
-      const scale = attendanceModelFor(event, memberMeta(input.lane).now).scale;
-      const bar = barOffsets({ start: presence.arrival, end: memberMeta(input.lane).now }, scale);
-      expect(tree.root.findByProps({ testID: 'attendance-actual' }).props.style).toEqual({
-        left: `${bar.left}%`,
-        width: `${bar.width}%`,
-      });
-    }
+    expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
   }
+});
+
+it('generates half-hour ticks below three hours and hourly ticks for longer scales', () => {
+  for (const [minutes, expected] of [
+    [20, [0]],
+    [90, [0, 30, 60, 90]],
+    [179, [0, 30, 60, 90, 120, 150]],
+    [180, [0, 60, 120, 180]],
+    [360, [0, 60, 120, 180, 240, 300, 360]],
+  ] as const) {
+    const ticks = ticksFor({ start: 0, end: minutes * 60000 });
+    expect(ticks.map((tick) => tick.time / 60000)).toEqual([...expected]);
+    for (const tick of ticks) expect(tick.left).toBeCloseTo((100 * tick.time) / (minutes * 60000));
+  }
+  expect(ticksFor({ start: 10 * 60000, end: 70 * 60000 }).map((tick) => tick.left)).toEqual([
+    100 / 3,
+    250 / 3,
+  ]);
+  expect(
+    ticksFor({ start: Date.UTC(2026, 0, 1), end: Date.UTC(2026, 0, 1, 3) }, 'Asia/Kathmandu').map(
+      (tick) => (tick.time - Date.UTC(2026, 0, 1)) / 60000,
+    ),
+  ).toEqual([15, 75, 135]);
+});
+
+it('models one scheduled band and five completed bars including both overhangs', () => {
+  const input = inputFor(
+    Array.from({ length: 5 }, (_, index) => ({
+      attendeeId: String(index),
+      state: 'attended',
+      start: -60000 + index * 10000,
+      end: 240000 - index * 10000,
+    })),
+    300000,
+  );
+  const model = attendanceModelFor(requiredEvent(input), 300000);
+  expect(model.band).toEqual({ left: 20, width: 60 });
+  expect(model.rows[0]?.bar).toEqual({ left: 0, width: 100 });
+  const tree = render(<EventDetail {...input} />);
+  expect(tree.root.findAllByProps({ testID: 'attendance-scheduled' })).toHaveLength(1);
+  expect(tree.root.findByProps({ testID: 'attendance-scheduled' }).props.style).toEqual({
+    left: '20%',
+    width: '60%',
+  });
+  expect(tree.root.findAllByProps({ testID: 'attendance-actual' })).toHaveLength(5);
+  const future = inputFor(
+    Array.from({ length: 5 }, (_, index) => ({ attendeeId: String(index), state: 'expected' })),
+    0,
+  );
+  const futureTree = render(<EventDetail {...future} />);
+  expect(futureTree.root.findAllByProps({ testID: 'attendance-empty' })).toHaveLength(5);
+  expect(futureTree.root.findAllByProps({ testID: 'attendance-actual' })).toHaveLength(0);
+  expect(futureTree.root.findAllByProps({ testID: 'attendance-scheduled' })).toHaveLength(1);
+});
+
+it('formats tooltip text for every state and early, on-plan, and late timings', () => {
+  const event = { ...requiredEvent(inputFor([])), start: 3 * 3600000, end: 4.5 * 3600000 };
+  for (const [state, text] of [
+    ['expected', 'Expected to attend'],
+    ['pending', 'Not yet arrived'],
+    ['absent', 'Did not attend'],
+  ] as const) {
+    expect(tooltipTextFor({ attendeeId: 'a', state }, event, 'UTC')).toBe(text);
+  }
+  expect(
+    tooltipTextFor(
+      {
+        attendeeId: 'a',
+        state: 'attended',
+        start: event.start + 15 * 60000,
+        end: event.end - 10 * 60000,
+      },
+      event,
+      'UTC',
+    ),
+  ).toBe('Arrived 3:15 AM (15 min late) · Left 4:20 AM (10 min early)');
+  expect(
+    tooltipTextFor(
+      {
+        attendeeId: 'a',
+        state: 'attended',
+        start: event.start - 15 * 60000,
+        end: event.end + 10 * 60000,
+      },
+      event,
+      'UTC',
+    ),
+  ).toBe('Arrived 2:45 AM (15 min early) · Left 4:40 AM (10 min late)');
+  expect(
+    tooltipTextFor({ attendeeId: 'a', state: 'present', arrival: event.start }, event, 'UTC'),
+  ).toBe('Arrived 3:00 AM (on plan) · Still here');
+});
+
+it('anchors one tooltip to the hovered or pressed row without changing roster selection', () => {
+  const tree = render(
+    <EventDetail
+      {...inputFor([
+        { attendeeId: 'a', state: 'attended', start: 0, end: 120000 },
+        { attendeeId: 'b', state: 'pending' },
+      ])}
+    />,
+  );
+  const a = tree.root.findByProps({ testID: 'attendance-row-a' }).findByType(Pressable);
+  const b = tree.root.findByProps({ testID: 'attendance-row-b' }).findByType(Pressable);
+  act(() => a.props.onHoverIn());
+  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(1);
+  expect(
+    tree.root
+      .findByProps({ testID: 'attendance-row-a' })
+      .findAllByProps({ testID: 'attendance-tooltip' }),
+  ).toHaveLength(1);
+  act(() => b.props.onHoverIn());
+  act(() => a.props.onHoverOut());
+  expect(
+    tree.root
+      .findByProps({ testID: 'attendance-row-b' })
+      .findAllByProps({ testID: 'attendance-tooltip' }),
+  ).toHaveLength(1);
+  act(() => b.props.onHoverOut());
+  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
+  let stopped = 0;
+  const press = {
+    stopPropagation() {
+      stopped++;
+    },
+  };
+  act(() => a.props.onPress(press));
+  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(1);
+  act(() => a.props.onPress(press));
+  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
+  expect(stopped).toBe(2);
+  act(() => b.props.onFocus());
+  expect(JSON.stringify(tree.toJSON())).toContain('Not yet arrived');
+  act(() => b.props.onBlur());
+  expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
 });
 
 it('spans live arrivals through the latest departure or present clock and omits pending-only strips', () => {
@@ -416,13 +531,14 @@ it('draws separate strips for disjoint attendances and keeps one detail extent',
   expect(actualExtent(requiredEvent(input), 120000)).toEqual({ start: 0, end: 120000 });
 });
 
-it('mounts exactly one caption for each event status', () => {
-  const captions = [FutureCaption, LiveCaption, PastCaption];
-  for (const [index, clock] of [0, 120000, 180000].entries()) {
+it('places the attendance reading key after the chart for every event status', () => {
+  for (const clock of [0, 120000, 240000]) {
     const tree = render(<EventDetail {...inputFor([], clock)} />);
-    for (const [captionIndex, Caption] of captions.entries()) {
-      expect(tree.root.findAllByType(Caption)).toHaveLength(captionIndex === index ? 1 : 0);
-    }
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain(clock === 0 ? 'Expected attendees' : 'Actual attendance');
+    expect(json.indexOf('the shaded band is the scheduled window')).toBeGreaterThan(
+      json.indexOf('attendance-scheduled'),
+    );
   }
 });
 
