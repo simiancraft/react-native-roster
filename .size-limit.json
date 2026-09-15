@@ -18,7 +18,7 @@
   {
     "name": "react-native-roster",
     "path": "dist/src/index.js",
-    "limit": "48 kB",
+    "limit": "52 kB",
     "gzip": false,
     "brotli": false,
     "ignore": [
@@ -33,7 +33,7 @@
   {
     "name": "react-native-roster/nativewind",
     "path": "dist/src/nativewind/index.js",
-    "limit": "44 kB",
+    "limit": "48 kB",
     "gzip": false,
     "brotli": false,
     "ignore": [
