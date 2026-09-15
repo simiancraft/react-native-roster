@@ -1,7 +1,7 @@
 import { LegendList } from '@legendapp/list';
 import { Profiler, type ProfilerOnRenderCallback } from 'react';
 import { LaneRow } from '../lanes/lane';
-import type { BodyInput } from '../roster.types';
+import type { LaneListInput } from '../roster.types';
 import { bodyContentKey } from '../utils/body-content-key';
 
 export function RosterLaneList({
@@ -19,7 +19,7 @@ export function RosterLaneList({
   onIntervalHover,
   incompleteLabel,
   onRowRender,
-}: Omit<BodyInput, 'ticks' | 'gridComponent'> & {
+}: LaneListInput & {
   /** Development-only Profiler hook used by the gallery; not a supported customization point. */
   onRowRender?: ProfilerOnRenderCallback;
 }) {

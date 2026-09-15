@@ -10,6 +10,7 @@ import {
   snapToStep,
   timeAtX,
   windowFor,
+  xAtTime,
 } from '../../core';
 import { hitTest } from '../../core/hit-test';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
@@ -19,6 +20,7 @@ export function useRoster(input: RosterInput): RosterModel {
   const {
     lanes,
     windowSpec,
+    now = null,
     minuteStep = 60,
     sortLanes = byLabel,
     rowHeight = 48,
@@ -48,6 +50,10 @@ export function useRoster(input: RosterInput): RosterModel {
     rowHeight,
     pxPerMinute: Math.max(pxPerMinute, duration === 0 ? 0 : viewport.width / duration),
   };
+  const nowLine =
+    now !== null && now >= window.start && now < window.end
+      ? { x: xAtTime(projection, window, now), now }
+      : null;
   const contentWidth = duration * projection.pxPerMinute;
   const coverage = new Map(lanes.map((lane) => [lane.id, coverageFor(lane, window)]));
   const orderedLanes = [...lanes].sort((a, b) => sortLanes(a, b, coverage));
@@ -103,6 +109,8 @@ export function useRoster(input: RosterInput): RosterModel {
     press,
     status: lanes.length === 0 ? 'empty' : 'ready',
     ticks: ticksFor(window, windowSpec, projection, minuteStep),
+    now,
+    nowLine,
     contentWidth,
     viewport,
     navigate: (next) => onNavigate?.(next),

@@ -12,6 +12,7 @@ export { RosterHeader } from './components/roster/parts/header';
 export { RosterHeaderCell } from './components/roster/parts/header-cell';
 export { RosterLaneLabelColumn } from './components/roster/parts/lane-label-column';
 export { RosterLaneList } from './components/roster/parts/lane-list';
+export { RosterNowLine } from './components/roster/parts/now-line';
 export type {
   BodyInput,
   GridInput,
@@ -19,8 +20,10 @@ export type {
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
+  LaneListInput,
   RosterInput,
   RosterModel,
+  RosterNowLineInput,
   RosterProjection,
   RosterProps,
   RosterScroll,

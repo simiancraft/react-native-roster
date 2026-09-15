@@ -10,12 +10,15 @@ import { LaneRow } from '../../../src/components/roster/lanes/lane';
 import { RosterLaneLabel } from '../../../src/components/roster/lanes/parts/lane-label';
 import { RosterBody } from '../../../src/components/roster/parts/body';
 import { RosterGrid } from '../../../src/components/roster/parts/grid';
+import { RosterLaneList } from '../../../src/components/roster/parts/lane-list';
+import { RosterNowLine } from '../../../src/components/roster/parts/now-line';
 import type {
   BodyInput,
   GridInput,
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
+  RosterNowLineInput,
 } from '../../../src/components/roster/roster.types';
 import type { Lane, Layer } from '../../../src/core';
 import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../../../src/core';
@@ -33,6 +36,89 @@ function close(tree: ReactTestRenderer) {
 }
 
 describe('Roster zones and rect primitives', () => {
+  it('positions the default now line inside the horizontal overlay and accepts a replacement', () => {
+    const input = { lanes: rosterFixtures['single-lane'].lanes, windowSpec: rosterWindowSpec };
+    const tree = render(createElement(Roster, input));
+    act(() =>
+      tree.root
+        .findAll((node) => typeof node.props.onLayout === 'function')[0]
+        ?.props.onLayout({ nativeEvent: { layout: { width: 800, height: 480 } } }),
+    );
+    expect(tree.root.findAllByType(RosterNowLine)).toHaveLength(0);
+    expect(tree.root.findAll((node) => node.props.style?.zIndex === 1)).toHaveLength(0);
+    const now = windowFor(rosterWindowSpec).start + 90 * 60_000;
+    act(() => tree.update(createElement(Roster, { ...input, now })));
+    const line = tree.root.findByProps({ testID: 'roster-now-line' });
+    expect(line.props.pointerEvents).toBe('none');
+    expect(line.props.style).toEqual({
+      position: 'absolute',
+      left: 45,
+      top: 0,
+      bottom: 0,
+      width: 2,
+      backgroundColor: '#dc2626',
+    });
+    const overlay = tree.root.findByType(RosterNowLine).parent;
+    expect(overlay?.props.pointerEvents).toBe('none');
+    expect(overlay?.props.style).toMatchObject({
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      zIndex: 1,
+    });
+    expect(overlay?.parent?.parent?.props.testID).toBe('roster-horizontal-scroll');
+    const nowLineComponent = mock((value: RosterNowLineInput) =>
+      createElement('custom-now', value),
+    );
+    act(() => tree.update(createElement(Roster, { ...input, now, nowLineComponent })));
+    expect(nowLineComponent.mock.calls[0]?.[0]).toEqual({ x: 45, now });
+    expect(tree.root.findAllByType(RosterNowLine)).toHaveLength(0);
+    for (const hidden of [null, windowFor(rosterWindowSpec).end]) {
+      act(() => tree.update(createElement(Roster, { ...input, now: hidden, nowLineComponent })));
+      expect(tree.root.findAllByType('custom-now' as ElementType)).toHaveLength(0);
+      expect(tree.root.findAll((node) => node.props.style?.zIndex === 1)).toHaveLength(0);
+    }
+    close(tree);
+  });
+  it('updates the now overlay without updating mounted lanes or their content key', () => {
+    const onRowRender = mock();
+    function bodyComponent(input: BodyInput) {
+      return createElement(RosterBody, { ...input, onRowRender });
+    }
+    const input = {
+      lanes: rosterFixtures['200-lanes'].lanes,
+      windowSpec: rosterWindowSpec,
+      bodyComponent,
+    };
+    const tree = render(createElement(Roster, input));
+    act(() =>
+      tree.root
+        .findAll((node) => typeof node.props.onLayout === 'function')[0]
+        ?.props.onLayout({ nativeEvent: { layout: { width: 800, height: 480 } } }),
+    );
+    expect(onRowRender.mock.calls.filter(([, phase]) => phase === 'mount')).toHaveLength(24);
+    const key = tree.root.findByType('LegendList' as ElementType).props.extraData;
+    onRowRender.mockClear();
+    for (const now of [
+      windowFor(rosterWindowSpec).start,
+      windowFor(rosterWindowSpec).start + 60_000,
+      null,
+    ]) {
+      act(() => tree.update(createElement(Roster, { ...input, now })));
+      expect(tree.root.findByType('LegendList' as ElementType).props.extraData).toBe(key);
+      const list = tree.root.findByType(RosterLaneList);
+      for (const name of ['now', 'nowLine', 'nowLineComponent'])
+        expect(name in list.props).toBe(false);
+      expect(onRowRender).not.toHaveBeenCalled();
+    }
+    act(() =>
+      tree.update(
+        createElement(Roster, { ...input, highlightSource: { kind: 'rule', id: 'one' } }),
+      ),
+    );
+    expect(onRowRender.mock.calls.filter(([, phase]) => phase === 'update')).toHaveLength(24);
+    close(tree);
+  });
   it('renders the default empty zone and a replacement', () => {
     const tree = render(createElement(Roster, { lanes: [], windowSpec: rosterWindowSpec }));
     expect(tree.root.findByType('Text' as ElementType).props.children).toBe('No lanes');
@@ -244,6 +330,7 @@ describe('Roster zones and rect primitives', () => {
   it('reads replacement zones and the empty example from the fixture record', () => {
     const fixture = rosterFixtures['every-zone'];
     expect(fixture.showsEmptyExample).toBe(true);
+    expect(fixture.showsNowToggle).toBe(true);
     const tree = render(
       createElement(Roster, {
         lanes: fixture.lanes,
