@@ -9,6 +9,7 @@ import { RosterGrid } from './parts/grid';
 import { RosterHeader } from './parts/header';
 import { RosterHeaderCell } from './parts/header-cell';
 import { RosterLaneLabelColumn } from './parts/lane-label-column';
+import { RosterNowLine } from './parts/now-line';
 import type { RosterProps } from './roster.types';
 import { useRoster } from './use-roster';
 
@@ -17,6 +18,7 @@ const defaultCornerZone = <RosterCorner />;
 
 export function Roster(props: RosterProps) {
   const {
+    nowLine,
     status,
     orderedLanes,
     laneState,
@@ -41,6 +43,7 @@ export function Roster(props: RosterProps) {
     intervalComponent = RosterInterval,
     gapComponent = RosterGap,
     gridComponent = RosterGrid,
+    nowLineComponent = RosterNowLine,
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
@@ -86,6 +89,8 @@ export function Roster(props: RosterProps) {
       }
       bodyZone={
         <BodyComponent
+          nowLine={nowLine}
+          nowLineComponent={nowLineComponent}
           lanes={orderedLanes}
           window={window}
           geometryFor={geometryFor}

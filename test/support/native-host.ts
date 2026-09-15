@@ -1,5 +1,5 @@
 import { mock } from 'bun:test';
-import { createElement, type ReactNode } from 'react';
+import { createElement, type ReactNode, useRef } from 'react';
 
 // Native hosts are supplied by the app runtime, which Bun does not implement.
 mock.module('react-native', () => ({
@@ -28,18 +28,28 @@ mock.module('react-native-reanimated', () => ({
   useAnimatedStyle: (updater: () => unknown) => updater(),
 }));
 mock.module('@legendapp/list', () => ({
-  LegendList: (props: {
+  LegendList: function LegendList(props: {
     data: unknown[];
+    extraData?: unknown;
     renderItem: (input: { item: unknown; index: number }) => ReactNode;
-  }) =>
-    createElement(
+  }) {
+    // Retain rows by lane identity and content key, matching LegendList's update boundary.
+    const retained = useRef<{ item: unknown; key: unknown; node: ReactNode }[]>([]);
+    const rows = props.data.slice(0, 24).map((item, index) => {
+      const previous = retained.current[index];
+      if (previous && previous.item === item && previous.key === props.extraData) return previous;
+      return {
+        item,
+        key: props.extraData,
+        node: createElement('MountedLane', { key: index }, props.renderItem({ item, index })),
+      };
+    });
+    retained.current = rows;
+    return createElement(
       'LegendList',
       props,
-      props.data
-        .slice(0, 24)
-        .map((item, index) =>
-          createElement('MountedLane', { key: index }, props.renderItem({ item, index })),
-        ),
-    ),
+      rows.map(({ node }) => node),
+    );
+  },
 }));
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true, __DEV__: true });

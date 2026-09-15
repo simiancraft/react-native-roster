@@ -50,3 +50,12 @@ export function timeAtX(
 ): number {
   return window.start + (x * 60_000) / projection.pxPerMinute;
 }
+
+/** Horizontal position at true elapsed length; the window supplies the projection's origin. */
+export function xAtTime(
+  projection: Extract<Projection, { orientation: 'horizontal' }>,
+  window: Window,
+  time: number,
+): number {
+  return ((time - window.start) / 60_000) * projection.pxPerMinute;
+}

@@ -16,6 +16,8 @@ type GalleryControlsProps = Pick<
   | 'sort'
   | 'setSort'
 > & {
+  /** Current-time toggle supplied by the fixture chassis. */
+  nowZone: ReactNode;
   /** Highlight actions; the chassis supplies them when the fixture names a highlight source. */
   highlightZone: ReactNode;
   /** Workload actions; the chassis supplies them for workload fixtures. */
@@ -32,6 +34,7 @@ export function GalleryControls({
   setMinuteStep,
   sort,
   setSort,
+  nowZone,
   highlightZone,
   performanceZone,
 }: GalleryControlsProps) {
@@ -51,6 +54,7 @@ export function GalleryControls({
             onPress={() => setWindowSpec({ ...preset.windowSpec, timezone: windowSpec.timezone })}
           />
         ))}
+        {nowZone}
         <Control label="Previous" onPress={() => setWindowSpec(prev(windowSpec))} />
         <Control label="Next" onPress={() => setWindowSpec(next(windowSpec))} />
         {(['day', 'week', 'month'] as const).map((span) => (

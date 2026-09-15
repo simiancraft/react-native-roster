@@ -88,6 +88,7 @@ export type RosterFixture = {
   lanes: Lane[];
   zones: Pick<RosterProps, keyof typeof replacedZones>;
   showsEmptyExample: boolean;
+  showsNowToggle?: boolean;
 };
 
 export const rosterFixtures: Record<
@@ -154,6 +155,7 @@ export const rosterFixtures: Record<
     ] as Lane[],
   },
   'every-zone': {
+    showsNowToggle: true,
     title: 'Every zone replaced',
     lanes: [inset, excluded],
     zones: replacedZones,
