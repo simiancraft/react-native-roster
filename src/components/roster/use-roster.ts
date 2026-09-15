@@ -64,7 +64,7 @@ export function useRoster(input: RosterInput): RosterModel {
     lanes,
     window,
     projection,
-    !!input.intervalDetailComponent,
+    input.selectable ?? false,
   );
   // Discard invalid selection during reconciliation, before rendering any stale detail.
   if (selected && !selection) setSelected(null);
@@ -128,7 +128,7 @@ function reconcileSelection(
         selected.rect.sources.map((source) => JSON.stringify([source.kind, source.id])),
       );
       let rect: Rect | undefined;
-      let nearest = Math.max(1, 60_000 / projection.pxPerMinute);
+      let nearest = 1;
       for (const candidate of layoutLane(lane, window, projection).rects) {
         if (candidate.layerId !== layer.id) continue;
         const identities = new Set(
@@ -139,7 +139,7 @@ function reconcileSelection(
         const difference =
           Math.abs(timeAtX(projection, window, candidate.x) - selected.start) +
           Math.abs(timeAtX(projection, window, candidate.x + candidate.width) - selected.end);
-        if (difference < nearest) {
+        if (difference <= nearest && (!rect || difference < nearest)) {
           nearest = difference;
           rect = candidate;
         }

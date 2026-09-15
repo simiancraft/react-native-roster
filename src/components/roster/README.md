@@ -20,7 +20,7 @@ Interval and gap components live in `../layers`; press geometry and `regionStyle
 in `../primitives`. Zone contracts are documented in the README's Roster zones
 section and in `llms.txt`. Tests: `test/components/roster`.
 
-This feature is about a roster body; its children are lanes. `RosterBody` gates
+`RosterBody` gates
 measurement and composes the body layout and lane list. `BodyInput` extends the
 positive `LaneListInput` with ticks, grid, and now-line inputs; the body explicitly
 picks the lane-list props. The `onRowRender` prop on
@@ -31,35 +31,45 @@ Input-bearing slots accept component types and mount in the data-owning parts.
 The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body
 content key tracks interval and gap component identity, including class components.
 
-This feature is about a selection; its children are zones.
+`selection/` holds the runtime-swappable presentation strategies (native popover, web popover) for one `SelectionLayoutProps` contract.
 
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
-  and detail nodes, anchor bounds, open, dismissal, host name, and shared scroll
+  and detail nodes, targetBounds, open, dismissal, host name, and shared scroll
+  limited to x, y, headerStyle, and labelStyle
 - `selection/selection-layout.tsx`: exported native `RosterSelectionPopover`, local
-  portal host, outside press, hardware back, measured viewport clamping, and shared scroll positioning
+  portal host, body press passthrough, hardware back, measured viewport clamping, and shared scroll positioning
 - `selection/selection-layout.web.tsx`: Radix presentation with a browser remap
 
 `intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
-`start` and `end` and `viewTimezone`, and enables selection in `useRoster`; presses still invoke
-onIntervalPress. It belongs to `RosterInput` so the hook knows whether presses select.
-`selectionLayout` and `portalHost` belong to `RosterProps` because only the chassis mounts
-the layout. `selectionLayout` defaults once in the chassis and wraps the body
+`start`, `end`, and `viewTimezone`; presses still invoke onIntervalPress.
+`selectable?: boolean` belongs to `RosterInput` and defaults to false for hook consumers.
+`intervalDetailComponent`, `selectionLayout`, and `portalHost` belong to `RosterProps`
+because the chassis mounts the content and layout. The chassis passes
+`selectable: Boolean(intervalDetailComponent)` to `useRoster`.
+`selectionLayout` defaults once in the chassis and wraps the body
 before RosterLayout receives bodyZone. The selection never enters the body content
 key. Missing lane/layer/bounds clear selection; valid selections use current data.
 Pressing the selected interval again dismisses it; pressing another interval
 switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
+On web, the layout returns keyboard focus to the pressed lane row after dismissal via keyboard, and the browser's focus-visible ring styling is left to the host page.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 
 The private reconcileSelection helper resolves the stored absolute bounds against the
 current lanes and window each render, matching source identity sets and choosing the
-nearest bounds within max(1 ms, 60000 / pxPerMinute) to tolerate projection roundoff.
-Anchors include the lane offset and interval inset. Native details clamp horizontally
-and use the top edge when neither below nor above fits. The browser gate isolates
-selection updates from Pressable state,
+nearest bounds with a total difference of at most 1 ms for projection roundoff. Target bounds
+include the lane offset and interval inset. Native details clamp horizontally and use the
+top edge when neither below nor above fits. The browser gate isolates selection updates from Pressable state,
 and separately exercises complete pointer presses and outside dismissal.
+
+Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+card captures its own presses. Web excludes the body wrapper from Radix outside
+dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+The hook toggles the selected interval closed, switches to another interval, and dismisses
+on cell or gap presses while preserving their callbacks. The body restores horizontal
+and vertical offsets from shared values on remount when selectionLayout changes.
 
 `now` is a controlled epoch millisecond value, default null. `useRoster` derives
 `nowLine` (`{ x, now }`) during render via `xAtTime` using the fitted horizontal

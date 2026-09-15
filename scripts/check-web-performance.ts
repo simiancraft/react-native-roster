@@ -141,6 +141,15 @@ try {
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
   assert.match(await page.getByTestId('interval-detail').innerText(), /Lane one/);
+  const firstDetail = await page.getByTestId('interval-detail').innerText();
+  // Locator clicks dispatch pointerdown, pointerup, and click through the body.
+  await detailLane.click({ position: { x: (laneWidth * 19) / 24, y: 20 } });
+  await page.waitForFunction(
+    (previous) =>
+      document.querySelector('[data-testid="interval-detail"]')?.textContent !== previous,
+    firstDetail,
+  );
+  assert.notEqual(await page.getByTestId('interval-detail').innerText(), firstDetail);
   await detailLane.click({ position: { x: 10, y: 20 } });
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });

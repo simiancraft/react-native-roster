@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useRef, useState } from 'react';
-import type { Lane, Layer, Window } from '../../core';
+import type { Lane, Window } from '../../core';
 import { layoutLane, snapToStep, timeAtX } from '../../core';
 import { hitTest } from '../../core/hit-test';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
@@ -35,8 +35,10 @@ export function useRosterPress(
         return;
       const hit = hitTest(lane, layoutLane(lane, window, projection), pointX, pointY);
       if (hit?.kind === 'interval') {
-        if (input.intervalDetailComponent) {
-          const layer = lane.layers.find((layer) => layer.id === hit.rect.layerId) as Layer;
+        if (input.selectable) {
+          const layer = lane.layers.find((layer) => layer.id === hit.rect.layerId);
+          // layoutLane supplied the hit rect's layerId, so this should succeed; guard future refactors.
+          if (layer === undefined) return;
           // Compare reconciled geometry so resizing and cache eviction preserve toggle identity.
           setSelected(
             selection?.lane.id === lane.id &&

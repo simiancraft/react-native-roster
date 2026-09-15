@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { type ReactNode, useId } from 'react';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
 import { RosterLaneLabel } from './lanes/parts/lane-label';
@@ -13,6 +13,7 @@ import { RosterLaneLabelColumn } from './parts/lane-label-column';
 import { RosterNowLine } from './parts/now-line';
 import type { RosterProps } from './roster.types';
 import { RosterSelectionPopover } from './selection/selection-layout';
+import type { SelectionLayoutProps } from './selection/selection-layout.types';
 import { useRoster } from './use-roster';
 
 const defaultEmptyZone = <RosterEmpty />;
@@ -35,7 +36,7 @@ export function Roster(props: RosterProps) {
     contentWidth,
     viewport,
     onLayout,
-  } = useRoster(props);
+  } = useRoster({ ...props, selectable: Boolean(props.intervalDetailComponent) });
   const {
     intervalDetailComponent: IntervalDetailComponent,
     selectionLayout: SelectionLayout = RosterSelectionPopover,
@@ -56,6 +57,30 @@ export function Roster(props: RosterProps) {
   const hostId = useId();
   if (status === 'empty') return emptyZone;
   if (window.start === window.end) return null;
+  let targetBounds: SelectionLayoutProps['targetBounds'] = null;
+  if (selection) {
+    targetBounds = {
+      x: selection.rect.x,
+      y:
+        orderedLanes.findIndex((lane) => lane.id === selection.lane.id) * projection.rowHeight +
+        selection.rect.y,
+      width: selection.rect.width,
+      height: selection.rect.height,
+    };
+  }
+  let contentZone: ReactNode = null;
+  if (selection && IntervalDetailComponent) {
+    contentZone = (
+      <IntervalDetailComponent
+        {...selection}
+        viewTimezone={projection.viewTimezone}
+        highlighted={selection.rect.sources.some(
+          (source) =>
+            source.kind === props.highlightSource?.kind && source.id === props.highlightSource.id,
+        )}
+      />
+    );
+  }
   return (
     <RosterLayout
       style={props.style}
@@ -99,33 +124,14 @@ export function Roster(props: RosterProps) {
           portalHost={props.portalHost ?? `roster-${hostId}`}
           open={selection !== null}
           onDismiss={dismissSelection}
-          scroll={scroll}
-          anchor={
-            selection
-              ? {
-                  x: selection.rect.x,
-                  y:
-                    orderedLanes.findIndex((lane) => lane.id === selection.lane.id) *
-                      projection.rowHeight +
-                    selection.rect.y,
-                  width: selection.rect.width,
-                  height: selection.rect.height,
-                }
-              : null
-          }
-          contentZone={
-            selection && IntervalDetailComponent ? (
-              <IntervalDetailComponent
-                {...selection}
-                viewTimezone={projection.viewTimezone}
-                highlighted={selection.rect.sources.some(
-                  (source) =>
-                    source.kind === props.highlightSource?.kind &&
-                    source.id === props.highlightSource.id,
-                )}
-              />
-            ) : null
-          }
+          scroll={{
+            x: scroll.x,
+            y: scroll.y,
+            headerStyle: scroll.headerStyle,
+            labelStyle: scroll.labelStyle,
+          }}
+          targetBounds={targetBounds}
+          contentZone={contentZone}
           anchorZone={
             <BodyComponent
               nowLine={nowLine}

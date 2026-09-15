@@ -1,5 +1,5 @@
 import { Anchor, Content, Portal, Root } from '@radix-ui/react-popover';
-import { View } from 'react-native';
+import { useRef } from 'react';
 import Animated from 'react-native-reanimated';
 import type { SelectionLayoutProps } from './selection-layout.types';
 
@@ -7,11 +7,12 @@ import type { SelectionLayoutProps } from './selection-layout.types';
 export function RosterSelectionPopover({
   anchorZone,
   contentZone,
-  anchor,
+  targetBounds,
   open,
   onDismiss,
   scroll,
 }: SelectionLayoutProps) {
+  const bodyRef = useRef<HTMLDivElement>(null);
   return (
     <Root
       open={open}
@@ -19,7 +20,16 @@ export function RosterSelectionPopover({
         if (!next) onDismiss();
       }}
     >
-      <View style={{ flex: 1 }}>
+      <div
+        ref={bodyRef}
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         {anchorZone}
         <Animated.View style={[{ position: 'absolute', top: 0, left: 0 }, scroll.headerStyle]}>
           <Animated.View style={scroll.labelStyle}>
@@ -27,8 +37,8 @@ export function RosterSelectionPopover({
               <div
                 style={{
                   position: 'absolute',
-                  left: anchor?.x ?? 0,
-                  top: anchor ? anchor.y + anchor.height : 0,
+                  left: targetBounds?.x ?? 0,
+                  top: targetBounds ? targetBounds.y + targetBounds.height : 0,
                   width: 0,
                   height: 0,
                   pointerEvents: 'none',
@@ -37,9 +47,12 @@ export function RosterSelectionPopover({
             </Anchor>
           </Animated.View>
         </Animated.View>
-      </View>
+      </div>
       <Portal>
         <Content
+          onInteractOutside={(event) => {
+            if (bodyRef.current?.contains(event.target as Node)) event.preventDefault();
+          }}
           sideOffset={4}
           align="start"
           updatePositionStrategy="always"

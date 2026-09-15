@@ -276,7 +276,7 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
-| `selectionLayout` | `SelectionLayoutProps`: nodes, anchor, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
+| `selectionLayout` | `SelectionLayoutProps`: nodes, targetBounds, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
 | `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive vertical red line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
@@ -320,18 +320,27 @@ Pressing the selected interval again dismisses it; pressing another interval
 switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
-Removing the selected lane, layer, or interval bounds clears selection.
-Current data and geometry replace old
-references, including after resizing or sorting. Reconciliation matches the layer id and
-order-insensitive source identities, then chooses the nearest absolute bounds. The sum
-of bound differences must be less than one pixel of time at the current projection
-scale or 1 ms, whichever is larger. Stored bounds remain the display values.
+Removing the selected lane, layer, or interval bounds clears selection. The private
+reconcileSelection helper matches source identity sets and chooses nearest bounds with
+a total difference of at most 1 ms for projection roundoff.
 
-`intervalDetailComponent` lives on `RosterInput` because `useRoster` owns selection
-and must know whether presses select. `selectionLayout` and `portalHost` live on
-`RosterProps` because only the chassis mounts the layout. When building a custom
-chassis, pass `intervalDetailComponent` to `useRoster` and mount your layout with
-the returned selection, dismissal, and scroll inputs.
+Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+card captures its own presses. Web excludes the body wrapper from Radix outside
+dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+The hook toggles the selected interval closed, switches to another interval, and dismisses
+on cell or gap presses while preserving their callbacks. The body restores horizontal
+and vertical offsets from shared values on remount when selectionLayout changes.
+
+Current data and geometry replace old references, including after resizing or sorting. Reconciliation matches the layer id and
+order-insensitive source identities, then chooses the nearest absolute bounds. The sum
+of bound differences must be at most 1 ms. Stored bounds remain the display values.
+
+`selectable?: boolean` lives on `RosterInput` and defaults to false. Hook consumers
+pass `selectable: true` to `useRoster` to retain selection. `intervalDetailComponent`,
+`selectionLayout`, and `portalHost` live on `RosterProps` because the chassis mounts
+the content and layout. The chassis enables selection with
+`selectable: Boolean(intervalDetailComponent)`. Custom chassis mount their layout
+with the returned selection, dismissal, and scroll inputs.
 
 ```tsx
 import { Text, View } from 'react-native';
@@ -372,13 +381,14 @@ flips above when that fits, and uses the top edge when neither vertical placemen
 fits. The default native popover waits for viewport measurement and scrolls oversized
 content on both axes within a maximum size of the viewport minus 8 px on each axis.
 Consumers wanting a different presentation supply `selectionLayout`.
-Native also dismisses on outside press and hardware back.
+Native also dismisses on hardware back.
 
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`
-(the body), `contentZone` (details or null), `anchor` (body-content bounds), `open`,
-`onDismiss`, `portalHost`, and `scroll`. The anchor includes the lane offset and
-interval inset. Render each node once. A consumer inspector
+(the body), `contentZone` (details or null), `targetBounds` (body-content bounds), `open`,
+`onDismiss`, `portalHost`, and `scroll`. The target bounds include the lane offset and
+interval inset. Layout scroll inputs are limited to `x`, `y`, `headerStyle`, and
+`labelStyle`. Render each node once. A consumer inspector
 can arrange the nodes in columns and call `onDismiss` from its close button.
 The [interval-detail gallery route](./demo/app/gallery/interval-detail.tsx)
 switches presentations at runtime.
