@@ -168,7 +168,7 @@ and "Availability may be incomplete"; both are localizable props.
 | Import | Shipped surface |
 | --- | --- |
 | `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, slot components, and all core exports. |
-| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `extentOf`, `intersectionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
+| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `extentOf`, `intersectionOf`, `unionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
 
@@ -182,6 +182,13 @@ importing one function from the root costs the whole root bundle; import from
 ## Core
 
 ### Interval helpers
+
+`unionOf(spans: readonly Window[]): Window[]` merges overlapping or touching
+windows and returns them sorted by start, keeping disjoint windows separate.
+Empty input returns `[]`. Every returned window is a new object; the input array
+and its windows remain untouched. Like `extentOf` and `intersectionOf`, it uses
+end-exclusive epoch milliseconds and throws `RangeError` for non-finite bounds
+or `end <= start`.
 
 Collapse each person's segments with `extentOf`, then use `intersectionOf` to
 find the shared time across those windows. Each extent bridges gaps between

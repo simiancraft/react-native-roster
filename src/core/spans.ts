@@ -1,4 +1,4 @@
-// Provenance sweep logic and the extentOf and intersectionOf interval helpers.
+// Provenance sweep logic and the extentOf, intersectionOf, and unionOf interval helpers.
 // The sweep uses reference counts to preserve provenance through nested intervals
 // and equal-time ends/starts. Labels never affect source identity.
 import type { Interval, Source, Window } from './types';
@@ -89,6 +89,30 @@ export function intersectionOf(spans: readonly Window[]): Window | null {
     end = Math.min(end, span.end);
   }
   return start < end ? { start, end } : null;
+}
+
+/**
+ * Merged end-exclusive epoch windows sorted by start; empty input returns an empty array.
+ * Overlapping or touching spans merge; disjoint spans remain separate.
+ * Throws RangeError for non-finite bounds or end <= start.
+ * Returns new objects without mutating inputs.
+ */
+export function unionOf(spans: readonly Window[]): Window[] {
+  const sorted = spans.map((span) => {
+    validateSpan(span);
+    return { start: span.start, end: span.end };
+  });
+  sorted.sort((a, b) => a.start - b.start);
+  const merged: Window[] = [];
+  for (const span of sorted) {
+    const last = merged.at(-1);
+    if (last && span.start <= last.end) {
+      last.end = Math.max(last.end, span.end);
+    } else {
+      merged.push(span);
+    }
+  }
+  return merged;
 }
 
 function validateSpan(span: Window): void {
