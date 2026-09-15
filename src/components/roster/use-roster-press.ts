@@ -13,14 +13,15 @@ export function useRosterPress(
   window: Window,
   projection: RosterProjection,
   width: number,
+  selection: RosterModel['selection'],
   setSelected: Dispatch<SetStateAction<SelectedInterval | null>>,
 ) {
-  const currentPress = { input, window, projection, width };
+  const currentPress = { input, window, projection, width, selection };
   const pressInput = useRef(currentPress);
   pressInput.current = currentPress;
   const [press] = useState(() => {
     return function press(lane: Lane, pointX: number, pointY: number): void {
-      const { input, window, projection, width } = pressInput.current;
+      const { input, window, projection, width, selection } = pressInput.current;
       const { minuteStep = 60, onIntervalPress, onGapPress, onCellPress } = input;
       const { rowHeight, viewTimezone } = projection;
       if (
@@ -36,17 +37,26 @@ export function useRosterPress(
       if (hit?.kind === 'interval') {
         if (input.intervalDetailComponent) {
           const layer = lane.layers.find((layer) => layer.id === hit.rect.layerId) as Layer;
-          setSelected({
-            rect: hit.rect,
-            layer,
-            lane,
-            start: timeAtX(projection, window, hit.rect.x),
-            end: timeAtX(projection, window, hit.rect.x + hit.rect.width),
-          });
+          // Compare reconciled geometry so resizing and cache eviction preserve toggle identity.
+          setSelected(
+            selection?.lane.id === lane.id &&
+              selection.rect.layerId === hit.rect.layerId &&
+              selection.rect.x === hit.rect.x &&
+              selection.rect.width === hit.rect.width
+              ? null
+              : {
+                  rect: hit.rect,
+                  layer,
+                  lane,
+                  start: timeAtX(projection, window, hit.rect.x),
+                  end: timeAtX(projection, window, hit.rect.x + hit.rect.width),
+                },
+          );
         }
         onIntervalPress?.(hit.rect, lane);
         return;
       }
+      if (selection) setSelected(null);
       if (hit?.kind === 'gap') {
         onGapPress?.(hit.rect, lane);
         return;

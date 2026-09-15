@@ -63,7 +63,7 @@ export function useRoster(input: RosterInput): RosterModel {
   );
   // Discard invalid selection during reconciliation, before rendering any stale detail.
   if (selected && !selection) setSelected(null);
-  const press = useRosterPress(input, window, projection, contentWidth, setSelected);
+  const press = useRosterPress(input, window, projection, contentWidth, selection, setSelected);
   return {
     selection,
     dismissSelection,

@@ -416,6 +416,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
 
 34. **Roster selection has a per-instance native portal host.** useRoster owns selection
     and dismissal, refreshing current rect/layer/lane references and clearing missing bounds.
+    Pressing the selected interval again dismisses it; pressing another interval
+    switches selection. Cell and gap presses dismiss selection while still firing
+    `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+    and web; web outside press and Escape still dismiss.
     The chassis defaults selectionLayout once and passes mounted body and detail nodes.
     The default native layout owns PortalHost, named from the roster's useId unless
     portalHost overrides it; independent rosters must use different names. Do not mount

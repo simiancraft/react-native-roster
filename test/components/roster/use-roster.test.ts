@@ -10,7 +10,7 @@ import type {
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import type { RosterInput, RosterModel } from '../../../src/components/roster/roster.types';
 import { useRoster } from '../../../src/components/roster/use-roster';
-import type { Lane, Layer, Rect } from '../../../src/core';
+import type { Interval, Lane, Layer, Rect } from '../../../src/core';
 import {
   byCoverage,
   clearCoverageCache,
@@ -344,6 +344,89 @@ it('selects only with detail content, dismisses, reconciles current data, and cl
   act(() => press(lane, 1200, 10));
   h.update(input);
   expect(h.model.selection).toBeNull();
+  h.close();
+});
+
+it('toggles intervals, switches lanes, and dismisses on cells and gaps with callbacks', () => {
+  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const other = { ...lane, id: 'other' };
+  const gapLane = rosterFixtures['full-day-gap'].lanes[0] as Lane;
+  const onIntervalPress = mock();
+  const onCellPress = mock();
+  const onGapPress = mock();
+  const h = harness({
+    lanes: [lane, other, gapLane],
+    windowSpec: rosterWindowSpec,
+    intervalDetailComponent: () => null,
+    onIntervalPress,
+    onCellPress,
+    onGapPress,
+  });
+  const press = h.model.press;
+  act(() => press(lane, 300, 10));
+  clearLayoutCache();
+  act(() => press(lane, 310, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onIntervalPress).toHaveBeenCalledTimes(2);
+  act(() => press(lane, 300, 10));
+  act(() => press(other, 300, 10));
+  expect(h.model.selection?.lane).toBe(other);
+  act(() => press(other, 10, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onCellPress).toHaveBeenCalledWith(other, h.model.window.start);
+  act(() => press(lane, 300, 10));
+  act(() => press(gapLane, 10, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onGapPress).toHaveBeenCalledWith(h.model.geometryFor(gapLane).gapRects[0], gapLane);
+  act(() => press(lane, 300, 10));
+  act(() => h.model.onLayout(layoutInput(20_161, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  act(() => press(lane, rect.x + 1, rect.y + 1));
+  expect(h.model.selection).toBeNull();
+  expect(h.model.press).toBe(press);
+  h.close();
+});
+
+it('switches between intervals in the same lane and between overlapping layers', () => {
+  const base = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const layer = base.layers[0] as Layer;
+  const interval = layer.intervals[0] as Interval;
+  const lane = {
+    ...base,
+    layers: [
+      {
+        ...layer,
+        intervals: [
+          interval,
+          {
+            ...interval,
+            start: interval.end,
+            end: interval.end + 3_600_000,
+            sources: [{ kind: 'rule', id: 'second' }],
+          },
+        ],
+      },
+      {
+        ...layer,
+        id: 'overlay',
+        z: 1,
+        intervals: [
+          { ...interval, start: interval.start + 3_600_000, end: interval.end - 3_600_000 },
+        ],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    intervalDetailComponent: () => null,
+  });
+  act(() => h.model.press(lane, 275, 10));
+  expect(h.model.selection?.layer.id).toBe(layer.id);
+  act(() => h.model.press(lane, 520, 10));
+  expect(h.model.selection?.start).toBe(interval.end);
+  act(() => h.model.press(lane, 305, 10));
+  expect(h.model.selection?.layer.id).toBe('overlay');
   h.close();
 });
 

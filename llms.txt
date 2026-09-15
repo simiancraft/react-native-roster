@@ -238,6 +238,10 @@ Keep its viewport gate and measured estimatedListSize in custom compositions.
 Roster only; Schedule does not yet support selection and will gain it in a later change.
 intervalDetailComponent?: ComponentType<IntervalDetailInput> enables selection on interval
 press while preserving onIntervalPress. Absent content retains no selection.
+Pressing the selected interval again dismisses it; pressing another interval
+switches selection. Cell and gap presses dismiss selection while still firing
+`onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+and web; web outside press and Escape still dismiss.
 IntervalDetailInput is IntervalInput plus absolute start and end and viewTimezone.
 useRoster owns selection: {rect,layer,lane,start,end}|null and dismissSelection(). It resolves
 current lane/layer/rect references and clears removed lane or absolute rect bounds.

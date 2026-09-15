@@ -141,6 +141,14 @@ try {
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
   assert.match(await page.getByTestId('interval-detail').innerText(), /Lane one/);
+  await detailLane.click({ position: { x: 10, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
+  await page.getByTestId('interval-detail').waitFor();
   await page.getByRole('heading', { name: 'Interval details', exact: true }).click();
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
@@ -154,7 +162,7 @@ try {
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   assert.deepEqual(errors, [], 'Selection browser runtime errors');
   console.log(
-    'Selection: popover opens, outside press and Escape dismiss, and inspector opens and dismisses.',
+    'Selection: popover toggles, cell press, outside press, and Escape dismiss, and inspector opens and dismisses.',
   );
   root = resolve('demo/.cache/dev-dist');
   assert(
@@ -226,7 +234,26 @@ try {
     selectionBefore.lanes.one?.updates,
     'Opening details must not update the mounted row',
   );
-  console.log('Selection profiler: zero mounted-row updates when opening details.');
+  await selectedLane.evaluate((node) => {
+    const bounds = node.getBoundingClientRect();
+    node.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        clientX: bounds.left + 10,
+        clientY: bounds.top + 20,
+      }),
+    );
+  });
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  const dismissed = await profileStats();
+  assert.equal(
+    dismissed.lanes.one?.updates,
+    selectionAfter.lanes.one?.updates,
+    'Cell dismissal must not update the mounted row',
+  );
+  console.log(
+    'Selection profiler: zero mounted-row updates when opening details or dismissing on a cell.',
+  );
 } finally {
   await page.context().tracing.stop({ path: '.cache/web-performance/trace.zip' });
   await browser.close();

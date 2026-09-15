@@ -256,8 +256,13 @@ prop has a `className` twin; see [NativeWind](#nativewind).
 
 Add `intervalDetailComponent` to enable pressed-interval details. The press still
 fires `onIntervalPress`; without the component, presses retain no selection.
-`useRoster` owns `selection` and `dismissSelection`. Removing the selected lane,
-layer, or interval bounds clears selection. Current data and geometry replace old
+`useRoster` owns `selection` and `dismissSelection`.
+Pressing the selected interval again dismisses it; pressing another interval
+switches selection. Cell and gap presses dismiss selection while still firing
+`onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+and web; web outside press and Escape still dismiss.
+Removing the selected lane, layer, or interval bounds clears selection.
+Current data and geometry replace old
 references, including after resizing or sorting. Reconciliation matches the layer id and
 order-insensitive source identities, then chooses the nearest absolute bounds. The sum
 of bound differences must be less than one pixel of time at the current projection

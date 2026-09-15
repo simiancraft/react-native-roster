@@ -44,6 +44,10 @@ onIntervalPress. It belongs to `RosterInput` so the hook knows whether presses s
 the layout. `selectionLayout` defaults once in the chassis and wraps the body
 before RosterLayout receives bodyZone. The selection never enters the body content
 key. Missing lane/layer/bounds clear selection; valid selections use current data.
+Pressing the selected interval again dismisses it; pressing another interval
+switches selection. Cell and gap presses dismiss selection while still firing
+`onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+and web; web outside press and Escape still dismiss.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 
