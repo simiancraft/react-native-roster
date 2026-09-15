@@ -10,7 +10,7 @@ import type {
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import type { RosterInput, RosterModel } from '../../../src/components/roster/roster.types';
 import { useRoster } from '../../../src/components/roster/use-roster';
-import type { Lane, Layer, Rect } from '../../../src/core';
+import type { Interval, Lane, Layer, Rect } from '../../../src/core';
 import {
   byCoverage,
   clearCoverageCache,
@@ -19,6 +19,7 @@ import {
   layoutStats,
   next,
   resetStats,
+  timeAtX,
 } from '../../../src/core';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 import { workload } from '../../fixtures/workload';
@@ -292,4 +293,367 @@ describe('useRoster hook without native rendering', () => {
         'positive finite',
       );
   });
+});
+
+it('selects only with detail content, dismisses, reconciles current data, and clears removed bounds', () => {
+  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const onIntervalPress = mock();
+  const input: RosterInput = { lanes: [lane], windowSpec: rosterWindowSpec, onIntervalPress };
+  const h = harness(input);
+  const press = h.model.press;
+  act(() => press(lane, 300, 10));
+  expect(h.model.selection).toBeNull();
+  const enabled = { ...input, selectable: true };
+  h.update(enabled);
+  act(() => press(lane, 300, 10));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(h.model.selection).toEqual({
+    lane,
+    layer: lane.layers[0] as Layer,
+    rect,
+    start: timeAtX(h.model.projection, h.model.window, rect.x),
+    end: timeAtX(h.model.projection, h.model.window, rect.x + rect.width),
+  });
+  expect(onIntervalPress).toHaveBeenCalledTimes(2);
+  const fresh = {
+    ...lane,
+    label: 'Fresh label',
+    layers: lane.layers.map((layer) => ({ ...layer, label: 'Fresh layer' })),
+  };
+  h.update({ ...enabled, lanes: [fresh] });
+  expect(h.model.selection?.lane).toBe(fresh);
+  expect(h.model.selection?.layer).toBe(fresh.layers[0]);
+  act(() => h.model.onLayout(layoutInput(20_160, 480)));
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(fresh).rects[0] as Rect);
+  expect(h.model.press).toBe(press);
+  act(() => h.model.dismissSelection());
+  expect(h.model.selection).toBeNull();
+  act(() => press(fresh, 1200, 10));
+  h.update({ ...enabled, lanes: [] });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  expect(h.model.selection).toBeNull();
+  act(() => press(lane, 1200, 10));
+  h.update({ ...enabled, lanes: [{ ...lane, layers: [] }] });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  act(() => press(lane, 1200, 10));
+  h.update({ ...enabled, windowSpec: next(rosterWindowSpec) });
+  expect(h.model.selection).toBeNull();
+  h.update(enabled);
+  act(() => press(lane, 1200, 10));
+  h.update(input);
+  expect(h.model.selection).toBeNull();
+  h.close();
+});
+
+it('toggles intervals, switches lanes, and dismisses on cells and gaps with callbacks', () => {
+  const lane = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const other = { ...lane, id: 'other' };
+  const gapLane = rosterFixtures['full-day-gap'].lanes[0] as Lane;
+  const onIntervalPress = mock();
+  const onCellPress = mock();
+  const onGapPress = mock();
+  const h = harness({
+    lanes: [lane, other, gapLane],
+    windowSpec: rosterWindowSpec,
+    selectable: true,
+    onIntervalPress,
+    onCellPress,
+    onGapPress,
+  });
+  const press = h.model.press;
+  act(() => press(lane, 300, 10));
+  clearLayoutCache();
+  act(() => press(lane, 310, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onIntervalPress).toHaveBeenCalledTimes(2);
+  act(() => press(lane, 300, 10));
+  act(() => press(other, 300, 10));
+  expect(h.model.selection?.lane).toBe(other);
+  act(() => press(other, 10, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onCellPress).toHaveBeenCalledWith(other, h.model.window.start);
+  act(() => press(lane, 300, 10));
+  act(() => press(gapLane, 10, 10));
+  expect(h.model.selection).toBeNull();
+  expect(onGapPress).toHaveBeenCalledWith(h.model.geometryFor(gapLane).gapRects[0], gapLane);
+  act(() => press(lane, 300, 10));
+  act(() => h.model.onLayout(layoutInput(20_161, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  act(() => press(lane, rect.x + 1, rect.y + 1));
+  expect(h.model.selection).toBeNull();
+  expect(h.model.press).toBe(press);
+  h.close();
+});
+
+it('switches between intervals in the same lane and between overlapping layers', () => {
+  const base = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const layer = base.layers[0] as Layer;
+  const interval = layer.intervals[0] as Interval;
+  const lane = {
+    ...base,
+    layers: [
+      {
+        ...layer,
+        intervals: [
+          interval,
+          {
+            ...interval,
+            start: interval.end,
+            end: interval.end + 3_600_000,
+            sources: [{ kind: 'rule', id: 'second' }],
+          },
+        ],
+      },
+      {
+        ...layer,
+        id: 'overlay',
+        z: 1,
+        intervals: [
+          { ...interval, start: interval.start + 3_600_000, end: interval.end - 3_600_000 },
+        ],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    selectable: true,
+  });
+  act(() => h.model.press(lane, 275, 10));
+  expect(h.model.selection?.layer.id).toBe(layer.id);
+  act(() => h.model.press(lane, 520, 10));
+  expect(h.model.selection?.start).toBe(interval.end);
+  act(() => h.model.press(lane, 305, 10));
+  expect(h.model.selection?.layer.id).toBe('overlay');
+  h.close();
+});
+
+it('retains selection when a fitted resize introduces sub-millisecond projection roundoff', () => {
+  const lane: Lane = {
+    id: 'resize',
+    label: 'Resize',
+    layers: [
+      {
+        id: 'open',
+        role: 'availability',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [{ start: 32_400_000, end: 61_200_000, sources: [] }],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
+    selectable: true,
+  });
+  act(() => h.model.press(lane, 300, 10));
+  expect(h.model.selection).toMatchObject({ start: 32_400_000, end: 61_200_000 });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(Number.isInteger(h.model.projection.pxPerMinute)).toBe(false);
+  expect(timeAtX(h.model.projection, h.model.window, rect.x + rect.width)).not.toBe(61_200_000);
+  expect(h.model.selection).toMatchObject({ start: 32_400_000, end: 61_200_000 });
+  expect(h.model.selection?.rect).toBe(rect);
+  // Selection captured at a fractional scale also survives returning to the original scale.
+  act(() => h.model.dismissSelection());
+  act(() => h.model.press(lane, 300, 10));
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  expect(h.model.selection).not.toBeNull();
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(lane).rects[0] as Rect);
+  h.close();
+});
+
+it('selects the correct adjacent sub-millisecond interval despite rounded bounds colliding', () => {
+  const lane: Lane = {
+    id: 'fractional',
+    label: 'Fractional',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [
+          { start: 1000.1, end: 1000.2, sources: [{ kind: 'rule', id: 'first' }] },
+          { start: 1000.2, end: 1000.3, sources: [{ kind: 'rule', id: 'second' }] },
+        ],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1001 } },
+    selectable: true,
+  });
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  const rect = h.model.geometryFor(lane).rects[1] as Rect;
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  expect(h.model.selection?.rect).toBe(rect);
+  expect(h.model.selection).toMatchObject({ start: 1000.2, end: 1000.3 });
+  h.close();
+});
+
+it('retains stored half-millisecond bounds when resizing to 721 px', () => {
+  const lane: Lane = {
+    id: 'half',
+    label: 'Half',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        intervals: [{ start: 6.5, end: 60_000, sources: [] }],
+      },
+    ],
+  };
+  const h = harness({
+    lanes: [lane],
+    windowSpec: { span: 'day', anchorDate: '1970-01-01', timezone: 'UTC' },
+    selectable: true,
+  });
+  act(() => h.model.press(lane, 0.25, 10));
+  expect(h.model.selection).toMatchObject({ start: 6.5, end: 60_000 });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  const rect = h.model.geometryFor(lane).rects[0] as Rect;
+  expect(timeAtX(h.model.projection, h.model.window, rect.x)).toBe(6.499999999999999);
+  expect(h.model.selection?.rect).toBe(rect);
+  expect(h.model.selection).toMatchObject({ start: 6.5, end: 60_000 });
+  h.close();
+});
+
+it('chooses nearest neighboring bounds for repeated source sets and rejects changed identity or distant bounds', () => {
+  const sources = [
+    { kind: 'rule', id: 'weekly' },
+    { kind: 'date', id: 'include' },
+  ];
+  const lane: Lane = {
+    id: 'repeated',
+    label: 'Repeated',
+    layers: [
+      {
+        id: 'open',
+        role: 'custom',
+        z: 0,
+        style: { color: 'green' },
+        // A small gap keeps identical source spans from merging into one rect.
+        intervals: [
+          { start: 1000.1, end: 1000.19, sources },
+          { start: 1000.2, end: 1000.3, sources },
+        ],
+      },
+      {
+        id: 'other',
+        role: 'custom',
+        z: -1,
+        style: { color: 'blue' },
+        intervals: [{ start: 1000.2, end: 1000.3, sources }],
+      },
+    ],
+  };
+  const input: RosterInput = {
+    lanes: [lane],
+    windowSpec: { span: 'custom', timezone: 'UTC', window: { start: 1000, end: 1010 } },
+    selectable: true,
+  };
+  const h = harness(input);
+  act(() => h.model.onLayout(layoutInput(720, 480)));
+  const rect = h.model.geometryFor(lane).rects[1] as Rect;
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  expect(h.model.selection?.rect).toBe(rect);
+  const stored = h.model.selection;
+  const fresh: Lane = {
+    ...lane,
+    layers: lane.layers.map((layer) => ({
+      ...layer,
+      intervals: layer.intervals.map((interval) => ({
+        ...interval,
+        sources: [...sources].reverse().map((source) => ({ ...source, label: 'Fresh' })),
+      })),
+    })),
+  };
+  h.update({ ...input, lanes: [fresh] });
+  act(() => h.model.onLayout(layoutInput(721, 480)));
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(fresh).rects[1] as Rect);
+  expect(h.model.selection).toMatchObject({ start: stored?.start, end: stored?.end });
+  for (const replacement of [
+    [
+      { kind: 'date', id: 'weekly' },
+      { kind: 'date', id: 'include' },
+    ],
+    [{ kind: 'rule', id: 'weekly' }],
+    [
+      { kind: 'rule', id: 'different' },
+      { kind: 'date', id: 'include' },
+    ],
+  ]) {
+    h.update(input);
+    act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+    h.update({
+      ...input,
+      lanes: [
+        {
+          ...lane,
+          layers: lane.layers.map((layer) => ({
+            ...layer,
+            intervals: layer.intervals.map((interval) => ({ ...interval, sources: replacement })),
+          })),
+        },
+      ],
+    });
+    expect(h.model.selection).toBeNull();
+  }
+  h.update(input);
+  act(() => h.model.press(lane, rect.x + rect.width / 2, 10));
+  h.update({
+    ...input,
+    lanes: [
+      {
+        ...lane,
+        layers: lane.layers.map((layer) => ({
+          ...layer,
+          intervals: layer.intervals.map((interval) => ({
+            ...interval,
+            start: interval.start + 2,
+            end: interval.end + 2,
+          })),
+        })),
+      },
+    ],
+  });
+  expect(h.model.selection).toBeNull();
+  h.close();
+});
+
+it('clears moved bounds and does not jump to a nearby occurrence with the same sources', () => {
+  const original = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const layer = original.layers[0] as Layer;
+  const originalInterval = layer.intervals[0] as Interval;
+  const interval = { ...originalInterval, end: originalInterval.start + 10_000 };
+  const neighbor = { ...interval, start: interval.end + 1000, end: interval.end + 60_000 };
+  const lane = { ...original, layers: [{ ...layer, intervals: [interval, neighbor] }] };
+  const input = {
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    selectable: true,
+  };
+  const h = harness(input);
+  for (const intervals of [
+    [{ ...interval, start: interval.start + 30_000, end: interval.end + 30_000 }, neighbor],
+    [neighbor],
+    [{ ...interval, start: interval.start + 0.5, end: interval.end + 0.5 }, neighbor],
+  ]) {
+    h.update(input);
+    act(() => h.model.press(lane, 270.04, 10));
+    h.update({ ...input, lanes: [{ ...lane, layers: [{ ...layer, intervals }] }] });
+    if (intervals[0]?.start === interval.start + 0.5) {
+      expect(h.model.selection).not.toBeNull();
+    } else {
+      expect(h.model.selection).toBeNull();
+    }
+  }
+  h.close();
 });

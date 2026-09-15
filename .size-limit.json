@@ -18,15 +18,7 @@
   {
     "name": "react-native-roster",
     "path": "dist/src/index.js",
-    "limit": "44 kB",
-    "gzip": false,
-    "brotli": false,
-    "ignore": ["react", "react-native", "expo", "@legendapp/list", "react-native-reanimated"]
-  },
-  {
-    "name": "react-native-roster/nativewind",
-    "path": "dist/src/nativewind/index.js",
-    "limit": "44 kB",
+    "limit": "52 kB",
     "gzip": false,
     "brotli": false,
     "ignore": [
@@ -35,7 +27,23 @@
       "expo",
       "@legendapp/list",
       "react-native-reanimated",
-      "nativewind"
+      "@radix-ui/react-popover"
+    ]
+  },
+  {
+    "name": "react-native-roster/nativewind",
+    "path": "dist/src/nativewind/index.js",
+    "limit": "48 kB",
+    "gzip": false,
+    "brotli": false,
+    "ignore": [
+      "react",
+      "react-native",
+      "expo",
+      "@legendapp/list",
+      "react-native-reanimated",
+      "nativewind",
+      "@radix-ui/react-popover"
     ]
   }
 ]

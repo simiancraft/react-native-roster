@@ -1,3 +1,5 @@
+import { type ReactNode, useId } from 'react';
+import { hasSource } from '../../core';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
 import { RosterLaneLabel } from './lanes/parts/lane-label';
@@ -10,6 +12,8 @@ import { RosterHeader } from './parts/header';
 import { RosterHeaderCell } from './parts/header-cell';
 import { RosterLaneLabelColumn } from './parts/lane-label-column';
 import type { RosterProps } from './roster.types';
+import { RosterSelectionPopover } from './selection/selection-layout';
+import type { SelectionLayoutProps } from './selection/selection-layout.types';
 import { useRoster } from './use-roster';
 
 const defaultEmptyZone = <RosterEmpty />;
@@ -17,6 +21,8 @@ const defaultCornerZone = <RosterCorner />;
 
 export function Roster(props: RosterProps) {
   const {
+    selection,
+    dismissSelection,
     status,
     orderedLanes,
     laneState,
@@ -29,8 +35,10 @@ export function Roster(props: RosterProps) {
     contentWidth,
     viewport,
     onLayout,
-  } = useRoster(props);
+  } = useRoster({ ...props, selectable: Boolean(props.intervalDetailComponent) });
   const {
+    intervalDetailComponent: IntervalDetailComponent,
+    selectionLayout: SelectionLayout = RosterSelectionPopover,
     emptyZone = defaultEmptyZone,
     cornerZone = defaultCornerZone,
     headerComponent: HeaderComponent = RosterHeader,
@@ -44,8 +52,30 @@ export function Roster(props: RosterProps) {
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
+  const hostId = useId();
   if (status === 'empty') return emptyZone;
   if (window.start === window.end) return null;
+  let targetBounds: SelectionLayoutProps['targetBounds'] = null;
+  if (selection) {
+    targetBounds = {
+      x: selection.rect.x,
+      y:
+        orderedLanes.findIndex((lane) => lane.id === selection.lane.id) * projection.rowHeight +
+        selection.rect.y,
+      width: selection.rect.width,
+      height: selection.rect.height,
+    };
+  }
+  let contentZone: ReactNode = null;
+  if (selection && IntervalDetailComponent) {
+    contentZone = (
+      <IntervalDetailComponent
+        {...selection}
+        viewTimezone={projection.viewTimezone}
+        highlighted={hasSource(selection.rect.sources, props.highlightSource)}
+      />
+    );
+  }
   return (
     <RosterLayout
       style={props.style}
@@ -85,22 +115,37 @@ export function Roster(props: RosterProps) {
         />
       }
       bodyZone={
-        <BodyComponent
-          lanes={orderedLanes}
-          window={window}
-          geometryFor={geometryFor}
-          projection={projection}
-          scroll={scroll}
-          press={press}
-          ticks={ticks}
-          contentWidth={contentWidth}
-          viewport={viewport}
-          intervalComponent={intervalComponent}
-          gapComponent={gapComponent}
-          gridComponent={gridComponent}
-          highlightSource={props.highlightSource}
-          onIntervalHover={props.onIntervalHover}
-          incompleteLabel={incompleteLabel}
+        <SelectionLayout
+          portalHost={props.portalHost ?? `roster-${hostId}`}
+          open={selection !== null}
+          onDismiss={dismissSelection}
+          scroll={{
+            x: scroll.x,
+            y: scroll.y,
+            headerStyle: scroll.headerStyle,
+            labelStyle: scroll.labelStyle,
+          }}
+          targetBounds={targetBounds}
+          contentZone={contentZone}
+          anchorZone={
+            <BodyComponent
+              lanes={orderedLanes}
+              window={window}
+              geometryFor={geometryFor}
+              projection={projection}
+              scroll={scroll}
+              press={press}
+              ticks={ticks}
+              contentWidth={contentWidth}
+              viewport={viewport}
+              intervalComponent={intervalComponent}
+              gapComponent={gapComponent}
+              gridComponent={gridComponent}
+              highlightSource={props.highlightSource}
+              onIntervalHover={props.onIntervalHover}
+              incompleteLabel={incompleteLabel}
+            />
+          }
         />
       }
     />

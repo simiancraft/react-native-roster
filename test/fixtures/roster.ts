@@ -1,9 +1,10 @@
-import type { RosterProps } from '../../src';
+import type { ComponentType } from 'react';
+import type { RosterProps, SelectionLayoutProps } from '../../src';
 import type { ExpandOptions, expandRuleSet, RuleSet } from '../../src/adapters/rrule';
 import type { Lane, Source, Window, WindowSpec } from '../../src/core';
 import { adapterFixtures } from './adapters';
 import { provenanceFixtures } from './provenance';
-import { replacedZones } from './roster-zones';
+import { InspectorSelectionLayout, IntervalDetail, replacedZones } from './roster-zones';
 import { type RuleLane, timezoneFixtures } from './timezones';
 import { workload } from './workload';
 
@@ -86,13 +87,16 @@ export type RosterFixture = {
   /** Workload W: lanes generated per window, the performance controls, and the profiled body. */
   workload?: boolean;
   lanes: Lane[];
-  zones: Pick<RosterProps, keyof typeof replacedZones>;
+  zones: Pick<RosterProps, keyof typeof replacedZones | 'intervalDetailComponent'>;
+  /** Optional second presentation for the detail fixture. */
+  inspectorLayout?: ComponentType<SelectionLayoutProps>;
   showsEmptyExample: boolean;
 };
 
 export const rosterFixtures: Record<
   | 'empty'
   | 'single-lane'
+  | 'interval-detail'
   | '20-lanes'
   | 'default-zones'
   | `${'day' | 'week' | 'month'}-${15 | 30 | 60}`
@@ -117,6 +121,28 @@ export const rosterFixtures: Record<
     lanes: [inset, excluded],
     zones: {},
     showsEmptyExample: true,
+  },
+  'interval-detail': {
+    title: 'Interval details',
+    description: 'Press an interval, then switch between popover and inspector presentations.',
+    windowSpec: { span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' },
+    lanes: [
+      {
+        ...single,
+        layers: single.layers.map((layer) => ({
+          ...layer,
+          label: 'Open hours',
+          intervals: [
+            ...layer.intervals,
+            { start: start + 18 * hour, end: start + 20 * hour, sources: [] },
+          ],
+        })),
+      },
+      { ...single, id: 'two', label: 'Lane two' },
+    ],
+    zones: { intervalDetailComponent: IntervalDetail },
+    inspectorLayout: InspectorSelectionLayout,
+    showsEmptyExample: false,
   },
   'single-lane': { title: 'Single lane', lanes: [single], zones: {}, showsEmptyExample: false },
   'two-layers': {
