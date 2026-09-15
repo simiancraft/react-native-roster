@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'bun:test';
-import { extentOf as rootExtentOf, intersectionOf as rootIntersectionOf } from '../../src';
+import {
+  extentOf as rootExtentOf,
+  intersectionOf as rootIntersectionOf,
+  unionOf as rootUnionOf,
+} from '../../src';
 import type { Window } from '../../src/core';
-import { extentOf, intersectionOf } from '../../src/core';
+import { extentOf, intersectionOf, unionOf } from '../../src/core';
 
 describe('interval helpers', () => {
   it('exports the same helpers from root and core', () => {
     expect(rootExtentOf).toBe(extentOf);
     expect(rootIntersectionOf).toBe(intersectionOf);
+    expect(rootUnionOf).toBe(unionOf);
   });
 
   it('returns null for empty input', () => {
@@ -63,7 +68,62 @@ describe('interval helpers', () => {
     }
   });
 
-  for (const helper of [extentOf, intersectionOf]) {
+  it('returns an empty union for empty input', () => {
+    expect(unionOf([])).toEqual([]);
+  });
+
+  it('returns new bounds for a single span without metadata', () => {
+    const span = Object.freeze({ start: -10, end: 20, label: 'One' });
+    const result = unionOf(Object.freeze([span]));
+    expect(result).toEqual([{ start: -10, end: 20 }]);
+    expect(result[0]).not.toBe(span);
+  });
+
+  it('merges touching spans into one union window', () => {
+    expect(
+      unionOf([
+        { start: 20, end: 30 },
+        { start: 0, end: 10 },
+        { start: 10, end: 20 },
+      ]),
+    ).toEqual([{ start: 0, end: 30 }]);
+  });
+
+  it('merges overlapping, nested, and duplicate spans', () => {
+    expect(
+      unionOf([
+        { start: 5, end: 15 },
+        { start: 0, end: 10 },
+        { start: 2, end: 4 },
+        { start: 0, end: 10 },
+        { start: 12, end: 20 },
+      ]),
+    ).toEqual([{ start: 0, end: 20 }]);
+  });
+
+  it('sorts disjoint windows without mutating or reusing inputs', () => {
+    const spans = Object.freeze([
+      Object.freeze({ start: 30, end: 40 }),
+      Object.freeze({ start: 0, end: 10 }),
+      Object.freeze({ start: 5, end: 15 }),
+      Object.freeze({ start: 20, end: 25 }),
+    ]);
+    const before = spans.map((span) => ({ ...span }));
+    const result = unionOf(spans);
+    expect(result).toEqual([
+      { start: 0, end: 15 },
+      { start: 20, end: 25 },
+      { start: 30, end: 40 },
+    ]);
+    expect(result).not.toBe(spans);
+    for (const window of result) {
+      for (const span of spans) expect(window).not.toBe(span);
+      window.end += 1;
+    }
+    expect(spans).toEqual(before);
+  });
+
+  for (const helper of [extentOf, intersectionOf, unionOf]) {
     it(`${helper.name} rejects invalid bounds even after disjoint segments`, () => {
       for (const invalid of [
         { start: Number.NaN, end: 10 },
