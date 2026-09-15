@@ -22,6 +22,17 @@ export function RosterBodyLayout({
   useEffect(() => {
     bodyRef.current?.scrollTo({ x: contentOffset.x, animated: false });
   }, [bodyRef, contentOffset]);
+  let overlay: ReactNode = null;
+  if (overlayZone != null) {
+    overlay = (
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1 }}
+      >
+        {overlayZone}
+      </View>
+    );
+  }
   return (
     <ScrollView
       testID="roster-horizontal-scroll"
@@ -35,14 +46,7 @@ export function RosterBodyLayout({
       <View style={{ width: contentWidth, height: viewport.height }}>
         {gridZone}
         {listZone}
-        {overlayZone != null ? (
-          <View
-            pointerEvents="none"
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1 }}
-          >
-            {overlayZone}
-          </View>
-        ) : null}
+        {overlay}
       </View>
     </ScrollView>
   );
