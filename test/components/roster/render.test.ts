@@ -16,6 +16,7 @@ import type {
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
+  RosterProps,
 } from '../../../src/components/roster/roster.types';
 import type { Lane, Layer } from '../../../src/core';
 import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../../../src/core';
@@ -33,6 +34,15 @@ function close(tree: ReactTestRenderer) {
 }
 
 describe('Roster zones and rect primitives', () => {
+  it('rejects the hook-only selectable input on Roster props', () => {
+    const props = {
+      lanes: [],
+      windowSpec: rosterWindowSpec,
+      // @ts-expect-error Selection is enabled by intervalDetailComponent on Roster.
+      selectable: true,
+    } satisfies RosterProps;
+    expect(createElement(Roster, props).type).toBe(Roster);
+  });
   it('renders the default empty zone and a replacement', () => {
     const tree = render(createElement(Roster, { lanes: [], windowSpec: rosterWindowSpec }));
     expect(tree.root.findByType('Text' as ElementType).props.children).toBe('No lanes');

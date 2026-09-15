@@ -164,6 +164,11 @@ try {
   await page.getByTestId('interval-detail').waitFor();
   await page.keyboard.press('Escape');
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  assert.equal(
+    await page.getByTestId('interval-detail').count(),
+    0,
+    'Escape must close selection while body presses are excluded from outside dismissal',
+  );
   await page.getByRole('button', { name: 'Show inspector', exact: true }).click();
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();

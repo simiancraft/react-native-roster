@@ -40,7 +40,8 @@ content key tracks interval and gap component identity, including class componen
 
 `intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
 `start`, `end`, and `viewTimezone`; presses still invoke onIntervalPress.
-`selectable?: boolean` belongs to `RosterInput` and defaults to false for hook consumers.
+`selectable?: boolean` belongs only to the hook input, `RosterInput`, and defaults to false.
+It is excluded from `RosterProps`.
 `intervalDetailComponent`, `selectionLayout`, and `portalHost` belong to `RosterProps`
 because the chassis mounts the content and layout. The chassis passes
 `selectable: Boolean(intervalDetailComponent)` to `useRoster`.
@@ -51,7 +52,8 @@ Pressing the selected interval again dismisses it; pressing another interval
 switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
-On web, the layout returns keyboard focus to the pressed lane row after dismissal via keyboard, and the browser's focus-visible ring styling is left to the host page.
+On web, focus return after keyboard dismissal relies on Radix FocusScope's default
+behavior. The browser's focus-visible ring styling is left to the host page.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 

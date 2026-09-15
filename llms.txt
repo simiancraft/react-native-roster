@@ -248,7 +248,8 @@ current lane/layer/rect references and clears removed lane or absolute rect boun
 Resizing and sorting retain valid selection with current geometry; reconciliation
 uses the private reconcileSelection helper to match source identity sets and choose
 nearest bounds with a total difference of at most 1 ms for projection roundoff.
-selectable?: boolean belongs to RosterInput and defaults to false; hook consumers pass
+selectable?: boolean belongs only to the hook input, RosterInput, and defaults to false.
+It is excluded from RosterProps; hook consumers pass
 selectable: true to retain selection. intervalDetailComponent, selectionLayout, and
 portalHost belong to RosterProps because the chassis mounts content and the layout.
 The chassis passes selectable: Boolean(intervalDetailComponent) to useRoster.

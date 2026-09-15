@@ -276,7 +276,8 @@ Current data and geometry replace old references, including after resizing or so
 order-insensitive source identities, then chooses the nearest absolute bounds. The sum
 of bound differences must be at most 1 ms. Stored bounds remain the display values.
 
-`selectable?: boolean` lives on `RosterInput` and defaults to false. Hook consumers
+`selectable?: boolean` belongs only to the hook input, `RosterInput`, and defaults to false.
+It is excluded from `RosterProps`. Hook consumers
 pass `selectable: true` to `useRoster` to retain selection. `intervalDetailComponent`,
 `selectionLayout`, and `portalHost` live on `RosterProps` because the chassis mounts
 the content and layout. The chassis enables selection with
