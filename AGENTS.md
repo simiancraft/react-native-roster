@@ -425,10 +425,17 @@ Do not publish, tag, change repository settings, or push without task authorizat
     portalHost overrides it; independent rosters must use different names. Do not mount
     duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
     Portal uses an external Map store and does not preserve caller context automatically.
-    Anchors include the lane offset and rect.y inset. Reconciliation compares rounded
-    millisecond bounds so fitted-scale roundoff does not clear selection. The native overlay
+    Anchors include the lane offset and rect.y inset. The private reconcileSelection helper
+    matches source identity sets and chooses nearest bounds with a total difference of at
+    most 1 ms for projection roundoff. The native detail card
     uses measured viewport and content sizes to clamp horizontally and falls back to top zero
     when neither below nor above fits. It follows shared offsets with Animated.View, never scroll state.
+    Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+    card captures its own presses. Web excludes the body wrapper from Radix outside
+    dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+    The hook toggles the selected interval closed, switches to another interval, and dismisses
+    on cell or gap presses while preserving their callbacks. The body restores horizontal
+    and vertical offsets from shared values on remount when selectionLayout changes.
     Keep selection out of the body content key. selection-layout.web.tsx uses the optional
     Radix peer and a zero-size pointer-transparent anchor; preserve its package.json browser
     remap and selection-layout.types.ts. Schedule selection is a later change.
@@ -441,7 +448,6 @@ Do not publish, tag, change repository settings, or push without task authorizat
     but compiles useRoster's derived values, so selection does not regenerate lane list data.
     The demo resolver explicitly selects the library's react-native export condition, including
     web, so Metro compiles source hooks rather than emitted CommonJS. Preserve peer resolution.
-    A private useSelection hook keeps reconciliation out of the compiled body dependencies.
     The development detail fixture dispatches the click callback to verify zero selection-driven
     mounted-row updates, separately from Pressable's hover, focus, and pressed-state commits.
     The production case retains a complete pointer click.

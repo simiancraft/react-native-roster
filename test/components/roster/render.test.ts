@@ -478,3 +478,64 @@ it('renders the fixture detail in the view timezone and switches its inspector p
   expect(onDismiss).toHaveBeenCalledTimes(1);
   close(tree);
 });
+
+it('routes native body presses through an open selection and restores scroll when layouts switch', () => {
+  const fixture = rosterFixtures['interval-detail'];
+  const input = {
+    lanes: [
+      ...fixture.lanes,
+      ...Array.from({ length: 10 }, (_, index) => ({
+        id: `extra-${index}`,
+        label: `Z ${index}`,
+        layers: [],
+      })),
+    ],
+    windowSpec: fixture.windowSpec ?? rosterWindowSpec,
+    intervalDetailComponent: fixture.zones.intervalDetailComponent,
+  };
+  const tree = render(createElement(Roster, input));
+  // The chassis viewport and the native portal viewport measure independently.
+  act(() => {
+    for (const node of tree.root.findAllByType('View' as ElementType)) {
+      node.props.onLayout?.({ nativeEvent: { layout: { width: 600, height: 240 } } });
+    }
+  });
+  function press(x: number) {
+    act(() =>
+      tree.root.findByProps({ testID: 'roster-lane-one' }).props.onPress({
+        nativeEvent: { locationX: x, locationY: 20 },
+      }),
+    );
+  }
+  press(300);
+  expect(tree.root.findAllByProps({ accessibilityLabel: 'Dismiss interval details' })).toHaveLength(
+    0,
+  );
+  expect(tree.root.findByType(RosterBody).props.scroll.x.get()).toBe(0);
+  press(570);
+  expect(JSON.stringify(tree.toJSON())).toContain('20:00');
+  press(10);
+  expect(tree.root.findAllByProps({ testID: 'interval-detail' })).toHaveLength(0);
+  press(300);
+  const body = tree.root.findByType(RosterBody);
+  act(() => {
+    body.props.scroll.onBodyScroll({ nativeEvent: { contentOffset: { x: 80, y: 0 } } });
+    body.props.scroll.onVerticalScroll({ nativeEvent: { contentOffset: { x: 0, y: 24 } } });
+  });
+  function Strategy(props: import('../../../src').SelectionLayoutProps) {
+    return createElement('strategy', props, props.anchorZone, props.contentZone);
+  }
+  act(() => tree.update(createElement(Roster, { ...input, selectionLayout: Strategy })));
+  const strategy = tree.root.findByType('strategy' as ElementType).props;
+  expect(strategy.open).toBe(true);
+  expect(strategy.anchor).toEqual({ x: 270, y: 0, width: 240, height: 48 });
+  expect(strategy.scroll.x.get()).toBe(80);
+  expect(strategy.scroll.y.get()).toBe(24);
+  expect(tree.root.findByProps({ testID: 'roster-horizontal-scroll' }).props.contentOffset).toEqual(
+    { x: 80, y: 0 },
+  );
+  expect(tree.root.findByType('LegendList' as ElementType).props.initialScrollOffset).toBe(24);
+  expect(strategy.scroll.headerStyle.transform).toEqual([{ translateX: -80 }]);
+  expect(strategy.scroll.labelStyle.transform).toEqual([{ translateY: -24 }]);
+  close(tree);
+});

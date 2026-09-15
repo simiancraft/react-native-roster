@@ -34,7 +34,7 @@ This feature is about a selection; its children are zones.
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
   and detail nodes, anchor bounds, open, dismissal, host name, and shared scroll
 - `selection/selection-layout.tsx`: exported native `RosterSelectionPopover`, local
-  portal host, outside press, hardware back, measured viewport clamping, and shared scroll positioning
+  portal host, body press passthrough, hardware back, measured viewport clamping, and shared scroll positioning
 - `selection/selection-layout.web.tsx`: Radix presentation with a browser remap
 
 `intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
@@ -52,7 +52,15 @@ and web; web outside press and Escape still dismiss.
 to an inspector column with the same node contract. Schedule does not yet support selection.
 
 The private reconcileSelection helper resolves the stored absolute bounds against the
-current lanes and window each render, comparing rounded whole milliseconds to tolerate
-projection roundoff. Anchors include the lane offset and interval inset. Native details
-clamp horizontally and use the top edge when neither below nor above fits. The browser gate isolates selection updates from Pressable state,
+current lanes and window each render, matching source identity sets and choosing the
+nearest bounds with a total difference of at most 1 ms for projection roundoff. Anchors
+include the lane offset and interval inset. Native details clamp horizontally and use the
+top edge when neither below nor above fits. The browser gate isolates selection updates from Pressable state,
 and separately exercises complete pointer presses and outside dismissal.
+
+Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+card captures its own presses. Web excludes the body wrapper from Radix outside
+dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+The hook toggles the selected interval closed, switches to another interval, and dismisses
+on cell or gap presses while preserving their callbacks. The body restores horizontal
+and vertical offsets from shared values on remount when selectionLayout changes.

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import type { BodyInput } from './roster.types';
 
@@ -14,10 +14,12 @@ export function RosterBodyLayout({
   /** Virtualized lane collection within the measured viewport. */
   listZone: ReactNode;
 }) {
+  const [contentOffset] = useState(() => ({ x: scroll.x.get(), y: 0 }));
   return (
     <ScrollView
       testID="roster-horizontal-scroll"
       ref={scroll.bodyRef}
+      contentOffset={contentOffset}
       horizontal
       onScroll={scroll.onBodyScroll}
       scrollEventThrottle={16}

@@ -127,7 +127,17 @@ export const rosterFixtures: Record<
     description: 'Press an interval, then switch between popover and inspector presentations.',
     windowSpec: { span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' },
     lanes: [
-      { ...single, layers: single.layers.map((layer) => ({ ...layer, label: 'Open hours' })) },
+      {
+        ...single,
+        layers: single.layers.map((layer) => ({
+          ...layer,
+          label: 'Open hours',
+          intervals: [
+            ...layer.intervals,
+            { start: start + 18 * hour, end: start + 20 * hour, sources: [] },
+          ],
+        })),
+      },
     ],
     zones: { intervalDetailComponent: IntervalDetail },
     inspectorLayout: InspectorSelectionLayout,

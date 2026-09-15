@@ -627,3 +627,33 @@ it('chooses nearest neighboring bounds for repeated source sets and rejects chan
   expect(h.model.selection).toBeNull();
   h.close();
 });
+
+it('clears moved bounds and does not jump to a nearby occurrence with the same sources', () => {
+  const original = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const layer = original.layers[0] as Layer;
+  const originalInterval = layer.intervals[0] as Interval;
+  const interval = { ...originalInterval, end: originalInterval.start + 10_000 };
+  const neighbor = { ...interval, start: interval.end + 1000, end: interval.end + 60_000 };
+  const lane = { ...original, layers: [{ ...layer, intervals: [interval, neighbor] }] };
+  const input = {
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    intervalDetailComponent: () => null,
+  };
+  const h = harness(input);
+  for (const intervals of [
+    [{ ...interval, start: interval.start + 30_000, end: interval.end + 30_000 }, neighbor],
+    [neighbor],
+    [{ ...interval, start: interval.start + 0.5, end: interval.end + 0.5 }, neighbor],
+  ]) {
+    h.update(input);
+    act(() => h.model.press(lane, 270.04, 10));
+    h.update({ ...input, lanes: [{ ...lane, layers: [{ ...layer, intervals }] }] });
+    if (intervals[0]?.start === interval.start + 0.5) {
+      expect(h.model.selection).not.toBeNull();
+    } else {
+      expect(h.model.selection).toBeNull();
+    }
+  }
+  h.close();
+});

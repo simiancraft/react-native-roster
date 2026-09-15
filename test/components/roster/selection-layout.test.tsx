@@ -10,7 +10,7 @@ import { useRoster } from '../../../src/components/roster/use-roster';
 import { rosterWindowSpec } from '../../fixtures/roster';
 import { backHandlers } from '../../support/native-host';
 
-it('keeps a native host mounted, positions and flips details, and dismisses on outside press and back', () => {
+it('keeps a native host mounted, positions and flips details, and leaves the body unobstructed and dismisses on back', () => {
   let tree!: ReactTestRenderer;
   const onDismiss = mock();
   function Example({
@@ -66,12 +66,14 @@ it('keeps a native host mounted, positions and flips details, and dismisses on o
   // Horizontal scrolling leaves the interval partly beyond the left edge.
   act(() => tree.update(<Example open anchor={{ x: 5, y: 50, width: 100, height: 48 }} />));
   expectInside(0, 0);
-  act(() => tree.root.findByType('Pressable' as ElementType).props.onPress());
-  expect(onDismiss).toHaveBeenCalledTimes(1);
+  expect(tree.root.findAllByType('Pressable' as ElementType)).toHaveLength(0);
+  expect(
+    tree.root.findByProps({ accessibilityRole: 'summary' }).props.onStartShouldSetResponder(),
+  ).toBe(true);
   act(() => {
     for (const handler of backHandlers) expect(handler()).toBe(true);
   });
-  expect(onDismiss).toHaveBeenCalledTimes(2);
+  expect(onDismiss).toHaveBeenCalledTimes(1);
   act(() => tree.update(<Example open anchor={null} />));
   expect(tree.root.findAllByType('Pressable' as ElementType)).toHaveLength(0);
   act(() => tree.update(<Example />));
@@ -99,15 +101,24 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
     );
   }
   act(() => {
-    tree = create(<Example />);
+    tree = create(<Example />, {
+      createNodeMock: (element) =>
+        element.type === 'div' ? { contains: (target: unknown) => target === 'body' } : null,
+    });
   });
-  expect(tree.root.findByType('div').props.style.pointerEvents).toBe('none');
+  const outside = tree.root.findByType(Popover.Portal).props.children.props.onInteractOutside;
+  const preventDefault = mock();
+  outside({ target: 'body', preventDefault });
+  expect(preventDefault).toHaveBeenCalledTimes(1);
+  outside({ target: 'outside', preventDefault });
+  expect(preventDefault).toHaveBeenCalledTimes(1);
+  expect(tree.root.findAllByType('div')[1]?.props.style.pointerEvents).toBe('none');
   act(() => tree.root.findByType(Popover.Root).props.onOpenChange(true));
   expect(onDismiss).not.toHaveBeenCalled();
   act(() => tree.root.findByType(Popover.Root).props.onOpenChange(false));
   expect(onDismiss).toHaveBeenCalledTimes(1);
   act(() => tree.update(<Example anchor={{ x: 30, y: 40, width: 100, height: 48 }} />));
-  expect(tree.root.findByType('div').props.style).toMatchObject({ left: 30, top: 88 });
+  expect(tree.root.findAllByType('div')[1]?.props.style).toMatchObject({ left: 30, top: 88 });
   const overlays = tree.root.findAllByType('AnimatedView' as ElementType);
   expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }]);
   expect(overlays[1]?.props.style.transform).toEqual([{ translateY: -24 }]);

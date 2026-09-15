@@ -1,5 +1,5 @@
 import { LegendList } from '@legendapp/list';
-import { Profiler, type ProfilerOnRenderCallback } from 'react';
+import { Profiler, type ProfilerOnRenderCallback, useState } from 'react';
 import { LaneRow } from '../lanes/lane';
 import type { BodyInput } from '../roster.types';
 import { bodyContentKey } from '../utils/body-content-key';
@@ -23,9 +23,11 @@ export function RosterLaneList({
   /** Development-only Profiler hook used by the gallery; not a supported customization point. */
   onRowRender?: ProfilerOnRenderCallback;
 }) {
+  const [initialScrollOffset] = useState(() => scroll.y.get());
   return (
     <LegendList
       testID="roster-vertical-scroll"
+      initialScrollOffset={initialScrollOffset}
       data={lanes}
       extraData={bodyContentKey({
         window,

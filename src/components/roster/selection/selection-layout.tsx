@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BackHandler, Pressable, ScrollView, View } from 'react-native';
+import { BackHandler, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Portal, PortalHost } from '../../primitives/portal';
 import type { SelectionLayoutProps } from './selection-layout.types';
@@ -54,14 +54,10 @@ export function RosterSelectionPopover({
       </View>
       {open && anchor && maxWidth > 0 && maxHeight > 0 ? (
         <Portal hostName={portalHost} name={name}>
-          <Pressable
-            accessibilityLabel="Dismiss interval details"
-            style={overlay}
-            onPress={onDismiss}
-          />
           <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
             <View
               accessibilityRole="summary"
+              onStartShouldSetResponder={() => true}
               style={size}
               onLayout={({ nativeEvent }) =>
                 setContent({

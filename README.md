@@ -261,12 +261,20 @@ Pressing the selected interval again dismisses it; pressing another interval
 switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
-Removing the selected lane, layer, or interval bounds clears selection.
-Current data and geometry replace old
-references, including after resizing or sorting. Reconciliation matches the layer id and
+Removing the selected lane, layer, or interval bounds clears selection. The private
+reconcileSelection helper matches source identity sets and chooses nearest bounds with
+a total difference of at most 1 ms for projection roundoff.
+
+Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+card captures its own presses. Web excludes the body wrapper from Radix outside
+dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+The hook toggles the selected interval closed, switches to another interval, and dismisses
+on cell or gap presses while preserving their callbacks. The body restores horizontal
+and vertical offsets from shared values on remount when selectionLayout changes.
+
+Current data and geometry replace old references, including after resizing or sorting. Reconciliation matches the layer id and
 order-insensitive source identities, then chooses the nearest absolute bounds. The sum
-of bound differences must be less than one pixel of time at the current projection
-scale or 1 ms, whichever is larger. Stored bounds remain the display values.
+of bound differences must be at most 1 ms. Stored bounds remain the display values.
 
 `intervalDetailComponent` lives on `RosterInput` because `useRoster` owns selection
 and must know whether presses select. `selectionLayout` and `portalHost` live on
@@ -313,7 +321,7 @@ flips above when that fits, and uses the top edge when neither vertical placemen
 fits. The default native popover waits for viewport measurement and scrolls oversized
 content on both axes within a maximum size of the viewport minus 8 px on each axis.
 Consumers wanting a different presentation supply `selectionLayout`.
-Native also dismisses on outside press and hardware back.
+Native also dismisses on hardware back.
 
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`

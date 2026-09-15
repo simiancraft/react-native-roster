@@ -1,5 +1,5 @@
 import { Anchor, Content, Portal, Root } from '@radix-ui/react-popover';
-import { View } from 'react-native';
+import { useRef } from 'react';
 import Animated from 'react-native-reanimated';
 import type { SelectionLayoutProps } from './selection-layout.types';
 
@@ -12,6 +12,7 @@ export function RosterSelectionPopover({
   onDismiss,
   scroll,
 }: SelectionLayoutProps) {
+  const bodyRef = useRef<HTMLDivElement>(null);
   return (
     <Root
       open={open}
@@ -19,7 +20,16 @@ export function RosterSelectionPopover({
         if (!next) onDismiss();
       }}
     >
-      <View style={{ flex: 1 }}>
+      <div
+        ref={bodyRef}
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         {anchorZone}
         <Animated.View style={[{ position: 'absolute', top: 0, left: 0 }, scroll.headerStyle]}>
           <Animated.View style={scroll.labelStyle}>
@@ -37,9 +47,12 @@ export function RosterSelectionPopover({
             </Anchor>
           </Animated.View>
         </Animated.View>
-      </View>
+      </div>
       <Portal>
         <Content
+          onInteractOutside={(event) => {
+            if (bodyRef.current?.contains(event.target as Node)) event.preventDefault();
+          }}
           sideOffset={4}
           align="start"
           updatePositionStrategy="always"
