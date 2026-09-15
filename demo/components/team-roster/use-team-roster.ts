@@ -46,19 +46,32 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [contentWidth, setContentWidth] = useState(1280);
   const window = windowFor(windowSpec);
-  const visible = team.members.filter((member) =>
-    `${member.name} ${member.role} ${member.team} ${member.timezone}`
+  const weekWindowSpec: ScheduleWindowSpec = { ...windowSpec, span: 'week' };
+  const weekWindow = windowFor(weekWindowSpec);
+  const [retained, setRetained] = useState(() => generatedLanes(team, window, weekWindow, now));
+  let data = retained;
+  if (
+    retained.team !== team ||
+    retained.now !== now ||
+    retained.start !== window.start ||
+    retained.end !== window.end ||
+    retained.weekStart !== weekWindow.start ||
+    retained.weekEnd !== weekWindow.end
+  ) {
+    data = generatedLanes(team, window, weekWindow, now);
+    setRetained(data);
+  }
+  const lanes = data.lanes.filter((lane) => {
+    const member = memberMeta(lane).member;
+    return `${member.name} ${member.role} ${member.team} ${member.timezone}`
       .toLowerCase()
-      .includes(query.toLowerCase()),
-  );
-  const lanes = visible.map((member) =>
-    laneFor(member, window, expandRuleSet, (person) => TONE_HEX[person.tone], team.members, now),
-  );
+      .includes(query.toLowerCase());
+  });
   const density = densityFor(contentWidth);
   function selectRect(rect: Rect, lane: Lane) {
-    const { member, events } = memberMeta(lane);
+    const { member } = memberMeta(lane);
     setSelectedId(member.id);
-    setSelection(selectionFor(member, events, rect));
+    setSelection(selectionFor(member, rect));
   }
   const common = {
     now,
@@ -107,6 +120,8 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     status: 'ready' as const,
     ...common,
     selectedLane,
+    weekLane: data.weekLanes.find((lane) => lane.id === selectedLane.id) as Lane,
+    weekWindowSpec,
     selectedMember,
     selection: currentSelection,
   };
@@ -114,3 +129,31 @@ export function useTeamRoster(input: { team?: Team } = {}) {
 
 export type TeamRosterModel = ReturnType<typeof useTeamRoster>;
 export type TeamRosterReady = Extract<TeamRosterModel, { status: 'ready' }>;
+
+function generatedLanes(
+  team: Team,
+  window: { start: number; end: number },
+  week: { start: number; end: number },
+  now: number,
+) {
+  function expand(member: Member, bounds: { start: number; end: number }) {
+    return laneFor(
+      member,
+      bounds,
+      expandRuleSet,
+      (person) => TONE_HEX[person.tone],
+      team.members,
+      now,
+    );
+  }
+  return {
+    team,
+    now,
+    start: window.start,
+    end: window.end,
+    weekStart: week.start,
+    weekEnd: week.end,
+    lanes: team.members.map((member) => expand(member, window)),
+    weekLanes: team.members.map((member) => expand(member, week)),
+  };
+}

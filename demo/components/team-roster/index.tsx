@@ -5,7 +5,6 @@ import type { LaneLabelInput, RosterTick } from 'react-native-roster';
 import { Roster } from 'react-native-roster';
 import { EventDetail } from './events';
 import { TeamHeaderLayout } from './header-layout';
-import { TeamRosterLayout } from './layout';
 import { MemberInspector } from './members';
 import { GeneratedNote } from './parts/generated-note';
 import { TeamGridLines } from './parts/grid-lines';
@@ -15,6 +14,7 @@ import { TeamLegend } from './parts/legend';
 import { MemberLabel, type MemberLabelProps } from './parts/member-label';
 import { TeamTitle, WindowRange } from './parts/title';
 import { PeopleFilter, SortChips, SpanChips, WindowNav, ZoneChips } from './parts/window-controls';
+import { TeamRosterLayout } from './screen-layout';
 import type { Density, Team } from './team-roster.types';
 import { TeamToolbarLayout } from './toolbar-layout';
 import { type TeamRosterModel, type TeamRosterReady, useTeamRoster } from './use-team-roster';
@@ -45,79 +45,6 @@ export type TeamRosterZones = {
   footerComponent?: ComponentType<TeamRosterModel>;
 };
 
-function DefaultTitle(model: TeamRosterModel) {
-  return (
-    <>
-      <TeamTitle title={model.organization} />
-      <WindowRange
-        window={model.window}
-        timezone={model.timezone}
-        density={model.density}
-        shown={model.lanes.length}
-        total={model.members.length}
-      />
-    </>
-  );
-}
-function DefaultActions(model: TeamRosterModel) {
-  return (
-    <>
-      <SpanChips span={model.span} onChange={model.setSpan} />
-      <WindowNav
-        span={model.span}
-        onPrev={model.goPrev}
-        onToday={model.goToday}
-        onNext={model.goNext}
-      />
-    </>
-  );
-}
-function DefaultFilter(model: TeamRosterModel) {
-  return <PeopleFilter query={model.query} onChange={model.setQuery} />;
-}
-function DefaultControls(model: TeamRosterModel) {
-  return (
-    <>
-      <ZoneChips timezone={model.timezone} onChange={model.setTimezone} />
-      <SortChips sort={model.sort} onChange={model.setSort} />
-      <Text className="text-xs text-muted-foreground">
-        Now {timeLabel(model.now, model.timezone)}
-      </Text>
-    </>
-  );
-}
-function DefaultCorner(model: TeamRosterModel) {
-  return <TeamCorner label="Team" count={model.lanes.length} density={model.density} />;
-}
-function DefaultInspector(model: TeamRosterReady) {
-  return (
-    <MemberInspector
-      lane={model.selectedLane}
-      member={model.selectedMember}
-      selection={model.selection}
-      windowSpec={model.windowSpec}
-    />
-  );
-}
-function DefaultFooter() {
-  return (
-    <>
-      <TeamLegend />
-      <GeneratedNote />
-    </>
-  );
-}
-const DEFAULT_ZONES: Required<Omit<TeamRosterZones, 'backZone'>> = {
-  titleComponent: DefaultTitle,
-  actionsComponent: DefaultActions,
-  filterComponent: DefaultFilter,
-  controlsComponent: DefaultControls,
-  cornerComponent: DefaultCorner,
-  laneLabelComponent: MemberLabel,
-  inspectorComponent: DefaultInspector,
-  footerComponent: DefaultFooter,
-};
-
 /** Where the filter sits at each people-column density; avatars are too narrow for a filter beside the lanes. */
 const TOOLBAR_DIRECTION: Record<Density, 'row' | 'column'> = {
   full: 'row',
@@ -125,17 +52,29 @@ const TOOLBAR_DIRECTION: Record<Density, 'row' | 'column'> = {
   avatar: 'column',
 };
 
-export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { team?: Team }) {
+export function TeamRosterScreen({
+  team,
+  backZone,
+  titleComponent: Title = DefaultTitle,
+  actionsComponent: Actions = DefaultActions,
+  filterComponent: Filter = DefaultFilter,
+  controlsComponent: Controls = DefaultControls,
+  cornerComponent: Corner = DefaultCorner,
+  laneLabelComponent: Label = MemberLabel,
+  inspectorComponent: Inspector = DefaultInspector,
+  footerComponent: Footer = DefaultFooter,
+}: TeamRosterZones & { team?: Team }) {
   const model = useTeamRoster({ team });
-  const zones = { ...DEFAULT_ZONES, ...overrides };
-  const {
+  const zones = {
     titleComponent: Title,
     actionsComponent: Actions,
     filterComponent: Filter,
     controlsComponent: Controls,
+    cornerComponent: Corner,
+    laneLabelComponent: Label,
     inspectorComponent: Inspector,
     footerComponent: Footer,
-  } = zones;
+  };
   const chrome = {
     direction: model.contentDirection,
     onContentLayout: model.measureContent,
@@ -143,7 +82,7 @@ export function TeamRosterScreen({ team, ...overrides }: TeamRosterZones & { tea
       <TeamHeaderLayout
         titleZone={
           <>
-            {overrides.backZone}
+            {backZone}
             <Title {...model} />
           </>
         }
@@ -250,5 +189,68 @@ function TeamLaneLabel(input: LaneLabelInput) {
       variant={input.lane.id === model.selectedLane.id ? 'selected' : 'idle'}
       onPress={() => model.selectMember(input.lane.id)}
     />
+  );
+}
+
+function DefaultTitle(model: TeamRosterModel) {
+  return (
+    <>
+      <TeamTitle title={model.organization} />
+      <WindowRange
+        window={model.window}
+        timezone={model.timezone}
+        density={model.density}
+        shown={model.lanes.length}
+        total={model.members.length}
+      />
+    </>
+  );
+}
+function DefaultActions(model: TeamRosterModel) {
+  return (
+    <>
+      <SpanChips span={model.span} onChange={model.setSpan} />
+      <WindowNav
+        span={model.span}
+        onPrev={model.goPrev}
+        onToday={model.goToday}
+        onNext={model.goNext}
+      />
+    </>
+  );
+}
+function DefaultFilter(model: TeamRosterModel) {
+  return <PeopleFilter query={model.query} onChange={model.setQuery} />;
+}
+function DefaultControls(model: TeamRosterModel) {
+  return (
+    <>
+      <ZoneChips timezone={model.timezone} onChange={model.setTimezone} />
+      <SortChips sort={model.sort} onChange={model.setSort} />
+      <Text className="text-xs text-muted-foreground">
+        Now {timeLabel(model.now, model.timezone)}
+      </Text>
+    </>
+  );
+}
+function DefaultCorner(model: TeamRosterModel) {
+  return <TeamCorner label="Team" count={model.lanes.length} density={model.density} />;
+}
+function DefaultInspector(model: TeamRosterReady) {
+  return (
+    <MemberInspector
+      lane={model.weekLane}
+      member={model.selectedMember}
+      selection={model.selection}
+      windowSpec={model.weekWindowSpec}
+    />
+  );
+}
+function DefaultFooter() {
+  return (
+    <>
+      <TeamLegend />
+      <GeneratedNote />
+    </>
   );
 }

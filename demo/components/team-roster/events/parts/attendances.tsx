@@ -1,17 +1,45 @@
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import type { Window } from 'react-native-roster/core';
-import type { Attendance, MemberEvent, Presence } from '../../members/member.types';
-import { barOffsets } from '../../utils/attendance';
 import { offsetLabel, timeLabel } from '../../utils/format';
 import { KIND_CLASSES } from '../../utils/tones';
+import type { Attendance, MemberEvent, Presence } from '../event.types';
+import { barOffsets } from '../utils/attendance';
 
 type RowInput<S extends Presence['state'] = Presence['state']> = {
   attendance: Extract<Attendance, { state: S }>;
+  attendee: { id: string; name: string };
+  now: number;
   event: MemberEvent;
   scale: Window;
   timezone: string;
 };
+
+export function Attendances({
+  rows,
+  ...input
+}: Omit<RowInput, 'attendance' | 'attendee'> & {
+  rows: { attendance: Attendance; attendee: { id: string; name: string } }[];
+}) {
+  return rows.map(({ attendance, attendee }) => (
+    <PresenceRow key={attendee.id} {...input} attendance={attendance} attendee={attendee} />
+  ));
+}
+
+function PresenceRow({ attendance, ...input }: RowInput) {
+  switch (attendance.state) {
+    case 'expected':
+      return <ExpectedRow {...input} attendance={attendance} />;
+    case 'pending':
+      return <PendingRow {...input} attendance={attendance} />;
+    case 'present':
+      return <PresentRow {...input} attendance={attendance} />;
+    case 'attended':
+      return <AttendedRow {...input} attendance={attendance} />;
+    case 'absent':
+      return <AbsentRow {...input} attendance={attendance} />;
+  }
+}
 
 export function ExpectedRow(input: RowInput<'expected'>) {
   return <AttendanceRow {...input} caption="scheduled" />;
@@ -31,7 +59,7 @@ export function PresentRow(input: RowInput<'present'>) {
         <ActualBar
           event={input.event}
           scale={input.scale}
-          actual={{ start: input.attendance.arrival, end: input.event.now }}
+          actual={{ start: input.attendance.arrival, end: input.now }}
         />
       }
     />
@@ -48,23 +76,9 @@ export function AttendedRow(input: RowInput<'attended'>) {
   );
 }
 
-const ROWS = {
-  expected: ExpectedRow,
-  pending: PendingRow,
-  present: PresentRow,
-  attended: AttendedRow,
-  absent: AbsentRow,
-} satisfies { [S in Presence['state']]: ComponentType<RowInput<S>> };
-
-export function Attendances(input: Omit<RowInput, 'attendance'>) {
-  return input.event.attendances.map((attendance) => {
-    const Row = ROWS[attendance.state] as ComponentType<RowInput>;
-    return <Row key={attendance.attendeeId} {...input} attendance={attendance} />;
-  });
-}
-
 function AttendanceRow({
   attendance,
+  attendee,
   event,
   scale,
   caption,
@@ -75,10 +89,9 @@ function AttendanceRow({
   barZone?: ReactNode;
 }) {
   const scheduled = barOffsets(event, scale);
-  const attendee = event.expected.find((person) => person.id === attendance.attendeeId);
   return (
     <View testID={`attendance-row-${attendance.attendeeId}`} className="gap-1">
-      <Text className="text-xs font-medium text-foreground">{attendee?.name}</Text>
+      <Text className="text-xs font-medium text-foreground">{attendee.name}</Text>
       <Text className="text-[10px] text-muted-foreground">{caption}</Text>
       <View className="relative h-5">
         <View

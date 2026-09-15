@@ -1,6 +1,6 @@
 import { Schedule, type ScheduleWindowSpec } from 'react-native-roster';
 import type { Lane } from 'react-native-roster/core';
-import { TeamInterval, TeamTimezone, TimeOffGap } from '../../parts/layer-fillers';
+import { TeamScheduleInterval, TeamTimezone, TimeOffGap } from '../../parts/layer-fillers';
 import { WeekDayHeader, WeekGrid, WeekGutter, WeekNowLine } from './week-zones';
 
 /** The member's week in day columns, styled through class props and zone fillers. */
@@ -17,7 +17,7 @@ export function WeekSchedule({ lane, windowSpec }: { lane: Lane; windowSpec: Sch
         gutterComponent={WeekGutter}
         gridComponent={WeekGrid}
         dayHeaderComponent={WeekDayHeader}
-        intervalComponent={TeamInterval}
+        intervalComponent={TeamScheduleInterval}
         gapComponent={TimeOffGap}
         nowLineComponent={WeekNowLine}
       />

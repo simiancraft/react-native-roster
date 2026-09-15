@@ -546,7 +546,11 @@ network). The home page lists every fixture route:
   seed. Each event compares scheduled time with seeded attendee arrivals and departures,
   using a bottom strip and selection popover. A fixed demo clock separates future, live, and
   past events. Attendees are expected, pending, present, attended, or absent;
-  present bars extend to now without recording a departure.
+  present bars extend to now, including after scheduled end until actual departure.
+  Arrival and departure facts are immutable. Member-local dates preserve events across
+  zones and DST; generated events do not overlap. Union strips preserve gaps, and the
+  inspector expands a full week independently with no horizontal strip in its Schedule.
+  Lane objects survive selection changes, and explicit undefined slots keep their defaults.
   Any resemblance to real people is coincidental.
 
 | Platform | Support and evidence |

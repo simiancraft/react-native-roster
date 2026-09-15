@@ -9,25 +9,20 @@ import { Fact, MemberIdentity } from './parts/identity';
 import { NoSelection, SlotSelection, TimeOffSelection } from './parts/selection';
 import { WeekSchedule } from './parts/week-schedule';
 
-const SELECTION: {
-  [K in Selection['kind']]: (
-    selection: Extract<Selection, { kind: K }>,
-    timezone: string,
-  ) => ReactNode;
-} = {
-  timeOff: (selection) => <TimeOffSelection selection={selection} />,
-  slot: (selection, timezone) => <SlotSelection selection={selection} timezone={timezone} />,
-  none: () => <NoSelection />,
-};
-
-function selectionZoneFor(selection: Selection, timezone: string): ReactNode {
+function SelectionDetail({
+  selection,
+  timezone,
+}: {
+  selection: Selection;
+  timezone: string;
+}): ReactNode {
   switch (selection.kind) {
     case 'timeOff':
-      return SELECTION.timeOff(selection, timezone);
+      return <TimeOffSelection selection={selection} />;
     case 'slot':
-      return SELECTION.slot(selection, timezone);
+      return <SlotSelection selection={selection} timezone={timezone} />;
     case 'none':
-      return SELECTION.none(selection, timezone);
+      return <NoSelection />;
   }
 }
 
@@ -53,7 +48,7 @@ export function MemberInspector({
           <Fact label="Days" value={`${member.workdays.length}/wk`} />
         </>
       }
-      selectionZone={selectionZoneFor(selection, windowSpec.timezone)}
+      selectionZone={<SelectionDetail selection={selection} timezone={windowSpec.timezone} />}
       scheduleZone={<WeekSchedule lane={lane} windowSpec={windowSpec} />}
     />
   );

@@ -1,13 +1,15 @@
 import { en, Faker } from '@faker-js/faker';
-import type { Interval, Lane, Layer, Weekday, Window } from 'react-native-roster/core';
+import {
+  type Interval,
+  type Lane,
+  type Layer,
+  type Weekday,
+  type Window,
+  windowFor,
+} from 'react-native-roster/core';
 import type { expandRuleSet, RuleSet } from 'react-native-roster/rrule';
-import type {
-  Attendance,
-  EventKind,
-  Member,
-  MemberEvent,
-  MemberLaneMeta,
-} from '../members/member.types';
+import type { Attendance, EventKind, MemberEvent } from '../events/event.types';
+import type { Member, MemberLaneMeta } from '../members/member.types';
 import type { Team } from '../team-roster.types';
 
 const TIMEZONES = [
@@ -138,25 +140,23 @@ export function eventsFor(
   members: Member[] = [member],
   now = seededNow(),
 ): MemberEvent[] {
-  const faker = generator(hashSeed(`${member.id}:${window.start}`));
   const events: MemberEvent[] = [];
-  const dayCount = Math.round((window.end - window.start) / DAY);
-  const localMidnight = new Intl.DateTimeFormat('en-US', {
-    timeZone: member.timezone,
-    hour: '2-digit',
-    hourCycle: 'h23',
-  });
-  for (let day = 0; day < dayCount; day++) {
-    const dayStart = window.start + day * DAY;
-    // Offset the member's local wall clock against the window's UTC day boundary.
-    const localHour = Number(localMidnight.format(dayStart));
-    const weekday = ((new Date(dayStart).getUTCDay() + 6) % 7) as Weekday;
+  if (window.end <= window.start) return events;
+  const first = localDateEpoch(window.start, member.timezone);
+  const last = localDateEpoch(window.end - 1, member.timezone);
+  for (let date = first; date <= last; date += DAY) {
+    const dateLabel = new Date(date).toISOString().slice(0, 10);
+    const faker = generator(hashSeed(`${JSON.stringify(member)}:${dateLabel}`));
+    const weekday = ((new Date(date).getUTCDay() + 6) % 7) as Weekday;
     if (!member.workdays.includes(weekday)) continue;
     const perDay = faker.number.int({ min: 1, max: 3 });
-    const slots = faker.helpers.uniqueArray(
-      () => faker.number.int({ min: member.hours.start, max: member.hours.end - 2 }),
-      perDay,
-    );
+    const candidates: number[] = [];
+    for (let hour = member.hours.start; hour <= member.hours.end - 2; hour += 2.5) {
+      candidates.push(hour);
+    }
+    const slots = faker.helpers
+      .arrayElements(candidates, Math.min(perDay, candidates.length))
+      .sort((a, b) => a - b);
     for (const hour of slots) {
       const kind = faker.helpers.weightedArrayElement<EventKind>([
         { weight: 5, value: 'meeting' },
@@ -164,20 +164,22 @@ export function eventsFor(
         { weight: 2, value: 'session' },
       ]);
       const length = kind === 'focus' ? 2 : faker.helpers.arrayElement([0.5, 1, 1, 1.5]);
-      const start = dayStart + (hour - localHour) * HOUR;
-      const end = start + length * HOUR;
-      if (start < window.start || end > window.end) continue;
+      const start = authoredHour(dateLabel, hour, member.timezone);
+      const end = authoredHour(dateLabel, hour + length, member.timezone);
+
       events.push({
-        id: `${member.id}:${day}:${hour}`,
+        id: `${member.id}:${dateLabel}:${hour}`,
         kind,
         title: EVENT_TITLES[kind](faker),
-        ...attendanceFor(faker, member, members, { start, end }, now, events.length),
+        ...attendanceFor(faker, member, members, { start, end }, now, slots.indexOf(hour)),
         start,
         end,
       });
     }
   }
-  return events.sort((a, b) => a.start - b.start);
+  return events
+    .filter((event) => event.start < window.end && event.end > window.start)
+    .sort((a, b) => a.start - b.start);
 }
 
 export function laneFor(
@@ -205,8 +207,8 @@ export function laneFor(
     z: 1,
     style: { color: '#38bdf8', inset: 6 },
     intervals: events.map<Interval>((event) => ({
-      start: event.start,
-      end: event.end,
+      start: Math.max(event.start, window.start),
+      end: Math.min(event.end, window.end),
       sources: [{ kind: event.kind, id: event.id, label: event.title }],
     })),
     label: 'Events',
@@ -216,9 +218,8 @@ export function laneFor(
     label: member.name,
     timezone: member.timezone,
     complete: expansion.complete,
-    version: `${window.start}:${window.end}`,
     layers: [availability, bookings],
-    meta: { member, events } satisfies MemberLaneMeta,
+    meta: { member, events, now } satisfies MemberLaneMeta,
   };
 }
 
@@ -247,7 +248,7 @@ function attendanceFor(
   scheduled: Window,
   now: number,
   index: number,
-): Pick<MemberEvent, 'description' | 'expected' | 'attendances' | 'now'> {
+): Pick<MemberEvent, 'description' | 'expected' | 'attendances' | 'facts'> {
   const expected = [
     member,
     ...faker.helpers.arrayElements(
@@ -257,19 +258,56 @@ function attendanceFor(
   ].map(({ id, name }) => ({ id, name }));
   const description = `The group will review ${faker.company.buzzNoun()} and agree on the next steps.`;
   const shape = (Number(member.id.split('-').at(-1)) + index) % 6;
-  const attendances = expected.map((attendee, i): Attendance => {
-    const attendeeId = attendee.id;
+  const facts = expected.map((attendee, i) => {
     const offset = faker.number.int({ min: 5, max: 15 }) * 60_000;
-    const start = scheduled.start + (shape === 1 ? offset : shape === 3 ? -offset : 0);
-    // Past examples use late departures only when the full seeded offset has elapsed.
-    const lateDeparture = shape === 4 && (scheduled.end > now || scheduled.end + offset <= now);
-    const end = scheduled.end + (shape === 2 ? -offset : lateDeparture ? offset : 0);
-    if (scheduled.start >= now) return { attendeeId, state: 'expected' };
-    if (shape === 5 && i === 1)
-      return { attendeeId, state: scheduled.end > now ? 'pending' : 'absent' };
-    if (start > now) return { attendeeId, state: 'pending' };
-    if (end > now) return { attendeeId, state: 'present', arrival: start };
-    return { attendeeId, state: 'attended', start, end };
+    if (shape === 5 && i === 1) return { attendeeId: attendee.id, arrival: null, departure: null };
+    return {
+      attendeeId: attendee.id,
+      arrival: scheduled.start + (shape === 1 ? offset : shape === 3 ? -offset : 0),
+      departure: scheduled.end + (shape === 2 ? -offset : shape === 4 ? offset : 0),
+    };
   });
-  return { description, expected, now, attendances };
+  const attendances = facts.map((fact): Attendance => {
+    const { attendeeId, arrival, departure } = fact;
+    if (scheduled.start >= now) return { attendeeId, state: 'expected' };
+    if (arrival === null || departure === null)
+      return { attendeeId, state: scheduled.end > now ? 'pending' : 'absent' };
+    if (arrival > now) return { attendeeId, state: 'pending' };
+    if (departure > now) return { attendeeId, state: 'present', arrival };
+    return { attendeeId, state: 'attended', start: arrival, end: departure };
+  });
+  return { description, expected, facts, attendances };
+}
+
+function localDateEpoch(time: number, timezone: string): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(time);
+  const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
+  return Date.UTC(value('year'), value('month') - 1, value('day'));
+}
+
+/** Resolve daytime authored hours using the offset at that wall time, including DST changes. */
+function authoredHour(date: string, hour: number, timezone: string): number {
+  const day = windowFor({ span: 'day', anchorDate: date, timezone });
+  const target = Date.parse(`${date}T00:00:00Z`) + hour * HOUR;
+  let instant = day.start + hour * HOUR;
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const parts = formatter.formatToParts(instant);
+    const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
+    const wall =
+      localDateEpoch(instant, timezone) + value('hour') * HOUR + value('minute') * 60_000;
+    if (wall === target) return instant;
+    instant += target - wall;
+  }
+  return instant;
 }

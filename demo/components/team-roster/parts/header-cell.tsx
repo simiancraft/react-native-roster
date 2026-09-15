@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import { Text, View } from 'react-native';
 import type { RosterTick } from 'react-native-roster';
 import type { Density } from '../team-roster.types';
@@ -13,25 +13,30 @@ const DAY_LABEL: Record<Density, (time: number, timezone: string) => string> = {
 type HeaderCellInput = { tick: RosterTick; timezone: string; density: Density };
 
 /** One header cell per tick kind: a small hour label, or a day boundary with its date. */
-const CELLS: Record<RosterTick['kind'], (input: HeaderCellInput) => ReactNode> = {
-  time: ({ tick, timezone }) => (
-    <View className="h-10 justify-end pb-1 pl-1 border-l border-grid">
-      <Text numberOfLines={1} className="text-[10px] tabular-nums text-muted-foreground">
-        {compactTimeLabel(tick.time, timezone)}
-      </Text>
-    </View>
-  ),
-  day: ({ tick, timezone, density }) => (
-    <View className="h-10 justify-start pt-1.5 pl-2 border-l-2 border-grid-strong">
-      <Text numberOfLines={1} className="text-xs font-semibold text-foreground">
-        {DAY_LABEL[density](tick.time, timezone)}
-      </Text>
-    </View>
-  ),
+const CELLS: Record<RosterTick['kind'], ComponentType<HeaderCellInput>> = {
+  time: function TimeCell({ tick, timezone }) {
+    return (
+      <View className="h-10 justify-end pb-1 pl-1 border-l border-grid">
+        <Text numberOfLines={1} className="text-[10px] tabular-nums text-muted-foreground">
+          {compactTimeLabel(tick.time, timezone)}
+        </Text>
+      </View>
+    );
+  },
+  day: function DayCell({ tick, timezone, density }) {
+    return (
+      <View className="h-10 justify-start pt-1.5 pl-2 border-l-2 border-grid-strong">
+        <Text numberOfLines={1} className="text-xs font-semibold text-foreground">
+          {DAY_LABEL[density](tick.time, timezone)}
+        </Text>
+      </View>
+    );
+  },
 };
 
 export function DayHeaderCell(input: HeaderCellInput) {
-  return CELLS[input.tick.kind](input);
+  const Cell = CELLS[input.tick.kind];
+  return <Cell {...input} />;
 }
 
 const CORNER: Record<Density, (label: string, count: number) => string> = {

@@ -124,7 +124,10 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   Generated events carry attendance with expected, pending, present, attended, or
   absent presence states. A fixed seeded clock separates past, live, and future
   events; the toolbar displays now, and present spans extend through now without
-  recording a departure. Event attendance detail lives in the selection popover;
+  exposing a future departure. Seeded arrival and departure facts stay immutable; late
+  departures remain present after scheduled end. Member-local dates drive nonoverlapping
+  events, union strips preserve gaps, and the inspector expands its full week independently.
+  Event attendance detail lives in the selection popover;
   the inspector retains member selection.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
@@ -463,12 +466,19 @@ Do not publish, tag, change repository settings, or push without task authorizat
 
 35. **Showcase attendance belongs to generated events.** This feature is about an
     event; its children are attendances. The events/ chassis exports EventDetail.
-    The hook owns a fixed seeded now within the initial demo day; the demo passes
-    now to Roster to draw the now line at that instant. Attendees have
-    expected, pending, present, attended, or absent presence states. Present rows
-    draw arrival through now without recording a departure. Owners are never absent.
-    Lane metadata carries the source lookup for module-scope interval and detail
-    slots, including portals. The bottom strip retains overhang; detail rows share
-    one scale and scheduled outlines. The inspector retains member selection;
-    event detail belongs to the popover. Pure attendance models live in utils/attendance.ts
-    and import extentOf from react-native-roster for presence extent.
+    Event contracts live in events/event.types.ts and helpers in events/utils/attendance.ts.
+    The hook owns a fixed seeded now and passes it once in lane metadata for portal-safe
+    slots, never on each event. Seeded arrival and departure facts do not depend on now.
+    Present attendees remain present through scheduled end until their actual departure;
+    owners are never absent. Member-local dates and authored daytime hours drive event
+    generation across zones and DST. Clip layer intervals to the view window. One layer
+    merges overlapping intervals, so generated member events never overlap and lookup
+    requires the exact singleton source set. unionOf supplies disjoint bottom strips;
+    extentOf supplies the shared detail scale, retaining overhang. The inspector expands
+    its own week lane in the hook and uses a Schedule interval without a horizontal strip.
+    Retain lanes by team identity, window bounds, and now across selection changes, and
+    omit explicit versions so layer content controls geometry cache validity. Default
+    component props through destructuring, including explicit undefined. Mount dispatched
+    component types as JSX. The root layout is screen-layout.tsx. The inspector retains
+    member selection; event detail belongs to the popover. All generated identities and
+    the organization are fictional.

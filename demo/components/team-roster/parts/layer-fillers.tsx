@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import { Text, View } from 'react-native';
 import type { GapInput, IntervalInput } from 'react-native-roster';
 import type { LayerRole } from 'react-native-roster/core';
-import { actualExtent, barOffsets, eventFor } from '../utils/attendance';
+import { actualWindows, barOffsets, eventFor } from '../events/utils/attendance';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
 import { timeOffNote } from '../utils/time-off';
@@ -32,7 +32,7 @@ export function AvailabilityBand({ rect, lane }: IntervalInput) {
   );
 }
 
-const HIGHLIGHT = { on: 'border-2 border-foreground', off: '' } as const;
+const HIGHLIGHT = { on: 'border-2 border-foreground', off: 'border' } as const;
 
 /** A booked event: colored by kind, labeled when wide enough. */
 export function EventCard({
@@ -43,8 +43,19 @@ export function EventCard({
 }: IntervalInput & { timezone: string }) {
   const source = rect.sources[0];
   const event = eventFor({ rect, lane });
-  const actual = event ? actualExtent(event) : null;
-  const bar = actual && event ? barOffsets(actual, event, rect.width) : null;
+  const actual = event ? actualWindows(event, memberMeta(lane).now) : [];
+  const interval = lane.layers
+    .flatMap((layer) => layer.intervals)
+    .find(
+      (item) =>
+        item.sources.length === 1 &&
+        item.sources[0]?.id === event?.id &&
+        item.sources[0]?.kind === event?.kind,
+    );
+  const bars =
+    event && interval
+      ? actual.map((span) => ({ span, bar: barOffsets(span, interval, rect.width) }))
+      : [];
   const kind = KIND_CLASSES[eventKindOf(source?.kind ?? 'meeting')];
   const title = event?.title ?? source?.label ?? 'Event';
   const time = event ? timeLabel(event.start, timezone) : '';
@@ -64,17 +75,18 @@ export function EventCard({
     <View
       pointerEvents="none"
       style={bounds(rect)}
-      className={`overflow-visible justify-center rounded-md border px-1.5 ${kind.card} ${HIGHLIGHT[highlighted ? 'on' : 'off']}`}
+      className={`overflow-visible justify-center rounded-md px-1.5 ${kind.card} ${HIGHLIGHT[highlighted ? 'on' : 'off']}`}
     >
       {label}
       {clock}
-      {bar ? (
+      {bars.map(({ span, bar }) => (
         <View
+          key={span.start}
           testID="team-attendance-strip"
           className={`absolute bottom-0 h-1 ${kind.dot}`}
           style={bar}
         />
-      ) : null}
+      ))}
     </View>
   );
 }
@@ -87,7 +99,7 @@ const ROLE_COMPONENTS: Record<LayerRole, ComponentType<IntervalInput & { timezon
   custom: AvailabilityBand,
 };
 
-/** One interval component for both projections; the layer role selects the part. */
+/** Horizontal roster interval; the layer role selects the part. */
 export function TeamInterval(input: IntervalInput) {
   const timezone = useContext(TeamTimezone);
   const Component = ROLE_COMPONENTS[input.layer.role];
@@ -117,6 +129,25 @@ export function TimeOffGap({ rect }: GapInput) {
       className={`flex-1 items-center justify-center rounded-md ${GAP[wholeDay ? 'wholeDay' : 'partial']}`}
     >
       {label}
+    </View>
+  );
+}
+
+/** Schedule columns omit the horizontal attendance strip. Detail keeps the shared scale. */
+export function TeamScheduleInterval(input: IntervalInput) {
+  if (input.layer.role !== 'booking') return <AvailabilityBand {...input} />;
+  const source = input.rect.sources[0];
+  const kind = KIND_CLASSES[eventKindOf(source?.kind ?? 'meeting')];
+  return (
+    <View
+      pointerEvents="none"
+      testID="team-schedule-event"
+      style={bounds(input.rect)}
+      className={`rounded-sm ${kind.card} ${HIGHLIGHT[input.highlighted ? 'on' : 'off']}`}
+    >
+      <Text numberOfLines={1} className={`text-[9px] ${kind.title}`}>
+        {source?.label ?? 'Event'}
+      </Text>
     </View>
   );
 }

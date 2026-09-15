@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
-import type { MemberEvent } from '../../members/member.types';
 import { dayLabel, timeLabel } from '../../utils/format';
+import type { MemberEvent } from '../event.types';
 
 export function EventHeading({ event, timezone }: { event: MemberEvent; timezone: string }) {
   return (

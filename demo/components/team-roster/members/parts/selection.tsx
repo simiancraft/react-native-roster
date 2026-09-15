@@ -35,7 +35,7 @@ export function NoSelection() {
   return (
     <View className="rounded-lg border border-border bg-background p-3">
       <Text className="text-xs text-muted-foreground">
-        Press an event or an open slot in the roster.
+        Press an open slot, or an event to open its details.
       </Text>
     </View>
   );
