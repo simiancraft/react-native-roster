@@ -3,18 +3,27 @@ import { Pressable, Text, View } from 'react-native';
 import { KIND_CLASSES } from '../../utils/tones';
 import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
 import { attendanceInteraction } from './attendance-interaction';
-import type { AttendanceInteractionInput } from './attendance-interaction.types';
+import type {
+  AttendanceInteractionInput,
+  AttendanceInteractionKind,
+} from './attendance-interaction.types';
 import { EventAxis } from './axis';
-import type { useActiveAttendance } from './use-active-attendance';
+
+const EMPHASIS_CLASSES: Record<AttendanceRowModel['emphasis'], string> = {
+  primary: 'text-primary',
+  muted: 'text-muted-foreground',
+};
 
 export function Attendances({
   model,
   timezone,
-  active,
+  onActivate,
+  onDeactivate,
 }: {
   model: AttendanceModel;
   timezone: string;
-  active: ReturnType<typeof useActiveAttendance>;
+  onActivate: (attendeeId: string, interaction: AttendanceInteractionKind) => void;
+  onDeactivate: (attendeeId: string, interaction: AttendanceInteractionKind) => void;
 }) {
   return (
     <View className="relative">
@@ -40,8 +49,8 @@ export function Attendances({
             key={row.attendee.id}
             row={row}
             tone={KIND_CLASSES[model.event.kind].dot}
-            onActivate={(interaction) => active.show(row.attendee.id, interaction)}
-            onDeactivate={(interaction) => active.hide(row.attendee.id, interaction)}
+            onActivate={(interaction) => onActivate(row.attendee.id, interaction)}
+            onDeactivate={(interaction) => onDeactivate(row.attendee.id, interaction)}
           />
         ))}
       </View>
@@ -69,21 +78,18 @@ function AttendanceRow({
         style={{ left: `${row.bar.left}%`, width: `${row.bar.width}%` }}
       />
     );
-  const glyphClass = row.attendance.state === 'present' ? 'text-primary' : 'text-muted-foreground';
   return (
     <View testID={`attendance-row-${row.attendee.id}`}>
       <Text numberOfLines={1} className="text-[10px] leading-3 text-muted-foreground">
         {row.attendee.name}{' '}
-        <Text accessibilityLabel={row.attendance.state} className={glyphClass}>
+        <Text accessibilityLabel={row.attendance.state} className={EMPHASIS_CLASSES[row.emphasis]}>
           {row.glyph}
         </Text>
       </Text>
       <Pressable
-        accessibilityRole="button"
         accessibilityLabel={`${row.attendee.name}: ${row.detail}`}
         className="relative h-[10px]"
         {...attendanceInteraction({ onActivate, onDeactivate })}
-        onPress={(event) => event.stopPropagation()}
       >
         {barZone}
       </Pressable>

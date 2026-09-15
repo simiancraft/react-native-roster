@@ -145,7 +145,7 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 | Import | Runtime exports and purpose |
 | --- | --- |
 | react-native-roster | Roster, Schedule, useRoster, useSchedule, default slot components, RosterSelectionPopover, PortalHost, Portal, and core re-exports. |
-| react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, xAtTime, timeAtX, timeAtY, snapToStep, extentOf, intersectionOf, unionOf, byLabel, byCoverage, and core counters/caches. |
+| react-native-roster/core | layoutLane, coverageFor, flagFor, hasSource, windowFor, prev, next, today, dayColumnsFor, xAtTime, timeAtX, timeAtY, snapToStep, extentOf, intersectionOf, unionOf, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
 | react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
 

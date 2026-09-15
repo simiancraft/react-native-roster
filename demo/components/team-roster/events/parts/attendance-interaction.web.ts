@@ -9,6 +9,7 @@ export function attendanceInteraction({
   onDeactivate,
 }: AttendanceInteractionInput): AttendanceInteractionHandlers {
   return {
+    onPress: (event) => event.stopPropagation(),
     onHoverIn: () => onActivate('hover'),
     onHoverOut: () => onDeactivate('hover'),
     onFocus(event) {

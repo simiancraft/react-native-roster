@@ -102,7 +102,7 @@ export function TeamRosterScreen({
       {...chrome}
       inspectorZone={<Inspector {...model} />}
       subjectZone={
-        <TeamRoster model={model} zones={{ cornerComponent: Corner, laneLabelComponent: Label }} />
+        <TeamRoster model={model} slots={{ cornerComponent: Corner, laneLabelComponent: Label }} />
       }
     />
   );
@@ -110,15 +110,15 @@ export function TeamRosterScreen({
 
 function TeamRoster({
   model,
-  zones,
+  slots,
 }: {
   model: TeamRosterReady;
-  zones: Required<Pick<TeamRosterSlots, 'cornerComponent' | 'laneLabelComponent'>>;
+  slots: Required<Pick<TeamRosterSlots, 'cornerComponent' | 'laneLabelComponent'>>;
 }) {
-  const Corner = zones.cornerComponent;
+  const Corner = slots.cornerComponent;
   return (
     <TeamTimezone.Provider value={model.timezone}>
-      <TeamLaneContext.Provider value={{ model, laneLabelComponent: zones.laneLabelComponent }}>
+      <TeamLaneContext.Provider value={{ model, laneLabelComponent: slots.laneLabelComponent }}>
         <Roster
           now={model.now}
           lanes={model.lanes}

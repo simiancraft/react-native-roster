@@ -52,12 +52,13 @@ export function attendanceModelFor(event: MemberEvent, now: number, timezone = '
     if (!attendee) throw new Error(`Missing expected attendee ${attendance.attendeeId}`);
     let actual: Window | null = null;
     if (attendance.state === 'attended') actual = attendance;
-    if (attendance.state === 'present') actual = { start: attendance.arrival, end: now };
+    if (attendance.state === 'present' && attendance.arrival < now)
+      actual = { start: attendance.arrival, end: now };
     return {
       attendance,
       attendee,
       bar: actual ? barOffsets(actual, scale) : null,
-      glyph: glyphFor(attendance.state),
+      ...glyphFor(attendance.state),
       detail: detailTextFor(attendance, event, timezone),
     };
   });
@@ -85,8 +86,17 @@ export function ticksFor(scale: Window, timezone = 'UTC') {
   return ticks;
 }
 
+const PRESENCE_MARKS: Record<Presence['state'], { glyph: string; emphasis: 'primary' | 'muted' }> =
+  {
+    expected: { glyph: '', emphasis: 'muted' },
+    pending: { glyph: '○', emphasis: 'muted' },
+    absent: { glyph: '×', emphasis: 'muted' },
+    present: { glyph: '●', emphasis: 'primary' },
+    attended: { glyph: '', emphasis: 'muted' },
+  };
+
 export function glyphFor(state: Presence['state']) {
-  return { expected: '', pending: '○', absent: '×', present: '●', attended: '' }[state];
+  return PRESENCE_MARKS[state];
 }
 
 export function detailTextFor(attendance: Attendance, event: MemberEvent, timezone: string) {

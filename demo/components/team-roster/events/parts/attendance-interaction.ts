@@ -3,13 +3,15 @@ import type {
   AttendanceInteractionInput,
 } from './attendance-interaction.types';
 
-/** Native attendance detail is active only while the bar is pressed. */
+/** Native attendance detail is toggled by tapping the bar. */
 export function attendanceInteraction({
   onActivate,
-  onDeactivate,
 }: AttendanceInteractionInput): AttendanceInteractionHandlers {
   return {
-    onPressIn: () => onActivate('press'),
-    onPressOut: () => onDeactivate('press'),
+    accessibilityRole: 'button',
+    onPress(event) {
+      event.stopPropagation();
+      onActivate('press');
+    },
   };
 }

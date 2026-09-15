@@ -9,5 +9,5 @@ export interface AttendanceInteractionInput {
 
 export type AttendanceInteractionHandlers = Pick<
   PressableProps,
-  'onHoverIn' | 'onHoverOut' | 'onFocus' | 'onBlur' | 'onPressIn' | 'onPressOut'
+  'onHoverIn' | 'onHoverOut' | 'onFocus' | 'onBlur' | 'onPress' | 'accessibilityRole'
 >;
