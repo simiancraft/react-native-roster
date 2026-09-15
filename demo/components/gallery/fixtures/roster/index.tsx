@@ -43,6 +43,9 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
       onClear={model.clearHighlight}
     />
   ) : null;
+  const nowZone = fixture.showsNowToggle ? (
+    <Control label="Now at window midpoint" selected={model.showNow} onPress={model.toggleNow} />
+  ) : null;
   const performanceZone = fixture.workload ? (
     <PerformanceControls
       onMeasureColdLayout={model.measureColdLayout}
@@ -67,6 +70,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
           ) : null}
           <GalleryControls
             {...model}
+            nowZone={nowZone}
             highlightZone={highlightZone}
             performanceZone={performanceZone}
           />
@@ -74,6 +78,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
       }
       subjectZone={
         <Roster
+          now={model.now}
           selectionLayout={
             fixture.inspectorLayout && model.presentation === 'inspector'
               ? fixture.inspectorLayout

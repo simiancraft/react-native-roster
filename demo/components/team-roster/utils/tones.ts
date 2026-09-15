@@ -1,4 +1,5 @@
-import type { EventKind, Member } from '../members/member.types';
+import type { EventKind } from '../events/event.types';
+import type { Member } from '../members/member.types';
 
 /** Literal class tables so Tailwind's scanner emits every variant. */
 export const TONE_CLASSES: Record<
@@ -37,6 +38,9 @@ export const TONE_CLASSES: Record<
   },
 };
 
+/** Muted foreground for native props that require a color value. */
+export const MUTED_FOREGROUND_HEX = { light: '#62626a', dark: '#a1a1aa' } as const;
+
 export const TONE_HEX: Record<Member['tone'], string> = {
   emerald: '#10b981',
   sky: '#0ea5e9',
@@ -51,21 +55,21 @@ export const KIND_CLASSES: Record<
   { card: string; title: string; time: string; dot: string; label: string }
 > = {
   meeting: {
-    card: 'bg-sky-500 border-sky-700/40 dark:border-sky-300/60',
+    card: 'bg-sky-300 border-sky-700/40 dark:border-sky-300/60',
     title: 'text-sky-950',
     time: 'text-sky-900/80',
     dot: 'bg-sky-500',
     label: 'Meeting',
   },
   focus: {
-    card: 'bg-violet-500 border-violet-700/40 dark:border-violet-300/60',
+    card: 'bg-violet-300 border-violet-700/40 dark:border-violet-300/60',
     title: 'text-violet-950',
     time: 'text-violet-900/80',
     dot: 'bg-violet-500',
     label: 'Focus block',
   },
   session: {
-    card: 'bg-emerald-400 border-emerald-700/40 dark:border-emerald-200/60',
+    card: 'bg-emerald-200 dark:bg-emerald-200 border-emerald-700/40 dark:border-emerald-200/60',
     title: 'text-emerald-950',
     time: 'text-emerald-900/80',
     dot: 'bg-emerald-400',

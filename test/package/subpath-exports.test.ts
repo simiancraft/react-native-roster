@@ -59,6 +59,7 @@ describe('subpath exports', () => {
       const core = require('react-native-roster/core');
       const root = require('react-native-roster');
       assert.equal(root.layoutLane, core.layoutLane);
+      assert.equal(root.unionOf, core.unionOf);
       assert.equal(typeof root.Roster, 'function');
       assert.equal(typeof root.useRoster, 'function');
       assert.equal(typeof root.Schedule, 'function');
@@ -71,7 +72,7 @@ describe('subpath exports', () => {
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
         'coverageStats', 'resetStats', 'clearLayoutCache', 'clearCoverageCache',
-        'byLabel', 'byCoverage',
+        'byLabel', 'byCoverage', 'unionOf',
       ]) assert.equal(typeof core[name], 'function');
       const window = core.windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' });
       const geometry = core.layoutLane({ id: 'one', label: 'One', layers: [] }, window, {

@@ -168,7 +168,7 @@ and "Availability may be incomplete"; both are localizable props.
 | Import | Shipped surface |
 | --- | --- |
 | `react-native-roster` | `Roster`, `Schedule`, hooks, slot components, `RosterSelectionPopover`, `PortalHost`, `Portal`, and all core exports. |
-| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
+| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `hasSource`, `extentOf`, `intersectionOf`, `unionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
 
@@ -179,6 +179,51 @@ emitted CommonJS with declarations in `dist/src`. The emit is CommonJS, so
 importing one function from the root costs the whole root bundle; import from
 `/core` for a core-only bundle. Cache keys, counters, and clearing are in
 [caches](./docs/caches.md).
+
+## Core
+
+### Interval helpers
+
+`unionOf(spans: readonly Window[]): Window[]` merges overlapping or touching
+windows and returns them sorted by start, keeping disjoint windows separate.
+Empty input returns `[]`. Every returned window is a new object; the input array
+and its windows remain untouched. Like `extentOf` and `intersectionOf`, it uses
+end-exclusive epoch milliseconds and throws `RangeError` for non-finite bounds
+or `end <= start`.
+
+Collapse each person's segments with `extentOf`, then use `intersectionOf` to
+find the shared time across those windows. Each extent bridges gaps between
+segments, so the result describes the collapsed windows.
+
+```ts
+import type { Window } from 'react-native-roster/core';
+import { extentOf, intersectionOf } from 'react-native-roster/core';
+
+const people: { name: string; segments: Window[] }[] = [
+  {
+    name: 'Alex',
+    segments: [
+      { start: 1_000, end: 3_000 },
+      { start: 4_000, end: 8_000 },
+    ],
+  },
+  {
+    name: 'Sam',
+    segments: [
+      { start: 2_000, end: 5_000 },
+      { start: 6_000, end: 9_000 },
+    ],
+  },
+];
+
+const windows = people.map((person): Window => {
+  const extent = extentOf(person.segments);
+  if (extent === null) throw new Error(`${person.name} has no segments`);
+  return extent;
+});
+const sharedTime = intersectionOf(windows); // { start: 2_000, end: 8_000 }
+// A null result from intersectionOf means there is no shared time.
+```
 
 ## Navigation and interaction
 
@@ -202,6 +247,19 @@ Roster's web-only pointer callback. `highlightSource={{ kind, id }}` applies
 `highlightColor` to every matching rect without new geometry. Sorting defaults
 to `byLabel`; `byCoverage({ measure })` sorts by coverage descending.
 
+## Now line
+
+The optional `now` prop accepts epoch milliseconds or `null` (the default, which
+draws nothing). Pass `now={timestamp}` to draw a vertical 2 px red line across the
+body at the projected instant. Only `window.start <= now < window.end` is visible.
+The caller owns clock updates; Roster starts no timer. `useRoster` exposes `now` and `nowLine`.
+`now` retains the raw instant. `nowLine` (`{ x, now }`) uses the fitted
+`pxPerMinute` scale and is null when `now` is null or outside the window.
+Replace `nowLineComponent` to customize the line using `RosterNowLineInput`
+(`{ x, now }`). The line follows horizontal scrolling; changing `now` does not
+invalidate mounted lanes. The every-zone gallery fixture can toggle a fixed
+instant at the window midpoint.
+
 ## Roster zones
 
 Props ending in `Component` accept `ComponentType<Input>` and are mounted by React.
@@ -220,12 +278,13 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
 | `selectionLayout` | `SelectionLayoutProps`: nodes, targetBounds, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive vertical red line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
 
-`RosterBody` composes `RosterBodyLayout`, which arranges `gridZone` and `listZone`
+`RosterBody` composes `RosterBodyLayout`, which arranges `gridZone`, `listZone`, and optional `overlayZone`
 nodes with scroll wiring, and `RosterLaneList`, which owns LegendList and its
 per-lane callback. The body waits for viewport measurement before mounting the list.
 
@@ -499,7 +558,16 @@ network). The home page lists every fixture route:
   and week spans, sorting, filtering, and a per-person Schedule, styled with
   NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
-  seed; any resemblance to real people is coincidental.
+  seed. Each event compares scheduled time with seeded attendee arrivals and departures,
+  using a bottom strip and selection popover. The popover shares a shaded scheduled band
+  across attendance rows; its footer shows row detail during hover, keyboard focus, or press. A fixed demo clock separates future, live, and
+  past events. Attendees are expected, pending, present, attended, or absent;
+  present bars extend to now, including after scheduled end until actual departure.
+  Arrival and departure facts are immutable. Member-local dates preserve events across
+  zones and DST; generated events do not overlap. Union strips preserve gaps, and the
+  inspector expands a full week independently with no horizontal strip in its Schedule.
+  Lane objects survive selection changes, and explicit undefined slots keep their defaults.
+  Any resemblance to real people is coincidental.
 
 | Platform | Support and evidence |
 | --- | --- |

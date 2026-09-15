@@ -47,6 +47,24 @@ describe('roster utils', () => {
     ])
       expect(bodyContentKey({ ...input, ...changed })).not.toBe(key);
   });
+  it('excludes now, nowLine, and now line component identity from the body content key', () => {
+    const input = {
+      window: windowFor(rosterWindowSpec),
+      projection,
+      intervalComponent: () => null,
+      gapComponent: () => null,
+      now: null as number | null,
+      nowLine: null as { x: number; now: number } | null,
+      nowLineComponent: () => null,
+    };
+    const changed = {
+      ...input,
+      now: input.window.start,
+      nowLine: { x: 0, now: input.window.start },
+      nowLineComponent: () => null,
+    };
+    expect(bodyContentKey(changed)).toBe(bodyContentKey(input));
+  });
   it('reuses tick content without any formatToParts calls on an identical second call', () => {
     const spec: WindowSpec = {
       span: 'week',

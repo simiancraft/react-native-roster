@@ -1,5 +1,3 @@
-const HOUR = 3_600_000;
-
 export function timeLabel(time: number, timezone: string): string {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
@@ -62,12 +60,6 @@ export function conciseRangeLabel(start: number, end: number, timezone: string):
   return first === last ? first : `${first} to ${last}`;
 }
 
-export function durationLabel(start: number, end: number): string {
-  const hours = (end - start) / HOUR;
-  if (hours < 1) return `${Math.round(hours * 60)} min`;
-  return Number.isInteger(hours) ? `${hours} h` : `${hours.toFixed(1)} h`;
-}
-
 export function hoursLabel(hours: { start: number; end: number }): string {
   const clock = (hour: number) => {
     const suffix = hour >= 12 && hour < 24 ? 'pm' : 'am';
@@ -79,4 +71,11 @@ export function hoursLabel(hours: { start: number; end: number }): string {
 
 export function zoneShort(timezone: string): string {
   return timezone.split('/').pop()?.replace(/_/g, ' ') ?? timezone;
+}
+
+export function offsetLabel(actual: number, planned: number): string {
+  const minutes = (actual - planned) / 60_000;
+  if (minutes === 0) return 'on plan';
+  if (minutes < 0) return `${-minutes} min early`;
+  return `${minutes} min late`;
 }

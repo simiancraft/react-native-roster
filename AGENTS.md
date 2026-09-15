@@ -51,7 +51,7 @@ demo/
   app/index.tsx            # home route shell; owns gallery URLs
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
-  components/team-roster/  # the showcase: members, toolbar, and inspector
+  components/team-roster/  # the showcase: members, attendance, toolbar, and inspector
   components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -121,6 +121,14 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   `TeamRosterScreen` exposes host-facing component slots (title, actions, filter, controls,
   corner, lane label, inspector, and footer) that default to the showcase parts; the
   route shell owns router contact and passes links in as zones.
+  Generated events carry attendance with expected, pending, present, attended, or
+  absent presence states. A fixed seeded clock separates past, live, and future
+  events; the toolbar displays now, and present spans extend through now without
+  exposing a future departure. Seeded arrival and departure facts stay immutable; late
+  departures remain present after scheduled end. Member-local dates drive nonoverlapping
+  events, union strips preserve gaps, and the inspector expands its full week independently.
+  Event attendance detail lives in the selection popover;
+  the inspector retains member selection.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
   page naming its subpath, exports, boundary, and file map; keep them current:
@@ -206,7 +214,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    the provenance routes are implemented.** Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
-   returns an absolute time.
+   returns an absolute time. Its inverse `xAtTime(projection, window, time)`
+   supplies horizontal rect and now-line positions.
    Column rect x coordinates reset per column; select it using `rect.column`.
 8. **Intl-only zone math lives in core/zone.ts.** It uses explicit Gregorian and
    Latin-digit formatting, `formatToParts`, and UTC Date arithmetic. The Gregorian
@@ -227,7 +236,15 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Local runs still measure and print both rows. Device gates remain manual.
 
 11. **Roster waits for viewport measurement before mounting LegendList.** RosterBody
-    composes a node-only RosterBodyLayout and the RosterLaneList collection part. LegendList
+    composes a node-only RosterBodyLayout and the RosterLaneList collection part.
+    RosterBodyLayout arranges gridZone, listZone, and optional overlayZone above both
+    inside horizontal scroll content, mounting the overlay wrapper only for a provided
+    node. BodyInput extends positive LaneListInput with ticks, grid, and now-line
+    inputs; RosterBody picks the lane-list props explicitly. Controlled now defaults
+    to null; useRoster retains raw now and derives nowLine ({ x, now }) via xAtTime with the fitted
+    projection; nowLine is null when now is null or outside end-exclusive window bounds.
+    RosterNowLine fills the overlay through nowLineComponent. Keep now, nowLine, and
+    nowLineComponent out of RosterLaneList, LaneRow, and the body content key. LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
     keys window, projection, highlight identity, and interval and gap component identities. Vertical scroll
@@ -256,8 +273,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Cache by window bounds,
     timezone, span, minuteStep, and pxPerMinute; identical calls must do no Intl work.
 16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
-    renders; only on-screen counters sample every 500 ms. Fixture records own zones
-    and showsEmptyExample, with visual components in test/fixtures/roster-zones.tsx.
+    renders; only on-screen counters sample every 500 ms. Fixture records own zones,
+    showsEmptyExample, and showsNowToggle, with visual components in
+    test/fixtures/roster-zones.tsx.
 17. **Adapter caches retain occurrences only.** Every call nets and applies the total
     cap fresh in rule id order, then date id order. Retained envelopes select bounds
     by containment; only retained per-rule entries guarantee expanded 0. The default
@@ -460,3 +478,40 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The development detail fixture dispatches the click callback to verify zero selection-driven
     mounted-row updates, separately from Pressable's hover, focus, and pressed-state commits.
     The production case retains a complete pointer click.
+
+35. **Showcase attendance belongs to generated events.** This feature is about an
+    event; its children are attendances. The events/ chassis exports EventDetail.
+    Event contracts live in events/event.types.ts and helpers in events/utils/attendance.ts.
+    EventLayout arranges headerZone, chartZone, and footerZone. The chart shares one
+    shaded scheduled band and hourly ticks (half-hourly below three hours), with compact names
+    above 10px tone-colored bars and 4px row gaps. Future rows use hairlines. Pending
+    has a hollow dot, absent a cross, and present a steady filled dot; attended has none.
+    The model owns percentage band, tick, and bar geometry, glyphs with emphasis, and detail text.
+    Present rows require arrival < now for actual bars, matching actualWindows.
+    The footer status line defaults to the attendance legend and scheduled-band explanation.
+    events/use-active-attendance.ts owns the active row independently of roster selection.
+    Attendances receives activation and deactivation handlers, never the hook return.
+    The chassis selects AttendanceLegend or ActiveAttendance for footerZone;
+    the legend subject is keyed by event status. Web hover
+    or focus matching :focus-visible shows that row's name and detail in the footer;
+    keyboard focus wins when both interactions are active. Hover-out and blur end only
+    their own interaction. Programmatic focus without :focus-visible does not activate detail.
+    Native taps toggle detail or switch to another row; only native rows expose the button role.
+    Changing the selected event resets interaction through the chassis event id key.
+    EventLayout receives the status node
+    through footerZone and only arranges nodes. There is no floating tooltip.
+    The hook owns a fixed seeded now and passes it once in lane metadata for portal-safe
+    slots, never on each event. Seeded arrival and departure facts do not depend on now.
+    Present attendees remain present through scheduled end until their actual departure;
+    owners are never absent. Member-local dates and authored daytime hours drive event
+    generation across zones and DST. Clip layer intervals to the view window. One layer
+    merges overlapping intervals, so generated member events never overlap and lookup
+    requires the exact singleton source set. unionOf supplies disjoint bottom strips;
+    extentOf supplies the shared detail scale, retaining overhang. The inspector expands
+    its own week lane in the hook and uses a Schedule interval without a horizontal strip.
+    Retain lanes by team identity, window bounds, and now across selection changes, and
+    omit explicit versions so layer content controls geometry cache validity. Default
+    component props through destructuring, including explicit undefined. Mount dispatched
+    component types as JSX. The root layout is screen-layout.tsx. The inspector retains
+    member selection; event detail belongs to the popover. All generated identities and
+    the organization are fictional.
