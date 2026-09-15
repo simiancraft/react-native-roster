@@ -551,7 +551,7 @@ on the lighter scheduled block, retaining gaps and overhang. The inspector expan
 its full week separately and omits horizontal strips in Schedule columns. Generated
 lane objects survive selection changes, and structural layer keys invalidate geometry.
 EventDetail in team-roster/events is the intervalDetailComponent; it shows named
-presence rows against a shared scheduled outline and scale. Pure attendance models
+presence rows against a shared shaded scheduled band and scale. Pure attendance models
 live in events/utils/attendance.ts; contracts live in events/event.types.ts. The hook
 passes now in lane metadata, never on each event. Explicit undefined component props
 retain defaults. Event presses retain the member inspector without

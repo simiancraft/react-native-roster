@@ -1,19 +1,22 @@
-import type { PressableProps } from 'react-native';
+import type {
+  AttendanceInteractionHandlers,
+  AttendanceInteractionInput,
+} from './attendance-interaction.types';
 
 /** Web focus activates detail only when the browser marks it focus-visible. */
-export function attendanceInteraction(
-  onActivate: () => void,
-  onDeactivate: () => void,
-): PressableProps {
+export function attendanceInteraction({
+  onActivate,
+  onDeactivate,
+}: AttendanceInteractionInput): AttendanceInteractionHandlers {
   return {
-    onHoverIn: onActivate,
-    onHoverOut: onDeactivate,
+    onHoverIn: () => onActivate('hover'),
+    onHoverOut: () => onDeactivate('hover'),
     onFocus(event) {
       const target = event.currentTarget as unknown as {
         matches: (selector: string) => boolean;
       };
-      if (target.matches(':focus-visible')) onActivate();
+      if (target.matches(':focus-visible')) onActivate('focus');
     },
-    onBlur: onDeactivate,
+    onBlur: () => onDeactivate('focus'),
   };
 }

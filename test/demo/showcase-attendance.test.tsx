@@ -6,6 +6,7 @@ import { Pressable } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
 import type { Attendance, MemberEvent } from '../../demo/components/team-roster/events/event.types';
+import type { AttendanceInteractionInput } from '../../demo/components/team-roster/events/parts/attendance-interaction.types';
 import {
   actualExtent,
   attendanceModelFor,
@@ -55,8 +56,8 @@ const { attendanceInteraction: webInteraction } = await import(
   '../../demo/components/team-roster/events/parts/attendance-interaction.web'
 );
 mock.module('../../demo/components/team-roster/events/parts/attendance-interaction', () => ({
-  attendanceInteraction(onActivate: () => void, onDeactivate: () => void) {
-    return (Platform.OS === 'web' ? webInteraction : nativeInteraction)(onActivate, onDeactivate);
+  attendanceInteraction(input: AttendanceInteractionInput) {
+    return (Platform.OS === 'web' ? webInteraction : nativeInteraction)(input);
   },
 }));
 const { EventDetail } = await import('../../demo/components/team-roster/events');
@@ -390,6 +391,41 @@ it('keeps the latest active row when an earlier row interaction ends', () => {
     Platform.OS = previous;
   }
 });
+
+for (const hoveredId of ['a', 'b']) {
+  it(`retains keyboard focus when row ${hoveredId} hover ends, then restores remaining hover on blur`, () => {
+    const previous = Platform.OS;
+    Platform.OS = 'web';
+    try {
+      const tree = render(
+        <EventDetail
+          {...inputFor([
+            { attendeeId: 'a', state: 'pending' },
+            { attendeeId: 'b', state: 'absent' },
+          ])}
+        />,
+      );
+      const a = tree.root.findByProps({ testID: 'attendance-row-a' }).findByType(Pressable);
+      const b = tree.root.findByProps({ testID: 'attendance-row-b' }).findByType(Pressable);
+      const hovered = hoveredId === 'a' ? a : b;
+      const footer = () => tree.root.findByProps({ testID: 'attendance-status' }).props.children;
+      act(() => a.props.onFocus({ currentTarget: { matches: () => true } }));
+      act(() => hovered.props.onHoverIn());
+      expect(footer()).toBe('Person a · Not yet arrived');
+      act(() => hovered.props.onHoverOut());
+      expect(footer()).toBe('Person a · Not yet arrived');
+      act(() => b.props.onHoverIn());
+      act(() => a.props.onBlur());
+      expect(footer()).toBe('Person b · Did not attend');
+      act(() => a.props.onBlur());
+      expect(footer()).toBe('Person b · Did not attend');
+      act(() => b.props.onHoverOut());
+      expect(footer()).toBe('Actual attendance; the shaded band is the scheduled window');
+    } finally {
+      Platform.OS = previous;
+    }
+  });
+}
 
 it('spans live arrivals through the latest departure or present clock and omits pending-only strips', () => {
   for (const departure of [60000, 150000]) {

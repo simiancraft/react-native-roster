@@ -559,7 +559,8 @@ network). The home page lists every fixture route:
   NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
   seed. Each event compares scheduled time with seeded attendee arrivals and departures,
-  using a bottom strip and selection popover. A fixed demo clock separates future, live, and
+  using a bottom strip and selection popover. The popover shares a shaded scheduled band
+  across attendance rows; its footer shows row detail during hover, keyboard focus, or press. A fixed demo clock separates future, live, and
   past events. Attendees are expected, pending, present, attended, or absent;
   present bars extend to now, including after scheduled end until actual departure.
   Arrival and departure facts are immutable. Member-local dates preserve events across

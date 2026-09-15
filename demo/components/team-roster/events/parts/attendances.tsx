@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { KIND_CLASSES } from '../../utils/tones';
 import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
 import { attendanceInteraction } from './attendance-interaction';
+import type { AttendanceInteractionInput } from './attendance-interaction.types';
 import { EventAxis } from './axis';
 import type { useActiveAttendance } from './use-active-attendance';
 
@@ -39,8 +40,8 @@ export function Attendances({
             key={row.attendee.id}
             row={row}
             tone={KIND_CLASSES[model.event.kind].dot}
-            onActivate={() => active.show(row.attendee.id)}
-            onDeactivate={() => active.hide(row.attendee.id)}
+            onActivate={(interaction) => active.show(row.attendee.id, interaction)}
+            onDeactivate={(interaction) => active.hide(row.attendee.id, interaction)}
           />
         ))}
       </View>
@@ -56,9 +57,7 @@ function AttendanceRow({
 }: {
   row: AttendanceRowModel;
   tone: string;
-  onActivate: () => void;
-  onDeactivate: () => void;
-}) {
+} & AttendanceInteractionInput) {
   let barZone: ReactNode = (
     <View testID="attendance-empty" className="absolute top-1 left-0 right-0 h-px bg-border" />
   );
@@ -83,7 +82,7 @@ function AttendanceRow({
         accessibilityRole="button"
         accessibilityLabel={`${row.attendee.name}: ${row.detail}`}
         className="relative h-[10px]"
-        {...attendanceInteraction(onActivate, onDeactivate)}
+        {...attendanceInteraction({ onActivate, onDeactivate })}
         onPress={(event) => event.stopPropagation()}
       >
         {barZone}

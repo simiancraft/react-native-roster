@@ -483,15 +483,16 @@ Do not publish, tag, change repository settings, or push without task authorizat
     event; its children are attendances. The events/ chassis exports EventDetail.
     Event contracts live in events/event.types.ts and helpers in events/utils/attendance.ts.
     EventLayout arranges headerZone, chartZone, and footerZone. The chart shares one
-    scheduled band and hourly ticks (half-hourly below three hours), with compact names
+    shaded scheduled band and hourly ticks (half-hourly below three hours), with compact names
     above 10px tone-colored bars and 4px row gaps. Future rows use hairlines. Pending
     has a hollow dot, absent a cross, and present a steady filled dot; attended has none.
     The model owns percentage band, tick, and bar geometry, glyphs, and detail text.
     The footer status line defaults to the attendance legend and scheduled-band explanation.
     useActiveAttendance owns the active row independently of roster selection. Web hover
     or focus matching :focus-visible shows that row's name and detail in the footer;
-    programmatic focus without :focus-visible retains the legend. Native press-in shows
-    detail, and press-out restores the legend. EventLayout receives the status node
+    keyboard focus wins when both interactions are active. Hover-out and blur end only
+    their own interaction. Programmatic focus without :focus-visible does not activate detail.
+    Native press-in shows detail, and press-out restores the legend. EventLayout receives the status node
     through footerZone and only arranges nodes. There is no floating tooltip.
     The hook owns a fixed seeded now and passes it once in lane metadata for portal-safe
     slots, never on each event. Seeded arrival and departure facts do not depend on now.
