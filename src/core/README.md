@@ -13,6 +13,7 @@ no React Native, no dependencies.
 | `axis.ts` | window specs, spans, and navigation (`windowFor`, `next`, `prev`, `today`) |
 | `layout.ts` | rect geometry for one lane in either projection |
 | `coverage.ts` | covered and removed minutes per lane |
+| `source.ts` | `hasSource(sources, source)` matches kind and id, ignoring labels |
 | `spans.ts` | the provenance sweep: exact sources per merged span |
 | `columns.ts` | day columns, transitions, and skipped dates for the columns projection |
 | `zone.ts` | Intl-only timezone math (offsets, first instants, transitions) |
@@ -23,3 +24,6 @@ no React Native, no dependencies.
 
 Reference: [design](../../docs/design.md), [timezones](../../docs/timezones.md),
 [caches](../../docs/caches.md). Tests: `test/core`.
+
+The public entry binds immutable function aliases directly to preserve implementation
+identity while avoiding repeated CommonJS getter wrappers in consumer bundles.

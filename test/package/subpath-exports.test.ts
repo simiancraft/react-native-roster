@@ -146,3 +146,22 @@ it('root and core emitted graphs isolate core and allow only components and decl
   walk(resolve(root, 'dist/src/core/index.js'));
   expect(visited.size).toBeGreaterThan(2);
 });
+
+it('browser bundling resolves the emitted selection strategy through the package remap', async () => {
+  const result = await Bun.build({
+    entrypoints: [resolve(root, 'dist/src/index.js')],
+    target: 'browser',
+    external: [
+      'react',
+      'react-native',
+      'react-native-reanimated',
+      '@legendapp/list',
+      '@radix-ui/react-popover',
+    ],
+  });
+  expect(result.success).toBe(true);
+  const output = await result.outputs[0]?.text();
+  expect(output).toContain('@radix-ui/react-popover');
+  expect(output).toContain('updatePositionStrategy');
+  expect(output).not.toContain('hardwareBackPress');
+});

@@ -1,6 +1,7 @@
 import { Roster } from 'react-native-roster';
 import type { RosterFixtureId } from '../../../../../test/fixtures/roster';
 import { FixtureLayout } from '../layout';
+import { Control } from '../parts/control';
 import { GalleryCounters } from '../parts/counters';
 import { GalleryControls } from './parts/controls';
 import { HighlightControls } from './parts/highlight-controls';
@@ -23,7 +24,8 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
     selection,
   } = model;
   const { zones, showsEmptyExample } = fixture;
-  const bodyComponent = __DEV__ && fixture.workload ? ProfiledBody : zones?.bodyComponent;
+  const bodyComponent =
+    __DEV__ && (fixture.workload || fixture.inspectorLayout) ? ProfiledBody : zones?.bodyComponent;
   const emptyExample = showsEmptyExample ? (
     <Roster lanes={[]} windowSpec={windowSpec} {...zones} />
   ) : null;
@@ -54,14 +56,29 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
       direction={model.contentDirection}
       onContentLayout={model.measureContent}
       controlsZone={
-        <GalleryControls
-          {...model}
-          highlightZone={highlightZone}
-          performanceZone={performanceZone}
-        />
+        <>
+          {fixture.inspectorLayout ? (
+            <Control
+              label={model.presentation === 'popover' ? 'Show inspector' : 'Show popover'}
+              onPress={() =>
+                model.setPresentation(model.presentation === 'popover' ? 'inspector' : 'popover')
+              }
+            />
+          ) : null}
+          <GalleryControls
+            {...model}
+            highlightZone={highlightZone}
+            performanceZone={performanceZone}
+          />
+        </>
       }
       subjectZone={
         <Roster
+          selectionLayout={
+            fixture.inspectorLayout && model.presentation === 'inspector'
+              ? fixture.inspectorLayout
+              : undefined
+          }
           lanes={fixture.lanes}
           pxPerMinute={fixture.pxPerMinute}
           windowSpec={windowSpec}
