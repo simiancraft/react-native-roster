@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import type { BodyInput } from './roster.types';
 
@@ -28,10 +28,16 @@ export function RosterBodyLayout({
       </View>
     );
   }
+  const [contentOffset] = useState(() => ({ x: scroll.x.get(), y: 0 }));
+  const bodyRef = scroll.bodyRef;
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ x: contentOffset.x, animated: false });
+  }, [bodyRef, contentOffset]);
   return (
     <ScrollView
       testID="roster-horizontal-scroll"
       ref={scroll.bodyRef}
+      contentOffset={contentOffset}
       horizontal
       onScroll={scroll.onBodyScroll}
       scrollEventThrottle={16}

@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Pressable } from 'react-native';
+import { hasSource } from '../../../../core';
 import { pressPoint } from '../../../primitives/press-point';
 import type { ScheduleColumnInput } from '../../schedule.types';
 
@@ -24,10 +25,7 @@ export function ScheduleColumn({
                 rect={rect}
                 layer={layer}
                 lane={lane}
-                highlighted={rect.sources.some(
-                  (source) =>
-                    source.kind === highlightSource?.kind && source.id === highlightSource.id,
-                )}
+                highlighted={hasSource(rect.sources, highlightSource)}
               />
             </Fragment>
           ))}

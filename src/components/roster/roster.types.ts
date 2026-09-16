@@ -21,6 +21,14 @@ import type {
   WindowSpec,
 } from '../../core';
 import type { GapInput, IntervalInput } from '../layers/layers.types';
+import type { SelectionLayoutProps } from './selection/selection-layout.types';
+
+/** A selected interval: the rect input plus its absolute bounds and the view zone for formatting. */
+export type IntervalDetailInput = IntervalInput & {
+  start: number;
+  end: number;
+  viewTimezone: string;
+};
 
 export type RosterProjection = Extract<Projection, { orientation: 'horizontal' }>;
 export type RosterTick = { time: number; x: number; label: string; kind: 'day' | 'time' };
@@ -35,6 +43,8 @@ export type RosterScroll = {
   labelStyle: StyleProp<ViewStyle>;
 };
 export type RosterInput = {
+  /** Retain interval selection on press, default false. Lives on RosterInput for hook consumers. */
+  selectable?: boolean;
   lanes: Lane[];
   windowSpec: WindowSpec;
   minuteStep?: number;
@@ -54,6 +64,10 @@ export type RosterInput = {
   pxPerMinute?: number;
 };
 export type RosterModel = {
+  /** Current interval with fresh lane, layer, and rect references and its absolute bounds, or null. */
+  selection: Omit<IntervalDetailInput, 'highlighted' | 'viewTimezone'> | null;
+  /** Close the selected interval details. */
+  dismissSelection: () => void;
   window: Window;
   projection: RosterProjection;
   orderedLanes: Lane[];
@@ -133,10 +147,25 @@ export type RosterStyleProps = {
   /** Width of the corner and lane label column, default 180. */
   laneLabelWidth?: number;
 };
-export type RosterProps = RosterInput &
+export type RosterProps = Omit<RosterInput, 'selectable'> &
   RosterStyleProps & {
     /** Noninteractive current-time line; RosterNowLine spans the body height at x. */
     nowLineComponent?: ComponentType<RosterNowLineInput>;
+    /**
+     * Selected interval content; absent means interval presses retain no selection.
+     * Lives on RosterProps because the chassis mounts content and enables useRoster selection.
+     */
+    intervalDetailComponent?: ComponentType<IntervalDetailInput>;
+    /**
+     * Presentation strategy for the body and selected details; defaults to RosterSelectionPopover.
+     * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
+     */
+    selectionLayout?: ComponentType<SelectionLayoutProps>;
+    /**
+     * Native portal host name; defaults to a unique useId name for this roster.
+     * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
+     */
+    portalHost?: string;
     incompleteLabel?: string;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */

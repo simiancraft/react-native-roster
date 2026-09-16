@@ -34,11 +34,12 @@ src/
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/
     roster/                # Roster chassis, hook, layout, and collection parts
+    roster/selection/      # native/web selection layouts and shared presentation contract
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
     layers/                # interval and gap components shared by both projections
-    primitives/            # press-point platform pair and regionStyle
+    primitives/            # portal store, press-point platform pair, and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
   set-version.ts           # release CLI; delegates to the tested manifest writer
@@ -422,3 +423,50 @@ Do not publish, tag, change repository settings, or push without task authorizat
     serves library source to the web demo through the `react-native` condition;
     `bun run build` is not needed to see library edits there, but in this
     environment the dev server has needed a restart to notice edits.
+
+34. **Roster selection has a per-instance native portal host.** useRoster owns selection
+    and dismissal, refreshing current rect/layer/lane references and clearing missing bounds.
+    Pressing the selected interval again dismisses it; pressing another interval
+    switches selection. Cell and gap presses dismiss selection while still firing
+    `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+    and web; web outside press and Escape still dismiss.
+    RosterInput.selectable defaults to false for hook consumers. intervalDetailComponent,
+    selectionLayout, and portalHost live on RosterProps; the chassis passes
+    selectable: Boolean(intervalDetailComponent) to useRoster.
+    The chassis defaults selectionLayout once and passes mounted body and detail nodes.
+    targetBounds names the selected bounds; anchorZone holds the mounted body.
+    Layout scroll inputs contain only x, y, headerStyle, and labelStyle.
+    The default native layout owns PortalHost, named from the roster's useId unless
+    portalHost overrides it; independent rosters must use different names. Do not mount
+    duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
+    Portal uses an external Map store and does not preserve caller context automatically.
+    Target bounds include the lane offset and rect.y inset. The private reconcileSelection helper
+    matches source identity sets and chooses nearest bounds with a total difference of at
+    most 1 ms for projection roundoff. The native detail card
+    uses measured viewport and content sizes to clamp horizontally and falls back to top zero
+    when neither below nor above fits. It follows shared offsets with Animated.View, never scroll state.
+    Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+    card captures its own presses. Web excludes the body wrapper from Radix outside
+    dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+    Web recaptures the focused lane when selection switches and returns focus only after Escape.
+    The hook toggles the selected interval closed, switches to another interval, and dismisses
+    on cell or gap presses while preserving their callbacks. The body restores horizontal
+    and vertical offsets from shared values on remount when selectionLayout changes.
+    A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+    native also retains contentOffset. LegendList restores initialScrollOffset through
+    its own web mount effect and native initial offset.
+    Keep selection out of the body content key. selection-layout.web.tsx uses the optional
+    Radix peer and a zero-size pointer-transparent anchor; preserve its package.json browser
+    remap and selection-layout.types.ts. Schedule selection is a later change.
+
+    Root and core entry points bind aliases to the existing immutable function declarations,
+    preserving identity while avoiding CommonJS re-export getter overhead. The web layout
+    composes the shared header and label translations so its Animated import needs no namespace helper.
+
+    use-roster-press.ts isolates the stable press ref. The compiler skips that ref integration
+    but compiles useRoster's derived values, so selection does not regenerate lane list data.
+    The demo resolver explicitly selects the library's react-native export condition, including
+    web, so Metro compiles source hooks rather than emitted CommonJS. Preserve peer resolution.
+    The development detail fixture dispatches the click callback to verify zero selection-driven
+    mounted-row updates, separately from Pressable's hover, focus, and pressed-state commits.
+    The production case retains a complete pointer click.

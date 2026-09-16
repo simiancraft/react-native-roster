@@ -1,19 +1,10 @@
 import { useRef, useState } from 'react';
 import type { ScrollView } from 'react-native';
 import { makeMutable, useAnimatedStyle } from 'react-native-reanimated';
-import type { Lane, LaneGeometry } from '../../core';
-import {
-  byLabel,
-  coverageFor,
-  flagFor,
-  layoutLane,
-  snapToStep,
-  timeAtX,
-  windowFor,
-  xAtTime,
-} from '../../core';
-import { hitTest } from '../../core/hit-test';
+import type { Lane, LaneGeometry, Rect, Window } from '../../core';
+import { byLabel, coverageFor, flagFor, layoutLane, timeAtX, windowFor, xAtTime } from '../../core';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
+import { type SelectedInterval, useRosterPress } from './use-roster-press';
 import { ticksFor } from './utils/ticks';
 
 export function useRoster(input: RosterInput): RosterModel {
@@ -27,6 +18,10 @@ export function useRoster(input: RosterInput): RosterModel {
     pxPerMinute = 0.5,
     onNavigate,
   } = input;
+  const [selected, setSelected] = useState<SelectedInterval | null>(null);
+  function dismissSelection() {
+    setSelected(null);
+  }
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   // The pinned compiler lint cannot resolve useSharedValue's built-in type.
   // These shared values only track offsets, so no animation needs cancellation.
@@ -66,40 +61,19 @@ export function useRoster(input: RosterInput): RosterModel {
   function geometryFor(lane: Lane): LaneGeometry {
     return layoutLane(lane, window, projection);
   }
-  const currentPress = { input, window, projection, width: contentWidth };
-  const pressInput = useRef(currentPress);
-  pressInput.current = currentPress;
-  const [press] = useState(() => {
-    return function press(lane: Lane, pointX: number, pointY: number): void {
-      const { input, window, projection, width } = pressInput.current;
-      const { minuteStep = 60, onIntervalPress, onGapPress, onCellPress } = input;
-      const { rowHeight, viewTimezone } = projection;
-      if (
-        !Number.isFinite(pointX) ||
-        !Number.isFinite(pointY) ||
-        pointX < 0 ||
-        pointX >= width ||
-        pointY < 0 ||
-        pointY >= rowHeight
-      )
-        return;
-      const hit = hitTest(lane, layoutLane(lane, window, projection), pointX, pointY);
-      if (hit?.kind === 'interval') {
-        onIntervalPress?.(hit.rect, lane);
-        return;
-      }
-      if (hit?.kind === 'gap') {
-        onGapPress?.(hit.rect, lane);
-        return;
-      }
-      const time = Math.max(
-        window.start,
-        snapToStep(timeAtX(projection, window, pointX), minuteStep, viewTimezone),
-      );
-      if (time < window.end) onCellPress?.(lane, time);
-    };
-  });
+  const selection = reconcileSelection(
+    selected,
+    lanes,
+    window,
+    projection,
+    input.selectable ?? false,
+  );
+  // Discard invalid selection during reconciliation, before rendering any stale detail.
+  if (selected && !selection) setSelected(null);
+  const press = useRosterPress(input, window, projection, contentWidth, selection, setSelected);
   return {
+    selection,
+    dismissSelection,
     window,
     projection,
     orderedLanes,
@@ -138,4 +112,42 @@ export function useRoster(input: RosterInput): RosterModel {
       },
     },
   };
+}
+
+// Match provenance and nearest bounds while preserving the stored display values.
+function reconcileSelection(
+  selected: SelectedInterval | null,
+  lanes: Lane[],
+  window: Window,
+  projection: RosterProjection,
+  enabled: boolean,
+): RosterModel['selection'] {
+  if (selected && enabled) {
+    const lane = lanes.find((lane) => lane.id === selected.lane.id);
+    const layer = lane?.layers.find((layer) => layer.id === selected.layer.id);
+    if (lane && layer) {
+      const sources = new Set(
+        selected.rect.sources.map((source) => JSON.stringify([source.kind, source.id])),
+      );
+      let rect: Rect | undefined;
+      let nearest = 1;
+      for (const candidate of layoutLane(lane, window, projection).rects) {
+        if (candidate.layerId !== layer.id) continue;
+        const identities = new Set(
+          candidate.sources.map((source) => JSON.stringify([source.kind, source.id])),
+        );
+        if (identities.size !== sources.size || ![...identities].every((id) => sources.has(id)))
+          continue;
+        const difference =
+          Math.abs(timeAtX(projection, window, candidate.x) - selected.start) +
+          Math.abs(timeAtX(projection, window, candidate.x + candidate.width) - selected.end);
+        if (difference <= nearest && (!rect || difference < nearest)) {
+          nearest = difference;
+          rect = candidate;
+        }
+      }
+      if (rect) return { rect, layer, lane, start: selected.start, end: selected.end };
+    }
+  }
+  return null;
 }

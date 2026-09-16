@@ -1,8 +1,16 @@
 import { mock } from 'bun:test';
 import { createElement, type ReactNode, useRef } from 'react';
 
+export const backHandlers = new Set<() => boolean>();
+
 // Native hosts are supplied by the app runtime, which Bun does not implement.
 mock.module('react-native', () => ({
+  BackHandler: {
+    addEventListener: (_name: string, handler: () => boolean) => {
+      backHandlers.add(handler);
+      return { remove: () => backHandlers.delete(handler) };
+    },
+  },
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',

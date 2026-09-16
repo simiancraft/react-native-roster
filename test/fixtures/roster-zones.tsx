@@ -1,5 +1,5 @@
-import { Text, View } from 'react-native';
-import type { RosterProps } from '../../src';
+import { Pressable, Text, View } from 'react-native';
+import type { IntervalDetailInput, RosterProps, SelectionLayoutProps } from '../../src';
 import { RosterBody, RosterHeader, RosterLaneLabelColumn } from '../../src';
 
 export const replacedZones: Pick<
@@ -60,3 +60,63 @@ export const replacedZones: Pick<
     </View>
   ),
 };
+
+export function IntervalDetail({
+  lane,
+  layer,
+  rect,
+  start,
+  end,
+  viewTimezone,
+}: IntervalDetailInput) {
+  const format = new Intl.DateTimeFormat('en-US', {
+    timeZone: viewTimezone,
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  return (
+    <View
+      testID="interval-detail"
+      style={{
+        padding: 16,
+        width: 280,
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#94a3b8',
+        borderRadius: 8,
+        gap: 6,
+      }}
+    >
+      <Text>{lane.label}</Text>
+      <Text>{layer.label}</Text>
+      <Text>{viewTimezone}</Text>
+      <Text>{`${format.format(start)} to ${format.format(end)}`}</Text>
+      {rect.sources.map((source) => (
+        <Text key={`${source.kind}:${source.id}`}>
+          {source.kind}: {source.id} {source.label}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+export function InspectorSelectionLayout({
+  anchorZone,
+  contentZone,
+  open,
+  onDismiss,
+}: SelectionLayoutProps) {
+  return (
+    <View style={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
+      <View style={{ flex: 1, minWidth: 0 }}>{anchorZone}</View>
+      {open ? (
+        <View style={{ width: 280 }}>
+          <Pressable accessibilityRole="button" onPress={onDismiss}>
+            <Text>Close details</Text>
+          </Pressable>
+          {contentZone}
+        </View>
+      ) : null}
+    </View>
+  );
+}

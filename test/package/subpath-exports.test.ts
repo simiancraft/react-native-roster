@@ -59,6 +59,7 @@ describe('subpath exports', () => {
       const core = require('react-native-roster/core');
       const root = require('react-native-roster');
       assert.equal(root.layoutLane, core.layoutLane);
+      assert.equal(root.unionOf, core.unionOf);
       assert.equal(typeof root.Roster, 'function');
       assert.equal(typeof root.useRoster, 'function');
       assert.equal(typeof root.Schedule, 'function');
@@ -71,7 +72,7 @@ describe('subpath exports', () => {
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
         'coverageStats', 'resetStats', 'clearLayoutCache', 'clearCoverageCache',
-        'byLabel', 'byCoverage',
+        'byLabel', 'byCoverage', 'unionOf',
       ]) assert.equal(typeof core[name], 'function');
       const window = core.windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' });
       const geometry = core.layoutLane({ id: 'one', label: 'One', layers: [] }, window, {
@@ -145,4 +146,23 @@ it('root and core emitted graphs isolate core and allow only components and decl
   walk(resolve(root, 'dist/src/index.js'));
   walk(resolve(root, 'dist/src/core/index.js'));
   expect(visited.size).toBeGreaterThan(2);
+});
+
+it('browser bundling resolves the emitted selection strategy through the package remap', async () => {
+  const result = await Bun.build({
+    entrypoints: [resolve(root, 'dist/src/index.js')],
+    target: 'browser',
+    external: [
+      'react',
+      'react-native',
+      'react-native-reanimated',
+      '@legendapp/list',
+      '@radix-ui/react-popover',
+    ],
+  });
+  expect(result.success).toBe(true);
+  const output = await result.outputs[0]?.text();
+  expect(output).toContain('@radix-ui/react-popover');
+  expect(output).toContain('updatePositionStrategy');
+  expect(output).not.toContain('hardwareBackPress');
 });
