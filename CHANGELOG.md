@@ -1,3 +1,10 @@
+# [0.1.0](https://github.com/simiancraft/react-native-roster/compare/v0.0.1...v0.1.0) (2026-09-16)
+
+
+### Features
+
+* **render:** accept slot components instead of render functions ([e4b8094](https://github.com/simiancraft/react-native-roster/commit/e4b80940eea81796612b4dc230c39dfc76022e52))
+
 ## [0.0.1](https://github.com/simiancraft/react-native-roster/compare/v0.0.0...v0.0.1) (2026-09-14)
 
 
