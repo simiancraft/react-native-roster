@@ -20,7 +20,7 @@ no React Native, no dependencies.
 | `spans.ts` | `extentOf`, `intersectionOf`, `unionOf`, and the provenance sweep with exact sources per merged span |
 | `columns.ts` | day columns, transitions, and skipped dates for the columns projection |
 | `zone.ts` | Intl-only timezone math (offsets, first instants, transitions) |
-| `scale.ts`, `snap.ts` | pixel and time conversion, pointer snapping |
+| `scale.ts`, `snap.ts` | pixel and time conversion (`xAtTime`, `timeAtX`, `timeAtY`), pointer snapping |
 | `hit-test.ts` | the geometry walk both hooks use to resolve a press |
 | `order.ts`, `flag.ts` | lane comparators and lane flags |
 | `cache.ts`, `hash.ts` | layout and coverage caches keyed by lane content |
