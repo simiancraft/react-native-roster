@@ -1,3 +1,11 @@
+# [0.3.0](https://github.com/simiancraft/react-native-roster/compare/v0.2.0...v0.3.0) (2026-09-16)
+
+
+### Features
+
+* **core:** add spanOf and intersectionOf interval helpers ([d845e9d](https://github.com/simiancraft/react-native-roster/commit/d845e9d2c77b411aa6643953f39b770964d50822))
+* **core:** add unionOf for merging overlapping and touching spans ([f10d47d](https://github.com/simiancraft/react-native-roster/commit/f10d47d7351390980b10b795b95a4809b99e2e0f))
+
 # [0.2.0](https://github.com/simiancraft/react-native-roster/compare/v0.1.0...v0.2.0) (2026-09-16)
 
 
