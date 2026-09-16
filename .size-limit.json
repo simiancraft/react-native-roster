@@ -21,7 +21,14 @@
     "limit": "52 kB",
     "gzip": false,
     "brotli": false,
-    "ignore": ["react", "react-native", "expo", "@legendapp/list", "react-native-reanimated"]
+    "ignore": [
+      "react",
+      "react-native",
+      "expo",
+      "@legendapp/list",
+      "react-native-reanimated",
+      "@radix-ui/react-popover"
+    ]
   },
   {
     "name": "react-native-roster/nativewind",
@@ -35,7 +42,8 @@
       "expo",
       "@legendapp/list",
       "react-native-reanimated",
-      "nativewind"
+      "nativewind",
+      "@radix-ui/react-popover"
     ]
   }
 ]

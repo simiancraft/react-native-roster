@@ -16,15 +16,16 @@ import type {
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
+  RosterProps,
 } from '../../../src/components/roster/roster.types';
 import type { Lane, Layer } from '../../../src/core';
 import { clearLayoutCache, layoutLane, layoutStats, windowFor } from '../../../src/core';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 
-function render(element: ReactElement) {
+function render(element: ReactElement, createNodeMock?: (element: ReactElement) => unknown) {
   let tree!: ReactTestRenderer;
   act(() => {
-    tree = create(element);
+    tree = create(element, createNodeMock ? { createNodeMock } : undefined);
   });
   return tree;
 }
@@ -33,6 +34,15 @@ function close(tree: ReactTestRenderer) {
 }
 
 describe('Roster zones and rect primitives', () => {
+  it('rejects the hook-only selectable input on Roster props', () => {
+    const props = {
+      lanes: [],
+      windowSpec: rosterWindowSpec,
+      // @ts-expect-error Selection is enabled by intervalDetailComponent on Roster.
+      selectable: true,
+    } satisfies RosterProps;
+    expect(createElement(Roster, props).type).toBe(Roster);
+  });
   it('renders the default empty zone and a replacement', () => {
     const tree = render(createElement(Roster, { lanes: [], windowSpec: rosterWindowSpec }));
     expect(tree.root.findByType('Text' as ElementType).props.children).toBe('No lanes');
@@ -378,4 +388,167 @@ describe('Roster zones and rect primitives', () => {
     expect(tree.root.findAllByType('Text' as ElementType)).toHaveLength(1);
     close(tree);
   });
+});
+
+it('mounts selection content outside the body, supplies current inputs, and isolates host names', () => {
+  const original = rosterFixtures['single-lane'].lanes[0] as Lane;
+  const lane = {
+    ...original,
+    layers: original.layers.map((layer) => ({
+      ...layer,
+      style: { ...layer.style, inset: 6 },
+    })),
+  };
+  const detail = mock((input: import('../../../src').IntervalDetailInput) =>
+    createElement('detail', input),
+  );
+  const strategy = mock((input: import('../../../src').SelectionLayoutProps) =>
+    createElement('selection-layout', input, input.anchorZone, input.contentZone),
+  );
+  const input = {
+    lanes: [{ id: 'first', label: 'A', layers: [] }, lane],
+    windowSpec: rosterWindowSpec,
+    intervalDetailComponent: detail,
+    selectionLayout: strategy,
+  };
+  const tree = render(createElement(Roster, input));
+  const hostName = tree.root.findByType('selection-layout' as ElementType).props.portalHost;
+  const body = tree.root.findByType(RosterBody);
+  act(() => body.props.press(lane, 300, 10));
+  const selected = tree.root.findByType('selection-layout' as ElementType).props;
+  expect(selected.open).toBe(true);
+  expect(selected.targetBounds).toEqual({ x: 270, y: 54, width: 240, height: 36 });
+  expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(false);
+  act(() =>
+    tree.update(
+      createElement(Roster, {
+        ...input,
+        highlightSource: { kind: 'rule', id: 'one' },
+        portalHost: 'custom',
+      }),
+    ),
+  );
+  expect(tree.root.findByType('detail' as ElementType).props.highlighted).toBe(true);
+  expect(tree.root.findByType('selection-layout' as ElementType).props.portalHost).toBe('custom');
+  act(() => selected.onDismiss());
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(0);
+  const second = render(createElement(Roster, input));
+  expect(second.root.findByType('selection-layout' as ElementType).props.portalHost).not.toBe(
+    hostName,
+  );
+  close(second);
+  close(tree);
+});
+
+it('renders the fixture detail in the view timezone and switches its inspector presentation', () => {
+  const { lanes, zones, inspectorLayout: Inspector } = rosterFixtures['interval-detail'];
+  const lane = lanes[0] as Lane;
+  const layer = lane.layers[0] as Layer;
+  const window = { start: Date.UTC(2024, 0, 1, 10), end: Date.UTC(2024, 0, 1, 12) };
+  const projection = {
+    orientation: 'horizontal' as const,
+    viewTimezone: 'UTC',
+    pxPerMinute: 1,
+    rowHeight: 48,
+  };
+  const rect = layoutLane(lane, window, projection).rects[0] as import('../../../src').Rect;
+  const Detail = zones.intervalDetailComponent as NonNullable<typeof zones.intervalDetailComponent>;
+  const detailInput = {
+    lane,
+    layer,
+    rect,
+    highlighted: false,
+    start: window.start,
+    end: window.end,
+    viewTimezone: 'UTC',
+  };
+  const tree = render(createElement(Detail, detailInput));
+  const text = JSON.stringify(tree.toJSON());
+  expect(text).toContain('10:00 AM');
+  expect(text).toContain('12:00 PM');
+  expect(text).toContain('Open hours');
+  expect(text).toContain('09:00 to 17:00');
+  act(() =>
+    tree.update(createElement(Detail, { ...detailInput, layer: { ...layer, intervals: [] } })),
+  );
+  expect(JSON.stringify(tree.toJSON())).toContain('UTC');
+  const onDismiss = mock();
+  const model = {
+    anchorZone: createElement('body'),
+    contentZone: createElement('detail'),
+    open: false,
+    onDismiss,
+  };
+  act(() => tree.update(createElement(Inspector as ElementType, model)));
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(0);
+  act(() => tree.update(createElement(Inspector as ElementType, { ...model, open: true })));
+  expect(tree.root.findAllByType('body' as ElementType)).toHaveLength(1);
+  expect(tree.root.findAllByType('detail' as ElementType)).toHaveLength(1);
+  act(() => tree.root.findByType('Pressable' as ElementType).props.onPress());
+  expect(onDismiss).toHaveBeenCalledTimes(1);
+  close(tree);
+});
+
+it('routes native body presses through an open selection and restores scroll when layouts switch', () => {
+  const fixture = rosterFixtures['interval-detail'];
+  const input = {
+    lanes: [
+      ...fixture.lanes,
+      ...Array.from({ length: 10 }, (_, index) => ({
+        id: `extra-${index}`,
+        label: `Z ${index}`,
+        layers: [],
+      })),
+    ],
+    windowSpec: fixture.windowSpec ?? rosterWindowSpec,
+    intervalDetailComponent: fixture.zones.intervalDetailComponent,
+  };
+  const scrollTo = mock(() => {});
+  const tree = render(createElement(Roster, input), () => ({ scrollTo }));
+  // The chassis viewport and the native portal viewport measure independently.
+  act(() => {
+    for (const node of tree.root.findAllByType('View' as ElementType)) {
+      node.props.onLayout?.({ nativeEvent: { layout: { width: 600, height: 240 } } });
+    }
+  });
+  function press(x: number) {
+    act(() =>
+      tree.root.findByProps({ testID: 'roster-lane-one' }).props.onPress({
+        nativeEvent: { locationX: x, locationY: 20 },
+      }),
+    );
+  }
+  press(300);
+  expect(tree.root.findAllByProps({ accessibilityLabel: 'Dismiss interval details' })).toHaveLength(
+    0,
+  );
+  expect(tree.root.findByType(RosterBody).props.scroll.x.get()).toBe(0);
+  press(570);
+  expect(JSON.stringify(tree.toJSON())).toContain('20:00');
+  press(10);
+  expect(tree.root.findAllByProps({ testID: 'interval-detail' })).toHaveLength(0);
+  press(300);
+  const body = tree.root.findByType(RosterBody);
+  act(() => {
+    body.props.scroll.onBodyScroll({ nativeEvent: { contentOffset: { x: 80, y: 0 } } });
+    body.props.scroll.onVerticalScroll({ nativeEvent: { contentOffset: { x: 0, y: 24 } } });
+  });
+  function Strategy(props: import('../../../src').SelectionLayoutProps) {
+    return createElement('strategy', props, props.anchorZone, props.contentZone);
+  }
+  act(() => tree.update(createElement(Roster, { ...input, selectionLayout: Strategy })));
+  const strategy = tree.root.findByType('strategy' as ElementType).props;
+  expect(strategy.open).toBe(true);
+  expect(Object.keys(strategy.scroll).sort()).toEqual(['headerStyle', 'labelStyle', 'x', 'y']);
+  expect(strategy.targetBounds).toEqual({ x: 270, y: 0, width: 240, height: 48 });
+  expect(strategy.scroll.x.get()).toBe(80);
+  expect(strategy.scroll.y.get()).toBe(24);
+  expect(scrollTo).toHaveBeenLastCalledWith({ x: 80, animated: false });
+  const restorationCalls = scrollTo.mock.calls.length;
+  act(() => tree.update(createElement(Roster, { ...input, selectionLayout: Strategy })));
+  expect(scrollTo).toHaveBeenCalledTimes(restorationCalls);
+  expect(tree.root.findByType('LegendList' as ElementType).props.initialScrollOffset).toBe(24);
+  expect(strategy.scroll.headerStyle.transform).toEqual([{ translateX: -80 }]);
+  expect(strategy.scroll.labelStyle.transform).toEqual([{ translateY: -24 }]);
+  close(tree);
 });

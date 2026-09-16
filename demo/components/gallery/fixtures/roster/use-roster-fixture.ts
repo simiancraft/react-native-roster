@@ -50,6 +50,7 @@ const counterBridge: CounterBridgeInput = {
 
 export function useRosterFixture(fixtureId: RosterFixtureId) {
   const definition = rosterFixtures[fixtureId];
+  const [presentation, setPresentation] = useState<'popover' | 'inspector'>('popover');
   const [contentWidth, setContentWidth] = useState(720);
   const [windowSpec, setWindowSpec] = useState<WindowSpec>(
     definition.windowSpec ?? rosterWindowSpec,
@@ -115,6 +116,8 @@ export function useRosterFixture(fixtureId: RosterFixtureId) {
   }
   return {
     status: 'ready' as const,
+    presentation,
+    setPresentation,
     contentDirection: contentWidth < 720 ? ('column' as const) : ('row' as const),
     measureContent: (input: LayoutChangeEvent) => setContentWidth(input.nativeEvent.layout.width),
     ruleSetDraft,

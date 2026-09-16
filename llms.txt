@@ -144,7 +144,7 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 
 | Import | Runtime exports and purpose |
 | --- | --- |
-| react-native-roster | Roster, Schedule, useRoster, useSchedule, default slot components, and core re-exports. |
+| react-native-roster | Roster, Schedule, hooks, default slot components, RosterSelectionPopover, PortalHost, Portal, and core re-exports. |
 | react-native-roster/core | layoutLane, coverageFor, flagFor, extentOf, intersectionOf, unionOf, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
 | react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
@@ -203,7 +203,7 @@ outside React state.
 
 useRoster returns window, projection, orderedLanes, coverage, laneState,
 geometryFor(lane), scroll, press(lane,x,y), ticks, contentWidth, viewport,
-onLayout, navigate, and status ('empty' or 'ready'). There is no visibleRange
+onLayout, navigate, selection, dismissSelection, and status ('empty' or 'ready'). There is no visibleRange
 field in the shipped public model. Custom layouts must wire onLayout. Custom
 bodies compute geometry only for mounted lanes, preserving virtualization.
 A zero-duration window has contentWidth=0 and renders no Roster body. Positive
@@ -249,6 +249,71 @@ Keep its viewport gate and measured estimatedListSize in custom compositions.
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
 | `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, highlight/hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+
+## Selection
+
+Roster only; Schedule does not yet support selection and will gain it in a later change.
+intervalDetailComponent?: ComponentType<IntervalDetailInput> enables selection on interval
+press while preserving onIntervalPress. Absent content retains no selection.
+Pressing the selected interval again dismisses it; pressing another interval
+switches selection. Cell and gap presses dismiss selection while still firing
+`onCellPress` and `onGapPress`. These rules live in the hook and apply on native
+and web; web outside press and Escape still dismiss.
+IntervalDetailInput is IntervalInput plus absolute start and end and viewTimezone.
+useRoster owns selection: {rect,layer,lane,start,end}|null and dismissSelection(). It resolves
+current lane/layer/rect references and clears removed lane or absolute rect bounds.
+Resizing and sorting retain valid selection with current geometry; reconciliation
+uses the private reconcileSelection helper to match source identity sets and choose
+nearest bounds with a total difference of at most 1 ms for projection roundoff.
+selectable?: boolean belongs only to the hook input, RosterInput, and defaults to false.
+It is excluded from RosterProps; hook consumers pass
+selectable: true to retain selection. intervalDetailComponent, selectionLayout, and
+portalHost belong to RosterProps because the chassis mounts content and the layout.
+The chassis passes selectable: Boolean(intervalDetailComponent) to useRoster.
+Custom chassis mount their content and layout using the returned model.
+
+selectionLayout?: ComponentType<SelectionLayoutProps> defaults to the root-exported
+RosterSelectionPopover. It is the explicit naming exception to the Component suffix.
+The chassis mounts the strategy once around the body node, then passes that node
+to RosterLayout.bodyZone. SelectionLayoutProps is exported: anchorZone and contentZone
+are ReactNode; targetBounds is {x,y,width,height}|null in body-content coordinates, including
+the lane offset and interval inset; open is
+boolean; onDismiss is () => void; portalHost is string; scroll is Pick<RosterScroll, 'x' | 'y' | 'headerStyle' | 'labelStyle'>.
+Layouts receive no lane, layer, or rect. Render anchorZone once and arrange contentZone
+above or beside it. The interval-detail fixture demonstrates a runtime inspector toggle.
+
+Native selection-layout.tsx uses the root-exported PortalHost and Portal from
+components/primitives/portal.tsx, a module-level Map store with useSyncExternalStore.
+The default layout owns a host named from the roster's useId; portalHost overrides
+that name. Use distinct names for independent rosters and never mount the same host
+twice. Custom layouts may target an ancestor host they own. Caller context does not
+cross a store portal; provide context above the host or inside the portaled node.
+Native hardware back dismisses details. The detail card flips above
+when that fits, or uses the top edge when neither vertical placement fits. It clamps
+left using measured viewport and content widths. Shared x/y values position the
+overlay in viewport coordinates, never React scroll state. Selection identity
+must not enter the body content key or cause mounted rows to render. The stable press
+ref lives in use-roster-press.ts so React Compiler can retain derived body inputs in useRoster.
+
+Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
+card captures its own presses. Web excludes the body wrapper from Radix outside
+dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+The hook toggles the selected interval closed, switches to another interval, and dismisses
+on cell or gap presses while preserving their callbacks. The body restores horizontal
+and vertical offsets from shared values on remount when selectionLayout changes.
+A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
+native also retains contentOffset. LegendList restores initialScrollOffset through
+its own web mount effect and native initial offset.
+
+selection-layout.web.tsx uses @radix-ui/react-popover, required by the web root entry
+but an optional peer for native/core-only consumers. Source web bundlers (Vite,
+Storybook, or Metro web) require it even with selection disabled because the web
+layout is in the module graph. Install with Bun. The emitted
+browser remap must travel with the shared selection-layout.types.ts contract, just
+like press-point and interval-hover. Its zero-size, pointer-transparent anchor follows
+the shared translation; Radix's portal follows anchor movement and owns outside press,
+Escape, and collisions. The layout returns focus to the previously focused element
+only after Escape.
 
 ## Schedule zones
 

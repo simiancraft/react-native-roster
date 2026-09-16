@@ -1,6 +1,7 @@
 export type { GapInput, IntervalInput } from './components/layers/layers.types';
 export { RosterGap } from './components/layers/parts/gap';
 export { RosterInterval } from './components/layers/parts/interval';
+export { Portal, PortalHost } from './components/primitives/portal';
 export { Roster } from './components/roster';
 export { RosterBodyLayout } from './components/roster/body-layout';
 export { RosterLaneLabel } from './components/roster/lanes/parts/lane-label';
@@ -17,6 +18,7 @@ export type {
   GridInput,
   HeaderCellInput,
   HeaderInput,
+  IntervalDetailInput,
   LabelColumnInput,
   LaneLabelInput,
   RosterInput,
@@ -27,6 +29,8 @@ export type {
   RosterStyleProps,
   RosterTick,
 } from './components/roster/roster.types';
+export { RosterSelectionPopover } from './components/roster/selection/selection-layout';
+export type { SelectionLayoutProps } from './components/roster/selection/selection-layout.types';
 export { useRoster } from './components/roster/use-roster';
 export { Schedule } from './components/schedule';
 export { ScheduleColumn } from './components/schedule/days/parts/column';

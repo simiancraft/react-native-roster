@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Pressable } from 'react-native';
 import type { Lane, LaneGeometry } from '../../../core';
+import { hasSource } from '../../../core';
 import { pressPoint } from '../../primitives/press-point';
 import type { BodyInput } from '../roster.types';
 import { intervalHoverProps } from './interval-hover';
@@ -56,10 +57,7 @@ export function LaneRow({
                   rect={rect}
                   layer={layer}
                   lane={lane}
-                  highlighted={rect.sources.some(
-                    (source) =>
-                      source.kind === highlightSource?.kind && source.id === highlightSource.id,
-                  )}
+                  highlighted={hasSource(rect.sources, highlightSource)}
                 />
               </Fragment>
             ))}
