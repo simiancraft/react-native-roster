@@ -145,9 +145,26 @@ show the incompleteLabel; do not describe incomplete empty time as definitive.
 | Import | Runtime exports and purpose |
 | --- | --- |
 | react-native-roster | Roster, Schedule, hooks, default slot components, RosterSelectionPopover, PortalHost, Portal, and core re-exports. |
-| react-native-roster/core | layoutLane, coverageFor, flagFor, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
+| react-native-roster/core | layoutLane, coverageFor, flagFor, extentOf, intersectionOf, unionOf, windowFor, prev, next, today, dayColumnsFor, timeAtX, timeAtY, snapToStep, byLabel, byCoverage, and core counters/caches. |
 | react-native-roster/rrule | expandRuleSet, envelopeFor, expandStats, resetExpandStats, clearExpandCache; RuleSet, RosterRule, RosterDate, ExpandOptions, ExpandResult, and ExpandStats types. |
 | react-native-roster/nativewind | Side-effect registration of Roster and Schedule with NativeWind's cssInterop, plus the registered Roster and Schedule and the rosterClassNames/scheduleClassNames mappings. Imports the optional nativewind peer. |
+
+## Interval helpers
+
+extentOf(segments: readonly Window[]): Window | null returns earliest start through
+latest end, bridging disjoint segments. intersectionOf(spans: readonly Window[]):
+Window | null returns latest start through earliest end. Both use end-exclusive
+epoch milliseconds and return null for empty input.
+Inputs may be unsorted, overlapping, nested, or duplicated; inputs are not mutated.
+An empty intersection, including touching bounds, returns null. Every input is
+validated; non-finite bounds or end <= start throw RangeError. Window is the bare
+{ start, end } type; Span remains the axis choice type.
+
+unionOf(spans: readonly Window[]): Window[] merges overlapping or touching
+end-exclusive windows, sorts them by start, and keeps disjoint windows separate.
+Empty input returns []; every returned window is a new object. The input array
+and its windows remain untouched. Every span is validated with the same
+RangeError rules as extentOf and intersectionOf.
 
 No default exports. Root exports renderer inputs/models/slot input types as well as
 core types. Core imports standard JS and Intl only. Only /rrule imports
