@@ -17,11 +17,6 @@ export function RosterBodyLayout({
   /** Noninteractive content above the grid and lane list, following horizontal scroll. */
   overlayZone?: ReactNode;
 }) {
-  const [contentOffset] = useState(() => ({ x: scroll.x.get(), y: 0 }));
-  const bodyRef = scroll.bodyRef;
-  useEffect(() => {
-    bodyRef.current?.scrollTo({ x: contentOffset.x, animated: false });
-  }, [bodyRef, contentOffset]);
   let overlay: ReactNode = null;
   if (overlayZone != null) {
     overlay = (
@@ -33,6 +28,11 @@ export function RosterBodyLayout({
       </View>
     );
   }
+  const [contentOffset] = useState(() => ({ x: scroll.x.get(), y: 0 }));
+  const bodyRef = scroll.bodyRef;
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ x: contentOffset.x, animated: false });
+  }, [bodyRef, contentOffset]);
   return (
     <ScrollView
       testID="roster-horizontal-scroll"

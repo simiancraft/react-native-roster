@@ -168,7 +168,7 @@ and "Availability may be incomplete"; both are localizable props.
 | Import | Shipped surface |
 | --- | --- |
 | `react-native-roster` | `Roster`, `Schedule`, hooks, slot components, `RosterSelectionPopover`, `PortalHost`, `Portal`, and all core exports. |
-| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `hasSource`, `extentOf`, `intersectionOf`, `unionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
+| `react-native-roster/core` | Types, `layoutLane`, `coverageFor`, `flagFor`, `extentOf`, `intersectionOf`, `unionOf`, axis helpers, comparators, and counters. Standard JavaScript and `Intl` only. |
 | `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, types, and expansion counters and caches. Uses pinned `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers `Roster` and `Schedule` with NativeWind so their `className` props resolve; re-exports the registered components. |
 
@@ -558,16 +558,7 @@ network). The home page lists every fixture route:
   and week spans, sorting, filtering, and a per-person Schedule, styled with
   NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
-  seed. Each event compares scheduled time with seeded attendee arrivals and departures,
-  using a bottom strip and selection popover. The popover shares a shaded scheduled band
-  across attendance rows; its footer shows row detail during hover, keyboard focus, or press. A fixed demo clock separates future, live, and
-  past events. Attendees are expected, pending, present, attended, or absent;
-  present bars extend to now, including after scheduled end until actual departure.
-  Arrival and departure facts are immutable. Member-local dates preserve events across
-  zones and DST; generated events do not overlap. Union strips preserve gaps, and the
-  inspector expands a full week independently with no horizontal strip in its Schedule.
-  Lane objects survive selection changes, and explicit undefined slots keep their defaults.
-  Any resemblance to real people is coincidental.
+  seed; any resemblance to real people is coincidental.
 
 | Platform | Support and evidence |
 | --- | --- |

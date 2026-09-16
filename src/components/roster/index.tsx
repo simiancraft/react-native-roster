@@ -22,9 +22,9 @@ const defaultCornerZone = <RosterCorner />;
 
 export function Roster(props: RosterProps) {
   const {
+    nowLine,
     selection,
     dismissSelection,
-    nowLine,
     status,
     orderedLanes,
     laneState,

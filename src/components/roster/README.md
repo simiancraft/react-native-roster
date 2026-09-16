@@ -6,7 +6,7 @@ This feature is about a roster; its children are lanes.
   `XxxInput` slot input type from `roster.types.ts`
 
 - `index.tsx`: the chassis; calls `useRoster`, branches on `status`, composes zones
-- `use-roster.ts`: the hook; owns window, projection, nowLine, scroll, geometry, press, and selection
+- `use-roster.ts`: the hook; owns window, projection, nowLine, scroll, geometry, and selection
 - `use-roster-press.ts`: isolates the stable press ref so React Compiler can retain derived body inputs
 - `layout.tsx`: arranges corner, header, label column, and body regions only
 - `roster.types.ts`: props, model, and every slot input type
@@ -20,7 +20,7 @@ Interval and gap components live in `../layers`; press geometry and `regionStyle
 in `../primitives`. Zone contracts are documented in the README's Roster zones
 section and in `llms.txt`. Tests: `test/components/roster`.
 
-`RosterBody` gates
+This feature is about a roster body; its children are lanes. `RosterBody` gates
 measurement and composes the body layout and lane list. `BodyInput` extends the
 positive `LaneListInput` with ticks, grid, and now-line inputs; the body explicitly
 picks the lane-list props. The `onRowRender` prop on
@@ -30,6 +30,15 @@ gallery, not a supported customization point. Production Profiler callbacks are 
 Input-bearing slots accept component types and mount in the data-owning parts.
 The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body
 content key tracks interval and gap component identity, including class components.
+
+`now` is a controlled epoch millisecond value, default null. `useRoster` derives
+`nowLine` (`{ x, now }`) during render via `xAtTime` using the fitted horizontal
+scale; it is null when `now` is null or outside the end-exclusive window. The model
+retains the raw `now` instant. The exported `RosterNowLine` fills the body's `overlayZone`
+with a noninteractive 2 px red line; `nowLineComponent` accepts the exported
+`RosterNowLineInput` (`{ x, now }`). The overlay scrolls horizontally with the
+content. Now values and component identity never enter the lane list or body
+content key. The caller owns clock updates.
 
 `selection/` holds the runtime-swappable presentation strategies (native popover, web popover) for one `SelectionLayoutProps` contract.
 
@@ -75,12 +84,3 @@ and vertical offsets from shared values on remount when selectionLayout changes.
 A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
 native also retains contentOffset. LegendList restores initialScrollOffset through
 its own web mount effect and native initial offset.
-
-`now` is a controlled epoch millisecond value, default null. `useRoster` derives
-`nowLine` (`{ x, now }`) during render via `xAtTime` using the fitted horizontal
-scale; it is null when `now` is null or outside the end-exclusive window. The model
-retains the raw `now` instant. The exported `RosterNowLine` fills the body's `overlayZone`
-with a noninteractive 2 px red line; `nowLineComponent` accepts the exported
-`RosterNowLineInput` (`{ x, now }`). The overlay scrolls horizontally with the
-content. Now values and component identity never enter the lane list or body
-content key. The caller owns clock updates.

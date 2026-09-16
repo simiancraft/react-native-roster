@@ -149,6 +149,8 @@ export type RosterStyleProps = {
 };
 export type RosterProps = Omit<RosterInput, 'selectable'> &
   RosterStyleProps & {
+    /** Noninteractive current-time line; RosterNowLine spans the body height at x. */
+    nowLineComponent?: ComponentType<RosterNowLineInput>;
     /**
      * Selected interval content; absent means interval presses retain no selection.
      * Lives on RosterProps because the chassis mounts content and enables useRoster selection.
@@ -164,8 +166,6 @@ export type RosterProps = Omit<RosterInput, 'selectable'> &
      * Lives on RosterProps because only the chassis mounts the layout, not useRoster.
      */
     portalHost?: string;
-    /** Noninteractive current-time line; RosterNowLine spans the body height at x. */
-    nowLineComponent?: ComponentType<RosterNowLineInput>;
     incompleteLabel?: string;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */
