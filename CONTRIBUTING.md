@@ -61,15 +61,14 @@ creating those directories.
 
 Release automation runs on every push to `main` while the repository variable
 `RELEASE_ENABLED` is `true`; the `APP_ID` and `APP_PRIVATE_KEY` secrets are inherited
-from the organization. Set the variable to any other value to pause releases. The
-GitHub `release` environment requires a reviewer, who must verify issue #9's device
-fps and layout evidence, including screenshots on the pull request for the exact
-commit being released, before approving the job. The YAML references the
-environment; required reviewers are a repository setting.
+from the organization. Set the variable to any other value to pause releases. There
+is no approval step: merging into `main` is the release, so branches carry the work
+until it is ready. Device evidence for issue #9 belongs on the pull request before
+it merges; see docs/performance.md.
 
 npm has no token secret. The package's npmjs.com settings register a trusted
-publisher for this repository, workflow file `ci.yml`, and environment `release`;
-the job exchanges its GitHub OIDC token for a short-lived publish credential. The
+publisher for this repository and workflow file `ci.yml`, with no environment; the
+job exchanges its GitHub OIDC token for a short-lived publish credential. The
 job upgrades to npm 11 because the OIDC exchange needs npm 11.5.1 or newer, and
 Node 22 bundles npm 10. `@semantic-release/npm` probes that exchange in its verify
 step, so a misconfigured publisher fails before any release commit or tag exists.

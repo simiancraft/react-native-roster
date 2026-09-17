@@ -202,11 +202,12 @@ Do not publish, tag, change repository settings, or push without task authorizat
    targets SDK 54; do not copy the reference demo's older SDK dependencies.
 4. **app.config.js stays CommonJS.** It injects `extra.build.gitSha` and `builtAt`.
    `GITHUB_PAGES` selects `/react-native-roster`; a root URL breaks deployed assets.
-5. **Release approval is configured on GitHub.** The `release` environment needs a
-   required reviewer before `RELEASE_ENABLED=true`. Approve only against #9 device
-   evidence for the exact release commit. See CONTRIBUTING.md for secrets and settings.
-   npm authenticates through the trusted publisher registered for `ci.yml` and the
-   `release` environment; there is no `NPM_TOKEN`. The job installs npm 11 because
+5. **Merging into main is the release.** The release job runs unattended on every
+   push to `main` while `RELEASE_ENABLED=true`; there is no GitHub environment or
+   required reviewer, matching the other simiancraft packages. Device evidence for
+   #9 belongs on the pull request before it merges. See CONTRIBUTING.md for secrets.
+   npm authenticates through the trusted publisher registered for `ci.yml` with no
+   environment; there is no `NPM_TOKEN`. The job installs npm 11 because
    the OIDC exchange needs 11.5.1 or newer. `@semantic-release/exec` only writes the
    version through `scripts/set-version.ts`; `@semantic-release/npm` publishes and
    verifies the publisher before any release commit or tag is created.
