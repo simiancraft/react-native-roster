@@ -559,6 +559,17 @@ network). The home page lists every fixture route:
   NativeWind class props and slot components, with a sun and moon theme toggle.
   Names, titles, and the organization come from `@faker-js/faker` with a fixed
   seed; any resemblance to real people is coincidental.
+  Each event compares scheduled time with seeded attendee arrivals and departures.
+  A fixed seeded now separates past, live, and future events; attendees are expected,
+  pending, present, attended, or absent. Present spans extend through now without
+  exposing future departures, including after scheduled end until actual departure.
+  A bottom strip draws the union of attendances over the lighter scheduled block,
+  preserving gaps and overhang. The event detail popover shares a shaded scheduled
+  band across attendance rows. Its footer status line defaults to the attendance
+  legend and scheduled-band explanation; web hover or visible keyboard focus shows
+  row detail, and native taps toggle detail or switch rows. The inspector retains
+  member selection. This feature lives in
+  [demo/components/team-roster](./demo/components/team-roster/README.md).
 
 | Platform | Support and evidence |
 | --- | --- |
