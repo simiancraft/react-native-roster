@@ -1,7 +1,7 @@
 import type { Weekday } from 'react-native-roster/core';
 import type { RuleSet } from 'react-native-roster/rrule';
+import type { MemberEvent } from '../events/event.types';
 
-export type EventKind = 'meeting' | 'focus' | 'session';
 export type Member = {
   id: string;
   name: string;
@@ -15,11 +15,4 @@ export type Member = {
   hours: { start: number; end: number };
   rules: RuleSet;
 };
-export type MemberEvent = {
-  id: string;
-  kind: EventKind;
-  title: string;
-  start: number;
-  end: number;
-};
-export type MemberLaneMeta = { member: Member; events: MemberEvent[] };
+export type MemberLaneMeta = { member: Member; events: MemberEvent[]; now: number };
