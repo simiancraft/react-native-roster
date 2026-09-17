@@ -88,9 +88,6 @@ jobs:
 
   release:
     name: Release
-    # Configure a required reviewer for this environment before enabling releases.
-    # Approve only against issue #9 device evidence for this exact commit.
-    environment: release
     needs: check
     # Opt-in gate: set repo variable RELEASE_ENABLED=true and configure the
     # APP_ID / APP_PRIVATE_KEY secrets before flipping this on. Skipped by
@@ -129,7 +126,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       # npm authenticates through the trusted publisher registered on npmjs.com
-      # for this repository, workflow file, and environment (OIDC; no NPM_TOKEN).
+      # for this repository and workflow file (OIDC; no NPM_TOKEN).
       # Node 22 bundles npm 10; the OIDC exchange needs npm 11.5.1 or newer.
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@12.0.2

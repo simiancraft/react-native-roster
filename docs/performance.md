@@ -185,7 +185,7 @@ Do not describe a browser or emulator result as device evidence.
 6. Repeat the cold capture five times, clearing through the button every time,
    and post every value. Require each below 16 ms. Also attach the separate
    LaneRow development profile described above. If any result fails, investigate
-   before requesting release approval; do not discard the slow run.
+   before merging; do not discard the slow run.
 
 Paste this in a comment on the release PR:
 
@@ -204,11 +204,10 @@ LaneRow development profile: <link, commit, build mode, mount/update audit>
 Result: <pass or fail; explain missing evidence>
 ```
 
-The GitHub `release` environment's required reviewer approves against this
-comment for the exact commit being released. CI cannot verify the phone or the
-repository's environment settings. Missing evidence means no release approval.
-See `CONTRIBUTING.md` for environment setup. No device captures have been made
-as part of issue #9's implementation.
+Merging the pull request is the release, so this comment is the merge gate for
+the exact commit being released. CI cannot verify the phone. Missing evidence
+means the pull request waits. See `CONTRIBUTING.md` for release setup. No device
+captures have been made as part of issue #9's implementation.
 
 ## react-big-scheduler comparison procedure
 
