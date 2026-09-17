@@ -1,3 +1,21 @@
+# [0.4.0](https://github.com/simiancraft/react-native-roster/compare/v0.3.0...v0.4.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **demo:** correct attendance facts, zones, and organization in the showcase ([086de50](https://github.com/simiancraft/react-native-roster/commit/086de50bab1869922a7baba561bb9f07e6b27532))
+* **demo:** harden time-off lookup and align the inspector clock ([e026635](https://github.com/simiancraft/react-native-roster/commit/e026635c9fabf3465026a13198273c2271c2cc16))
+* **demo:** keep a focused attendance row active through hover changes ([5d0dd86](https://github.com/simiancraft/react-native-roster/commit/5d0dd86917605602127fcec49527049165b6fe44))
+* **demo:** keep fixture lanes cached when the gallery expands a rule set ([44e43f4](https://github.com/simiancraft/react-native-roster/commit/44e43f410f89b952f5d2c46d8e20d9f6e2957a8f))
+* **demo:** separate interval and gap selection in the showcase inspector ([43c1238](https://github.com/simiancraft/react-native-roster/commit/43c12381fd6b981bd3a9ca1835b1fa71557282b3))
+
+
+### Features
+
+* **demo:** add scheduled versus actual attendance to the showcase ([70a3811](https://github.com/simiancraft/react-native-roster/commit/70a3811e7079f5a73ae8c481f5b02c3256287036))
+* **demo:** redesign the event detail as one shared attendance grid ([682e09e](https://github.com/simiancraft/react-native-roster/commit/682e09e168a65158edfbafae131ee2a439226651))
+* **render:** add a now line to the roster body ([a50fb36](https://github.com/simiancraft/react-native-roster/commit/a50fb3689f5be18992fc04b2efcee6922b5082bc))
+
 # [0.3.0](https://github.com/simiancraft/react-native-roster/compare/v0.2.0...v0.3.0) (2026-09-16)
 
 
