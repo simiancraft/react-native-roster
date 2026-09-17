@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { LaneLabelInput } from 'react-native-roster';
 import type { Member } from '../members/member.types';
@@ -39,6 +39,7 @@ export function MemberLabel({
   onPress,
 }: MemberLabelProps) {
   const { member } = memberMeta(lane);
+  const Detail = DETAIL[density];
   const tone = TONE_CLASSES[member.tone];
   return (
     <Pressable
@@ -51,15 +52,15 @@ export function MemberLabel({
       <View className={`h-8 w-8 items-center justify-center rounded-full ${tone.avatar}`}>
         <Text className={`text-xs font-semibold ${tone.avatarText}`}>{member.initials}</Text>
       </View>
-      {DETAIL[density]({ member, complete, viewTimezone })}
+      <Detail member={member} complete={complete} viewTimezone={viewTimezone} />
     </Pressable>
   );
 }
 
 type DetailInput = { member: Member; complete: boolean; viewTimezone: string };
 
-const DETAIL: Record<Density, (input: DetailInput) => ReactNode> = {
-  full: ({ member, complete, viewTimezone }) => {
+const DETAIL: Record<Density, ComponentType<DetailInput>> = {
+  full: function FullDetail({ member, complete, viewTimezone }) {
     const zone =
       member.timezone === viewTimezone ? null : (
         <Text className="text-[10px] text-muted-foreground">{zoneShort(member.timezone)}</Text>
@@ -84,7 +85,7 @@ const DETAIL: Record<Density, (input: DetailInput) => ReactNode> = {
       </>
     );
   },
-  compact: ({ member }) => {
+  compact: function CompactDetail({ member }) {
     const [first, ...rest] = member.name.split(' ');
     return (
       <View className="min-w-0 flex-1">
@@ -97,5 +98,7 @@ const DETAIL: Record<Density, (input: DetailInput) => ReactNode> = {
       </View>
     );
   },
-  avatar: () => null,
+  avatar: function AvatarDetail() {
+    return null;
+  },
 };

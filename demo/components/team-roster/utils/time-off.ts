@@ -1,12 +1,13 @@
 import type { Source } from 'react-native-roster/core';
 
-/** What removed time means per source kind; rules are the lunch exclusion, dates are days off. */
-const TIME_OFF: Record<string, (source: Source) => string> = {
-  rule: () => 'Lunch break',
-  date: (source) => source.label ?? 'Out of office',
-};
+/** What removed time means per source id suffix. */
+const TIME_OFF = new Map<string, (source: Source) => string>([
+  ['lunch', () => 'Lunch break'],
+  ['pto', (source) => source.label ?? 'Out of office'],
+]);
 
-/** The note for a removed span's first source, or undefined when the kind carries none. */
+/** The note for a removed span's first source, or undefined for an unknown suffix. */
 export function timeOffNote(source: Source | undefined): string | undefined {
-  return source ? TIME_OFF[source.kind]?.(source) : undefined;
+  const suffix = source?.id.split(':').at(-1);
+  return source && suffix ? TIME_OFF.get(suffix)?.(source) : undefined;
 }

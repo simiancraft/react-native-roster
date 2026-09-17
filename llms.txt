@@ -547,6 +547,22 @@ ruleSetEditorZone. useRuleSetDraft owns text, parse result, and the applied set;
 Apply validates before updating the roster, keeping the last valid set on error.
 These are demo hooks/zones, not library exports.
 
+The home page also links to /showcase. Its feature lives in
+demo/components/team-roster. Every generated event has a scheduled window, title,
+description, expected attendees, and seeded attendance for elapsed time. The hook
+owns a fixed seeded now separating past, live, and future events. Attendees have
+expected, pending, present, attended, or absent presence states. Present spans draw
+through now without exposing future departures; immutable seeded arrival and
+departure facts keep late departures present after scheduled end.
+TeamInterval draws disjoint strips over the union of attendances on the lighter
+scheduled block, retaining gaps and overhang. EventDetail in team-roster/events
+is the intervalDetailComponent; its popover shows named presence rows against a
+shared shaded scheduled band and scale. The footer status line defaults to the
+attendance legend and scheduled-band explanation. Web hover or visible keyboard
+focus shows row detail; keyboard focus wins when both are active. Native taps
+toggle detail or switch rows. Event detail belongs to the popover; the inspector
+retains member selection. See [showcase](./demo/components/team-roster/README.md).
+
 Every route exposes live counter functions on web window.__roster. Its identity
 stays stable until unmount; on-screen snapshots sample every 500 ms. The 200-lane
 route feeds real adapter output to workload W and includes cold-layout, rule-hour,

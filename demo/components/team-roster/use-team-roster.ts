@@ -2,12 +2,19 @@ import { useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ScheduleWindowSpec } from 'react-native-roster';
 import type { Lane, LaneComparator, Rect, WindowSpec } from 'react-native-roster/core';
-import { byCoverage, byLabel, next, prev, today, windowFor } from 'react-native-roster/core';
+import { byCoverage, byLabel, next, prev, windowFor } from 'react-native-roster/core';
 import { expandRuleSet } from 'react-native-roster/rrule';
 import type { Member } from './members/member.types';
-import type { Density, Selection, SortKey, SpanKey, Team } from './team-roster.types';
+import type {
+  Density,
+  Selection,
+  SortKey,
+  SpanKey,
+  Team,
+  WeekWindowSpec,
+} from './team-roster.types';
 import { selectionFor } from './utils/selection';
-import { laneFor, memberMeta, teamFor } from './utils/team';
+import { laneFor, memberMeta, seededNow, teamFor } from './utils/team';
 import { TONE_HEX } from './utils/tones';
 
 const INITIAL: ScheduleWindowSpec = {
@@ -38,28 +45,48 @@ function densityFor(width: number): Density {
 export function useTeamRoster(input: { team?: Team } = {}) {
   const [generated] = useState(() => input.team ?? teamFor());
   const team = input.team ?? generated;
-  const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(() => bounded(today(INITIAL)));
+  const [now] = useState(seededNow);
+  const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(INITIAL);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
   const [selectedId, setSelectedId] = useState(team.members[0]?.id ?? '');
   const [selection, setSelection] = useState<Selection | null>(null);
   const [contentWidth, setContentWidth] = useState(1280);
   const window = windowFor(windowSpec);
-  const visible = team.members.filter((member) =>
-    `${member.name} ${member.role} ${member.team} ${member.timezone}`
+  const weekWindowSpec: WeekWindowSpec = { ...windowSpec, span: 'week' };
+  const weekWindow = windowFor(weekWindowSpec);
+  const [retained, setRetained] = useState(() => generatedLanes(team, window, weekWindow, now));
+  let data = retained;
+  if (
+    retained.team !== team ||
+    retained.now !== now ||
+    retained.start !== window.start ||
+    retained.end !== window.end ||
+    retained.weekStart !== weekWindow.start ||
+    retained.weekEnd !== weekWindow.end
+  ) {
+    data = generatedLanes(team, window, weekWindow, now);
+    setRetained(data);
+  }
+  const lanes = data.lanes.filter((lane) => {
+    const member = memberMeta(lane).member;
+    return `${member.name} ${member.role} ${member.team} ${member.timezone}`
       .toLowerCase()
-      .includes(query.toLowerCase()),
-  );
-  const lanes = visible.map((member) =>
-    laneFor(member, window, expandRuleSet, (person) => TONE_HEX[person.tone]),
-  );
+      .includes(query.toLowerCase());
+  });
   const density = densityFor(contentWidth);
-  function selectRect(rect: Rect, lane: Lane) {
-    const { member, events } = memberMeta(lane);
+  function selectGap(rect: Rect, lane: Lane) {
+    const { member } = memberMeta(lane);
     setSelectedId(member.id);
-    setSelection(selectionFor(member, events, rect));
+    setSelection(selectionFor(member, rect));
+  }
+  function selectInterval(_rect: Rect, lane: Lane) {
+    const { member } = memberMeta(lane);
+    setSelectedId(member.id);
+    setSelection({ kind: 'none', member });
   }
   const common = {
+    now,
     organization: team.organization,
     members: team.members,
     lanes,
@@ -80,14 +107,14 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setSpan: (span: SpanKey) => setWindowSpec((spec) => ({ ...spec, span })),
     goPrev: () => setWindowSpec((spec) => bounded(prev(spec))),
     goNext: () => setWindowSpec((spec) => bounded(next(spec))),
-    goToday: () => setWindowSpec((spec) => bounded(today(spec))),
+    goToday: () => setWindowSpec((spec) => ({ ...spec, anchorDate: INITIAL.anchorDate })),
     setTimezone: (timezone: string) => setWindowSpec((spec) => ({ ...spec, timezone })),
     selectMember: (id: string) => {
       setSelectedId(id);
       setSelection(null);
     },
-    selectRect,
-    selectGap: selectRect,
+    selectInterval,
+    selectGap,
     selectCell: (lane: Lane, time: number) => {
       const { member } = memberMeta(lane);
       setSelectedId(member.id);
@@ -96,6 +123,8 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   };
   const selectedLane = lanes.find((lane) => lane.id === selectedId) ?? lanes[0];
   if (!selectedLane) return { status: 'empty' as const, ...common };
+  const weekLane = data.weekLanes.get(selectedLane.id);
+  if (!weekLane) throw new Error('Expected a week lane for the selected member');
   const selectedMember: Member = memberMeta(selectedLane).member;
   const currentSelection: Selection =
     selection && selection.member.id === selectedMember.id
@@ -105,6 +134,8 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     status: 'ready' as const,
     ...common,
     selectedLane,
+    weekLane,
+    weekWindowSpec,
     selectedMember,
     selection: currentSelection,
   };
@@ -112,3 +143,31 @@ export function useTeamRoster(input: { team?: Team } = {}) {
 
 export type TeamRosterModel = ReturnType<typeof useTeamRoster>;
 export type TeamRosterReady = Extract<TeamRosterModel, { status: 'ready' }>;
+
+function generatedLanes(
+  team: Team,
+  window: { start: number; end: number },
+  week: { start: number; end: number },
+  now: number,
+) {
+  function expand(member: Member, bounds: { start: number; end: number }) {
+    return laneFor(
+      member,
+      bounds,
+      expandRuleSet,
+      (person) => TONE_HEX[person.tone],
+      team.members,
+      now,
+    );
+  }
+  return {
+    team,
+    now,
+    start: window.start,
+    end: window.end,
+    weekStart: week.start,
+    weekEnd: week.end,
+    lanes: team.members.map((member) => expand(member, window)),
+    weekLanes: new Map(team.members.map((member) => [member.id, expand(member, week)])),
+  };
+}
