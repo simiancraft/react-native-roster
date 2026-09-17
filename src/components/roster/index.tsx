@@ -11,6 +11,7 @@ import { RosterGrid } from './parts/grid';
 import { RosterHeader } from './parts/header';
 import { RosterHeaderCell } from './parts/header-cell';
 import { RosterLaneLabelColumn } from './parts/lane-label-column';
+import { RosterNowLine } from './parts/now-line';
 import type { RosterProps } from './roster.types';
 import { RosterSelectionPopover } from './selection/selection-layout';
 import type { SelectionLayoutProps } from './selection/selection-layout.types';
@@ -21,6 +22,7 @@ const defaultCornerZone = <RosterCorner />;
 
 export function Roster(props: RosterProps) {
   const {
+    nowLine,
     selection,
     dismissSelection,
     status,
@@ -49,6 +51,7 @@ export function Roster(props: RosterProps) {
     intervalComponent = RosterInterval,
     gapComponent = RosterGap,
     gridComponent = RosterGrid,
+    nowLineComponent = RosterNowLine,
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
@@ -129,6 +132,8 @@ export function Roster(props: RosterProps) {
           contentZone={contentZone}
           anchorZone={
             <BodyComponent
+              nowLine={nowLine}
+              nowLineComponent={nowLineComponent}
               lanes={orderedLanes}
               window={window}
               geometryFor={geometryFor}

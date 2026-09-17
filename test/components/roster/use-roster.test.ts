@@ -63,6 +63,33 @@ beforeEach(() => {
 });
 
 describe('useRoster hook without native rendering', () => {
+  it('derives nowLine from elapsed time and the fitted projection with exclusive end bounds', () => {
+    const input = { lanes: rosterFixtures['single-lane'].lanes, windowSpec: rosterWindowSpec };
+    const h = harness(input);
+    expect(h.model.now).toBeNull();
+    expect(h.model.nowLine).toBeNull();
+    const { start, end } = h.model.window;
+    for (const now of [null, start - 1, end, end + 1]) {
+      h.update({ ...input, now });
+      expect(h.model.now).toBe(now);
+      expect(h.model.nowLine).toBeNull();
+    }
+    h.update({ ...input, now: start });
+    expect(h.model.nowLine).toEqual({ x: 0, now: start });
+    h.update({ ...input, now: start + 90 * 60_000 });
+    expect(h.model.nowLine).toEqual({ x: 45, now: start + 90 * 60_000 });
+    h.update({ ...input, now: start + 90 * 60_000, pxPerMinute: 2 });
+    expect(h.model.nowLine).toEqual({ x: 180, now: start + 90 * 60_000 });
+    act(() => h.model.onLayout(layoutInput(40_320, 480)));
+    expect(h.model.nowLine).toEqual({ x: 360, now: start + 90 * 60_000 });
+    h.update({
+      ...input,
+      now: start,
+      windowSpec: { span: 'custom', timezone: 'UTC', window: { start, end: start } },
+    });
+    expect(h.model.nowLine).toBeNull();
+    h.close();
+  });
   it('covers every lane before sorting and computes geometry only for requested mounted lanes', () => {
     const lanes = workload().lanes;
     const sortLanes = mock((a: Lane, b: Lane, coverage: RosterModel['coverage']) => {

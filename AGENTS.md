@@ -206,7 +206,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    the provenance routes are implemented.** Preserve all entry points.
 7. **Horizontal pointer origin belongs to the window.** The horizontal projection
    has no origin field, so `timeAtX(projection, window, x)` takes the window and
-   returns an absolute time.
+   returns an absolute time. Its inverse `xAtTime(projection, window, time)`
+   supplies horizontal rect and now-line positions.
    Column rect x coordinates reset per column; select it using `rect.column`.
 8. **Intl-only zone math lives in core/zone.ts.** It uses explicit Gregorian and
    Latin-digit formatting, `formatToParts`, and UTC Date arithmetic. The Gregorian
@@ -227,7 +228,15 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Local runs still measure and print both rows. Device gates remain manual.
 
 11. **Roster waits for viewport measurement before mounting LegendList.** RosterBody
-    composes a node-only RosterBodyLayout and the RosterLaneList collection part. LegendList
+    composes a node-only RosterBodyLayout and the RosterLaneList collection part.
+    RosterBodyLayout arranges gridZone, listZone, and optional overlayZone above both
+    inside horizontal scroll content, mounting the overlay wrapper only for a provided
+    node. BodyInput extends positive LaneListInput with ticks, grid, and now-line
+    inputs; RosterBody picks the lane-list props explicitly. Controlled now defaults
+    to null; useRoster retains raw now and derives nowLine ({ x, now }) via xAtTime with the fitted
+    projection; nowLine is null when now is null or outside end-exclusive window bounds.
+    RosterNowLine fills the overlay through nowLineComponent. Keep now, nowLine, and
+    nowLineComponent out of RosterLaneList, LaneRow, and the body content key. LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
     keys window, projection, highlight identity, and interval and gap component identities. Vertical scroll
@@ -256,8 +265,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Cache by window bounds,
     timezone, span, minuteStep, and pxPerMinute; identical calls must do no Intl work.
 16. **The gallery bridge exposes live functions.** Keep window.__roster stable across
-    renders; only on-screen counters sample every 500 ms. Fixture records own zones
-    and showsEmptyExample, with visual components in test/fixtures/roster-zones.tsx.
+    renders; only on-screen counters sample every 500 ms. Fixture records own zones,
+    showsEmptyExample, and showsNowToggle, with visual components in
+    test/fixtures/roster-zones.tsx.
 17. **Adapter caches retain occurrences only.** Every call nets and applies the total
     cap fresh in rule id order, then date id order. Retained envelopes select bounds
     by containment; only retained per-rule entries guarantee expanded 0. The default

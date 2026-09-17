@@ -3,6 +3,7 @@ import { coverageFor } from './coverage';
 import { flagFor } from './flag';
 import { laneKey, projectionKey } from './hash';
 import { type ScalePiece, scalePieces } from './scale';
+import { xAtTime } from './snap';
 import { sourceSpans } from './spans';
 import type { Interval, Lane, LaneGeometry, Layer, Projection, Rect, Window } from './types';
 
@@ -60,7 +61,7 @@ function project(
   if (projection.orientation === 'horizontal') {
     for (const span of spans) {
       rects.push({
-        x: ((span.start - window.start) / 60_000) * projection.pxPerMinute,
+        x: xAtTime(projection, window, span.start),
         y: inset,
         width: ((span.end - span.start) / 60_000) * projection.pxPerMinute,
         height: Math.max(0, projection.rowHeight - 2 * inset),
