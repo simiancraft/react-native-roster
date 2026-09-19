@@ -1,10 +1,9 @@
 # react-native-roster
 
-> React Native read surfaces over layered absolute intervals with provenance.
+> Resource timeline and schedule components for React Native and web, with layered intervals, coverage, provenance, and explicit daylight-saving handling.
 > Roster projects many lanes horizontally; Schedule projects one lane into day
 > columns. The core owns geometry, coverage, axis math, and caches. Adapters own
-> upstream conversion and recurrence. The gallery and integration guides describe
-> the implemented surface; package distribution status is in README.md.
+> upstream conversion and recurrence.
 
 This file is for an agent integrating the package into a consumer app. Follow the
 setup, contract, and cache rules below. You do not need the repository's issues
@@ -13,32 +12,32 @@ this repository. The demo is the working integration example, not a dependency.
 
 ## Setup and first render
 
-Use Bun 1.4.2 and Node 22 for this checkout. Run at repository root:
-
 ```sh
-bun install --ignore-scripts --frozen-lockfile
-bun run build
-bun run demo:web
+bun add react-native-roster @legendapp/list
+bunx expo install react-native-reanimated --bun
 ```
 
-The root install also installs demo dependencies. Use `EXPO_OFFLINE=1 bun run
-demo:web` if Expo cannot write its online dependency-validation cache. To consume from another app,
-`bun add react-native-roster`; for an unreleased checkout, run
-`bun pm pack --destination .cache` here, then `bun add` the actual absolute
-tarball path in your app. Add `@legendapp/list` and install the SDK's
-compatible Reanimated with `bunx expo install react-native-reanimated --bun`.
-Keep React, React Native, and Expo aligned with the app's SDK. The demo uses Expo
-54, React 19.1, RN 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5. NativeWind is
-an optional peer (>=4.1); import react-native-roster/nativewind once at the app
-root to enable className props on Roster and Schedule. Web needs compatible
-React DOM and React Native Web. See demo/babel.config.js for workspace presets.
+For web, also install React DOM and React Native Web versions compatible with
+your React/Expo setup, plus `bun add @radix-ui/react-popover@^1.1.23`.
+Radix is required whenever a web bundler resolves the root entry or
+`/nativewind` to the web selection layout, even with selection disabled or only
+`Schedule` imported. That layout imports Radix unconditionally; the published
+browser remap and Metro's web source resolution both reach it. Native and
+`/core`-only or `/rrule`-only imports do not require Radix.
 
-Peer ranges: React >=18.2, React Native >=0.74, Expo >=51, LegendList >=2.
-Reanimated >=3.19 is optional for core-only installs and required for Roster.
-Tested dependency versions are not proof of every combination in those ranges.
+Peer ranges: React >=18.2, React Native >=0.74, LegendList >=2, Reanimated >=3.19,
+Expo >=51 (optional), NativeWind >=4.1 (optional), and Radix ^1.1.23 (web).
+Reanimated is required by `Roster` and optional for core-only use. Keep React,
+React Native, and Expo aligned with your SDK. The demo uses Expo SDK 54,
+React 19.1, React Native 0.81.5, LegendList 2.0.19, and Reanimated 3.19.5;
+these versions do not establish support for every peer-range combination.
 
-Save this as a screen component, or as demo/app/gallery/readme-example.tsx with
-`export default function Example` for Expo Router, and visit /gallery/readme-example:
+On Metro before React Native 0.79, enable `resolver.unstable_enablePackageExports`
+so the subpaths resolve. Keep one React copy in workspaces.
+`rrule-temporal` and `@js-temporal/polyfill` install as ordinary dependencies;
+only `/rrule` imports them. Import isolation does not reduce installation size.
+
+Save this as a screen component in your app:
 
 ```tsx
 import { Roster } from 'react-native-roster';
@@ -61,8 +60,8 @@ export function Example() {
 ```
 
 Expect a green 09:00 to 17:00 interval on January 1, 2024. Scroll horizontally to
-see the time range. A bounded viewport is required. Remove the scratch route
-when finished. In a controlled app, own WindowSpec in your screen's hook; update
+see the time range. A bounded viewport is required. In a controlled app, own
+WindowSpec in your screen's hook; update
 it in navigation handlers, and prepare adapter output for windowFor(spec).
 
 ## Vocabulary
@@ -189,7 +188,7 @@ Component props are ComponentType<Input>.
 
 Roster required props: lanes: Lane[], windowSpec: WindowSpec.
 Optional: now (epoch ms or null, default null), minuteStep (60), rowHeight (48),
-pxPerMinute (minimum 0.5, fits viewport),
+pxPerMinute (default 0.5, positive finite, grows to fit viewport),
 sortLanes (byLabel), highlightSource, onNavigate, onIntervalPress, onGapPress,
 onCellPress, onIntervalHover (web only), style, headerStyle, laneLabelColumnStyle,
 bodyStyle, laneLabelWidth (180), neverSetLabel, incompleteLabel, and zones below.
@@ -583,7 +582,7 @@ W: seed 1318, 200 lanes, week, two layers, 24-lane layout batch, 15-minute ticks
 Bun 1.4.0, 2026-09-08T05:18:00Z, commit
 1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa. Median of 11 target-cold samples after
 five runtime warmups. Each timing must stay below 16 ms; CI also enforces <=1.5x
-its baseline. Size gates: core <15 kB, root <44 kB minified/uncompressed, peers
+its baseline. Size gates: core <15 kB, root <52 kB minified/uncompressed, peers
 external. Phone fps and cold-layout numbers are not yet captured; the paired
 react-big-scheduler comparison is not yet measured. Do not claim relative speed.
 
@@ -591,9 +590,25 @@ The package does not create, drag, resize, persist, or authorize intervals; it
 is not a general calendar. Consumers implement their own interactions. A rule
 editor in the gallery is an integration example, not a rule-authoring product.
 
+## Working from a checkout
+
+Use Bun 1.4.2 and Node 22 for repository development. At the repository root:
+
+```sh
+bun install --ignore-scripts --frozen-lockfile
+bun run build
+bun run demo:web
+```
+
+The workspace install includes demo dependencies. Use `EXPO_OFFLINE=1 bun run
+demo:web` if Expo cannot write its online dependency-validation cache. To consume
+an unreleased checkout, run `bun pm pack --destination .cache`, then `bun add`
+the printed absolute tarball path in your app.
+
 ## Reference
 
-- [README](./README.md): runnable quick starts, setup, zones, and measured evidence.
+- [README](./README.md): published-package setup, quick start, positioning, and evidence.
+- [Customization](./docs/customization.md): slot tables, selection layouts, and context recipe.
 - [Adapter guide](./docs/adapters.md): table/feed conversion and memoization contract.
 - Area landing pages: [core](./src/core/README.md), [Roster](./src/components/roster/README.md),
   [Schedule](./src/components/schedule/README.md), [layers](./src/components/layers/README.md),

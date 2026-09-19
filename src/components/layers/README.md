@@ -8,7 +8,7 @@ projections draw the same components, so they live above Roster and Schedule.
 - `parts/interval.tsx`, `parts/gap.tsx`: the default components
 - `utils/styles.ts`: content-keyed style objects per layer
 
-Imports core only. Tests: `test/components/layers`.
+Internal imports stay within layers and core; the components also import React Native. Tests: `test/components/layers`.
 
 Both projections accept intervalComponent and gapComponent as ComponentType inputs.
 Their data-owning lane or column mounts the component with the final rect, layer,

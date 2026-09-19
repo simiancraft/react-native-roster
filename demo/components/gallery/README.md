@@ -28,3 +28,20 @@ the portal store. Schedule does not yet support selection.
 Metro selects the library's declared react-native source condition on web as well,
 so React Compiler retains the roster body inputs across selection changes. The
 development detail fixture profiles opening details alongside the existing scroll gate.
+
+## Run the gallery and explore fixtures
+
+The [Expo gallery](https://simiancraft.github.io/react-native-roster/) is the
+demo; there is no Storybook. Run it locally with `bun install --frozen-lockfile`,
+`bun run build`, and `bun run demo:web` (add `EXPO_OFFLINE=1` in a restricted
+network). The home page lists every fixture route:
+
+- Empty, one, 20, and 200 lanes; inset layers; default and replaced zones.
+- Day, week, and month routes at 15, 30, and 60-minute steps.
+- Full-day gaps, lane flags, equal-z precedence, highlight, coverage sorting,
+  and incomplete expansion.
+- Chicago DST weeks, mixed rule, lane, and view zones, and editable adapter routes.
+- Schedule empty, layered, excluded, spring, fall, Lord Howe, Apia, incomplete,
+  midnight, side-by-side projections, and every zone.
+
+The [showcase](../team-roster/README.md#showcase-tour) demonstrates an integrated screen.

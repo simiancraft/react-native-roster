@@ -17,8 +17,8 @@ This feature is about a roster; its children are lanes.
 - `utils/`: ticks and the body content key
 
 Interval and gap components live in `../layers`; press geometry and `regionStyle`
-in `../primitives`. Zone contracts are documented in the README's Roster zones
-section and in `llms.txt`. Tests: `test/components/roster`.
+in `../primitives`. See the [slot tables, selection contract, and context recipe](../../../docs/customization.md#roster-zones)
+and `llms.txt` for integration details. Tests: `test/components/roster`.
 
 This feature is about a roster body; its children are lanes. `RosterBody` gates
 measurement and composes the body layout and lane list. `BodyInput` extends the

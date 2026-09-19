@@ -16,11 +16,20 @@
 | schedule | One lane projected into days across and wall-clock hours down. |
 
 Use these domain words without synonyms. `scheduler`, `event`, and `calendar`
-are reserved for consumers. `availability` and `booking` are contract words in
-`LayerRole`; preserve exact contract identifiers from issue #3, including its
+are reserved for consumers. Searcher vocabulary such as `scheduler` and `calendar`
+may appear in npm keywords, the npm description, and README comparisons; keep code
+identifiers, API names, and the vocabulary table canonical. `availability` and
+`booking` are contract words in `LayerRole`; preserve exact contract identifiers from issue #3, including its
 coverage fields. Do not introduce consumer-specific entities or dependencies.
 
 ## Quick orientation
+
+The package provides resource timeline and schedule components for React Native and
+web, with layered intervals, coverage, provenance, and explicit daylight-saving handling.
+README.md is the consumer quick start; llms.txt starts with published-package setup.
+Detailed slot tables, selection lifecycle, and the consumer context recipe live in
+[customization](docs/customization.md); interval helpers live in the core README.
+The recurrence packages install as ordinary dependencies; only `/rrule` imports them.
 
 The implemented surface is documented in README.md and llms.txt. Issue #1 is the epic; #3 is authoritative for types.
 When issues disagree, #3 wins for types and the feature's owning issue wins for
@@ -229,8 +238,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    absent versions use a canonical structural encoding of layers only. Returned
    references are read-only by convention. Clear retained caches when a consumer
    discards old windows. Flag and coverage assembly does not invalidate rects.
-10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 rects
-    plus gap rects per lane per week (63 rects, 7 gap rects), in either projection.
+10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 total rects
+    per lane per week (63 interval rects and 7 gap rects), in either projection.
     The test measures target-cold layout of 24 visible lanes and coverage of all
     200 lanes separately against 16 ms everywhere; the 1.5x committed CI runner baseline
     gate runs only when process.env.CI is truthy so hardware classes are comparable.
@@ -464,8 +473,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
     native also retains contentOffset. LegendList restores initialScrollOffset through
     its own web mount effect and native initial offset.
-    Keep selection out of the body content key. selection-layout.web.tsx uses the optional
-    Radix peer and a zero-size pointer-transparent anchor; preserve its package.json browser
+    Keep selection out of the body content key. selection-layout.web.tsx imports Radix
+    unconditionally. Its peer is optional for native and core-only imports, but required
+    by web root and nativewind imports even with selection disabled. The layout uses
+    a zero-size pointer-transparent anchor; preserve its package.json browser
     remap and selection-layout.types.ts. Schedule selection is a later change.
 
     Root and core entry points bind aliases to the existing immutable function declarations,

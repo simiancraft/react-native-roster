@@ -8,6 +8,8 @@ a calendar feed, and recurring local hours all meet the same boundary.
 Start with the [static quick start](../README.md#quick-start-static-intervals).
 Only use `react-native-roster/rrule` when your input actually contains recurring
 rules. The core and root entry points never import recurrence dependencies.
+`rrule-temporal` and `@js-temporal/polyfill` are ordinary installed dependencies;
+using the adapter is a choice about imports, not installation.
 
 ## 1. Choose the identity and ownership
 
@@ -107,7 +109,7 @@ Consumers should never describe that result as definitive empty time.
 
 ## 4. Map recurring rows to the shipped adapter
 
-The [recurrence quick start](../README.md#quick-start-recurring-local-hours) is a
+The [recurrence quick start](#quick-start-recurring-local-hours) is a
 complete mapping into a lane. `expandRuleSet(set, window, options?)` accepts:
 
 | Input | Required fields | Optional fields |
@@ -222,3 +224,50 @@ last valid roster. Controls and snapshots belong to the route hook.
 Run `bun run check` after installing dependencies and Chromium as documented in
 the README. Browser evidence complements physical iOS and Android checks;
 [performance evidence](./performance.md) describes the separate release gate.
+
+## Quick start: recurring local hours
+
+```tsx
+import { Roster } from 'react-native-roster';
+import type { Lane, WindowSpec } from 'react-native-roster/core';
+import { windowFor } from 'react-native-roster/core';
+import { expandRuleSet } from 'react-native-roster/rrule';
+import type { RuleSet } from 'react-native-roster/rrule';
+
+const spec: WindowSpec = {
+  span: 'week', anchorDate: '2024-01-01', timezone: 'America/Chicago',
+};
+const set: RuleSet = {
+  rules: [{
+    id: 'weekday-hours', kind: 'include', frequency: 'WEEKLY',
+    dtstart: '2024-01-01', byweekday: [0, 1, 2, 3, 4],
+    hourstart: 9, hourend: 17, timezone: 'America/Chicago',
+  }],
+  dates: [{
+    id: 'closed', kind: 'exclude', date: '2024-01-02',
+    timezone: 'America/Chicago', note: 'Closed all day',
+  }],
+};
+const result = expandRuleSet(set, windowFor(spec));
+const lane: Lane = {
+  id: 'one', label: 'Lane one', timezone: 'America/Chicago',
+  complete: result.complete,
+  layers: [{
+    id: 'open', role: 'availability', z: 0, style: { color: '#4f9478' },
+    intervals: result.intervals, gaps: result.gaps,
+  }],
+};
+
+export function RecurringExample() {
+  return <Roster lanes={[lane]} windowSpec={spec}
+    style={{ height: 480, flex: undefined }}
+    onGapPress={(rect) => console.log(rect.sources)} />;
+}
+```
+
+Tuesday is a gap carrying the dated exclusion; the other weekdays carry the
+include rule. Expand once per `windowFor(spec)` in your screen's hook, never
+inside a slot component; content-keyed caches reuse unchanged occurrences. The
+sections above cover validation, caps, cache lifetime, and mapping tables or feeds
+without importing the recurrence adapter. [Recurrence semantics](./recurrence.md)
+records the exact anchor, UNTIL, COUNT, and BYSETPOS rules.

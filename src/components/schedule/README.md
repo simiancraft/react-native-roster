@@ -14,8 +14,8 @@ This feature is about a schedule; its children are days.
 - `utils/days.ts`: header dates, now position, and transition bounds
 
 Interval and gap components live in `../layers`; press geometry and `regionStyle`
-in `../primitives`. Zone contracts are documented in the README's Schedule
-section and in `llms.txt`. Tests: `test/components/schedule`.
+in `../primitives`. Zone contracts and a complete example live in the
+[customization guide](../../../docs/customization.md#schedule-zones) and `llms.txt`. Tests: `test/components/schedule`.
 
 The chassis binds default component types once; ScheduleDay mounts components
 with day data and passes nodes into ScheduleDayLayout. There is no black-box day

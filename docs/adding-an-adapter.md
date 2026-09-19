@@ -17,8 +17,9 @@ test/adapters/<name>/
 ```
 
 An adapter imports `../../core` only. It never imports components, the root
-entry, or another adapter. Any dependency it needs belongs to it alone and is
-listed in `NOTICE.md`; root and core stay dependency-free.
+entry, or another adapter. List its dependencies in `package.json` and `NOTICE.md`.
+Only the adapter imports them; they still install with the package. Root may import
+renderer peers, while core imports only standard JavaScript and `Intl`.
 
 ## Steps
 
