@@ -8,6 +8,10 @@
           {
             "scope": "demo",
             "release": false
+          },
+          {
+            "type": "docs",
+            "release": "patch"
           }
         ]
       }
