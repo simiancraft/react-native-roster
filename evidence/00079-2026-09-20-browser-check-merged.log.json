@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx"
+  ],
+  "capture_commit": "74b257962c13f06994edad827f37e2135ac351fd",
+  "capture_method": "bun run check:web after the final branch push; exact CI browser command",
+  "content_hash": "sha256:60e5956feb808b5007b4aa3288bb376a57408387990a5ce3f6c51e0103954d33"
+}

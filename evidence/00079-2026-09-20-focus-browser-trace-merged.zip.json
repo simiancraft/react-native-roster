@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "flow", "trace"],
+  "covered_paths": [
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx",
+    "src/components/roster/parts/lane-label-column.tsx"
+  ],
+  "capture_commit": "74b257962c13f06994edad827f37e2135ac351fd",
+  "capture_method": "Playwright trace from bun run check:web after the final branch push",
+  "content_hash": "sha256:e593ab50eac3d76cbb169f7a91f0083279a6d87d012b1dc7492c19f11d545cab"
+}
