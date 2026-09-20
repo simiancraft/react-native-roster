@@ -1,3 +1,10 @@
+## [0.4.4](https://github.com/simiancraft/react-native-roster/compare/v0.4.3...v0.4.4) (2026-09-20)
+
+
+### Bug Fixes
+
+* **render:** keep translated labels aligned on focus ([07e02d8](https://github.com/simiancraft/react-native-roster/commit/07e02d8c2d80362526a463e3767c864a346d83cb))
+
 ## [0.4.3](https://github.com/simiancraft/react-native-roster/compare/v0.4.2...v0.4.3) (2026-09-20)
 
 
