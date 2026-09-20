@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["code", "frontend", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx"
+  ],
+  "capture_commit": "07e02d8c2d80362526a463e3767c864a346d83cb",
+  "capture_method": "bun run check; aggregate local gate including the CI browser command bun run check:web",
+  "content_hash": "sha256:274dc373654afd04c7fbe59f27575415889f72de0a4286fe4212e8d5dad133ed"
+}

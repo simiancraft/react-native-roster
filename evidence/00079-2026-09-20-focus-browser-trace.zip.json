@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "flow", "trace"],
+  "covered_paths": [
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx",
+    "src/components/roster/parts/lane-label-column.tsx"
+  ],
+  "capture_commit": "07e02d8c2d80362526a463e3767c864a346d83cb",
+  "capture_method": "Playwright trace captured by bun run check through scripts/check-web-performance.ts",
+  "content_hash": "sha256:bd5e8a5c5768fae6a386cdf3eb5b920d7c457c387556112056518be7e08f4dec"
+}
