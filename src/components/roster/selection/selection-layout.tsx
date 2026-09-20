@@ -31,7 +31,7 @@ export function RosterSelectionPopover({
       left: Math.max(0, Math.min((targetBounds?.x ?? 0) - x.get(), viewport.width - content.width)),
       top: below >= 0 && below <= maxTop ? below : above >= 0 && above <= maxTop ? above : 0,
     };
-  });
+  }, [targetBounds, content, viewport, x, y]);
   useEffect(() => {
     if (!open) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
