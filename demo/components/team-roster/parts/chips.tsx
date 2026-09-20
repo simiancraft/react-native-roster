@@ -3,35 +3,20 @@ import { Pressable, Text, View } from 'react-native';
 
 type ChipGroupProps = {
   label: string;
-  /** Ordered chips; the group supplies the label, border, and horizontal spacing. */
+  /** Ordered chips; the group supplies the legend, border, and horizontal spacing. */
   chipsZone: ReactNode;
 };
 
+/** A bordered group whose caption sits on the top border, the way a fieldset legend does. */
 export function ChipGroup({ label, chipsZone }: ChipGroupProps) {
   return (
-    <View className="flex-row items-center gap-1 rounded-lg border border-border bg-card p-1">
-      <Text className="px-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <View
+      accessibilityLabel={label}
+      className="relative flex-row items-center gap-1 rounded-lg border border-border bg-card p-1"
+    >
+      <Text className="absolute -top-2 left-2 bg-background px-1 text-[9px] font-medium uppercase leading-3 tracking-wider text-muted-foreground">
         {label}
       </Text>
-      {chipsZone}
-    </View>
-  );
-}
-
-type ChipTabsProps = {
-  /** Names the group for assistive technology; nothing is drawn for it. */
-  accessibilityLabel: string;
-  /** Ordered chips that read as tabs without a caption. */
-  chipsZone: ReactNode;
-};
-
-/** Chips whose meaning is plain from their own labels, such as Day and Week. */
-export function ChipTabs({ accessibilityLabel, chipsZone }: ChipTabsProps) {
-  return (
-    <View
-      accessibilityLabel={accessibilityLabel}
-      className="flex-row items-center gap-1 rounded-lg border border-border bg-card p-1"
-    >
       {chipsZone}
     </View>
   );
