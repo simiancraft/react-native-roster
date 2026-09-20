@@ -55,7 +55,7 @@ it('generates deterministic N-lane, W-day fixtures with bounded intervals and so
     }
   }
   console.log(
-    'Workload W density: 70 rects plus gap rects per lane per week (63 rects, 7 gap rects).',
+    'Workload W density: 70 total rects per lane per week (63 interval rects and 7 gap rects).',
   );
 });
 

@@ -8,7 +8,7 @@ layout batch contains 24 lanes; coverage contains all 200. Use 15-minute ticks.
 ## Automated gates
 
 `bun run check` exports the production and development web demos, runs the Bun benchmarks,
-checks the two package sizes, and runs the Playwright harness. CI runs the same
+checks all four public entry-point sizes, and runs the Playwright harness. CI runs the same
 gates on every pull request. Install Chromium once before the local gate:
 
 ```sh
@@ -37,12 +37,14 @@ sample clears coverage again and computes all 200 lanes. A target-cold sample
 is not a cold JavaScript runtime. Timing harness code and the baseline CLI are
 outside coverage, like the existing release CLI shim; library coverage stays 100%.
 
-`.size-limit.json` bundles the emitted root, core, and nativewind entry points with the small-library
+`.size-limit.json` bundles all four emitted entry points with the small-library
 esbuild preset, minifies them, and disables gzip and Brotli. Limits are decimal
-15 kB for core and 40 kB for root. React, React Native, Expo, LegendList, and
-Reanimated, including their subpaths, remain external. Adapter dependencies are
-not externalized to hide an accidental root/core import; export isolation tests
-also reject that import graph. Build before running `bun run check:size`.
+15 kB for core, 15 kB for rrule, 52 kB for root, and 48 kB for nativewind.
+Configured renderer peers remain external; root and nativewind also externalize
+Radix, and nativewind externalizes NativeWind. The rrule gate externalizes
+`rrule-temporal` and `@js-temporal/polyfill`; they remain ordinary installed
+dependencies. Root/core gates do not externalize recurrence dependencies, and
+export isolation tests reject that import graph. Build before `bun run check:size`.
 
 ## Refresh the CI baseline
 
@@ -231,5 +233,6 @@ mapping are available. It is not a dependency or CI fixture of this package.
    hardware, OS, date, commits, method, and any non-equivalent work in the README.
    Keep browser numbers separate from Android numbers.
 
-The README comparison table intentionally says **not yet measured**. No claim of
+The README distinguishes feature positioning from performance comparisons, which
+remain **not yet measured**. No claim of
 relative speed is justified until both implementations have comparable receipts.

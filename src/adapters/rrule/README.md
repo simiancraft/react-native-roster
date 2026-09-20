@@ -8,8 +8,9 @@ provenance per span.
 - Exports: `expandRuleSet`, `envelopeFor`, `clearExpandCache`, `expandStats`,
   `resetExpandStats`, and the `RosterRule`, `RosterDate`, `RuleSet`,
   `ExpandOptions`, `ExpandResult`, and `ExpandStats` types
-- Imports: `../../core` only; never components or another adapter
-- Owns: `rrule-temporal` and the Temporal polyfill; root and core never load them
+- Internal imports: `../../core` only; never components or another adapter
+- Owns: `rrule-temporal` and the Temporal polyfill; ordinary installed dependencies
+  imported only by this subpath, never by root or core
 
 ## Supported input
 
@@ -26,7 +27,7 @@ unbounded strings are rejected by validation.
 | `index.ts` | the entry point; the only barrel |
 | `types.ts` | input and result types |
 | `validate.ts` | input rejection before any engine work |
-| `envelope.ts` | widens a window to whole local days per rule zone |
+| `envelope.ts` | pads both absolute window bounds by 48 hours, shared across rule zones |
 | `occurrences.ts` | drives the engine and applies every calendar correction |
 | `net.ts` | nets includes against excludes into intervals and gaps |
 | `cache.ts`, `hash.ts` | retained occurrences and envelopes keyed by content |

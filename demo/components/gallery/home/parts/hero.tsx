@@ -50,12 +50,12 @@ export function GalleryHero({
           accessibilityRole="header"
           className="text-4xl font-semibold tracking-tight text-foreground"
         >
-          Lanes, layers, and sources on one time axis.
+          Resource timelines and schedules for React Native and web.
         </Text>
         <Text className="max-w-[640px] text-base leading-6 text-muted-foreground">
-          Layered absolute intervals with provenance for React Native. Roster projects many lanes
-          across a shared window; Schedule projects one lane into day columns. Every visual region
-          is a zone, and every chrome region takes a className.
+          Give it layered intervals; read coverage and trace each span to its sources. Roster shows
+          many lanes across one time axis; Schedule opens a lane in day columns with explicit
+          daylight-saving geometry. Replace components and style the chrome with NativeWind.
         </Text>
       </View>
       <Link href={showcaseHref} cardZone={card} />

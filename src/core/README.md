@@ -40,3 +40,46 @@ Reference: [design](../../docs/design.md), [timezones](../../docs/timezones.md),
 
 The public entry binds immutable function aliases directly to preserve implementation
 identity while avoiding repeated CommonJS getter wrappers in consumer bundles.
+
+## Interval helper walkthrough
+
+`unionOf(spans: readonly Window[]): Window[]` merges overlapping or touching
+windows and returns them sorted by start, keeping disjoint windows separate.
+Empty input returns `[]`. Every returned window is a new object; the input array
+and its windows remain untouched. Like `extentOf` and `intersectionOf`, it uses
+end-exclusive epoch milliseconds and throws `RangeError` for non-finite bounds
+or `end <= start`.
+
+Collapse each person's segments with `extentOf`, then use `intersectionOf` to
+find the shared time across those windows. Each extent bridges gaps between
+segments, so the result describes the collapsed windows.
+
+```ts
+import type { Window } from 'react-native-roster/core';
+import { extentOf, intersectionOf } from 'react-native-roster/core';
+
+const people: { name: string; segments: Window[] }[] = [
+  {
+    name: 'Alex',
+    segments: [
+      { start: 1_000, end: 3_000 },
+      { start: 4_000, end: 8_000 },
+    ],
+  },
+  {
+    name: 'Sam',
+    segments: [
+      { start: 2_000, end: 5_000 },
+      { start: 6_000, end: 9_000 },
+    ],
+  },
+];
+
+const windows = people.map((person): Window => {
+  const extent = extentOf(person.segments);
+  if (extent === null) throw new Error(`${person.name} has no segments`);
+  return extent;
+});
+const sharedTime = intersectionOf(windows); // { start: 2_000, end: 8_000 }
+// A null result from intersectionOf means there is no shared time.
+```
