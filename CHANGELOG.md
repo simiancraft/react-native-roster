@@ -1,3 +1,5 @@
+## [0.4.2](https://github.com/simiancraft/react-native-roster/compare/v0.4.1...v0.4.2) (2026-09-20)
+
 ## [0.4.1](https://github.com/simiancraft/react-native-roster/compare/v0.4.0...v0.4.1) (2026-09-19)
 
 # [0.4.0](https://github.com/simiancraft/react-native-roster/compare/v0.3.0...v0.4.0) (2026-09-17)
