@@ -42,7 +42,7 @@ const server = Bun.serve({
   },
 });
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1440, height: 1600 } });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors: string[] = [];
 page.on('pageerror', (error) => errors.push(error.message));
 await page.context().tracing.start({ screenshots: true, snapshots: true });
@@ -50,11 +50,45 @@ try {
   await page.goto(`${server.url}gallery/200-lanes`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.__roster?.expandStats);
   await page.getByTestId('roster-vertical-scroll').waitFor();
+  const labels = page.getByTestId('roster-labels');
+  const labelClip = labels.locator('..');
+  const labelFocused = await labels.evaluate((node) => {
+    const target = node.lastElementChild as HTMLElement | null;
+    if (!target) throw new Error('Missing last lane label');
+    target.tabIndex = 0;
+    target.focus();
+    return document.activeElement === target;
+  });
+  await settle(page);
+  assert(labelFocused, 'Last lane label must receive focus');
+  const labelClipScrollTop = await labelClip.evaluate((node) => node.scrollTop);
+  const header = page.getByTestId('roster-header');
+  const headerClip = header.locator('..');
+  const headerFocused = await header.evaluate((node) => {
+    const target = node.lastElementChild as HTMLElement | null;
+    if (!target) throw new Error('Missing last header cell');
+    target.tabIndex = 0;
+    target.focus();
+    return document.activeElement === target;
+  });
+  await settle(page);
+  assert(headerFocused, 'Last header cell must receive focus');
+  const headerClipScrollLeft = await headerClip.evaluate((node) => node.scrollLeft);
+  console.log(`Focus offsets: labels ${labelClipScrollTop}px; header ${headerClipScrollLeft}px.`);
+  assert.deepEqual(
+    { labelClipScrollTop, headerClipScrollLeft },
+    { labelClipScrollTop: 0, headerClipScrollLeft: 0 },
+  );
+  await assertLaneLabelAlignment(0);
+  assert.equal(
+    await page.getByTestId('roster-horizontal-scroll').evaluate((node) => node.scrollLeft),
+    0,
+  );
   // Fix W's physical viewport at 24 rows without altering the roster implementation.
   const height = await page
     .getByTestId('roster-vertical-scroll')
     .evaluate((node) => node.clientHeight);
-  await page.setViewportSize({ width: 1440, height: 1600 + 24 * 48 - height });
+  await page.setViewportSize({ width: 1440, height: 900 + 24 * 48 - height });
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.__roster?.expandStats);
   await settle(page);
@@ -62,19 +96,6 @@ try {
     await page.getByTestId('roster-vertical-scroll').evaluate((node) => node.clientHeight),
     24 * 48,
   );
-  const labels = page.getByTestId('roster-labels');
-  const labelClip = labels.locator('..');
-  await labels
-    .locator(':scope > *')
-    .last()
-    .evaluate((node) => {
-      const target = node as HTMLElement;
-      target.tabIndex = 0;
-      target.focus();
-    });
-  await settle(page);
-  assert.equal(await labelClip.evaluate((node) => node.scrollTop), 0);
-  await assertLaneLabelAlignment(0);
   const vertical = page.getByTestId('roster-vertical-scroll');
   await vertical.hover();
   await page.mouse.wheel(0, 240);
@@ -86,22 +107,6 @@ try {
     node.scrollTop = 0;
   });
   await settle(page);
-  const header = page.getByTestId('roster-header');
-  const headerClip = header.locator('..');
-  await header
-    .locator(':scope > *')
-    .last()
-    .evaluate((node) => {
-      const target = node as HTMLElement;
-      target.tabIndex = 0;
-      target.focus();
-    });
-  await settle(page);
-  assert.equal(await headerClip.evaluate((node) => node.scrollLeft), 0);
-  assert.equal(
-    await page.getByTestId('roster-horizontal-scroll').evaluate((node) => node.scrollLeft),
-    0,
-  );
   console.log(
     'Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.',
   );
