@@ -3,16 +3,16 @@
 A week at a 15-minute step is 672 cells per lane. For 200 lanes, a component
 that calls back per cell makes 134,400 calls to draw one screen's worth of data,
 and finer ticks make it worse. The same week in this package's benchmark
-workload is 70 rects per lane: 63 intervals and 7 gaps. Roster draws the rects.
-Tick density changes the grid lines and nothing else.
+workload is 70 rects per lane: 63 intervals and 7 gaps. Roster draws those
+rects, so a finer tick changes the grid lines and nothing else.
 
-The work is split by who needs it. Coverage runs for every lane, because sorting
-by coverage needs all of them. Geometry runs for the lanes the list has mounted
-(24 in the benchmark viewport), plus the selected lane so its detail stays
-anchored. Scrolling moves shared offsets and never sets React state. The first
-time a lane mounts for a window, its geometry is computed and cached; after
-that it is a lookup. The cache key is the lane's layer content, or a `version`
-you supply; if you supply one, change it when the layers change.
+Coverage and geometry run over different sets of lanes. Coverage runs for every
+lane, because sorting by coverage needs all of them. Geometry runs for the lanes
+the list has mounted (24 in the benchmark viewport), plus the selected lane so
+its detail stays anchored. Scrolling moves shared offsets and never sets React
+state. The first time a lane mounts for a window, its geometry is computed and
+cached; after that it is a lookup. The cache key is the lane's layer content, or
+a `version` you supply. If you supply one, change it whenever the layers change.
 
 ## Accept intervals at the boundary
 
@@ -21,13 +21,13 @@ rule can feed the same component. Adapters own the upstream format. The rrule
 adapter owns rule expansion and its two dependencies, and nothing in the core
 imports them.
 
-Sources travel with the time they produced. Where the set of contributing
-sources changes, the rect splits, so overlapping contributions stay
-distinguishable when pressed. Removing an include entirely still leaves a gap
-that carries the sources of the exclusion, so "why is nobody on Wednesday" has
-an answer.
+Every interval and gap carries the sources that produced it. Where the set of
+contributing sources changes, the rect splits, so you can tell overlapping
+contributions apart when you press them. Removing an include entirely still
+leaves a gap that carries the sources of the exclusion, so "why is nobody on
+Wednesday" has an answer.
 
-A window is two absolute bounds and nothing more. The axis picks those bounds
+A window is two absolute bounds. The axis picks those bounds
 from a local anchor date and the view timezone. The rule timezone interprets
 authored local hours. A lane's own timezone is a label and leaves its intervals
 alone. Coverage uses absolute bounds, so changing the projection reuses it.
@@ -53,11 +53,13 @@ Schedule can be replaced without forking layout or hit testing.
 ## Non-goals
 
 - Creating, dragging, and resizing intervals belong to your app.
-- So do persistence, permissions, and business policy; press callbacks report
-  facts and decide nothing.
+- So do persistence, permissions, and business policy; a press callback tells
+  you what was pressed and leaves the decision to you.
 - Authoring recurrence rules belongs to your tooling. The JSON editor in the
   gallery is a demo, not an API.
 - There is no month grid.
 
-A performance claim needs a workload, a machine, a date, and a commit, and a
-phone frame rate needs a phone. See [performance evidence](./performance.md).
+The numbers on this page come from a benchmark workload, and a browser result
+says nothing about a phone. [Performance evidence](./performance.md) records the
+workload, machine, date, and commit behind each number, and the procedure for
+measuring on a device.

@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://simiancraft.github.io/react-native-roster/showcase">
-    <img src="https://img.shields.io/badge/▶%20Live%20demo-open%20the%20showcase-4f46e5?style=for-the-badge" alt="Live demo" />
+    <img src="https://img.shields.io/badge/▶%20Live%20demo-press%20a%20gap%2C%20see%20why-4f46e5?style=for-the-badge" alt="Live demo" />
   </a>
 </p>
 
@@ -15,15 +15,35 @@
 [![npm version](https://img.shields.io/npm/v/react-native-roster?color=cb3837&logo=npm)](https://www.npmjs.com/package/react-native-roster)
 [![CI](https://github.com/simiancraft/react-native-roster/actions/workflows/ci.yml/badge.svg)](https://github.com/simiancraft/react-native-roster/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/simiancraft/react-native-roster?logo=codecov)](https://codecov.io/github/simiancraft/react-native-roster)
+[![Types: included](https://img.shields.io/npm/types/react-native-roster?color=3178c6&logo=typescript)](https://www.npmjs.com/package/react-native-roster)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/simiancraft/react-native-roster/badge)](https://securityscorecards.dev/viewer/?uri=github.com/simiancraft/react-native-roster)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/simiancraft/react-native-roster/blob/main/LICENSE)
 
-**Rosters and schedules for React Native and web, with sources behind every interval and gap.**
+**"Why is nobody on Wednesday?"** Rosters and schedules for React Native and web. Press the empty Wednesday and it names the dentist appointment that emptied it.
 
-Show people or resources as lanes on a shared time axis, then hand the same lane
-to a day or week schedule. Press an interval or a gap and get back the sources
-that put it there: the rule, the table row, the day off. Reach for it when
-layers overlap, coverage totals matter, and a daylight-saving week has to be 167
-or 169 hours wide. Your app owns creating, dragging, and saving.
+```tsx
+<Roster
+  lanes={lanes}
+  windowSpec={windowSpec}
+  onGapPress={(rect) => console.log(rect.sources)} // [{ kind: 'date', id: 'dentist' }]
+/>
+```
+
+A staffing screen gets asked who is on right now, who is free at 3, and why
+nobody is on Wednesday. The third question needs the rule behind the rectangle,
+so every interval and gap keeps its sources. Press an interval to get the sources
+that produced it; press a gap to get the sources that removed it.
+
+Give each person or resource a lane. `Roster` draws every lane on one time axis;
+`Schedule` draws any one of them as a week, days across and hours down. The same
+lane feeds both.
+
+`Roster` draws elapsed time, so the week the clocks change is 167 or 169 hours
+wide; `Schedule` hatches the hour they skipped.
+
+It does not create, drag, or resize anything, and it has no month grid; if you
+need those, reach for [react-native-calendar-kit](https://github.com/howljs/react-native-calendar-kit)
+or [react-native-big-calendar](https://github.com/acro5piano/react-native-big-calendar).
 
 [Browse every example](https://simiancraft.github.io/react-native-roster/) in the gallery.
 
@@ -45,20 +65,21 @@ These steps assume an Expo app.
    bunx expo install react-native-reanimated --bun
    ```
 
-3. For web, add React DOM, React Native Web, and Radix Popover:
+3. For web, add React DOM, React Native Web, and Radix Popover; every web build needs all three:
 
    ```sh
    bunx expo install react-dom react-native-web --bun
    bun add '@radix-ui/react-popover@^1.1.23'
    ```
 
-Without Expo, install Reanimated 3.19 or newer by its own instructions. Metro
-before React Native 0.79 needs `resolver.unstable_enablePackageExports`.
+Without Expo, follow the [Reanimated install guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/)
+for 3.19 or newer. On React Native older than 0.79, turn on
+`resolver.unstable_enablePackageExports` in Metro.
 
 ### Roster
 
-A lane is one person or resource. Its layers hold intervals in epoch
-milliseconds, and every interval names its sources. Give the component a height.
+The smallest useful roster: Alex works 09:00 to 17:00 UTC on Monday, and a table
+row says so. `Roster` fills its parent by default; here it gets a fixed height.
 
 ```tsx
 import { Roster } from 'react-native-roster';
@@ -98,11 +119,12 @@ export function RosterExample() {
 }
 ```
 
-More lanes are more people. More layers draw above or below by `z`.
+Add lanes for more people. Add layers and they stack by `z`.
 
 ### Schedule
 
-The same lane, as days across and hours down. Schedule takes day and week windows.
+Hand `Schedule` that same `lane` and it draws days across and hours down. It
+takes day and week windows.
 
 ```tsx
 import { Schedule } from 'react-native-roster';
@@ -121,7 +143,9 @@ export function ScheduleExample() {
 ### Recurrence from rrule
 
 The `/rrule` adapter turns daily, weekly, and monthly rules into intervals and
-gaps. Here: 09:00 to 17:00 in New York on weekdays, with Wednesday off.
+gaps. Here is the Wednesday from the top of this page: weekdays 09:00 to 17:00
+in New York, and a dentist appointment on the 23rd. Press the empty day and it
+names `dentist`.
 
 ```tsx
 import { Roster } from 'react-native-roster';
@@ -150,7 +174,7 @@ const ruleSet: RuleSet = {
     },
   ],
   dates: [
-    { id: 'wednesday-off', kind: 'exclude', date: '2026-09-23', timezone: 'America/New_York' },
+    { id: 'dentist', kind: 'exclude', date: '2026-09-23', timezone: 'America/New_York' },
   ],
 };
 
@@ -179,7 +203,7 @@ export function RecurringRosterExample() {
       lanes={[recurringLane]}
       windowSpec={windowSpec}
       style={{ height: 480, flex: undefined }}
-      onGapPress={(rect) => console.log(rect.sources)} // [{ kind: 'date', id: 'wednesday-off' }]
+      onGapPress={(rect) => console.log(rect.sources)} // [{ kind: 'date', id: 'dentist' }]
     />
   );
 }
@@ -218,24 +242,26 @@ react-native-roster supports [NativeWind](https://www.nativewind.dev/).
    />
    ```
 
-Every style prop has a `className` twin. The
+Every style prop has a `className` twin; the
 [NativeWind page](https://github.com/simiancraft/react-native-roster/blob/main/src/nativewind/README.md)
 lists them.
 
 ## Customization
 
-Every region is replaceable: header cells, lane labels, intervals, gaps, the
+You can replace every region: header cells, lane labels, intervals, gaps, the
 grid, the now line, and the detail popover. Props ending in `Component` take a
-component type; props ending in `Zone` take a node. `useRoster` and
-`useSchedule` return the same models the components use, for a layout of your
-own. See [customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md).
+component type; props ending in `Zone` take a node. If you want your own layout
+entirely, `useRoster` and `useSchedule` return the same models the components
+render from. See [customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md).
 
 ## Size and support
 
-`/core` is 13.6 kB minified, `/rrule` is 12.9 kB, and the root entry is 51.1 kB,
-with peers external. Web runs in CI on every pull request; iOS and Android are
-implemented and not yet verified on devices. Tested against Expo SDK 54,
-React Native 0.81, and Reanimated 3.19.
+Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.1 kB.
+`/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
+and `@js-temporal/polyfill`, which install with the package. Web runs in CI on
+every ready pull request. iOS and Android are
+implemented but have not been verified on devices yet. Tested against Expo
+SDK 54, React Native 0.81, and Reanimated 3.19.
 
 ## Reference
 
@@ -243,7 +269,7 @@ React Native 0.81, and Reanimated 3.19.
 | --- | --- |
 | `react-native-roster` | `Roster`, `Schedule`, `useRoster`, `useSchedule`, the default slot components, and everything in `/core`. |
 | `react-native-roster/core` | Types, layout, coverage, interval helpers, and window navigation. Standard JavaScript and `Intl` only. |
-| `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, and their caches. |
+| `react-native-roster/rrule` | `expandRuleSet`, `envelopeFor`, and their caches. The only entry that imports `rrule-temporal` and `@js-temporal/polyfill`. |
 | `react-native-roster/nativewind` | Registers the components with NativeWind. |
 
 - [Customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md): slots, selection, and passing your data to slot components.
@@ -263,4 +289,7 @@ Release history is in the [changelog](https://github.com/simiancraft/react-nativ
 
 ## License
 
-MIT, copyright 2026 Jesse Harlin (the-simian). See [LICENSE](https://github.com/simiancraft/react-native-roster/blob/main/LICENSE).
+MIT, copyright 2026 Jesse Harlin (the-simian). See [LICENSE](https://github.com/simiancraft/react-native-roster/blob/main/LICENSE)
+and [NOTICE.md](https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md).
+
+<p align="center"><sub>Crafted with care by <a href="https://simiancraft.com">Simiancraft</a>.</sub></p>
