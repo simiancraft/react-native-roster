@@ -1,3 +1,11 @@
+## [0.4.5](https://github.com/simiancraft/react-native-roster/compare/v0.4.4...v0.4.5) (2026-09-20)
+
+
+### Bug Fixes
+
+* **demo:** caption chip groups as fieldset legends ([628c940](https://github.com/simiancraft/react-native-roster/commit/628c940d37a463e5b06e13b553e20bb52752a28e))
+* **demo:** drop the span caption from the showcase controls ([469d1c2](https://github.com/simiancraft/react-native-roster/commit/469d1c2fae94ad88b9f1ef9324123be2fb9e8188))
+
 ## [0.4.4](https://github.com/simiancraft/react-native-roster/compare/v0.4.3...v0.4.4) (2026-09-20)
 
 
