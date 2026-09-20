@@ -1,3 +1,10 @@
+## [0.4.3](https://github.com/simiancraft/react-native-roster/compare/v0.4.2...v0.4.3) (2026-09-20)
+
+
+### Bug Fixes
+
+* **render:** pass dependency arrays to useAnimatedStyle ([7577aee](https://github.com/simiancraft/react-native-roster/commit/7577aee4c87582c178a9c90e4de982c513d3c825))
+
 ## [0.4.2](https://github.com/simiancraft/react-native-roster/compare/v0.4.1...v0.4.2) (2026-09-20)
 
 ## [0.4.1](https://github.com/simiancraft/react-native-roster/compare/v0.4.0...v0.4.1) (2026-09-19)
