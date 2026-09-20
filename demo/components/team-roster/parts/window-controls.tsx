@@ -3,7 +3,7 @@ import { TextInput } from 'react-native';
 import { type SortKey, type SpanKey, VIEW_TIMEZONES } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
 import { MUTED_FOREGROUND_HEX } from '../utils/tones';
-import { Chip, ChipGroup, ToolbarButton } from './chips';
+import { Chip, ChipGroup, ChipTabs, ToolbarButton } from './chips';
 
 const SPAN_LABELS: Record<SpanKey, string> = { day: 'Day', week: 'Week' };
 const SORT_LABELS: Record<SortKey, string> = {
@@ -20,8 +20,8 @@ export function SpanChips({
   onChange: (span: SpanKey) => void;
 }) {
   return (
-    <ChipGroup
-      label="Span"
+    <ChipTabs
+      accessibilityLabel="Span"
       chipsZone={(Object.keys(SPAN_LABELS) as SpanKey[]).map((key) => (
         <Chip
           key={key}

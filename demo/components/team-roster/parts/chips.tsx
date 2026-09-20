@@ -18,6 +18,25 @@ export function ChipGroup({ label, chipsZone }: ChipGroupProps) {
   );
 }
 
+type ChipTabsProps = {
+  /** Names the group for assistive technology; nothing is drawn for it. */
+  accessibilityLabel: string;
+  /** Ordered chips that read as tabs without a caption. */
+  chipsZone: ReactNode;
+};
+
+/** Chips whose meaning is plain from their own labels, such as Day and Week. */
+export function ChipTabs({ accessibilityLabel, chipsZone }: ChipTabsProps) {
+  return (
+    <View
+      accessibilityLabel={accessibilityLabel}
+      className="flex-row items-center gap-1 rounded-lg border border-border bg-card p-1"
+    >
+      {chipsZone}
+    </View>
+  );
+}
+
 const CHIP = {
   idle: {
     chip: 'h-7 items-center justify-center rounded-md px-2.5 active:bg-accent',
