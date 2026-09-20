@@ -1,0 +1,17 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "llms.txt",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/README.md",
+    "src/components/roster/focus-safe-clip.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx"
+  ],
+  "capture_commit": "ef781fb003df687a5321f0a4c1bbd410e7c22cf3",
+  "capture_method": "Run bun install --frozen-lockfile and bun run check on the pushed head",
+  "content_hash": "sha256:36162575bbf3cdf392ee0fe1ea1c2a792982f7c6255c0fe2728b1d51b6ffb862"
+}

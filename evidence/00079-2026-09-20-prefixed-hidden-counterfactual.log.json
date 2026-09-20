@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx"
+  ],
+  "capture_commit": "ef781fb003df687a5321f0a4c1bbd410e7c22cf3",
+  "capture_method": "Replace the web clip with overflow hidden, run bun run build:web, verify source, dist, and bundle output with rg, then run bun run check:web and require exit 1",
+  "content_hash": "sha256:3bbf0fb6accd67e11405841ed01108bf0d41c307861aadfdc83c029832a04dc9"
+}
