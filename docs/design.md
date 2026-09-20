@@ -1,52 +1,65 @@
 # Precompute, then render geometry
 
-A roster answers a coverage question across many lanes. The amount of data is
-bounded by intervals and their overlaps, not by how many visual time slots a
-chosen minute step creates. A per-cell callback couples rendering cost to grid
-density and makes scrolling responsible for work that the data already determines.
+A week at a 15-minute step is 672 cells per lane. For 200 lanes, a component
+that calls back per cell makes 134,400 calls to draw one screen's worth of data,
+and finer ticks make it worse. The same week in this package's benchmark
+workload is 70 rects per lane: 63 intervals and 7 gaps. Roster draws those
+rects, so a finer tick changes the grid lines and nothing else.
 
-The package puts that work behind content-keyed functions. Adapters produce
-absolute intervals and removed gaps with provenance. Coverage is computed for
-all lanes before sorting, while geometry is requested only for mounted lanes.
-Rendering positions the resulting rects; scrolling moves shared offsets without
-updating React state. First visits still compute missing geometry. "Precompute"
-means separate the expensive algorithms from drawing, not eagerly lay out every
-offscreen lane or promise that every interaction is a cache hit.
+Coverage and geometry run over different sets of lanes. Coverage runs for every
+lane, because sorting by coverage needs all of them. Geometry runs for the lanes
+the list has mounted (24 in the benchmark viewport), plus the selected lane so
+its detail stays anchored. Scrolling moves shared offsets and never sets React
+state. The first time a lane mounts for a window, its geometry is computed and
+cached; after that it is a lookup. The cache key is the lane's layer content, or
+a `version` you supply. If you supply one, change it whenever the layers change.
 
-## Why intervals, not rules
+## Accept intervals at the boundary
 
-Rules describe an upstream authoring format. Absolute intervals describe what
-is covered. Accepting intervals keeps recurrence, feed parsing, database schemas,
-and their dependencies outside the core. A static table and a rule set can use
-the same renderer, and a rule edit only invalidates the work its content changes.
-Provenance is part of the boundary: source sets split where contributors change,
-and a fully removed include still leaves an explainable gap.
+The renderer takes absolute intervals, so a database table and a recurrence
+rule can feed the same component. Adapters own the upstream format. The rrule
+adapter owns rule expansion and its two dependencies, and nothing in the core
+imports them.
 
-A bare window has absolute start and end bounds. Span and resolution belong to
-the axis, which interprets a local anchor in the view zone. Rule zones interpret
-local authoring time; lane zones only label lanes. This division keeps display
-preferences out of occurrence keys and separates coverage from projection.
+Every interval and gap carries the sources that produced it. Where the set of
+contributing sources changes, the rect splits, so you can tell overlapping
+contributions apart when you press them. Removing an include entirely still
+leaves a gap that carries the sources of the exclusion, so "why is nobody on
+Wednesday" has an answer.
 
-## Two projections, one contract
+A window is two absolute bounds. The axis picks those bounds
+from a local anchor date and the view timezone. The rule timezone interprets
+authored local hours. A lane's own timezone is a label and leaves its intervals
+alone. Coverage uses absolute bounds, so changing the projection reuses it.
 
-Roster uses true elapsed time along a shared horizontal axis. Schedule shows one
-lane in day columns with 24 wall-clock hour bands, keeping 09:00 aligned across a
-week. DST skips and repeats are explicit geometry regions; a skipped date has no
-column. Both projections preserve exact epoch bounds, layering, and sources.
-Only pointer results snap to a minute step.
+## Project the same intervals two ways
 
-Zone Composer separates consumer chrome from those rules. This feature is about
-a roster; its children are lanes. This feature is about a schedule; its children
-are days. Hooks derive the data; chassis components compose replaceable zones;
-parts consume domain data and final geometry. Gallery routes apply the same
-pattern to fixtures, including editable adapter inputs.
+Roster puts lanes on an elapsed-time axis, so width is real duration. The weeks
+containing Chicago's 2024 transitions are 167 and 169 hours wide.
+
+Schedule puts one lane into day columns with 24 wall-clock hour bands, so an
+ordinary 09:00 lines up across the week. A skipped hour stays empty and hatched.
+A repeated hour fits both occurrences into its band. A date that is skipped
+whole gets a header marker and no column. Pressing empty space snaps to the
+minute step; intervals and gaps keep their exact bounds.
+
+Both components are built with
+[Zone Composer](https://github.com/simiancraft/simiancraft-skills/blob/main/skills/zone-composer/SKILL.md),
+a composition pattern: a hook owns state and derived data, a chassis component
+branches on status and fills named zones, and replaceable parts receive domain
+data and final geometry. For a consumer that means every region of Roster and
+Schedule can be replaced without forking layout or hit testing.
 
 ## Non-goals
 
-Creation, dragging, resizing, persistence, permissions, and recurrence authoring
-belong to consumers. This is not an arbitrary event calendar, a month grid, or a
-booking system. Press callbacks expose facts for consumer interactions; they do
-not decide business policy. The JSON editor is gallery tooling, not a public
-rule-authoring API. Performance claims require measurements with a workload,
-machine, date, and commit; neither cache architecture nor browser tests establish
-phone frame rates. See [performance evidence](./performance.md).
+- Creating, dragging, and resizing intervals belong to your app.
+- So do persistence, permissions, and business policy; a press callback tells
+  you what was pressed and leaves the decision to you.
+- Authoring recurrence rules belongs to your tooling. The JSON editor in the
+  gallery is a demo, not an API.
+- There is no month grid.
+
+The numbers on this page come from a benchmark workload, and a browser result
+says nothing about a phone. [Performance evidence](./performance.md) records the
+workload, machine, date, and commit behind each number, and the procedure for
+measuring on a device.
