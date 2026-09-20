@@ -51,6 +51,7 @@ Never use em dashes in prose; use semicolons, commas, or parentheses. Use the Ox
 major. Demo-scoped commits never release. Do not scope library changes to `demo`.
 Other maintenance commits do not release by default. Merge pull requests with a
 merge commit; squashing rewrites the subjects that semantic-release reads.
+CI and the demo bundle skip draft pull requests; marking one ready for review starts them.
 
 For a worktree-local browser cache, set `PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/playwright"`
 on both the install and check commands. To keep Bun scratch and cache writes local,

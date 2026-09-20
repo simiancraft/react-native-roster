@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+    # Drafts are skipped below; ready_for_review starts the run a draft never had.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # Least-privilege default for the whole workflow; the `release` job
 # overrides with a broader block for semantic-release to push tags.
@@ -17,6 +19,7 @@ concurrency:
 jobs:
   check:
     name: Lint, Typecheck, Test
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
