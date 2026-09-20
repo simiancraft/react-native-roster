@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://simiancraft.github.io/react-native-roster/showcase">
-    <img src="https://img.shields.io/badge/▶%20Live%20demo-press%20a%20gap%2C%20see%20why-4f46e5?style=for-the-badge" alt="Live demo" />
+    <img src="https://img.shields.io/badge/▶%20Live%20demo-see%20who's%20on-4f46e5?style=for-the-badge" alt="Live demo" />
   </a>
 </p>
 
