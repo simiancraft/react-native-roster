@@ -42,7 +42,7 @@ const server = Bun.serve({
   },
 });
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1440, height: 1600 } });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors: string[] = [];
 page.on('pageerror', (error) => errors.push(error.message));
 await page.context().tracing.start({ screenshots: true, snapshots: true });
@@ -50,17 +50,65 @@ try {
   await page.goto(`${server.url}gallery/200-lanes`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.__roster?.expandStats);
   await page.getByTestId('roster-vertical-scroll').waitFor();
+  const labels = page.getByTestId('roster-labels');
+  const labelClip = labels.locator('..');
+  const labelFocused = await labels.evaluate((node) => {
+    const target = node.lastElementChild as HTMLElement | null;
+    if (!target) throw new Error('Missing last lane label');
+    target.tabIndex = 0;
+    target.focus();
+    return document.activeElement === target;
+  });
+  await settle(page);
+  assert(labelFocused, 'Last lane label must receive focus');
+  const labelClipScrollTop = await labelClip.evaluate((node) => node.scrollTop);
+  const header = page.getByTestId('roster-header');
+  const headerClip = header.locator('..');
+  const headerFocused = await header.evaluate((node) => {
+    const target = node.lastElementChild as HTMLElement | null;
+    if (!target) throw new Error('Missing last header cell');
+    target.tabIndex = 0;
+    target.focus();
+    return document.activeElement === target;
+  });
+  await settle(page);
+  assert(headerFocused, 'Last header cell must receive focus');
+  const headerClipScrollLeft = await headerClip.evaluate((node) => node.scrollLeft);
+  console.log(`Focus offsets: labels ${labelClipScrollTop}px; header ${headerClipScrollLeft}px.`);
+  assert.deepEqual(
+    { labelClipScrollTop, headerClipScrollLeft },
+    { labelClipScrollTop: 0, headerClipScrollLeft: 0 },
+  );
+  await assertLaneLabelAlignment(0);
+  assert.equal(
+    await page.getByTestId('roster-horizontal-scroll').evaluate((node) => node.scrollLeft),
+    0,
+  );
   // Fix W's physical viewport at 24 rows without altering the roster implementation.
   const height = await page
     .getByTestId('roster-vertical-scroll')
     .evaluate((node) => node.clientHeight);
-  await page.setViewportSize({ width: 1440, height: 1600 + 24 * 48 - height });
+  await page.setViewportSize({ width: 1440, height: 900 + 24 * 48 - height });
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.__roster?.expandStats);
   await settle(page);
   assert.equal(
     await page.getByTestId('roster-vertical-scroll').evaluate((node) => node.clientHeight),
     24 * 48,
+  );
+  const vertical = page.getByTestId('roster-vertical-scroll');
+  await vertical.hover();
+  await page.mouse.wheel(0, 240);
+  await settle(page);
+  const focusedScrollTop = await vertical.evaluate((node) => node.scrollTop);
+  assert(focusedScrollTop > 0, 'Wheel must scroll the focused-label roster');
+  await assertLaneLabelAlignment(Math.round(focusedScrollTop / 48));
+  await vertical.evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await settle(page);
+  console.log(
+    'Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.',
   );
   await page.getByRole('button', { name: '15 min', exact: true }).click();
   await page.evaluate(() => {
@@ -330,6 +378,19 @@ try {
 async function settle(target: Page) {
   // Let LegendList finish measurement, mounting, and scroll work, including the 500 ms display sampler.
   await target.waitForTimeout(850);
+}
+async function assertLaneLabelAlignment(index: number) {
+  const label = page.getByTestId('roster-labels').locator(':scope > *').nth(index);
+  const labelText = await label.innerText();
+  const laneId = labelText.match(/^Lane (\d+)/)?.[1];
+  assert(laneId, `Label ${index} must identify its lane`);
+  const lane = page.getByTestId(`roster-lane-lane-${laneId}`);
+  const [labelBounds, laneBounds] = await Promise.all([label.boundingBox(), lane.boundingBox()]);
+  assert(labelBounds && laneBounds, `Lane ${index} and its label must be mounted`);
+  assert(
+    Math.abs(labelBounds.y - laneBounds.y) < 1,
+    `Lane ${index} label must stay aligned: ${labelBounds.y} versus ${laneBounds.y}`,
+  );
 }
 async function click(name: string) {
   const control = page.getByRole('button', { name, exact: true });
