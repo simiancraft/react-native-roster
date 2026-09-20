@@ -190,6 +190,8 @@ The caller owns clock updates. Only instants inside the end-exclusive window are
 Props ending in `Component` accept component types; props ending in `Zone`
 accept React nodes. Define slot components at module scope to preserve state.
 Use exported defaults inside replacements to retain geometry and interaction.
+On web, translated header and lane-label regions use non-scrolling clips, so focusable
+custom content cannot move them out of alignment with the roster body.
 The [slot tables and examples](./docs/customization.md#roster-zones) cover every region.
 
 ### Selection

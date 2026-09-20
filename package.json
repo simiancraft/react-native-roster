@@ -41,6 +41,7 @@
   "types": "./dist/src/index.d.ts",
   "browser": {
     "./dist/src/components/primitives/press-point.js": "./dist/src/components/primitives/press-point.web.js",
+    "./dist/src/components/roster/focus-safe-clip.js": "./dist/src/components/roster/focus-safe-clip.web.js",
     "./dist/src/components/roster/lanes/interval-hover.js": "./dist/src/components/roster/lanes/interval-hover.web.js",
     "./dist/src/components/roster/selection/selection-layout.js": "./dist/src/components/roster/selection/selection-layout.web.js"
   },

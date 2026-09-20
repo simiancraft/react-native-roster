@@ -62,6 +62,49 @@ try {
     await page.getByTestId('roster-vertical-scroll').evaluate((node) => node.clientHeight),
     24 * 48,
   );
+  const labels = page.getByTestId('roster-labels');
+  const labelClip = labels.locator('..');
+  await labels
+    .locator(':scope > *')
+    .last()
+    .evaluate((node) => {
+      const target = node as HTMLElement;
+      target.tabIndex = 0;
+      target.focus();
+    });
+  await settle(page);
+  assert.equal(await labelClip.evaluate((node) => node.scrollTop), 0);
+  await assertLaneLabelAlignment(0);
+  const vertical = page.getByTestId('roster-vertical-scroll');
+  await vertical.hover();
+  await page.mouse.wheel(0, 240);
+  await settle(page);
+  const focusedScrollTop = await vertical.evaluate((node) => node.scrollTop);
+  assert(focusedScrollTop > 0, 'Wheel must scroll the focused-label roster');
+  await assertLaneLabelAlignment(Math.round(focusedScrollTop / 48));
+  await vertical.evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await settle(page);
+  const header = page.getByTestId('roster-header');
+  const headerClip = header.locator('..');
+  await header
+    .locator(':scope > *')
+    .last()
+    .evaluate((node) => {
+      const target = node as HTMLElement;
+      target.tabIndex = 0;
+      target.focus();
+    });
+  await settle(page);
+  assert.equal(await headerClip.evaluate((node) => node.scrollLeft), 0);
+  assert.equal(
+    await page.getByTestId('roster-horizontal-scroll').evaluate((node) => node.scrollLeft),
+    0,
+  );
+  console.log(
+    'Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.',
+  );
   await page.getByRole('button', { name: '15 min', exact: true }).click();
   await page.evaluate(() => {
     const bridge = window.__roster as CounterBridgeInput;
@@ -330,6 +373,19 @@ try {
 async function settle(target: Page) {
   // Let LegendList finish measurement, mounting, and scroll work, including the 500 ms display sampler.
   await target.waitForTimeout(850);
+}
+async function assertLaneLabelAlignment(index: number) {
+  const label = page.getByTestId('roster-labels').locator(':scope > *').nth(index);
+  const labelText = await label.innerText();
+  const laneId = labelText.match(/^Lane (\d+)/)?.[1];
+  assert(laneId, `Label ${index} must identify its lane`);
+  const lane = page.getByTestId(`roster-lane-lane-${laneId}`);
+  const [labelBounds, laneBounds] = await Promise.all([label.boundingBox(), lane.boundingBox()]);
+  assert(labelBounds && laneBounds, `Lane ${index} and its label must be mounted`);
+  assert(
+    Math.abs(labelBounds.y - laneBounds.y) < 1,
+    `Lane ${index} label must stay aligned: ${labelBounds.y} versus ${laneBounds.y}`,
+  );
 }
 async function click(name: string) {
   const control = page.getByRole('button', { name, exact: true });
