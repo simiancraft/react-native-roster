@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "visual", "flow"],
+  "covered_paths": [
+    "demo/app/gallery/200-lanes.tsx",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx",
+    "src/components/roster/parts/lane-label-column.tsx"
+  ],
+  "capture_commit": "eb192fb9182f167b841ee12657a67324cc1cba96",
+  "capture_method": "Playwright Chromium at 1440x900 after the final branch push; focus the last label, assert wrapper scrollTop is zero, wheel 240 px, assert wrapper scrollTop remains zero, match the visible label and lane y-coordinates, and capture the viewport",
+  "content_hash": "sha256:fb934c100f0d9fa24f1f9a2b0fc6d3a0df73b2a4a56fc0660744e561c74779d2"
+}

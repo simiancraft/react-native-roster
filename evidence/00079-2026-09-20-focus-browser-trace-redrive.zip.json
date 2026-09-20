@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    "demo/app/gallery/200-lanes.tsx",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx",
+    "src/components/roster/parts/lane-label-column.tsx"
+  ],
+  "capture_commit": "eb192fb9182f167b841ee12657a67324cc1cba96",
+  "capture_method": "Playwright tracing from the check:web phase of bun run check after the final branch push",
+  "content_hash": "sha256:fd91d5efd8504c7b313deb50e075fbb7fe7d76aee30d1ceaf8a37d449fdfd94a"
+}

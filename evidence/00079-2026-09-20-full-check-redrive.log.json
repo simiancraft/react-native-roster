@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/roster/focus-safe-clip.ts",
+    "src/components/roster/focus-safe-clip.web.ts",
+    "src/components/roster/layout.tsx"
+  ],
+  "capture_commit": "eb192fb9182f167b841ee12657a67324cc1cba96",
+  "capture_method": "bun run check after bun install --frozen-lockfile at the final remote branch head",
+  "content_hash": "sha256:a32f37120ee373249c815ad4a84ced12cf972cc9c4b98a0c8925691708d134c1"
+}
