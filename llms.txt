@@ -200,6 +200,8 @@ Native Web renders object styles inline where they would beat any class. Labels 
 be incomplete". Supply a bounded height; Roster waits for viewport measurement
 before mounting LegendList. Reanimated keeps horizontal and vertical offsets
 outside React state.
+On web, translated header and lane-label regions use non-scrolling clips, so browser
+focus scrolling cannot move custom content independently of the roster body.
 
 useRoster returns window, projection, orderedLanes, coverage, laneState,
 geometryFor(lane), scroll, press(lane,x,y), ticks, contentWidth, viewport,

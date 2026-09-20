@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
 import { regionStyle } from '../primitives/region-style';
+import { focusSafeClip } from './focus-safe-clip';
 import type { RosterStyleProps } from './roster.types';
 
 type RosterLayoutProps = Omit<RosterStyleProps, `${string}ClassName` | 'className'> & {
@@ -55,9 +56,9 @@ export function RosterLayout({
 const structure = {
   root: { flex: 1, minHeight: 0, overflow: 'hidden' },
   header: { flexDirection: 'row', height: 40, overflow: 'hidden' },
-  headerStrip: { flex: 1, minWidth: 0, overflow: 'hidden' },
+  headerStrip: { flex: 1, minWidth: 0, ...focusSafeClip },
   content: { flex: 1, minHeight: 0, flexDirection: 'row' },
-  labels: { overflow: 'hidden' },
+  labels: focusSafeClip,
   body: { flex: 1, minWidth: 0, overflow: 'hidden' },
 } as const;
 // Paint is what a class replaces; see regionStyle.

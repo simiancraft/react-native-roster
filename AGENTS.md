@@ -527,3 +527,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
     component types as JSX. The root layout is screen-layout.tsx. The inspector retains
     member selection; event detail belongs to the popover. All generated identities and
     the organization are fictional.
+
+36. **Translated roster chrome uses focus-safe web clips.** The header strip and lane-label
+    column use `overflow: clip` on web so browser focus scrolling cannot offset translated
+    content independently of the roster body. Native retains `overflow: hidden`. The browser
+    remap selects the focus-safe-clip platform pair; keep both files and the package mapping
+    together. The browser gate focuses clipped label and header content, then verifies alignment
+    after wheel scrolling.
