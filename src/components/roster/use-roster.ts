@@ -28,8 +28,10 @@ export function useRoster(input: RosterInput): RosterModel {
   const [x] = useState(() => makeMutable(0));
   const [y] = useState(() => makeMutable(0));
   const bodyRef = useRef<ScrollView>(null);
-  const headerStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -x.get() }] }));
-  const labelStyle = useAnimatedStyle(() => ({ transform: [{ translateY: -y.get() }] }));
+  // Explicit dependencies: a web bundler that skips Reanimated's Babel plugin
+  // for node_modules (Vite, Storybook) throws on a worklet without them.
+  const headerStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -x.get() }] }), [x]);
+  const labelStyle = useAnimatedStyle(() => ({ transform: [{ translateY: -y.get() }] }), [y]);
   const window = windowFor(windowSpec);
   if (
     !(rowHeight > 0) ||
