@@ -590,6 +590,26 @@ The package does not create, drag, resize, persist, or authorize intervals; it
 is not a general calendar. Consumers implement their own interactions. A rule
 editor in the gallery is an integration example, not a rule-authoring product.
 
+## Alternatives, evidence, and sizes
+
+Choose react-native-calendar-kit for creation and editing gestures and pinch to
+zoom; react-native-big-calendar for day, week, and month views of titled events;
+FullCalendar's resource timeline for a web timeline with dragging and resizing.
+This package adds layer-role coverage math, exact source sets on covered and
+removed spans, one lane contract for a many-lane roster and a single-lane
+schedule, and geometry for skipped and repeated wall time. It has no creation,
+dragging, resizing, or month grid. No relative performance comparison exists.
+
+Measured on GitHub Actions ubuntu-latest (test/performance/baseline.json):
+target-cold layout of 24 lanes of a 200-lane week at 15-minute ticks takes
+2.070 ms; coverage of all 200 lanes takes 1.063 ms; both are gated below 16 ms.
+Minified, uncompressed, peers external: /core 13.6 kB (limit 15), /rrule 12.9 kB
+(limit 15), root 51.1 kB (limit 52), /nativewind 46.9 kB (limit 48). Web is
+checked in Chromium on every pull request; iOS and Android device rendering,
+Hermes behavior, and phone frame rates are not yet recorded. The demo pins Expo
+SDK 54, React 19.1, React Native 0.81.5, LegendList 2.0.19, and Reanimated
+3.19.5; those versions do not establish every peer-range combination.
+
 ## Working from a checkout
 
 Use Bun 1.4.2 and Node 22 for repository development. At the repository root:

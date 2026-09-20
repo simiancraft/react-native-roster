@@ -81,7 +81,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
 - TypeScript uses `@typescript/native-preview` (`tsgo`). Editing uses strict ESM
   bundler resolution, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, and Bun
   types. Build uses node16 and rootDir `.` so exports point to `dist/src/`.
-- Zone Composer is the house style for `Roster`, `Schedule`, and every gallery
+- [Zone Composer](https://github.com/simiancraft/simiancraft-skills/blob/main/skills/zone-composer/SKILL.md) is the house style for `Roster`, `Schedule`, and every gallery
   fixture route. Before drafting a feature, write its two nouns in the issue and
   report: "This feature is about a ___; its children are ___." Roster has lanes;
   schedule has days; a gallery route has fixtures.
