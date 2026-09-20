@@ -256,12 +256,12 @@ render from. See [customization](https://github.com/simiancraft/react-native-ros
 
 ## Size and support
 
-Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.1 kB.
+Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.2 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
 and `@js-temporal/polyfill`, which install with the package. Web runs in CI on
-every ready pull request. iOS and Android are
-implemented but have not been verified on devices yet. Tested against Expo
-SDK 54, React Native 0.81, and Reanimated 3.19.
+every ready pull request. iOS and Android are implemented but have not been
+verified on devices yet. Tested against Expo SDK 54, React Native 0.81, and
+Reanimated 3.19.
 
 ## Reference
 

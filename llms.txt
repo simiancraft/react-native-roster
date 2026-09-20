@@ -606,7 +606,7 @@ Measured on GitHub Actions ubuntu-latest (test/performance/baseline.json):
 target-cold layout of 24 lanes of a 200-lane week at 15-minute ticks takes
 2.070 ms; coverage of all 200 lanes takes 1.063 ms; both are gated below 16 ms.
 Minified, uncompressed, peers external: /core 13.6 kB (limit 15), /rrule 12.9 kB
-(limit 15), root 51.1 kB (limit 52), /nativewind 46.9 kB (limit 48). Web is
+(limit 15), root 51.2 kB (limit 52), /nativewind 47.1 kB (limit 48). Web is
 checked in Chromium on every pull request; iOS and Android device rendering,
 Hermes behavior, and phone frame rates are not yet recorded. The demo pins Expo
 SDK 54, React 19.1, React Native 0.81.5, LegendList 2.0.19, and Reanimated
