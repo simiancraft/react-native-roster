@@ -21,7 +21,7 @@ export function SpanChips({
 }) {
   return (
     <ChipGroup
-      label="Span"
+      label="View"
       chipsZone={(Object.keys(SPAN_LABELS) as SpanKey[]).map((key) => (
         <Chip
           key={key}
@@ -63,7 +63,7 @@ export function ZoneChips({
 }) {
   return (
     <ChipGroup
-      label="Zone"
+      label="TZ"
       chipsZone={VIEW_TIMEZONES.map((zone) => (
         <Chip
           key={zone}
