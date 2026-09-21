@@ -6,7 +6,7 @@ type GalleryHomeLayoutProps = {
   heroZone: ReactNode;
   /** One section per fixture family, each a grid of route cards. */
   sectionsZone: ReactNode;
-  /** Build identity line. */
+  /** Build identity line and the site footer. */
   footerZone: ReactNode;
 };
 

@@ -1,5 +1,6 @@
 import { Roster } from 'react-native-roster';
 import type { RosterFixtureId } from '../../../../../test/fixtures/roster';
+import { SiteFooter } from '../../../site-footer';
 import { FixtureLayout } from '../layout';
 import { Control } from '../parts/control';
 import { GalleryCounters } from '../parts/counters';
@@ -99,6 +100,7 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
           bodyComponent={bodyComponent}
         />
       }
+      footerZone={<SiteFooter density="compact" />}
       countersZone={
         <>
           {emptyExample}

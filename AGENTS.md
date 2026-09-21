@@ -61,6 +61,7 @@ demo/
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
   components/team-roster/  # the showcase: members, attendance, toolbar, and inspector
+  components/site-footer/  # project links and the Simiancraft credit on every demo page
   components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
   metro.config.js          # workspace source and single React resolution
@@ -145,7 +146,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   [schedule](src/components/schedule/README.md), [layers](src/components/layers/README.md),
   [primitives](src/components/primitives/README.md), [rrule](src/adapters/rrule/README.md),
   [nativewind](src/nativewind/README.md), [gallery](demo/components/gallery/README.md),
-  [team-roster](demo/components/team-roster/README.md), and [theme](demo/components/theme/README.md).
+  [team-roster](demo/components/team-roster/README.md), [site-footer](demo/components/site-footer/README.md),
+  and [theme](demo/components/theme/README.md).
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.
