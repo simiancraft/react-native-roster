@@ -1,3 +1,10 @@
+## [0.4.11](https://github.com/simiancraft/react-native-roster/compare/v0.4.10...v0.4.11) (2026-09-21)
+
+
+### Bug Fixes
+
+* **core:** bound geometry caches ([5f7dd08](https://github.com/simiancraft/react-native-roster/commit/5f7dd08a2401133afa6d5a8ce98c8587f9512204))
+
 ## [0.4.10](https://github.com/simiancraft/react-native-roster/compare/v0.4.9...v0.4.10) (2026-09-21)
 
 
