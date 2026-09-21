@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/components/roster/utils/ticks.ts",
+    "src/core/cache.ts",
+    "src/core/lru.ts",
+    "test/components/roster/utils.test.ts"
+  ],
+  "capture_commit": "8595588a7a7451acafc90976d1573c14c308e684",
+  "capture_method": "bun test test/components/roster/utils.test.ts",
+  "content_hash": "sha256:7dad7c11bbd353753d66d903ed1e93827faaac5647bd01780fa2e5392e7dda2b"
+}

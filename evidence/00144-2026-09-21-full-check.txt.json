@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["code", "ci-gate"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "docs/caches.md",
+    "llms.txt",
+    "src/components/roster/README.md",
+    "src/components/roster/utils/ticks.ts",
+    "test/components/roster/utils.test.ts"
+  ],
+  "capture_commit": "8595588a7a7451acafc90976d1573c14c308e684",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:1de79ae4e258dc883ad042f23b61b1894ce3d49c48f5ff4d2a0103b40b3f671c"
+}
