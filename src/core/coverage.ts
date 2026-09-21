@@ -1,5 +1,6 @@
-import { counts, coverageCacheFor, defaultScopedCacheIdentity } from './cache';
+import { counts, coverageCacheFor, coverageCacheLimit, defaultScopedCacheIdentity } from './cache';
 import { laneKey } from './hash';
+import { touch, trim } from './lru';
 import type { Coverage, Lane, LayerRole, ScopedCacheIdentity, Window } from './types';
 
 export function coverageFor(
@@ -12,7 +13,7 @@ export function coverageFor(
   const cached = coverageCache.get(key);
   if (cached) {
     counts.coverage.cacheHits++;
-    return cached;
+    return touch(coverageCache, key, cached);
   }
   counts.coverage.runs++;
   const available = union(lane, window, 'availability');
@@ -33,7 +34,8 @@ export function coverageFor(
     bookingMinutes: duration(booked) / 60_000,
     availabilityMinusBookingMinutes: availabilityMinutes - intersection / 60_000,
   };
-  coverageCache.set(key, result);
+  touch(coverageCache, key, result);
+  trim(coverageCache, coverageCacheLimit);
   return result;
 }
 

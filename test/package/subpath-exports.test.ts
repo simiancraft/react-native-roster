@@ -71,7 +71,7 @@ describe('subpath exports', () => {
       for (const name of [
         'layoutLane', 'coverageFor', 'flagFor', 'snapToStep', 'timeAtX', 'timeAtY',
         'windowFor', 'prev', 'next', 'today', 'dayColumnsFor', 'layoutStats',
-        'coverageStats', 'resetStats', 'clearLayoutCache', 'clearCoverageCache',
+        'coverageStats', 'resetStats', 'clearCaches', 'clearLayoutCache', 'clearCoverageCache',
         'byLabel', 'byCoverage', 'unionOf',
       ]) assert.equal(typeof core[name], 'function');
       const window = core.windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' });

@@ -31,6 +31,9 @@ no React Native, no dependencies.
 retained results within one dataset. Omitted identities use the core-owned default. Standalone
 callers should keep one empty identity object for each dataset and pass the same object to both
 functions; projections share coverage because projection fields remain outside the coverage key.
+Each identity retains at most 2,000 least-recently-used layout entries and 2,000
+least-recently-used coverage entries; hits refresh recency. `clearCaches()` clears both geometry
+caches and every registered cache scope whose module has loaded, while preserving counters.
 
 ```ts
 import type { ScopedCacheIdentity } from 'react-native-roster/core';
