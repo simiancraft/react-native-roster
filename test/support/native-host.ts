@@ -11,6 +11,7 @@ mock.module('react-native', () => ({
       return { remove: () => backHandlers.delete(handler) };
     },
   },
+  Linking: { openURL: async () => true },
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',

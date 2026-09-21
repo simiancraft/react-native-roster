@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Roster, Schedule } from 'react-native-roster';
 import type { ScheduleFixtureId } from '../../../../../test/fixtures/schedule';
 import { replacedScheduleZones } from '../../../../../test/fixtures/schedule-zones';
+import { SiteFooter } from '../../../site-footer';
 import { FixtureLayout } from '../layout';
 import { GalleryCounters } from '../parts/counters';
 import { ScheduleControls } from './parts/controls';
@@ -26,6 +27,7 @@ export function ScheduleFixtureScreen({ fixtureId }: { fixtureId: ScheduleFixtur
     <FixtureLayout
       controlsZone={<ScheduleControls {...model} zoneExamplesZone={zoneExamplesZone} />}
       subjectZone={SUBJECTS[model.view](model)}
+      footerZone={<SiteFooter density="compact" />}
       countersZone={
         <>
           <GalleryCounters
