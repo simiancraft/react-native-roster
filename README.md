@@ -76,6 +76,12 @@ Without Expo, follow the [Reanimated install guide](https://docs.swmansion.com/r
 for 3.19 or newer. On React Native older than 0.79, turn on
 `resolver.unstable_enablePackageExports` in Metro.
 
+The workspace demo routes the root, `/core`, `/rrule`, and `/nativewind` imports through each
+export's `react-native` condition on web, iOS, and Android. Metro therefore compiles TypeScript
+source edits without rebuilding `dist`; the resolver still uses the package export map rather than
+an alias, and leaves peer and unrelated-package resolution unchanged. Restart the demo server if a
+source edit is not detected.
+
 ### Roster
 
 The smallest useful roster: Alex works 09:00 to 17:00 UTC on Monday, and a table
