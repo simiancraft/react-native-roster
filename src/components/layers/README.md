@@ -13,3 +13,8 @@ Internal imports stay within layers and core; the components also import React N
 Both projections accept intervalComponent and gapComponent as ComponentType inputs.
 Their data-owning lane or column mounts the component with the final rect, layer,
 and lane; interval inputs also carry highlighted. No renderer calls a slot function.
+
+The loaded layers scope retains at most 2,000 style entries shared by both projections,
+keyed by layer id and canonical style content. Hits refresh least-recently-used recency.
+Loading this scope registers style cleanup with `clearCaches()`; repeated clearing is safe,
+and evicted or cleared entries regenerate structurally equal normal and highlighted styles.

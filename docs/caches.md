@@ -86,14 +86,19 @@ entries. Both maps use least-recently-used eviction; a hit refreshes recency.
 Eviction changes only retention, so requesting an evicted input recomputes an
 equal result.
 
+The loaded layers scope retains at most 2,000 style entries shared by both
+projections. Styles are keyed by layer id and canonical style content. The map
+uses least-recently-used eviction; a hit refreshes recency, and requesting an
+evicted layer regenerates structurally equal normal and highlighted styles.
+
 ## Clearing and disposal
 
 `clearLayoutCache()` and `clearCoverageCache()` release all retained keys of the
 corresponding kind across identities; clear them when a consumer discards old windows.
 They do not reset counters. `clearCaches()` releases both, then clears every other
-cache scope that has registered after its module was loaded; registration does not make
-core import components, adapters, React, or recurrence dependencies. All three clear
-calls are repeatable.
+cache scope that has registered after its module was loaded, including layer styles
+after the layers scope loads. Registration does not make core import components,
+adapters, React, or recurrence dependencies. All three clear calls are repeatable.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 
