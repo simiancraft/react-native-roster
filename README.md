@@ -273,11 +273,12 @@ identity by default. Pass a stable `cacheIdentity` only when several surfaces re
 dataset and should deliberately share target-warm geometry and coverage.
 
 Each identity retains at most 2,000 least-recently-used layout entries and 2,000
-least-recently-used coverage entries. Cache hits refresh recency. `clearCaches()` clears geometry
-and every other cache scope whose module has loaded and registered its cleanup; counters remain
-cumulative. Loading the `/rrule` entry registers its occurrence and envelope caches without making
-core import recurrence dependencies; `clearCaches()` and `clearExpandCache()` then clear the same
-recurrence entries and preserve expansion counters. See
+least-recently-used coverage entries. The loaded roster scope retains at most 2,000
+least-recently-used tick entries. Cache hits refresh recency. `clearCaches()` clears geometry and
+every other cache scope whose module has loaded and registered its cleanup, including roster ticks;
+counters remain cumulative. Loading the `/rrule` entry registers its occurrence and envelope caches
+without making core import recurrence dependencies; `clearCaches()` and `clearExpandCache()` then
+clear the same recurrence entries and preserve expansion counters. See
 [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
 Minified, with peers external: `/core` is 14.6 kB and the root entry is 52.3 kB.

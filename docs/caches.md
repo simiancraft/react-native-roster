@@ -86,6 +86,10 @@ entries. Both maps use least-recently-used eviction; a hit refreshes recency.
 Eviction changes only retention, so requesting an evicted input recomputes an
 equal result.
 
+When the roster module is loaded, one shared least-recently-used cache retains at
+most 2,000 tick entries. Tick hits refresh recency; eviction and clearing preserve
+the generated tick content.
+
 ## Clearing and disposal
 
 `clearLayoutCache()` and `clearCoverageCache()` release all retained keys of the
@@ -93,7 +97,8 @@ corresponding kind across identities; clear them when a consumer discards old wi
 They do not reset counters. `clearCaches()` releases both, then clears every other
 cache scope that has registered after its module was loaded; registration does not make
 core import components, adapters, React, or recurrence dependencies. All three clear
-calls are repeatable.
+calls are repeatable. Loading the roster module registers its tick cache, so
+`clearCaches()` also releases retained ticks.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 
