@@ -273,10 +273,11 @@ identity by default. Pass a stable `cacheIdentity` only when several surfaces re
 dataset and should deliberately share target-warm geometry and coverage.
 
 Each identity retains at most 2,000 least-recently-used layout entries and 2,000
-least-recently-used coverage entries. Core also retains 2,000 day columns, 2,000 date starts, and
-100 timezone formatters in shared least-recently-used maps. Cache hits refresh recency.
-`clearCaches()` clears geometry, these calendar and zone maps, and every other cache scope whose
-module has loaded and registered its cleanup; counters remain cumulative. See
+least-recently-used coverage entries. The loaded roster scope retains at most 2,000
+least-recently-used tick entries. Core also retains 2,000 day columns, 2,000 date starts, and 100
+timezone formatters in shared least-recently-used maps. Cache hits refresh recency. `clearCaches()`
+clears geometry, these calendar and zone maps, and every other cache scope whose module has loaded
+and registered its cleanup, including roster ticks; counters remain cumulative. See
 [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
 Minified, with peers external: `/core` is 15.5 kB and the root entry is 53.2 kB.

@@ -123,7 +123,7 @@ it('publishes the finite limits and complete clear contract in every required do
   ]) {
     const document = readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
     expect(document).toContain('2,000');
-    expect(document).toMatch(/100 timezone\s+formatters/);
+    expect(document).toMatch(/100\s+timezone\s+formatters/);
     expect(document).toContain('clearCaches()');
     expect(document).toContain('loaded');
     expect(document).not.toContain('This cache lifetime belongs to the consumer');

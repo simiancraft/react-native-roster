@@ -1,10 +1,13 @@
 import type { Window, WindowSpec } from '../../../core';
 import { dayColumnsFor } from '../../../core';
+import { registerCacheClear } from '../../../core/cache';
+import { touch, trim } from '../../../core/lru';
 import { offsetAt } from '../../../core/zone';
 import type { RosterProjection, RosterTick } from '../roster.types';
 
-// Like day columns, ticks retain visited content keys for this runtime.
+export const tickCacheLimit = 2_000;
 const tickCache = new Map<string, RosterTick[]>();
+registerCacheClear(() => tickCache.clear());
 
 export function ticksFor(
   window: Window,
@@ -23,7 +26,7 @@ export function ticksFor(
     projection.pxPerMinute,
   ]);
   const cached = tickCache.get(key);
-  if (cached) return cached;
+  if (cached) return touch(tickCache, key, cached);
   const ticks: RosterTick[] = [];
   const step = minuteStep * 60_000;
   function add(time: number, label: string, kind: RosterTick['kind']) {
@@ -57,6 +60,7 @@ export function ticksFor(
       if (boundary.at > day.start) offset += boundary.deltaMinutes * 60_000;
     }
   }
-  tickCache.set(key, ticks);
+  touch(tickCache, key, ticks);
+  trim(tickCache, tickCacheLimit);
   return ticks;
 }

@@ -49,6 +49,10 @@ owned identity so multiple surfaces can deliberately share one dataset's target-
 resolved identity is used consistently for coverage, `geometryFor`, press hit-testing, and
 selection reconciliation.
 
+The loaded roster scope retains at most 2,000 tick entries in one least-recently-used cache; hits
+refresh recency. It registers tick cleanup with `clearCaches()`, which is repeatable, so cleared or
+evicted inputs regenerate equal tick content.
+
 `selection/` holds the runtime-swappable presentation strategies (native popover, web popover) for one `SelectionLayoutProps` contract.
 
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body

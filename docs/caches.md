@@ -86,6 +86,10 @@ entries. Both maps use least-recently-used eviction; a hit refreshes recency.
 Eviction changes only retention, so requesting an evicted input recomputes an
 equal result.
 
+When the roster module is loaded, one shared least-recently-used cache retains at
+most 2,000 tick entries. Tick hits refresh recency; eviction and clearing preserve
+the generated tick content.
+
 Core also retains up to 2,000 day columns, 2,000 date starts, and 100 timezone formatters across
 datasets. These shared maps use least-recently-used eviction; hits, including cached null day
 columns for skipped dates, refresh recency. Eviction does not change computed day columns, starts,
@@ -98,7 +102,9 @@ corresponding kind across identities; clear them when a consumer discards old wi
 They do not reset counters. `clearCaches()` releases both, the loaded core day-column, date-start,
 and timezone-formatter maps, then every other cache scope that has registered after its module was
 loaded. Registration does not make core import components, adapters, React, or recurrence
-dependencies. All three clear calls are repeatable.
+dependencies. All three clear calls are repeatable. Loading the roster module registers its tick
+cache, so
+`clearCaches()` also releases retained ticks.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 
