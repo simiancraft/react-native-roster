@@ -1,0 +1,22 @@
+{
+  "scope_tags": ["core", "test", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/core/types.ts",
+    "src/core/cache.ts",
+    "src/core/hash.ts",
+    "src/core/layout.ts",
+    "src/core/coverage.ts",
+    "src/core/index.ts",
+    "src/index.ts",
+    "test/core/layout.test.ts",
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "src/core/README.md"
+  ],
+  "capture_commit": "0db60316da0ebe21bf6a50abfe74fbc6bcc41849",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:34ff37600a8126b5ff34cae116f9e13c8189a494da07b4681c81ead7a3433927"
+}
