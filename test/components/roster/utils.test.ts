@@ -1,8 +1,8 @@
 import { describe, expect, it, spyOn } from 'bun:test';
 import { bodyContentKey } from '../../../src/components/roster/utils/body-content-key';
-import { ticksFor } from '../../../src/components/roster/utils/ticks';
+import { tickCacheLimit, ticksFor } from '../../../src/components/roster/utils/ticks';
 import type { WindowSpec } from '../../../src/core';
-import { dayColumnsFor, timeAtX, timeAtY, windowFor } from '../../../src/core';
+import { clearCaches, dayColumnsFor, timeAtX, timeAtY, windowFor } from '../../../src/core';
 import { scalePieces } from '../../../src/core/scale';
 import { wallTime } from '../../../src/core/zone';
 import { rosterWindowSpec } from '../../fixtures/roster';
@@ -88,6 +88,27 @@ describe('roster utils', () => {
     } finally {
       parts.mockRestore();
     }
+  });
+  it('bounds ticks by recency and clears them through the complete cache call', () => {
+    clearCaches();
+    const spec: WindowSpec = { span: 'day', anchorDate: '2024-01-01', timezone: 'UTC' };
+    const window = windowFor(spec);
+    const first = ticksFor(window, spec, projection, 60);
+    const second = ticksFor(window, spec, { ...projection, pxPerMinute: 2 }, 60);
+
+    for (let pxPerMinute = 3; pxPerMinute <= tickCacheLimit; pxPerMinute++)
+      ticksFor(window, spec, { ...projection, pxPerMinute }, 60);
+    expect(ticksFor(window, spec, projection, 60)).toBe(first);
+
+    ticksFor(window, spec, { ...projection, pxPerMinute: tickCacheLimit + 1 }, 60);
+    expect(ticksFor(window, spec, { ...projection, pxPerMinute: 2 }, 60)).not.toBe(second);
+
+    const retained = ticksFor(window, spec, projection, 60);
+    clearCaches();
+    clearCaches();
+    const regenerated = ticksFor(window, spec, projection, 60);
+    expect(regenerated).not.toBe(retained);
+    expect(regenerated).toEqual(retained);
   });
   for (const minuteStep of [60, 30, 15]) {
     for (const anchorDate of ['1919-03-31', '1919-04-01', '2024-03-10']) {
