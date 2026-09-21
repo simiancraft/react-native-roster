@@ -3,6 +3,7 @@ import { createContext, useContext } from 'react';
 import { Text, View } from 'react-native';
 import type { LaneLabelInput, RosterTick } from 'react-native-roster';
 import { Roster } from 'react-native-roster';
+import { SiteFooter } from '../site-footer';
 import { EventDetail } from './events';
 import { TeamHeaderLayout } from './header-layout';
 import { MemberInspector } from './members';
@@ -243,6 +244,7 @@ function DefaultFooter() {
     <>
       <TeamLegend />
       <GeneratedNote />
+      <SiteFooter density="compact" />
     </>
   );
 }

@@ -15,6 +15,8 @@ type FixtureLayoutProps = {
   ruleSetEditorZone?: ReactNode;
   /** Counter snapshot and pressed sources; wraps below the roster. */
   countersZone: ReactNode;
+  /** The compact site footer; one row below the counters. */
+  footerZone: ReactNode;
 };
 
 const CONTENT = {
@@ -26,6 +28,7 @@ export function FixtureLayout({
   controlsZone,
   subjectZone,
   countersZone,
+  footerZone,
   ruleSetEditorZone,
   direction = 'row',
   onContentLayout,
@@ -38,6 +41,7 @@ export function FixtureLayout({
         <View className="flex-[3] min-w-0 min-h-0">{subjectZone}</View>
       </View>
       <View>{countersZone}</View>
+      <View>{footerZone}</View>
     </View>
   );
 }

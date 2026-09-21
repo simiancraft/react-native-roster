@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import { Text } from 'react-native';
 import { rosterFixtures } from '../../../../test/fixtures/roster';
 import { scheduleFixtures } from '../../../../test/fixtures/schedule';
+import { SiteFooter } from '../../site-footer';
 import type { LinkComponent } from './home.types';
 import { GalleryHomeLayout } from './layout';
 import { FixtureSection } from './parts/fixture-section';
@@ -11,7 +12,7 @@ const VERSION = Constants.expoConfig?.version ?? '?';
 const BUILD = (Constants.expoConfig?.extra?.build ?? {}) as { gitSha?: string; builtAt?: string };
 const GIT_SHA = (BUILD.gitSha ?? 'local').slice(0, 7);
 const BUILT_AT = BUILD.builtAt ? `${BUILD.builtAt.replace('T', ' ').slice(0, 16)}Z` : 'dev';
-const BUILD_LINE = `v${VERSION} · ${GIT_SHA} · ${BUILT_AT}`;
+const BUILD_LINE = `${GIT_SHA} · ${BUILT_AT}`;
 
 type GalleryHomeScreenProps = {
   /** Where the showcase lives; the route shell owns the URL space. */
@@ -59,7 +60,12 @@ export function GalleryHomeScreen({
           />
         </>
       }
-      footerZone={<Text className="font-mono text-xs text-muted-foreground">{BUILD_LINE}</Text>}
+      footerZone={
+        <>
+          <Text className="font-mono text-xs text-muted-foreground">{BUILD_LINE}</Text>
+          <SiteFooter />
+        </>
+      }
     />
   );
 }

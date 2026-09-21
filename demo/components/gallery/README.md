@@ -11,7 +11,9 @@ This feature is about a gallery; its children are fixtures.
 - `fixtures/schedule/`: `ScheduleFixtureScreen`, `useScheduleFixture`, and its controls
 
 Fixture records live in `test/fixtures`; each needs a thin route shell under
-`demo/app/gallery`. Tests: `test/demo`.
+`demo/app/gallery`. Tests: `test/demo`. The home page ends with the full
+[site footer](../site-footer/README.md); `FixtureLayout` takes the compact one
+through `footerZone`, below the counters.
 
 The roster every-zone fixture offers a now-line toggle at the selected window
 midpoint. The record declares `showsNowToggle`; the chassis supplies `nowZone`
