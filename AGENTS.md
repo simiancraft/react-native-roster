@@ -239,7 +239,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
 9. **Cache lifecycle is explicit.** `ScopedCacheIdentity` is a stable empty object whose
    reference identifies one dataset. Omitted core identities share the core-owned default;
    independent datasets use distinct identities, while one dataset reuses its identity across
-   geometry and coverage calls and projections. A supplied version must change with layers;
+   geometry and coverage calls and projections. Each Roster or useRoster instance owns an isolated
+   identity by default; its optional cacheIdentity deliberately shares one dataset across surfaces.
+   Roster passes the resolved identity through coverage, geometry, press hit-testing, and selection
+   reconciliation. A supplied version must change with layers;
    absent versions use a canonical structural encoding of layers only. Returned
    references are read-only by convention. Clear retained caches when a consumer
    discards old windows. Flag and coverage assembly does not invalidate rects.

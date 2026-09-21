@@ -43,6 +43,12 @@ with a noninteractive 2 px red line; `nowLineComponent` accepts the exported
 content. Now values and component identity never enter the lane list or body
 content key. The caller owns clock updates.
 
+Each `Roster` or `useRoster` instance owns a stable `ScopedCacheIdentity` by default, isolating
+datasets whose lane IDs and versions collide. The optional `cacheIdentity` input replaces that
+owned identity so multiple surfaces can deliberately share one dataset's target-warm entries. The
+resolved identity is used consistently for coverage, `geometryFor`, press hit-testing, and
+selection reconciliation.
+
 `selection/` holds the runtime-swappable presentation strategies (native popover, web popover) for one `SelectionLayoutProps` contract.
 
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
