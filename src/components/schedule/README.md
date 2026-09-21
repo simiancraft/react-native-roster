@@ -21,3 +21,7 @@ The chassis binds default component types once; ScheduleDay mounts components
 with day data and passes nodes into ScheduleDayLayout. There is no black-box day
 list to split: days, transitions, and rects already map in their owning parts.
 Schedule has ten input-bearing component slots and no zero-argument singleton slots.
+
+Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
+Pass one stable `cacheIdentity` to multiple surfaces only when they render the same dataset and
+should share target-warm geometry and coverage.

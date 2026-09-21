@@ -218,7 +218,7 @@ windows use their exact elapsed duration, including sub-minute spans. Cell times
 are clamped up to window.start and rejected at or beyond window.end.
 
 Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
-Optional: minuteStep (60), pxPerHour (48, positive finite), highlightSource,
+Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), highlightSource,
 onNavigate, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
 gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
 className, headerClassName, gutterClassName, and daysClassName. No month/custom
@@ -229,6 +229,8 @@ press(columnIndex,x,y), and status:'ready'. The standalone hook uses a 280 px gr
 The chassis measures width, reserves a 48 px gutter, and fits all actual day
 columns without horizontal scrolling; the body scrolls vertically. now updates
 every minute and is null outside the selected window.
+Each mounted Schedule or useSchedule surface owns an isolated cache identity by default.
+Reuse one explicit cacheIdentity only across surfaces that render the same dataset.
 
 Props ending in Component accept ComponentType<Input>, mounted as React elements.
 Props ending in Zone accept ReactNode; pass null to suppress a singleton default.

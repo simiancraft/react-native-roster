@@ -10,7 +10,7 @@ import type {
   ScheduleWindowSpec,
 } from '../../../src/components/schedule/schedule.types';
 import { useSchedule } from '../../../src/components/schedule/use-schedule';
-import type { Lane, Layer, Rect } from '../../../src/core';
+import type { Lane, Layer, Rect, ScopedCacheIdentity } from '../../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -54,6 +54,30 @@ function callbacks() {
   };
 }
 
+function collidingLane(durationHours: number): Lane {
+  const start = Date.parse('2024-01-01T09:00Z');
+  return {
+    id: 'shared-lane',
+    version: 1,
+    label: 'Shared lane',
+    layers: [
+      {
+        id: 'availability',
+        role: 'availability',
+        z: 0,
+        style: { color: '#000' },
+        intervals: [
+          {
+            start,
+            end: start + durationHours * 3_600_000,
+            sources: [{ kind: 'date', id: 'availability' }],
+          },
+        ],
+      },
+    ],
+  };
+}
+
 beforeEach(() => {
   clearLayoutCache();
   clearCoverageCache();
@@ -67,6 +91,28 @@ afterEach(() => {
 });
 
 describe('useSchedule hook harness', () => {
+  it('isolates geometry and coverage for colliding lane keys by default', () => {
+    const windowSpec = scheduleFixtures['schedule-layers'].windowSpec;
+    const short = harness({ lane: collidingLane(1), windowSpec });
+    const long = harness({ lane: collidingLane(3), windowSpec });
+
+    expect(short.model.geometry.rects[0]?.height).toBe(48);
+    expect(short.model.geometry.coverage.availabilityMinutes).toBe(60);
+    expect(long.model.geometry.rects[0]?.height).toBe(3 * 48);
+    expect(long.model.geometry.coverage.availabilityMinutes).toBe(180);
+    expect(layoutStats().runs).toBe(2);
+    expect(coverageStats().runs).toBe(2);
+  });
+  it('shares target-warm geometry when surfaces reuse one dataset identity', () => {
+    const windowSpec = scheduleFixtures['schedule-layers'].windowSpec;
+    const cacheIdentity: ScopedCacheIdentity = {};
+    const first = harness({ lane: collidingLane(1), windowSpec, cacheIdentity });
+    const second = harness({ lane: collidingLane(1), windowSpec, cacheIdentity });
+
+    expect(second.model.geometry).toBe(first.model.geometry);
+    expect(layoutStats()).toEqual({ runs: 1, cacheHits: 1 });
+    expect(coverageStats()).toEqual({ runs: 1, cacheHits: 1 });
+  });
   it('returns the exact contract for one lane, including an empty ready week and rejected spans', () => {
     const input = inputFor('schedule-empty');
     const h = harness(input);
@@ -327,7 +373,7 @@ describe('useSchedule hook harness', () => {
     act(() => trees.pop()?.unmount());
     expect(clear).toHaveBeenCalledWith(17);
   });
-  it('switches Roster to Schedule and back with expanded deltas 0 and layout runs deltas 1 then 0', () => {
+  it('switches Roster to isolated Schedule and back without expanding again', () => {
     let tree!: ReactTestRenderer;
     const windowSpec = scheduleFixtures['schedule-layers'].windowSpec;
     function RosterHook() {
@@ -349,7 +395,7 @@ describe('useSchedule hook harness', () => {
     act(() => tree.update(createElement(ScheduleHook)));
     expect(expandStats().expanded - before.expansion.expanded).toBe(0);
     expect(layoutStats().runs - before.layout.runs).toBe(1);
-    expect(coverageStats().runs - before.coverage.runs).toBe(0);
+    expect(coverageStats().runs - before.coverage.runs).toBe(1);
     const columns = layoutStats();
     act(() => tree.update(createElement(RosterHook)));
     expect(expandStats().expanded - before.expansion.expanded).toBe(0);
