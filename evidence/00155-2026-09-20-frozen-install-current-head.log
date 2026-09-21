@@ -1,0 +1,6 @@
+bun install v1.4.2 (744846f84)
+
+$ if command -v lefthook >/dev/null 2>&1; then lefthook install; fi
+sync hooks: ✔️(pre-commit)
+
+Checked 1144 installs across 1260 packages (no changes) [202.00ms]

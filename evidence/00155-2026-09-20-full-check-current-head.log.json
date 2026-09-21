@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["performance", "test", "baseline", "gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock",
+    "biome.json",
+    "tsconfig.json",
+    "tsconfig.test.json",
+    "src",
+    "test",
+    "scripts",
+    "demo",
+    "demo/metro.config.js"
+  ],
+  "capture_commit": "76a7ca0237bfe00f4d1ecdc2f8a741899179a649",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:de89af857f3730d7618cc2ec9c7db6d5d804bd0d34c7beaaad854dd5e84a1885"
+}

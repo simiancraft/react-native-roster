@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["performance", "baseline"],
+  "covered_paths": [
+    "scripts/update-performance-baseline.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/baseline.json",
+    "test/fixtures/workload.ts",
+    "src/core"
+  ],
+  "capture_commit": "76a7ca0237bfe00f4d1ecdc2f8a741899179a649",
+  "capture_method": "bun run bench:update --machine 'local proof run; uncommitted', then restore generated baseline JSON",
+  "content_hash": "sha256:69adc768af45ec4b22e3c28a2a3e4b14d803b08e81edba80bcee59170822c992"
+}

@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["dependencies", "gate"],
+  "covered_paths": ["package.json", "bun.lock"],
+  "capture_commit": "76a7ca0237bfe00f4d1ecdc2f8a741899179a649",
+  "capture_method": "bun install --frozen-lockfile",
+  "content_hash": "sha256:0c4d93ef65ede20ca558d0cb8597f4c03a964f5209c5034f134a172e86a3a303"
+}

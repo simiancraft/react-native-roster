@@ -1,0 +1,12 @@
+$ bun scripts/update-performance-baseline.ts --machine "local proof run; uncommitted"
+Warning: the committed baseline must come from a CI run; see docs/performance.md.
+{
+  "layoutMs": 0.7845630000000057,
+  "coverageMs": 0.27362600000000725,
+  "measuredAt": "2026-09-21T04:16:17.217Z",
+  "commit": "76a7ca0237bfe00f4d1ecdc2f8a741899179a649",
+  "workingTreeDirty": false,
+  "runtime": "Bun 1.4.2",
+  "machine": "local proof run; uncommitted",
+  "method": "Minimum of 31 target-cold samples after five JIT warmups; W seed 1318"
+}
