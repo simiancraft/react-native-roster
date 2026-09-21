@@ -118,7 +118,10 @@ are discarded.
 The recurrence adapter keeps its own caches. `expandStats()` returns
 `{ rules, dates, expanded, cacheHits, cacheMisses }`; `resetExpandStats()`
 resets those counters, and `clearExpandCache()` clears occurrence and envelope
-caches. One shared LRU retains four envelopes across sets by default;
+caches. Loading `react-native-roster/rrule` registers the same cleanup with
+`clearCaches()`, so either clear path releases both recurrence caches, is
+repeatable, and preserves expansion counters. Core does not import the adapter
+or its recurrence dependencies. One shared LRU retains four envelopes across sets by default;
 containment selects the most recently used matching envelope, including after
 a rule edit. The default LRUs retain 2000 occurrence entries.
 

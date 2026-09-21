@@ -278,7 +278,9 @@ least-recently-used tick entries, and the loaded layers scope retains at most 2,
 least-recently-used layer style entries shared by both projections. Cache hits refresh recency.
 `clearCaches()` clears geometry and every other cache scope whose module has loaded and registered
 its cleanup, including roster ticks and layer styles after their scopes load; counters remain
-cumulative. See
+cumulative. Loading the `/rrule` entry registers its occurrence and envelope caches without making
+core import recurrence dependencies; `clearCaches()` and `clearExpandCache()` then clear the same
+recurrence entries and preserve expansion counters. See
 [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
 Minified, with peers external: `/core` is 14.6 kB and the root entry is 52.3 kB.

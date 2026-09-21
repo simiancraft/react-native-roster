@@ -1,5 +1,6 @@
 import type { Interval, Source, Window } from '../../core';
-import { occurrences, recordStats, retainedEnvelope, touch, trim } from './cache';
+import { touch, trim } from '../../core/lru';
+import { occurrences, recordStats, retainedEnvelope } from './cache';
 import { envelopeFor } from './envelope';
 import { bodyKey } from './hash';
 import { net } from './net';
