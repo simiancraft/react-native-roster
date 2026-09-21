@@ -16,6 +16,7 @@ import type {
   LaneGeometry,
   Projection,
   Rect,
+  ScopedCacheIdentity,
   Source,
   Window,
   WindowSpec,
@@ -45,6 +46,8 @@ export type RosterScroll = {
 export type RosterInput = {
   /** Retain interval selection on press, default false. Lives on RosterInput for hook consumers. */
   selectable?: boolean;
+  /** Stable dataset cache identity; omitted gives this Roster or useRoster instance isolated ownership. */
+  cacheIdentity?: ScopedCacheIdentity;
   lanes: Lane[];
   windowSpec: WindowSpec;
   minuteStep?: number;

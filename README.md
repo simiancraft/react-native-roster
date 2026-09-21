@@ -268,6 +268,10 @@ datasets then cannot collide when they reuse lane IDs and versions. Omitting the
 core-owned default, while deliberately reusing one identity shares target-warm coverage across
 projections.
 
+`Roster` and `useRoster` each own an isolated identity by default. Pass a stable `cacheIdentity`
+prop when multiple Roster surfaces show the same dataset and should deliberately share target-warm
+geometry and coverage.
+
 Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.2 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
 and `@js-temporal/polyfill`, which install with the package. Web runs in CI on
