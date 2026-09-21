@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+import type { ScopedCacheIdentity } from '../../core';
 import { dayColumnsFor, layoutLane, snapToStep, timeAtY, windowFor } from '../../core';
 import { hitTest } from '../../core/hit-test';
 import type { ScheduleInput, ScheduleModel, ScheduleProjection } from './schedule.types';
@@ -7,6 +8,8 @@ import { ScheduleWidth } from './use-schedule-viewport';
 export function useSchedule(input: ScheduleInput): ScheduleModel {
   const { lane, windowSpec, minuteStep = 60, pxPerHour = 48 } = input;
   const width = useContext(ScheduleWidth);
+  const [ownedCacheIdentity] = useState<ScopedCacheIdentity>(() => ({}));
+  const cacheIdentity = input.cacheIdentity ?? ownedCacheIdentity;
   const [clock, setClock] = useState(Date.now);
   // The current-time indicator follows the wall clock for the mounted surface's lifetime.
   useEffect(() => {
@@ -26,7 +29,7 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
     columnWidth: width / Math.max(1, days.length),
     days,
   };
-  const geometry = layoutLane(lane, window, projection);
+  const geometry = layoutLane(lane, window, projection, cacheIdentity);
   const currentPress = { input, window, projection, geometry };
   const pressInput = useRef(currentPress);
   pressInput.current = currentPress;
