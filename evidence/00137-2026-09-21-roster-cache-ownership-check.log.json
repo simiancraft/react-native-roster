@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["code", "tests", "ci-gate"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "llms.txt",
+    "src/components/roster/README.md",
+    "src/components/roster/roster.types.ts",
+    "src/components/roster/use-roster-press.ts",
+    "src/components/roster/use-roster.ts",
+    "test/components/roster/use-roster.test.ts",
+    "test/components/schedule/use-schedule.test.ts",
+    ".github/workflows/ci.yml",
+    "package.json"
+  ],
+  "capture_commit": "7c184065f313eb282811280230fdb2c7d82fbdc8",
+  "capture_method": "git fetch and remote ancestor verification; bun test test/components/roster/use-roster.test.ts test/components/schedule/use-schedule.test.ts; bun run check",
+  "content_hash": "sha256:4e641b76d287daa64591d049ebe4fe47e6f93b3d11cbb1f1d10faa67176e30ba"
+}
