@@ -429,14 +429,16 @@ all results as read-only.
 Geometry key: cache identity + lane.id + lane.version (or structural encoding of layers
 only) + window bounds + every projection field. Coverage uses the same key without
 projection. Bump any supplied version when layers change. Label, lane timezone,
-flag, complete, and meta never invalidate rects. Clear retained windows explicitly
-when a consumer no longer needs them. This cache lifetime belongs to the consumer.
+flag, complete, and meta never invalidate rects. Each identity retains at most 2,000
+layout entries and 2,000 coverage entries with least-recently-used eviction. Hits
+refresh recency; requesting an evicted input recomputes an equal result.
 
 | Function | Meaning |
 | --- | --- |
 | layoutStats() | Cumulative {runs, cacheHits}; runs are geometry computations. |
 | coverageStats() | Cumulative {runs, cacheHits}; runs are coverage computations. |
 | resetStats() | Zero layout and coverage counters, preserve keys. |
+| clearCaches() | Empty layout, coverage, and every registered cache scope whose module has loaded; preserve counters. |
 | clearLayoutCache(), clearCoverageCache() | Empty corresponding keys, preserve counters. |
 | expandStats() | Cumulative {rules, dates, expanded, cacheHits, cacheMisses}; expanded counts occurrence computations. |
 | resetExpandStats() | Zero expansion counters, preserve keys. |

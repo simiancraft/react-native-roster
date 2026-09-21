@@ -1,7 +1,8 @@
-import { counts, defaultScopedCacheIdentity, layoutCacheFor } from './cache';
+import { counts, defaultScopedCacheIdentity, layoutCacheFor, layoutCacheLimit } from './cache';
 import { coverageFor } from './coverage';
 import { flagFor } from './flag';
 import { laneKey, projectionKey } from './hash';
+import { touch, trim } from './lru';
 import { type ScalePiece, scalePieces } from './scale';
 import { xAtTime } from './snap';
 import { sourceSpans } from './spans';
@@ -29,6 +30,7 @@ export function layoutLane(
   const flag = flagFor(lane, window);
   if (cached) {
     counts.layout.cacheHits++;
+    touch(layoutCache, key, cached);
   } else {
     counts.layout.runs++;
     const pieces =
@@ -42,7 +44,8 @@ export function layoutLane(
       project(sourceSpans(layer.gaps ?? [], window), layer, window, projection, pieces, gapRects);
     }
     cached = { rects, gapRects, assemblies: new WeakMap() };
-    layoutCache.set(key, cached);
+    touch(layoutCache, key, cached);
+    trim(layoutCache, layoutCacheLimit);
   }
   // Read the current flag and coverage above, then retain each complete assembly
   // by reference, including when a consumer revisits an earlier explicit flag.

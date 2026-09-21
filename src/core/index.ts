@@ -1,6 +1,7 @@
 export type { Span, WindowSpec } from './axis';
 export { next, prev, today, windowFor } from './axis';
 export {
+  clearCaches,
   clearCoverageCache,
   clearLayoutCache,
   coverageStats,

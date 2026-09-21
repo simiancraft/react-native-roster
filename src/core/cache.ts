@@ -1,6 +1,8 @@
 import type { Coverage, LaneFlag, LaneGeometry, Rect, ScopedCacheIdentity } from './types';
 
 export const defaultScopedCacheIdentity: ScopedCacheIdentity = {};
+export const layoutCacheLimit = 2_000;
+export const coverageCacheLimit = 2_000;
 
 type LayoutCache = Map<
   string,
@@ -13,6 +15,7 @@ type LayoutCache = Map<
 
 let layoutCaches = new WeakMap<ScopedCacheIdentity, LayoutCache>();
 let coverageCaches = new WeakMap<ScopedCacheIdentity, Map<string, Coverage>>();
+const registeredCacheClears = new Set<() => void>();
 export const counts = {
   layout: { runs: 0, cacheHits: 0 },
   coverage: { runs: 0, cacheHits: 0 },
@@ -57,4 +60,15 @@ export function clearLayoutCache(): void {
 
 export function clearCoverageCache(): void {
   coverageCaches = new WeakMap();
+}
+
+export function registerCacheClear(clear: () => void): () => void {
+  registeredCacheClears.add(clear);
+  return () => registeredCacheClears.delete(clear);
+}
+
+export function clearCaches(): void {
+  clearLayoutCache();
+  clearCoverageCache();
+  for (const clear of registeredCacheClears) clear();
 }
