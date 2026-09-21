@@ -20,13 +20,29 @@ const nwConfig = withNativeWind(config, { input: './global.css' });
 // Pin React, React DOM, and React Native to the demo's single copy. Keep the
 // NativeWind resolver's origin intact for its own JSX interop modules.
 const FORCE_SINGLE = ['react', 'react-dom', 'react-native'];
+const SOURCE_ENTRIES = new Set([
+  'react-native-roster',
+  'react-native-roster/core',
+  'react-native-roster/rrule',
+  'react-native-roster/nativewind',
+]);
 const upstreamResolveRequest = nwConfig.resolver.resolveRequest;
 nwConfig.resolver.resolveRequest = (context, moduleName, platform) => {
   const resolve = upstreamResolveRequest ?? context.resolveRequest;
   const forced = FORCE_SINGLE.some((p) => moduleName === p || moduleName.startsWith(`${p}/`));
-  const ctx = forced
-    ? { ...context, originModulePath: path.join(projectRoot, 'index.js') }
-    : context;
+  const sourceEntry = SOURCE_ENTRIES.has(moduleName);
+  const ctx = {
+    ...context,
+    ...(forced ? { originModulePath: path.join(projectRoot, 'index.js') } : {}),
+    ...(sourceEntry
+      ? {
+          unstable_conditionNames: [
+            'react-native',
+            ...(context.unstable_conditionNames ?? []).filter((name) => name !== 'react-native'),
+          ],
+        }
+      : {}),
+  };
   return resolve(ctx, moduleName, platform);
 };
 
