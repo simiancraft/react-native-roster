@@ -1,4 +1,4 @@
-import { counts, defaultScopedCacheIdentity, layoutCache } from './cache';
+import { counts, defaultScopedCacheIdentity, layoutCacheFor } from './cache';
 import { coverageFor } from './coverage';
 import { flagFor } from './flag';
 import { laneKey, projectionKey } from './hash';
@@ -22,7 +22,8 @@ export function layoutLane(
   projection: Projection,
   cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
 ): LaneGeometry {
-  const key = `${laneKey(lane, window, cacheIdentity)}|${projectionKey(projection)}`;
+  const layoutCache = layoutCacheFor(cacheIdentity);
+  const key = `${laneKey(lane, window)}|${projectionKey(projection)}`;
   let cached = layoutCache.get(key);
   const coverage = coverageFor(lane, window, cacheIdentity);
   const flag = flagFor(lane, window);

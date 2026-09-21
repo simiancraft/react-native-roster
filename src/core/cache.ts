@@ -2,15 +2,17 @@ import type { Coverage, LaneFlag, LaneGeometry, Rect, ScopedCacheIdentity } from
 
 export const defaultScopedCacheIdentity: ScopedCacheIdentity = {};
 
-export const layoutCache = new Map<
+type LayoutCache = Map<
   string,
   {
     rects: Rect[];
     gapRects: Rect[];
     assemblies: WeakMap<Coverage, Map<LaneFlag, LaneGeometry>>;
   }
->();
-export const coverageCache = new Map<string, Coverage>();
+>;
+
+let layoutCaches = new WeakMap<ScopedCacheIdentity, LayoutCache>();
+let coverageCaches = new WeakMap<ScopedCacheIdentity, Map<string, Coverage>>();
 export const counts = {
   layout: { runs: 0, cacheHits: 0 },
   coverage: { runs: 0, cacheHits: 0 },
@@ -31,10 +33,28 @@ export function resetStats(): void {
   counts.coverage.cacheHits = 0;
 }
 
+export function layoutCacheFor(cacheIdentity: ScopedCacheIdentity): LayoutCache {
+  let cache = layoutCaches.get(cacheIdentity);
+  if (!cache) {
+    cache = new Map();
+    layoutCaches.set(cacheIdentity, cache);
+  }
+  return cache;
+}
+
+export function coverageCacheFor(cacheIdentity: ScopedCacheIdentity): Map<string, Coverage> {
+  let cache = coverageCaches.get(cacheIdentity);
+  if (!cache) {
+    cache = new Map();
+    coverageCaches.set(cacheIdentity, cache);
+  }
+  return cache;
+}
+
 export function clearLayoutCache(): void {
-  layoutCache.clear();
+  layoutCaches = new WeakMap();
 }
 
 export function clearCoverageCache(): void {
-  coverageCache.clear();
+  coverageCaches = new WeakMap();
 }
