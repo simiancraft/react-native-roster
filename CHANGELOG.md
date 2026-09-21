@@ -1,3 +1,10 @@
+## [0.4.12](https://github.com/simiancraft/react-native-roster/compare/v0.4.11...v0.4.12) (2026-09-21)
+
+
+### Bug Fixes
+
+* **roster:** bound and register tick cache ([043a15e](https://github.com/simiancraft/react-native-roster/commit/043a15e7894c89edc7b8ff6be1f1db6b6fa158a1))
+
 ## [0.4.11](https://github.com/simiancraft/react-native-roster/compare/v0.4.10...v0.4.11) (2026-09-21)
 
 
