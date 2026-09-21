@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["demo", "resolver", "test"],
+  "covered_paths": [
+    "demo/metro.config.js",
+    "package.json",
+    "test/demo/metro-resolution.test.ts"
+  ],
+  "capture_commit": "82089fd49f929cb189fe1efa157b74b92b6391d5",
+  "capture_method": "bun test test/demo/metro-resolution.test.ts",
+  "content_hash": "sha256:07e4064586616c15b1f4255bbb090c46aae7be5f8b80010e2a8dd9b68b931107"
+}

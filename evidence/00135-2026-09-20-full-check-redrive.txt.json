@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "ci-gate", "demo", "resolver", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "README.md",
+    "demo/components/gallery/README.md",
+    "demo/metro.config.js",
+    "llms.txt",
+    "package.json",
+    "test/demo/metro-resolution.test.ts"
+  ],
+  "capture_commit": "82089fd49f929cb189fe1efa157b74b92b6391d5",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:b0d7aea39cc7de7c368cab048582f3691da84ff84dd9e0f228d0318fe9d32b17"
+}
