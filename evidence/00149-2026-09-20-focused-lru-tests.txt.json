@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["core", "test"],
+  "covered_paths": ["src/core/lru.ts", "test/core/lru.test.ts"],
+  "capture_commit": "bfcb02dc8651143ba6a832e5b36db47593645c83",
+  "capture_method": "bun test test/core/lru.test.ts",
+  "content_hash": "sha256:b0c4e58c0323aa445640121b815a0b096e0b5f11ce9e471a4b59cf89057448f2"
+}

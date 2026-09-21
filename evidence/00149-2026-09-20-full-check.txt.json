@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["ci", "repository"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock",
+    "src/core/lru.ts",
+    "test/core/lru.test.ts"
+  ],
+  "capture_commit": "bfcb02dc8651143ba6a832e5b36db47593645c83",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:1ff53728a5a00bffb51641abaea87cbcb0d54b5be3eb8816953d930ec8a73fce"
+}
