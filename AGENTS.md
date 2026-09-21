@@ -251,6 +251,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    discards old windows. Each identity retains at most 2,000 least-recently-used layout entries
    and 2,000 least-recently-used coverage entries; hits refresh recency. `clearCaches()` clears
    geometry and every registered cache scope whose module has loaded without resetting counters.
+   Core shares least-recently-used maps for 2,000 day columns, 2,000 date starts, and 100 timezone
+   formatters; cached null day columns are hits, and the complete clear call releases all three.
    Flag and coverage assembly does not invalidate rects.
    Each mounted Schedule or useSchedule surface owns an isolated identity by default; pass one
    explicit identity only when multiple surfaces render the same dataset.

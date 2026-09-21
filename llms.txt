@@ -432,13 +432,16 @@ projection. Bump any supplied version when layers change. Label, lane timezone,
 flag, complete, and meta never invalidate rects. Each identity retains at most 2,000
 layout entries and 2,000 coverage entries with least-recently-used eviction. Hits
 refresh recency; requesting an evicted input recomputes an equal result.
+Core retains 2,000 day columns, 2,000 date starts, and 100 timezone formatters in
+shared least-recently-used maps. Hits, including cached null day columns, refresh
+recency; eviction and recomputation preserve calendar and timezone results.
 
 | Function | Meaning |
 | --- | --- |
 | layoutStats() | Cumulative {runs, cacheHits}; runs are geometry computations. |
 | coverageStats() | Cumulative {runs, cacheHits}; runs are coverage computations. |
 | resetStats() | Zero layout and coverage counters, preserve keys. |
-| clearCaches() | Empty layout, coverage, and every registered cache scope whose module has loaded; preserve counters. |
+| clearCaches() | Empty layout, coverage, loaded core calendar and zone maps, and every registered cache scope whose module has loaded; preserve counters. |
 | clearLayoutCache(), clearCoverageCache() | Empty corresponding keys, preserve counters. |
 | expandStats() | Cumulative {rules, dates, expanded, cacheHits, cacheMisses}; expanded counts occurrence computations. |
 | resetExpandStats() | Zero expansion counters, preserve keys. |

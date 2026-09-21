@@ -46,7 +46,7 @@ like the existing release CLI shim; library coverage stays 100%.
 
 `.size-limit.json` bundles all four emitted entry points with the small-library
 esbuild preset, minifies them, and disables gzip and Brotli. Limits are decimal
-15 kB for core, 15 kB for rrule, 52 kB for root, and 48 kB for nativewind.
+16 kB for core, 15 kB for rrule, 54 kB for root, and 50 kB for nativewind.
 Configured renderer peers remain external; root and nativewind also externalize
 Radix, and nativewind externalizes NativeWind. The rrule gate externalizes
 `rrule-temporal` and `@js-temporal/polyfill`; they remain ordinary installed

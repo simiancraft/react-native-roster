@@ -86,14 +86,19 @@ entries. Both maps use least-recently-used eviction; a hit refreshes recency.
 Eviction changes only retention, so requesting an evicted input recomputes an
 equal result.
 
+Core also retains up to 2,000 day columns, 2,000 date starts, and 100 timezone formatters across
+datasets. These shared maps use least-recently-used eviction; hits, including cached null day
+columns for skipped dates, refresh recency. Eviction does not change computed day columns, starts,
+offsets, or formatting behavior.
+
 ## Clearing and disposal
 
 `clearLayoutCache()` and `clearCoverageCache()` release all retained keys of the
 corresponding kind across identities; clear them when a consumer discards old windows.
-They do not reset counters. `clearCaches()` releases both, then clears every other
-cache scope that has registered after its module was loaded; registration does not make
-core import components, adapters, React, or recurrence dependencies. All three clear
-calls are repeatable.
+They do not reset counters. `clearCaches()` releases both, the loaded core day-column, date-start,
+and timezone-formatter maps, then every other cache scope that has registered after its module was
+loaded. Registration does not make core import components, adapters, React, or recurrence
+dependencies. All three clear calls are repeatable.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 
