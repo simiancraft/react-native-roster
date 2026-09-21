@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import type { DayColumn, Interval, Lane, Layer, Projection, Source } from '../../src/core';
+import type {
+  DayColumn,
+  Interval,
+  Lane,
+  Layer,
+  Projection,
+  ScopedCacheIdentity,
+  Source,
+} from '../../src/core';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -257,6 +265,41 @@ describe('coverage and flags', () => {
 });
 
 describe('cache boundaries and counters', () => {
+  it('isolates datasets and deliberately reuses one scope across projections', () => {
+    const tenMinuteScope: ScopedCacheIdentity = {};
+    const thirtyMinuteScope: ScopedCacheIdentity = {};
+    const tenMinutes = { ...lane([interval(10, 20)]), version: 1 };
+    const thirtyMinutes = { ...lane([interval(10, 40)]), version: 1 };
+
+    const tenMinuteGeometry = layoutLane(tenMinutes, window, horizontal, tenMinuteScope);
+    const thirtyMinuteGeometry = layoutLane(thirtyMinutes, window, horizontal, thirtyMinuteScope);
+    expect(tenMinuteGeometry.rects[0]?.width).toBe(10);
+    expect(thirtyMinuteGeometry.rects[0]?.width).toBe(30);
+    expect(tenMinuteGeometry.coverage.availabilityMinutes).toBe(10);
+    expect(thirtyMinuteGeometry.coverage.availabilityMinutes).toBe(30);
+    expect(tenMinuteGeometry.coverage).not.toBe(thirtyMinuteGeometry.coverage);
+
+    expect(layoutLane(structuredClone(tenMinutes), window, horizontal, tenMinuteScope)).toBe(
+      tenMinuteGeometry,
+    );
+    expect(coverageFor(structuredClone(tenMinutes), window, tenMinuteScope)).toBe(
+      tenMinuteGeometry.coverage,
+    );
+    expect(layoutLane(tenMinutes, window, columns, tenMinuteScope).coverage).toBe(
+      tenMinuteGeometry.coverage,
+    );
+    expect(layoutStats()).toEqual({ runs: 3, cacheHits: 1 });
+    expect(coverageStats()).toEqual({ runs: 2, cacheHits: 3 });
+
+    clearLayoutCache();
+    clearCoverageCache();
+    expect(layoutStats()).toEqual({ runs: 3, cacheHits: 1 });
+    expect(coverageStats()).toEqual({ runs: 2, cacheHits: 3 });
+    expect(layoutLane(tenMinutes, window, horizontal, tenMinuteScope)).not.toBe(tenMinuteGeometry);
+    expect(layoutStats()).toEqual({ runs: 4, cacheHits: 1 });
+    expect(coverageStats()).toEqual({ runs: 3, cacheHits: 3 });
+  });
+
   it('reuses complete inputs and ignores lane display metadata, even mutable metadata', () => {
     const input = lane([interval(10, 20)]);
     const first = layoutLane(input, window, horizontal);

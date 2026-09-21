@@ -409,14 +409,18 @@ layout. Scroll retains viewport offset, not a lane anchor.
 
 ## Caches and counters
 
-layoutLane(lane,window,projection) computes rects for visible lanes only.
-coverageFor(lane,window) computes role unions for all lanes, projection-independent.
+layoutLane(lane,window,projection,cacheIdentity?) computes rects for visible lanes only.
+coverageFor(lane,window,cacheIdentity?) computes role unions for all lanes,
+projection-independent. ScopedCacheIdentity is a stable empty object whose reference
+identifies one dataset. Omitted identities use the core-owned default; pass the same
+explicit identity to share one dataset across calls and projections, and use distinct
+identities for independent datasets whose lane IDs and versions can collide.
 flagFor(lane,window) is cheap and uncached. Geometry assembly reads fresh flag and
 coverage outside cached rects. Repeated complete inputs retain references; treat
 all results as read-only.
 
-Geometry key: lane.id + lane.version (or structural encoding of layers only) +
-window bounds + every projection field. Coverage uses the same key without
+Geometry key: cache identity + lane.id + lane.version (or structural encoding of layers
+only) + window bounds + every projection field. Coverage uses the same key without
 projection. Bump any supplied version when layers change. Label, lane timezone,
 flag, complete, and meta never invalidate rects. Clear retained windows explicitly
 when a consumer no longer needs them. This cache lifetime belongs to the consumer.

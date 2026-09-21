@@ -29,6 +29,7 @@ export type {
   LayerStyle,
   Projection,
   Rect,
+  ScopedCacheIdentity,
   Source,
   Transition,
   Weekday,

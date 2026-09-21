@@ -1,8 +1,13 @@
-import { counts, coverageCache } from './cache';
+import { counts, coverageCacheFor, defaultScopedCacheIdentity } from './cache';
 import { laneKey } from './hash';
-import type { Coverage, Lane, LayerRole, Window } from './types';
+import type { Coverage, Lane, LayerRole, ScopedCacheIdentity, Window } from './types';
 
-export function coverageFor(lane: Lane, window: Window): Coverage {
+export function coverageFor(
+  lane: Lane,
+  window: Window,
+  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+): Coverage {
+  const coverageCache = coverageCacheFor(cacheIdentity);
   const key = laneKey(lane, window);
   const cached = coverageCache.get(key);
   if (cached) {
