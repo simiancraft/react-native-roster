@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["test", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "test/demo/metro-resolution.test.ts",
+    "demo/metro.config.js",
+    "demo/package.json",
+    "package.json",
+    "bun.lock"
+  ],
+  "capture_commit": "172c54e71ab2052dd07927c7b25b239b5246c0df",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:50e609474e3d631d6e30fe88b35f09c0f764214786a0c43c5f65f8b477dfd6fb"
+}
