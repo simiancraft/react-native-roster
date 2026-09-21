@@ -437,13 +437,16 @@ cache. Tick hits refresh recency; eviction and clearing preserve generated conte
 The loaded layers scope retains at most 2,000 layer style entries shared by both
 projections, keyed by layer id and canonical style content. Hits refresh recency;
 evicted inputs regenerate structurally equal normal and highlighted styles.
+Core retains 2,000 day columns, 2,000 date starts, and 100 timezone formatters in
+shared least-recently-used maps. Hits, including cached null day columns, refresh
+recency; eviction and recomputation preserve calendar and timezone results.
 
 | Function | Meaning |
 | --- | --- |
 | layoutStats() | Cumulative {runs, cacheHits}; runs are geometry computations. |
 | coverageStats() | Cumulative {runs, cacheHits}; runs are coverage computations. |
 | resetStats() | Zero layout and coverage counters, preserve keys. |
-| clearCaches() | Empty layout, coverage, and every registered cache scope whose module has loaded, including roster ticks and layer styles after their scopes load; preserve counters. |
+| clearCaches() | Empty layout, coverage, the loaded core calendar and zone maps, and every registered cache scope whose module has loaded, including roster ticks and layer styles after their scopes load; preserve counters. |
 | clearLayoutCache(), clearCoverageCache() | Empty corresponding keys, preserve counters. |
 | expandStats() | Cumulative {rules, dates, expanded, cacheHits, cacheMisses}; expanded counts occurrence computations. |
 | resetExpandStats() | Zero expansion counters, preserve keys. |

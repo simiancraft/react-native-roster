@@ -2,7 +2,7 @@
   {
     "name": "react-native-roster/core",
     "path": "dist/src/core/index.js",
-    "limit": "15 kB",
+    "limit": "16 kB",
     "gzip": false,
     "brotli": false,
     "ignore": ["react", "react-native", "expo", "@legendapp/list", "react-native-reanimated"]
@@ -18,7 +18,7 @@
   {
     "name": "react-native-roster",
     "path": "dist/src/index.js",
-    "limit": "53 kB",
+    "limit": "54 kB",
     "gzip": false,
     "brotli": false,
     "ignore": [
@@ -33,7 +33,7 @@
   {
     "name": "react-native-roster/nativewind",
     "path": "dist/src/nativewind/index.js",
-    "limit": "49 kB",
+    "limit": "50 kB",
     "gzip": false,
     "brotli": false,
     "ignore": [

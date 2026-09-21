@@ -1,15 +1,26 @@
 // Intl supplies offsets; UTC Date arithmetic supplies local-date arithmetic.
 // Hourly probes bracket IANA transitions, then binary search keeps exact epoch
 // boundaries, including historical second offsets. No host-local Date methods.
+import { registerCacheClear } from './cache';
+import { touch, trim } from './lru';
 import type { Transition } from './types';
 
-const formatters = new Map<string, Intl.DateTimeFormat>();
-const starts = new Map<string, number>();
+export const timezoneFormatterCacheLimit = 100;
+export const dateStartCacheLimit = 2_000;
+export const timezoneFormatterCache = new Map<string, Intl.DateTimeFormat>();
+export const dateStartCache = new Map<string, number>();
 const minute = 60_000;
 export const dayMilliseconds = 86_400_000;
 
+function clearZoneCaches(): void {
+  timezoneFormatterCache.clear();
+  dateStartCache.clear();
+}
+
+registerCacheClear(clearZoneCaches);
+
 export function wallTime(time: number, timezone: string): number {
-  let formatter = formatters.get(timezone);
+  let formatter = timezoneFormatterCache.get(timezone);
   if (!formatter) {
     formatter = new Intl.DateTimeFormat('en-US-u-ca-gregory-nu-latn', {
       timeZone: timezone,
@@ -22,7 +33,10 @@ export function wallTime(time: number, timezone: string): number {
       second: '2-digit',
       hourCycle: 'h23',
     });
-    formatters.set(timezone, formatter);
+    touch(timezoneFormatterCache, timezone, formatter);
+    trim(timezoneFormatterCache, timezoneFormatterCacheLimit);
+  } else {
+    touch(timezoneFormatterCache, timezone, formatter);
   }
   const parts: Record<string, string> = {};
   for (const part of formatter.formatToParts(time)) parts[part.type] = part.value;
@@ -82,8 +96,8 @@ export function transitionsBetween(start: number, end: number, timezone: string)
 
 export function startOfDate(localDate: string, timezone: string): number {
   const key = JSON.stringify([localDate, timezone]);
-  const cached = starts.get(key);
-  if (cached !== undefined) return cached;
+  const cached = dateStartCache.get(key);
+  if (cached !== undefined) return touch(dateStartCache, key, cached);
   const target = dateEpoch(localDate);
   const start = target - 2 * dayMilliseconds;
   const end = target + 2 * dayMilliseconds;
@@ -95,6 +109,7 @@ export function startOfDate(localDate: string, timezone: string): number {
     const candidate = Math.max(left, target - offsetAt(left, timezone));
     if (candidate < right) result = Math.min(result, candidate);
   }
-  starts.set(key, result);
+  touch(dateStartCache, key, result);
+  trim(dateStartCache, dateStartCacheLimit);
   return result;
 }

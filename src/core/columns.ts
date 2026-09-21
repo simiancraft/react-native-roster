@@ -1,3 +1,5 @@
+import { registerCacheClear } from './cache';
+import { touch, trim } from './lru';
 import type { DayColumn, Window } from './types';
 import {
   dateEpoch,
@@ -8,9 +10,14 @@ import {
   transitionsBetween,
 } from './zone';
 
-// Unbounded, like the date-start memo: zone data is stable for this runtime,
-// and retaining visited days avoids probing again on pointer and navigation revisits.
-const columns = new Map<string, DayColumn | null>();
+export const dayColumnCacheLimit = 2_000;
+export const dayColumnCache = new Map<string, DayColumn | null>();
+
+function clearDayColumnCache(): void {
+  dayColumnCache.clear();
+}
+
+registerCacheClear(clearDayColumnCache);
 
 export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
   const days: DayColumn[] = [];
@@ -23,7 +30,7 @@ export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
     const nextDate = dateString(dateEpoch(localDate) + dayMilliseconds);
     const end = startOfDate(nextDate, timezone);
     const key = JSON.stringify([localDate, timezone]);
-    let day = columns.get(key);
+    let day = dayColumnCache.get(key);
     if (day === undefined) {
       day =
         start < end
@@ -39,7 +46,10 @@ export function dayColumnsFor(window: Window, timezone: string): DayColumn[] {
               transitions: transitionsBetween(start - 1, end + 1, timezone),
             }
           : null;
-      columns.set(key, day);
+      touch(dayColumnCache, key, day);
+      trim(dayColumnCache, dayColumnCacheLimit);
+    } else {
+      touch(dayColumnCache, key, day);
     }
     if (day && day.end > window.start) days.push(day);
     localDate = nextDate;

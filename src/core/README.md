@@ -33,7 +33,9 @@ callers should keep one empty identity object for each dataset and pass the same
 functions; projections share coverage because projection fields remain outside the coverage key.
 Each identity retains at most 2,000 least-recently-used layout entries and 2,000
 least-recently-used coverage entries; hits refresh recency. `clearCaches()` clears both geometry
-caches and every registered cache scope whose module has loaded, while preserving counters.
+caches, shared least-recently-used maps for 2,000 day columns, 2,000 date starts, and 100 timezone
+formatters, and every registered cache scope whose module has loaded, while preserving counters.
+Cached null day columns refresh recency like other hits.
 
 ```ts
 import type { ScopedCacheIdentity } from 'react-native-roster/core';

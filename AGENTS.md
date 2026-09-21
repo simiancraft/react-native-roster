@@ -255,6 +255,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    hits, and registers tick cleanup with `clearCaches()`.
    The loaded layers scope retains at most 2,000 least-recently-used style entries shared by both
    projections; hits refresh recency, and complete clearing releases them.
+   Core shares least-recently-used maps for 2,000 day columns, 2,000 date starts, and 100 timezone
+   formatters; cached null day columns are hits, and the complete clear call releases all three.
    Loading the recurrence entry point registers its occurrence and envelope cleanup;
    `clearCaches()` and `clearExpandCache()` clear the same recurrence entries, remain repeatable,
    and preserve expansion counters without making core import the adapter.

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, setSystemTime, spyOn } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it, setSystemTime, spyOn } from 'bun:test';
 import type {
   DayColumn,
   Interval,
@@ -9,6 +9,7 @@ import type {
   WindowSpec,
 } from '../../src/core';
 import {
+  clearCaches,
   clearCoverageCache,
   clearLayoutCache,
   coverageStats,
@@ -23,12 +24,18 @@ import {
   today,
   windowFor,
 } from '../../src/core';
+import { dayColumnCache, dayColumnCacheLimit } from '../../src/core/columns';
 import { scalePieces } from '../../src/core/scale';
 import {
   dateEpoch,
+  dateStartCache,
+  dateStartCacheLimit,
+  dayMilliseconds,
   localDateAt,
   offsetAt,
   startOfDate,
+  timezoneFormatterCache,
+  timezoneFormatterCacheLimit,
   transitionsBetween,
   wallTime,
 } from '../../src/core/zone';
@@ -74,6 +81,21 @@ function lane(start: number, end: number): Lane {
 afterEach(() => {
   setSystemTime();
 });
+
+beforeEach(() => {
+  clearCaches();
+});
+
+function localDateAfter(days: number): string {
+  return new Date(Date.parse('2000-01-01T00:00:00Z') + days * dayMilliseconds)
+    .toISOString()
+    .slice(0, 10);
+}
+
+function columnFor(localDate: string, timezone = 'UTC'): DayColumn | undefined {
+  const start = startOfDate(localDate, timezone);
+  return dayColumnsFor({ start, end: start + hour }, timezone)[0];
+}
 
 describe('view-zone windows and navigation', () => {
   it('keeps the anchor visible for day, week, and month, with Monday as default', () => {
@@ -455,5 +477,101 @@ describe('transition geometry and pointer inversion', () => {
     expect(() =>
       windowFor({ span: 'day', anchorDate: '2024-01-01', timezone: 'Invalid/Zone' }),
     ).toThrow(RangeError);
+  });
+});
+
+describe('calendar and timezone cache lifetime', () => {
+  it('bounds day columns, refreshes hits, and recomputes equal evicted columns', () => {
+    const first = columnFor(localDateAfter(0));
+    const second = columnFor(localDateAfter(1));
+    for (let day = 2; day < dayColumnCacheLimit; day++) columnFor(localDateAfter(day));
+
+    expect(dayColumnCache.size).toBe(dayColumnCacheLimit);
+    expect(columnFor(localDateAfter(0))).toBe(first);
+    columnFor(localDateAfter(dayColumnCacheLimit));
+    expect(dayColumnCache.size).toBe(dayColumnCacheLimit);
+    expect(columnFor(localDateAfter(0))).toBe(first);
+    const recomputed = columnFor(localDateAfter(1));
+    expect(recomputed).not.toBe(second);
+    expect(recomputed).toEqual(second);
+  });
+
+  it('retains cached null day columns as recent hits', () => {
+    const timezone = 'Pacific/Apia';
+    const skippedKey = JSON.stringify(['2011-12-30', timezone]);
+    projection('2011-12-30', timezone);
+    expect(dayColumnCache.get(skippedKey)).toBeNull();
+
+    for (let index = 0; index < dayColumnCacheLimit - 7; index++) {
+      dayColumnCache.set(`filler-${index}`, null);
+    }
+    expect(dayColumnCache.size).toBe(dayColumnCacheLimit);
+    projection('2011-12-30', timezone);
+    columnFor(localDateAfter(dayColumnCacheLimit));
+
+    expect(dayColumnCache.size).toBe(dayColumnCacheLimit);
+    expect(dayColumnCache.has(skippedKey)).toBe(true);
+    expect(dayColumnCache.get(skippedKey)).toBeNull();
+  });
+
+  it('bounds date starts, refreshes hits, and recomputes equal evicted starts', () => {
+    const first = startOfDate(localDateAfter(0), 'UTC');
+    const second = startOfDate(localDateAfter(1), 'UTC');
+    for (let day = 2; day < dateStartCacheLimit; day++) {
+      startOfDate(localDateAfter(day), 'UTC');
+    }
+
+    expect(dateStartCache.size).toBe(dateStartCacheLimit);
+    expect(startOfDate(localDateAfter(0), 'UTC')).toBe(first);
+    startOfDate(localDateAfter(dateStartCacheLimit), 'UTC');
+    expect(dateStartCache.size).toBe(dateStartCacheLimit);
+    expect(startOfDate(localDateAfter(0), 'UTC')).toBe(first);
+    expect(dateStartCache.has(JSON.stringify([localDateAfter(1), 'UTC']))).toBe(false);
+    expect(startOfDate(localDateAfter(1), 'UTC')).toBe(second);
+  });
+
+  it('bounds timezone formatters and refreshes formatter hits', () => {
+    const timezones = Intl.supportedValuesOf('timeZone').slice(0, timezoneFormatterCacheLimit + 1);
+    expect(timezones).toHaveLength(timezoneFormatterCacheLimit + 1);
+    const firstTimezone = timezones[0] as string;
+    const secondTimezone = timezones[1] as string;
+    wallTime(0, firstTimezone);
+    wallTime(0, secondTimezone);
+    const second = timezoneFormatterCache.get(secondTimezone);
+    for (const timezone of timezones.slice(2, timezoneFormatterCacheLimit)) wallTime(0, timezone);
+    const first = timezoneFormatterCache.get(firstTimezone);
+
+    expect(timezoneFormatterCache.size).toBe(timezoneFormatterCacheLimit);
+    wallTime(0, firstTimezone);
+    wallTime(0, timezones[timezoneFormatterCacheLimit] as string);
+    expect(timezoneFormatterCache.size).toBe(timezoneFormatterCacheLimit);
+    expect(timezoneFormatterCache.get(firstTimezone)).toBe(first);
+    expect(timezoneFormatterCache.has(secondTimezone)).toBe(false);
+    wallTime(0, secondTimezone);
+    expect(timezoneFormatterCache.get(secondTimezone)).not.toBe(second);
+  });
+
+  it('clears every calendar and zone cache repeatedly and preserves results', () => {
+    const localDate = '2024-03-10';
+    const timezone = 'America/Chicago';
+    const column = columnFor(localDate, timezone);
+    const start = startOfDate(localDate, timezone);
+    const instant = Date.parse('2024-03-10T08:30:00Z');
+    const wall = wallTime(instant, timezone);
+    const offset = offsetAt(instant, timezone);
+    const formatter = timezoneFormatterCache.get(timezone);
+
+    clearCaches();
+    clearCaches();
+    expect(dayColumnCache.size).toBe(0);
+    expect(dateStartCache.size).toBe(0);
+    expect(timezoneFormatterCache.size).toBe(0);
+
+    expect(columnFor(localDate, timezone)).toEqual(column);
+    expect(columnFor(localDate, timezone)).not.toBe(column);
+    expect(startOfDate(localDate, timezone)).toBe(start);
+    expect(wallTime(instant, timezone)).toBe(wall);
+    expect(offsetAt(instant, timezone)).toBe(offset);
+    expect(timezoneFormatterCache.get(timezone)).not.toBe(formatter);
   });
 });
