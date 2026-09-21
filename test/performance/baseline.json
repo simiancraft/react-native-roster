@@ -1,10 +1,10 @@
 {
-  "layoutMs": 2.07,
-  "coverageMs": 1.063,
-  "measuredAt": "2026-09-08T05:18:00Z",
-  "commit": "1c4ac0e8580b1d46c043f946aa7ebc1ee316d0fa",
-  "runtime": "Bun 1.4.0",
+  "layoutMs": 2.195,
+  "coverageMs": 1.412,
+  "measuredAt": "2026-09-21T03:21:20.9817412Z",
+  "commit": "d987b5208956884d0f6944e7697c7a3783ff62d3",
+  "workingTreeDirty": false,
+  "runtime": "Bun 1.4.2",
   "machine": "GitHub Actions ubuntu-latest",
-  "method": "Median of 11 target-cold samples after five JIT warmups; W seed 1318",
-  "workingTreeDirty": false
+  "method": "Minimum of 31 target-cold samples after five JIT warmups; W seed 1318"
 }

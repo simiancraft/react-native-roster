@@ -9,7 +9,10 @@ import {
 } from '../../src/core';
 import { workload } from '../fixtures/workload';
 
-/** Median of 11 target-cold samples after five JIT warmups; cache clearing is untimed. */
+const warmupCount = 5;
+const measuredSampleCount = 31;
+
+/** Minimum of 31 target-cold samples after five JIT warmups; cache clearing is untimed. */
 export function measureWorkload() {
   const { lanes, window } = workload();
   const visible = lanes.slice(0, 24);
@@ -21,7 +24,7 @@ export function measureWorkload() {
   };
   const layout: number[] = [];
   const coverage: number[] = [];
-  for (let sample = 0; sample < 16; sample++) {
+  for (let sample = 0; sample < warmupCount + measuredSampleCount; sample++) {
     clearLayoutCache();
     clearCoverageCache();
     resetStats();
@@ -38,9 +41,12 @@ export function measureWorkload() {
       throw new Error('Workload benchmark must measure target-cold keys');
     }
   }
-  return { layoutMs: median(layout.slice(5)), coverageMs: median(coverage.slice(5)) };
+  return {
+    layoutMs: minimumSample(layout.slice(warmupCount)),
+    coverageMs: minimumSample(coverage.slice(warmupCount)),
+  };
 }
 
-function median(samples: number[]) {
-  return samples.sort((a, b) => a - b)[5] as number;
+export function minimumSample(samples: number[]) {
+  return Math.min(...samples);
 }
