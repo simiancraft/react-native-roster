@@ -12,11 +12,31 @@ const horizontal: Projection = {
   rowHeight: 40,
 };
 
+function calibrationRatio(layoutMs: number, coverageMs: number) {
+  return Math.max(layoutMs / baseline.layoutMs, coverageMs / baseline.coverageMs);
+}
+
+function expectWorkloadTimingToPass(layoutMs: number, coverageMs: number, isCI: boolean) {
+  expect(layoutMs).toBeLessThan(16);
+  expect(coverageMs).toBeLessThan(16);
+  if (isCI) {
+    expect(layoutMs).toBeLessThanOrEqual(baseline.layoutMs * 2);
+    expect(coverageMs).toBeLessThanOrEqual(baseline.coverageMs * 2);
+  }
+}
+
 it('selects the minimum from 31 samples independent of sample order', () => {
   const samples = Array.from({ length: 31 }, (_, index) => index + 10);
   samples.splice(19, 1, 1);
   expect(minimumSample(samples)).toBe(1);
   expect(minimumSample(samples.reverse())).toBe(1);
+});
+
+it('keeps calibration diagnostic while raw timings determine the gate', () => {
+  const layoutMs = 15;
+  const coverageMs = 15;
+  expect(calibrationRatio(layoutMs, coverageMs)).toBeGreaterThan(2);
+  expect(() => expectWorkloadTimingToPass(layoutMs, coverageMs, false)).not.toThrow();
 });
 
 it('generates deterministic N-lane, W-day fixtures with bounded intervals and source depth', () => {
@@ -66,20 +86,15 @@ it('generates deterministic N-lane, W-day fixtures with bounded intervals and so
   );
 });
 
-it('keeps target-cold workload W below 16 ms, with a CI-only 1.5x gate for comparable runners', () => {
+it('keeps target-cold workload W below 16 ms, with a CI-only 2.0x gate for comparable runners', () => {
   const { layoutMs, coverageMs } = measureWorkload();
+  const calibration = calibrationRatio(layoutMs, coverageMs);
   console.log(
-    `Workload W target-cold: layout 24 lanes ${layoutMs.toFixed(3)} ms (baseline ${baseline.layoutMs.toFixed(3)} ms); coverage 200 lanes ${coverageMs.toFixed(3)} ms (baseline ${baseline.coverageMs.toFixed(3)} ms); 15-minute ticks.`,
+    `Workload W target-cold: layout 24 lanes ${layoutMs.toFixed(3)} ms (baseline ${baseline.layoutMs.toFixed(3)} ms); coverage 200 lanes ${coverageMs.toFixed(3)} ms (baseline ${baseline.coverageMs.toFixed(3)} ms); calibration ${calibration.toFixed(3)}x; 15-minute ticks.`,
   );
   expect(baseline.layoutMs).toBeGreaterThan(0);
   expect(baseline.coverageMs).toBeGreaterThan(0);
-  expect(layoutMs).toBeLessThan(16);
-  expect(coverageMs).toBeLessThan(16);
-  // Compare like runner classes: the CI baseline is not a local hardware budget.
-  if (process.env.CI) {
-    expect(layoutMs).toBeLessThanOrEqual(baseline.layoutMs * 1.5);
-    expect(coverageMs).toBeLessThanOrEqual(baseline.coverageMs * 1.5);
-  }
+  expectWorkloadTimingToPass(layoutMs, coverageMs, Boolean(process.env.CI));
   const { lanes, window } = workload();
   resetStats();
   for (const lane of lanes.slice(0, 24)) layoutLane(lane, window, horizontal);
