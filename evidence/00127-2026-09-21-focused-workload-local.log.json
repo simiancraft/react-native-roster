@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["performance", "test", "diagnostic"],
+  "covered_paths": [
+    "test/performance/workload.test.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/baseline.json",
+    "test/fixtures/workload.ts",
+    "src/core"
+  ],
+  "capture_commit": "d425ebff2792b32b393d0cad79ecca6da3fb26d8",
+  "capture_method": "bun test test/performance/workload.test.ts",
+  "content_hash": "sha256:bdd5b4833b826c480861c3f3b34cb70d1eede5c5d75d31a476b232ba79cbcfc7"
+}

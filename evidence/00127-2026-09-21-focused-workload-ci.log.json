@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["performance", "test", "ci-mode"],
+  "covered_paths": [
+    "test/performance/workload.test.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/baseline.json",
+    "test/fixtures/workload.ts",
+    "src/core"
+  ],
+  "capture_commit": "d425ebff2792b32b393d0cad79ecca6da3fb26d8",
+  "capture_method": "CI=1 bun test test/performance/workload.test.ts",
+  "content_hash": "sha256:74934115a62c550da0952d4ad5d57d1321131325a4b03d346157df402d62d9fa"
+}

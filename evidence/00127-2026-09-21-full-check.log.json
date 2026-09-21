@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["performance", "test", "repository-gate"],
+  "covered_paths": [
+    "AGENTS.md",
+    "docs/performance.md",
+    "test/performance/workload.test.ts",
+    "package.json",
+    "src",
+    "test",
+    "demo",
+    "scripts"
+  ],
+  "capture_commit": "d425ebff2792b32b393d0cad79ecca6da3fb26d8",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:c69a637065b75eef3d7491c952361e731151708871e0bab6baa3d82b640a480f"
+}

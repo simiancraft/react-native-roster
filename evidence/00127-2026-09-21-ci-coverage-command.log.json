@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["performance", "test", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "test/performance/workload.test.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/baseline.json",
+    "test/fixtures/workload.ts",
+    "src/core"
+  ],
+  "capture_commit": "d425ebff2792b32b393d0cad79ecca6da3fb26d8",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:43a88f5bf7f83d6146c796735ffff95909b78f3d23922039a182eff8e52d4491"
+}
