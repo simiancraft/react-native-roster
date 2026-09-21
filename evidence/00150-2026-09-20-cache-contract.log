@@ -1,0 +1,9 @@
+Script started on 2026-09-20 23:07:54-05:00 [<not executed on terminal>]
+bun test v1.4.2 (744846f84)
+
+ 5 pass
+ 0 fail
+ 43 expect() calls
+Ran 5 tests across 1 file. [28.00ms]
+
+Script done on 2026-09-20 23:07:54-05:00 [COMMAND_EXIT_CODE="0"]
