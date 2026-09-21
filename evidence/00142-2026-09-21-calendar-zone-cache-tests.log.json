@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["core", "test"],
+  "covered_paths": [
+    "src/core/cache.ts",
+    "src/core/columns.ts",
+    "src/core/lru.ts",
+    "src/core/zone.ts",
+    "test/core/axis.test.ts",
+    "test/core/cache.test.ts"
+  ],
+  "capture_commit": "ab30a874de4be7232e5af5915bf6101dfa0437ac",
+  "capture_method": "bun test --coverage test/core/axis.test.ts test/core/cache.test.ts",
+  "content_hash": "sha256:0b4fa13ab596ca7fa877dbd346ff33593ed2dac20bf9c5d9b6d79f4f0859e2dc"
+}

@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["core", "test", "docs", "ci-gate", "performance"],
+  "covered_paths": [
+    ".size-limit.json",
+    "AGENTS.md",
+    "README.md",
+    "docs/caches.md",
+    "docs/performance.md",
+    "llms.txt",
+    "src/core/README.md",
+    "src/core/columns.ts",
+    "src/core/zone.ts",
+    "test/core/axis.test.ts",
+    "test/core/cache.test.ts"
+  ],
+  "capture_commit": "ab30a874de4be7232e5af5915bf6101dfa0437ac",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:5e618a329d6bd3841cd16df6f38ab20a59eaae24baff35aa106592ee61ae0eb1"
+}
