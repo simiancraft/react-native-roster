@@ -1,3 +1,10 @@
+## [0.4.15](https://github.com/simiancraft/react-native-roster/compare/v0.4.14...v0.4.15) (2026-09-21)
+
+
+### Bug Fixes
+
+* **core:** bound calendar and zone caches ([2134a6b](https://github.com/simiancraft/react-native-roster/commit/2134a6bd8c068d958a37b28ada4f26027f00fb02))
+
 ## [0.4.14](https://github.com/simiancraft/react-native-roster/compare/v0.4.13...v0.4.14) (2026-09-21)
 
 
