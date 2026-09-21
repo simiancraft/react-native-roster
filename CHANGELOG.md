@@ -1,3 +1,20 @@
+## [0.4.7](https://github.com/simiancraft/react-native-roster/compare/v0.4.6...v0.4.7) (2026-09-21)
+
+
+### Bug Fixes
+
+* **core:** scope geometry and coverage caches ([76ec106](https://github.com/simiancraft/react-native-roster/commit/76ec106fc5c4ef5c6a933131c9300689ac97cc5a))
+
+
+### Features
+
+* **demo:** add a site footer to every demo page ([7a7d33a](https://github.com/simiancraft/react-native-roster/commit/7a7d33a65636521cde5f36a0f1c4bc4f957aff3e))
+
+
+### Performance Improvements
+
+* **core:** reduce scoped cache key work ([b4d4bc2](https://github.com/simiancraft/react-native-roster/commit/b4d4bc2eab9b2383871ca76682727b6af11ed13a))
+
 ## [0.4.6](https://github.com/simiancraft/react-native-roster/compare/v0.4.5...v0.4.6) (2026-09-21)
 
 ## [0.4.5](https://github.com/simiancraft/react-native-roster/compare/v0.4.4...v0.4.5) (2026-09-20)
