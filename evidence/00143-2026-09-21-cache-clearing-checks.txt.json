@@ -1,0 +1,21 @@
+{
+  "scope_tags": ["code", "test", "package", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "README.md",
+    "docs/caches.md",
+    "llms.txt",
+    "package.json",
+    "src/adapters/rrule/README.md",
+    "src/adapters/rrule/cache.ts",
+    "src/adapters/rrule/expand.ts",
+    "src/core/cache.ts",
+    "src/core/lru.ts",
+    "test/adapters/rrule/expand.test.ts",
+    "test/package/subpath-exports.test.ts"
+  ],
+  "capture_commit": "63d137e107580e98fbe6c1bbaa0582b51a56c29d",
+  "capture_method": "bun focused recurrence test, emitted package export test, and bun run check",
+  "content_hash": "sha256:ebdf3c785de25df5d9d2b73695e5995ab56852c01c80be268e1e2cdbf1f296fa"
+}

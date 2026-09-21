@@ -1,0 +1,44 @@
+Issue: #143 fix(rrule): register recurrence caches with complete clearing
+Capture commit: 63d137e107580e98fbe6c1bbaa0582b51a56c29d
+Capture date: 2026-09-21
+
+Remote commit verification
+Command: git fetch origin main fix/register-rrule-cache-clearing-143
+Command: git merge-base --is-ancestor 63d137e107580e98fbe6c1bbaa0582b51a56c29d origin/fix/register-rrule-cache-clearing-143
+Result: exit 0
+Command: git rev-list --count HEAD..origin/main
+Result: 0
+
+Focused recurrence registration
+Command: bun test test/adapters/rrule/expand.test.ts -t 'registers recurrence entries for complete repeated clearing without resetting counters'
+Result: exit 0
+Output:
+  1 pass
+  2280 filtered out
+  0 fail
+  6 expect() calls
+
+Built package entry-point coverage
+Command: bun run build && bun test test/package/subpath-exports.test.ts
+Result: exit 0
+Output:
+  9 pass
+  0 fail
+  861 expect() calls
+
+Complete repository gate
+Command: bun run check
+Result: exit 0
+Output summary:
+  Biome checked 264 files with no fixes applied.
+  Library, test, and demo typechecks passed.
+  React Compiler safety passed.
+  Library build and 44-route static web export passed.
+  2547 tests passed; 0 failed; 31926 expect() calls.
+  Function coverage: 100.00%.
+  Line coverage: 100.00%.
+  Knip and strict publint passed.
+  Size limits passed: core 14.61 kB / 15 kB, rrule 14.09 kB / 15 kB,
+    root 52.33 kB / 53 kB, and nativewind 48.22 kB / 49 kB.
+  Web performance, selection behavior, LaneRow profiler, and selection profiler passed.
+  Workload W target-cold: layout 0.976 ms and coverage 0.642 ms.
