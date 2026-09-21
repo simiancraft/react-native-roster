@@ -31,7 +31,7 @@ const baseline = {
     execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
   runtime: `Bun ${Bun.version}`,
   machine: values.machine,
-  method: 'Median of 11 target-cold samples after five JIT warmups; W seed 1318',
+  method: 'Minimum of 31 target-cold samples after five JIT warmups; W seed 1318',
 };
 await Bun.write(
   new URL('../test/performance/baseline.json', import.meta.url),

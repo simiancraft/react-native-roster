@@ -3,7 +3,7 @@ import type { Projection } from '../../src/core';
 import { coverageStats, dayColumnsFor, layoutLane, layoutStats, resetStats } from '../../src/core';
 import { workload } from '../fixtures/workload';
 import baseline from './baseline.json';
-import { measureWorkload } from './measure-workload';
+import { measureWorkload, minimumSample } from './measure-workload';
 
 const horizontal: Projection = {
   orientation: 'horizontal',
@@ -11,6 +11,13 @@ const horizontal: Projection = {
   pxPerMinute: 1,
   rowHeight: 40,
 };
+
+it('selects the minimum from 31 samples independent of sample order', () => {
+  const samples = Array.from({ length: 31 }, (_, index) => index + 10);
+  samples.splice(19, 1, 1);
+  expect(minimumSample(samples)).toBe(1);
+  expect(minimumSample(samples.reverse())).toBe(1);
+});
 
 it('generates deterministic N-lane, W-day fixtures with bounded intervals and source depth', () => {
   const { lanes, window } = workload(3, 7, 42);
