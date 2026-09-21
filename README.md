@@ -275,7 +275,10 @@ dataset and should deliberately share target-warm geometry and coverage.
 Each identity retains at most 2,000 least-recently-used layout entries and 2,000
 least-recently-used coverage entries. Cache hits refresh recency. `clearCaches()` clears geometry
 and every other cache scope whose module has loaded and registered its cleanup; counters remain
-cumulative. See [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
+cumulative. Loading the `/rrule` entry registers its occurrence and envelope caches without making
+core import recurrence dependencies; `clearCaches()` and `clearExpandCache()` then clear the same
+recurrence entries and preserve expansion counters. See
+[caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
 Minified, with peers external: `/core` is 14.6 kB and the root entry is 52.3 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`

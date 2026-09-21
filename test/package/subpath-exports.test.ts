@@ -95,6 +95,20 @@ describe('subpath exports', () => {
         count: 1, hourstart: 0, hourend: 24, timezone: 'UTC',
       }], dates: [] }, window);
       assert.deepEqual(recurring.intervals, [{ ...window, sources: [{ kind: 'rule', id: 'one' }] }]);
+      assert.equal(adapter.expandRuleSet({ rules: [{
+        id: 'one', kind: 'include', frequency: 'DAILY', dtstart: '2024-01-01',
+        count: 1, hourstart: 0, hourend: 24, timezone: 'UTC',
+      }], dates: [] }, window).stats.expanded, 0);
+      const expansionCounts = adapter.expandStats();
+      core.clearCaches();
+      core.clearCaches();
+      assert.deepEqual(adapter.expandStats(), expansionCounts);
+      const recomputed = adapter.expandRuleSet({ rules: [{
+        id: 'one', kind: 'include', frequency: 'DAILY', dtstart: '2024-01-01',
+        count: 1, hourstart: 0, hourend: 24, timezone: 'UTC',
+      }], dates: [] }, window);
+      assert.equal(recomputed.stats.expanded, 1);
+      assert.deepEqual(recomputed.intervals, recurring.intervals);
       process.stdout.write('ok');
     `;
     expect(

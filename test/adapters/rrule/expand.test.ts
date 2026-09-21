@@ -11,7 +11,7 @@ import {
 } from '../../../src/adapters/rrule';
 import { enumerate } from '../../../src/adapters/rrule/occurrences';
 import type { Interval, Weekday, Window } from '../../../src/core';
-import { windowFor } from '../../../src/core';
+import { clearCaches, windowFor } from '../../../src/core';
 
 const { Temporal } = require('@js-temporal/polyfill') as typeof TemporalModule;
 const { RRuleTemporal, allowedWeekdays } = require('rrule-temporal') as typeof RRuleModule;
@@ -439,6 +439,26 @@ describe('occurrence and envelope caches', () => {
     clearExpandCache();
     expect(expandStats().cacheHits).toBe(2);
     expect(expandRuleSet(set(), window).stats.expanded).toBe(2);
+  });
+
+  it('registers recurrence entries for complete repeated clearing without resetting counters', () => {
+    const input = set();
+    const first = expandRuleSet(input, window);
+    expect(expandRuleSet(input, window).stats.expanded).toBe(0);
+
+    const beforeCompleteClear = expandStats();
+    clearCaches();
+    clearCaches();
+    expect(expandStats()).toEqual(beforeCompleteClear);
+    const afterCompleteClear = expandRuleSet(input, window);
+    expect(afterCompleteClear).toEqual(first);
+
+    expect(expandRuleSet(input, window).stats.expanded).toBe(0);
+    const beforeAdapterClear = expandStats();
+    clearExpandCache();
+    clearExpandCache();
+    expect(expandStats()).toEqual(beforeAdapterClear);
+    expect(expandRuleSet(input, window)).toEqual(first);
   });
 });
 
