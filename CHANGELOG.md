@@ -1,3 +1,10 @@
+## [0.4.10](https://github.com/simiancraft/react-native-roster/compare/v0.4.9...v0.4.10) (2026-09-21)
+
+
+### Bug Fixes
+
+* **demo:** route library exports to source ([58a0736](https://github.com/simiancraft/react-native-roster/commit/58a07364593f0efca768ac96507b1e9beef86965))
+
 ## [0.4.9](https://github.com/simiancraft/react-native-roster/compare/v0.4.8...v0.4.9) (2026-09-21)
 
 
