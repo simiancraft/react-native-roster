@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["schedule", "cache", "tests"],
+  "covered_paths": [
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "test/components/schedule/use-schedule.test.ts"
+  ],
+  "capture_commit": "2fa0a83eff633763c412c90c6c804ea5fedab0e6",
+  "capture_method": "bun test test/components/schedule/use-schedule.test.ts",
+  "content_hash": "sha256:852af606ada03904028f02b103cfd4f1c6fabfd6cd95bb613e95a362ec76bd75"
+}

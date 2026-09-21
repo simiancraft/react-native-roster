@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "tests", "repository-gate"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "llms.txt",
+    "src/components/schedule/README.md",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "test/components/schedule/use-schedule.test.ts",
+    "package.json"
+  ],
+  "capture_commit": "2fa0a83eff633763c412c90c6c804ea5fedab0e6",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:9e9ac98c5d5a400f0e6d4bbcfbf8c03a6c0971317cd6ee8d389f2ecefb71b8c5"
+}
