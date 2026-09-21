@@ -90,6 +90,11 @@ When the roster module is loaded, one shared least-recently-used cache retains a
 most 2,000 tick entries. Tick hits refresh recency; eviction and clearing preserve
 the generated tick content.
 
+The loaded layers scope retains at most 2,000 style entries shared by both
+projections. Styles are keyed by layer id and canonical style content. The map
+uses least-recently-used eviction; a hit refreshes recency, and requesting an
+evicted layer regenerates structurally equal normal and highlighted styles.
+
 ## Clearing and disposal
 
 `clearLayoutCache()` and `clearCoverageCache()` release all retained keys of the
@@ -98,7 +103,8 @@ They do not reset counters. `clearCaches()` releases both, then clears every oth
 cache scope that has registered after its module was loaded; registration does not make
 core import components, adapters, React, or recurrence dependencies. All three clear
 calls are repeatable. Loading the roster module registers its tick cache, so
-`clearCaches()` also releases retained ticks.
+`clearCaches()` also releases retained ticks. Loading the layers scope registers its
+style cache, so the same call releases retained layer styles.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 

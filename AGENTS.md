@@ -253,6 +253,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    geometry and every registered cache scope whose module has loaded without resetting counters.
    The loaded roster scope retains 2,000 least-recently-used tick entries, refreshes recency on
    hits, and registers tick cleanup with `clearCaches()`.
+   The loaded layers scope retains at most 2,000 least-recently-used style entries shared by both
+   projections; hits refresh recency, and complete clearing releases them.
    Loading the recurrence entry point registers its occurrence and envelope cleanup;
    `clearCaches()` and `clearExpandCache()` clear the same recurrence entries, remain repeatable,
    and preserve expansion counters without making core import the adapter.
