@@ -1,3 +1,10 @@
+## [0.4.13](https://github.com/simiancraft/react-native-roster/compare/v0.4.12...v0.4.13) (2026-09-21)
+
+
+### Bug Fixes
+
+* **rrule:** register caches for complete clearing ([340c4d4](https://github.com/simiancraft/react-native-roster/commit/340c4d47a59178e3e768017791c1e851d7e12497))
+
 ## [0.4.12](https://github.com/simiancraft/react-native-roster/compare/v0.4.11...v0.4.12) (2026-09-21)
 
 
