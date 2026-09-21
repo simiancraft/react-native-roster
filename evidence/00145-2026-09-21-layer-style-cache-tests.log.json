@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/components/layers/utils/styles.ts",
+    "src/core/cache.ts",
+    "src/core/lru.ts",
+    "test/components/layers/styles.test.ts"
+  ],
+  "capture_commit": "cb7246fa05871ed5f80ed0e2014defae9f7f8a87",
+  "capture_method": "bun test test/components/layers/styles.test.ts",
+  "content_hash": "sha256:dc9bcb37aaeff46c8ce1b45e0f189ad61d2f418975403501e64ae1fbe60d6d0c"
+}

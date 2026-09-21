@@ -1,0 +1,17 @@
+{
+  "scope_tags": ["code", "test", "package", "web"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/layers/utils/styles.ts",
+    "test/components/layers/styles.test.ts",
+    "AGENTS.md",
+    "README.md",
+    "docs/caches.md",
+    "llms.txt",
+    "src/components/layers/README.md"
+  ],
+  "capture_commit": "cb7246fa05871ed5f80ed0e2014defae9f7f8a87",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:abdadd2f42b3b567a0da755e0861c6d333c9baaa175ab0c706f75029aac26e53"
+}
