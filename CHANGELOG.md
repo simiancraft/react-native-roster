@@ -1,3 +1,10 @@
+## [0.4.8](https://github.com/simiancraft/react-native-roster/compare/v0.4.7...v0.4.8) (2026-09-21)
+
+
+### Bug Fixes
+
+* **roster:** isolate cache ownership by dataset ([7c18406](https://github.com/simiancraft/react-native-roster/commit/7c184065f313eb282811280230fdb2c7d82fbdc8))
+
 ## [0.4.7](https://github.com/simiancraft/react-native-roster/compare/v0.4.6...v0.4.7) (2026-09-21)
 
 
