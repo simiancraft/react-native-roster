@@ -201,10 +201,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
 1. **Metro must resolve a single React copy.** Preserve the demo's `resolveRequest`
    pin for React, React DOM, and React Native, plus the upstream NativeWind resolver.
    Pinning NativeWind itself breaks its JSX interop resolution.
-2. **The `react-native` export condition selects TypeScript source.** The default
-   condition selects real CommonJS in `dist/src`, and types select declarations.
-   Enable package exports in Metro; do not alias the library around its exports
-   map. Source relative imports have no `.js` suffix. Issue #2 named a `~/` alias,
+2. **The `react-native` export condition selects TypeScript source.** The demo adds
+   this condition only for the root, core, rrule, and nativewind entry points on
+   web, iOS, and Android. Source edits need no `dist` rebuild; restart Metro if it
+   does not detect one. The default condition selects real CommonJS in `dist/src`,
+   and types select declarations. Enable package exports in Metro; do not alias the
+   library around its exports map or change conditions for peers and unrelated
+   packages. Source relative imports have no `.js` suffix. Issue #2 named a `~/` alias,
    but the package uses relative imports because tsgo does not rewrite aliases in
    emitted CommonJS; aliased imports would break Node and publint consumers.
 3. **The demo is a Bun workspace.** One root install installs both packages from the root lockfile.

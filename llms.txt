@@ -170,11 +170,14 @@ core types. Core imports standard JS and Intl only. Only /rrule imports
 rrule-temporal 1.6.0 and @js-temporal/polyfill 0.5.1. Those are installed runtime
 dependencies but cannot enter root/core bundles through library imports.
 
-Metro selects TS source via exports' react-native condition. Keep package exports
-enabled and one React copy in a workspace. Other resolvers load built CommonJS
-from dist/src; declarations use the types condition. Build before Node export
-tests. Root needs a native renderer or web bundler; direct Node use of root is
-not a substitute for a React Native app. Core and /rrule work in Node/Bun.
+The workspace demo selects TS source for the root, /core, /rrule, and /nativewind
+through each export's react-native condition on web, iOS, and Android. It does not
+alias around the package export map or change conditions for peers and unrelated
+packages. Source edits therefore need no dist rebuild; restart the demo server if
+Metro does not detect one. Other resolvers load built CommonJS from dist/src;
+declarations use the types condition. Build before Node export tests. Root needs a
+native renderer or web bundler; direct Node use of root is not a substitute for a
+React Native app. Core and /rrule work in Node/Bun.
 
 ## 0.1.0 slot prop rename
 
