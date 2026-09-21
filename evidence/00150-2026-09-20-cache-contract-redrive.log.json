@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["core", "cache-contract"],
+  "covered_paths": ["src/core/cache.ts", "src/core/coverage.ts", "src/core/layout.ts", "src/core/index.ts", "src/index.ts", "test/core/cache.test.ts", "docs/caches.md", "README.md", "llms.txt", "AGENTS.md", "src/core/README.md"],
+  "capture_commit": "0f66080d2ca5f912bf2c99632360993ee9800796",
+  "capture_method": "bun test test/core/cache.test.ts",
+  "content_hash": "sha256:f2f0681209253345a3f23c909fab6b1b80951c0c6925cb2e6307b83fae8f494d"
+}

@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["repository-gate", "core", "package"],
+  "covered_paths": ["package.json", "src/core/cache.ts", "src/core/coverage.ts", "src/core/layout.ts", "src/core/index.ts", "src/index.ts", "test/core/cache.test.ts", ".size-limit.json"],
+  "capture_commit": "0f66080d2ca5f912bf2c99632360993ee9800796",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:919ded9fa3e3071f83c68988619bc188eec4c0ee56f1980dd65d5f17416015d4"
+}

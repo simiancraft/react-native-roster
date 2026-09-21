@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["ci", "coverage", "core"],
+  "covered_paths": [".github/workflows/ci.yml", "src/core/cache.ts", "src/core/coverage.ts", "src/core/layout.ts", "src/core/index.ts", "src/index.ts", "test/core/cache.test.ts"],
+  "capture_commit": "0f66080d2ca5f912bf2c99632360993ee9800796",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:91f0f3d8cec2161f148a09498e6951c7aa5a702d5ed1da3bb45663af7dbb94d0"
+}
