@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://simiancraft.github.io/react-native-roster/showcase">
-    <img src="https://img.shields.io/badge/▶%20Live%20demo-press%20a%20gap%2C%20see%20why-4f46e5?style=for-the-badge" alt="Live demo" />
+    <img src="https://img.shields.io/badge/▶%20Live%20demo-4f46e5?style=for-the-badge" alt="Live demo" />
   </a>
 </p>
 
@@ -289,7 +289,10 @@ Release history is in the [changelog](https://github.com/simiancraft/react-nativ
 
 ## License
 
-MIT, copyright 2026 Jesse Harlin (the-simian). See [LICENSE](https://github.com/simiancraft/react-native-roster/blob/main/LICENSE)
-and [NOTICE.md](https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md).
+MIT © [the-simian](https://github.com/the-simian). See [LICENSE](https://github.com/simiancraft/react-native-roster/blob/main/LICENSE).
+
+<sub>Looking for a React Native resource timeline, staff scheduler, shift calendar, or Gantt-style roster and landed here another way? The package name is **react-native-roster**.</sub>
 
 <p align="center"><sub>Crafted with care by <a href="https://simiancraft.com">Simiancraft</a>.</sub></p>
+
+<p align="center"><sub>Recurrence in <code>/rrule</code> runs on <a href="https://github.com/ggaabe/rrule-temporal">rrule-temporal</a> and <a href="https://github.com/js-temporal/temporal-polyfill">@js-temporal/polyfill</a>; lanes virtualize through <a href="https://github.com/LegendApp/legend-list">LegendList</a>. Every person and organization in the demo is generated. Full attributions: <a href="https://github.com/simiancraft/react-native-roster/blob/main/NOTICE.md">NOTICE.md</a>.</sub></p>
