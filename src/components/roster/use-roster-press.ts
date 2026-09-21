@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useRef, useState } from 'react';
-import type { Lane, Window } from '../../core';
+import type { Lane, ScopedCacheIdentity, Window } from '../../core';
 import { layoutLane, snapToStep, timeAtX } from '../../core';
 import { hitTest } from '../../core/hit-test';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
@@ -12,16 +12,17 @@ export function useRosterPress(
   input: RosterInput,
   window: Window,
   projection: RosterProjection,
+  cacheIdentity: ScopedCacheIdentity,
   width: number,
   selection: RosterModel['selection'],
   setSelected: Dispatch<SetStateAction<SelectedInterval | null>>,
 ) {
-  const currentPress = { input, window, projection, width, selection };
+  const currentPress = { input, window, projection, cacheIdentity, width, selection };
   const pressInput = useRef(currentPress);
   pressInput.current = currentPress;
   const [press] = useState(() => {
     return function press(lane: Lane, pointX: number, pointY: number): void {
-      const { input, window, projection, width, selection } = pressInput.current;
+      const { input, window, projection, cacheIdentity, width, selection } = pressInput.current;
       const { minuteStep = 60, onIntervalPress, onGapPress, onCellPress } = input;
       const { rowHeight, viewTimezone } = projection;
       if (
@@ -33,7 +34,12 @@ export function useRosterPress(
         pointY >= rowHeight
       )
         return;
-      const hit = hitTest(lane, layoutLane(lane, window, projection), pointX, pointY);
+      const hit = hitTest(
+        lane,
+        layoutLane(lane, window, projection, cacheIdentity),
+        pointX,
+        pointY,
+      );
       if (hit?.kind === 'interval') {
         if (input.selectable) {
           const layer = lane.layers.find((layer) => layer.id === hit.rect.layerId);

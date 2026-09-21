@@ -189,7 +189,8 @@ Component props are ComponentType<Input>.
 Roster required props: lanes: Lane[], windowSpec: WindowSpec.
 Optional: now (epoch ms or null, default null), minuteStep (60), rowHeight (48),
 pxPerMinute (default 0.5, positive finite, grows to fit viewport),
-sortLanes (byLabel), highlightSource, onNavigate, onIntervalPress, onGapPress,
+cacheIdentity (stable ScopedCacheIdentity for deliberate dataset sharing), sortLanes (byLabel),
+highlightSource, onNavigate, onIntervalPress, onGapPress,
 onCellPress, onIntervalHover (web only), style, headerStyle, laneLabelColumnStyle,
 bodyStyle, laneLabelWidth (180), neverSetLabel, incompleteLabel, and zones below.
 Each style prop has a className twin (className, headerClassName,
@@ -208,6 +209,8 @@ geometryFor(lane), scroll, press(lane,x,y), ticks, contentWidth, viewport,
 now, nowLine, onLayout, navigate, selection, dismissSelection, and status ('empty' or 'ready'). There is no visibleRange
 field in the shipped public model. Custom layouts must wire onLayout. Custom
 bodies compute geometry only for mounted lanes, preserving virtualization.
+Each Roster or useRoster instance owns an isolated cache identity when cacheIdentity is omitted.
+Pass the same stable identity to surfaces that deliberately share one dataset.
 now retains the raw instant. nowLine is { x, now }, using xAtTime with the fitted
 projection.pxPerMinute scale; it is null when now is null or outside the
 end-exclusive window. The caller owns clock updates.
@@ -412,6 +415,8 @@ projection-independent. ScopedCacheIdentity is a stable empty object whose refer
 identifies one dataset. Omitted identities use the core-owned default; pass the same
 explicit identity to share one dataset across calls and projections, and use distinct
 identities for independent datasets whose lane IDs and versions can collide.
+Roster resolves one instance-owned identity by default, or its cacheIdentity input when supplied,
+and uses it for coverage, visible lane geometry, press hit-testing, and selection reconciliation.
 flagFor(lane,window) is cheap and uncached. Geometry assembly reads fresh flag and
 coverage outside cached rects. Repeated complete inputs retain references; treat
 all results as read-only.

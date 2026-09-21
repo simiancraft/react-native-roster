@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ScrollView } from 'react-native';
 import { makeMutable, useAnimatedStyle } from 'react-native-reanimated';
-import type { Lane, LaneGeometry, Rect, Window } from '../../core';
+import type { Lane, LaneGeometry, Rect, ScopedCacheIdentity, Window } from '../../core';
 import { byLabel, coverageFor, flagFor, layoutLane, timeAtX, windowFor, xAtTime } from '../../core';
 import type { RosterInput, RosterModel, RosterProjection } from './roster.types';
 import { type SelectedInterval, useRosterPress } from './use-roster-press';
@@ -18,6 +18,8 @@ export function useRoster(input: RosterInput): RosterModel {
     pxPerMinute = 0.5,
     onNavigate,
   } = input;
+  const [ownedCacheIdentity] = useState<ScopedCacheIdentity>(() => ({}));
+  const cacheIdentity = input.cacheIdentity ?? ownedCacheIdentity;
   const [selected, setSelected] = useState<SelectedInterval | null>(null);
   function dismissSelection() {
     setSelected(null);
@@ -52,7 +54,9 @@ export function useRoster(input: RosterInput): RosterModel {
       ? { x: xAtTime(projection, window, now), now }
       : null;
   const contentWidth = duration * projection.pxPerMinute;
-  const coverage = new Map(lanes.map((lane) => [lane.id, coverageFor(lane, window)]));
+  const coverage = new Map(
+    lanes.map((lane) => [lane.id, coverageFor(lane, window, cacheIdentity)]),
+  );
   const orderedLanes = [...lanes].sort((a, b) => sortLanes(a, b, coverage));
   const laneState = new Map(
     lanes.map((lane) => [
@@ -61,18 +65,27 @@ export function useRoster(input: RosterInput): RosterModel {
     ]),
   );
   function geometryFor(lane: Lane): LaneGeometry {
-    return layoutLane(lane, window, projection);
+    return layoutLane(lane, window, projection, cacheIdentity);
   }
   const selection = reconcileSelection(
     selected,
     lanes,
     window,
     projection,
+    cacheIdentity,
     input.selectable ?? false,
   );
   // Discard invalid selection during reconciliation, before rendering any stale detail.
   if (selected && !selection) setSelected(null);
-  const press = useRosterPress(input, window, projection, contentWidth, selection, setSelected);
+  const press = useRosterPress(
+    input,
+    window,
+    projection,
+    cacheIdentity,
+    contentWidth,
+    selection,
+    setSelected,
+  );
   return {
     selection,
     dismissSelection,
@@ -122,6 +135,7 @@ function reconcileSelection(
   lanes: Lane[],
   window: Window,
   projection: RosterProjection,
+  cacheIdentity: ScopedCacheIdentity,
   enabled: boolean,
 ): RosterModel['selection'] {
   if (selected && enabled) {
@@ -133,7 +147,7 @@ function reconcileSelection(
       );
       let rect: Rect | undefined;
       let nearest = 1;
-      for (const candidate of layoutLane(lane, window, projection).rects) {
+      for (const candidate of layoutLane(lane, window, projection, cacheIdentity).rects) {
         if (candidate.layerId !== layer.id) continue;
         const identities = new Set(
           candidate.sources.map((source) => JSON.stringify([source.kind, source.id])),
