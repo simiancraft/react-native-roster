@@ -1,0 +1,24 @@
+{
+  "scope_tags": ["core", "test", "docs", "ci-gate", "performance"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    ".size-limit.json",
+    "AGENTS.md",
+    "README.md",
+    "docs/caches.md",
+    "docs/performance.md",
+    "llms.txt",
+    "package.json",
+    "src/core/README.md",
+    "src/core/cache.ts",
+    "src/core/columns.ts",
+    "src/core/lru.ts",
+    "src/core/zone.ts",
+    "test/core/axis.test.ts",
+    "test/core/cache.test.ts",
+    "test/workflows/ci.test.ts"
+  ],
+  "capture_commit": "507dd73da8cc097bbd8041de1f5227672f069012",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:ec4dbd0de88fad5cdab288ac662b30f664863232ace55368f4d5500c783040f5"
+}
