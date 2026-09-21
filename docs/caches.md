@@ -90,6 +90,11 @@ When the roster module is loaded, one shared least-recently-used cache retains a
 most 2,000 tick entries. Tick hits refresh recency; eviction and clearing preserve
 the generated tick content.
 
+The loaded layers scope retains at most 2,000 style entries shared by both
+projections. Styles are keyed by layer id and canonical style content. The map
+uses least-recently-used eviction; a hit refreshes recency, and requesting an
+evicted layer regenerates structurally equal normal and highlighted styles.
+
 Core also retains up to 2,000 day columns, 2,000 date starts, and 100 timezone formatters across
 datasets. These shared maps use least-recently-used eviction; hits, including cached null day
 columns for skipped dates, refresh recency. Eviction does not change computed day columns, starts,
@@ -101,10 +106,10 @@ offsets, or formatting behavior.
 corresponding kind across identities; clear them when a consumer discards old windows.
 They do not reset counters. `clearCaches()` releases both, the loaded core day-column, date-start,
 and timezone-formatter maps, then every other cache scope that has registered after its module was
-loaded. Registration does not make core import components, adapters, React, or recurrence
+loaded; registration does not make core import components, adapters, React, or recurrence
 dependencies. All three clear calls are repeatable. Loading the roster module registers its tick
-cache, so
-`clearCaches()` also releases retained ticks.
+cache, so `clearCaches()` also releases retained ticks. Loading the layers scope registers its
+style cache, so the same call releases retained layer styles.
 `layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
 `resetStats()` resets both without clearing caches.
 
