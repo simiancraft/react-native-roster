@@ -89,6 +89,12 @@ jobs:
           files: ./coverage/lcov.info
           fail_ci_if_error: false
 
+      - name: Annotate blocked release
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: >
+          echo "::error title=Release blocked::The check job failed, preventing the dependent
+          release job from running."
+
   release:
     name: Release
     needs: check
