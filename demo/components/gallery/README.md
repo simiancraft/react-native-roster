@@ -27,9 +27,12 @@ popover/inspector toggle; the chassis binds selectionLayout and intervalDetailCo
 The view timezone provider sits above the native host, so details retain it through
 the portal store. Schedule does not yet support selection.
 
-Metro selects the library's declared react-native source condition on web as well,
-so React Compiler retains the roster body inputs across selection changes. The
-development detail fixture profiles opening details alongside the existing scroll gate.
+Metro selects the library's declared react-native source condition for the root,
+`/core`, `/rrule`, and `/nativewind` on web, iOS, and Android, so React Compiler retains
+the roster body inputs across selection changes. It uses the package export map, leaves peer and
+unrelated-package conditions unchanged, and needs no `dist` rebuild for source edits. Restart the
+demo server if Metro does not detect an edit. The development detail fixture profiles opening
+details alongside the existing scroll gate.
 
 ## Run the gallery and explore fixtures
 

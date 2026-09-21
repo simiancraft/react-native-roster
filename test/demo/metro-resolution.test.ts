@@ -10,11 +10,15 @@ const originModulePath = join(demoRoot, 'app/index.tsx');
 
 type MetroHarnessResult = {
   demoResolved: Record<string, string>;
-  forwarded: Record<string, { conditions: string[]; originModulePath: string }>;
-  metroResolved: Record<string, string>;
+  forwarded: Record<string, Record<string, { conditions: string[]; originModulePath: string }>>;
+  metroResolved: Record<string, Record<string, string>>;
 };
 
-function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
+function runMetroHarness(
+  moduleNames: string[],
+  platforms = ['web'],
+  resolveWithNode = true,
+): MetroHarnessResult {
   const script = `
     const fs = require('node:fs');
     const { createRequire } = require('node:module');
@@ -32,7 +36,7 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
       return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     }
     function packageForModule(absoluteModulePath) {
-      let directory = fs.existsSync(absoluteModulePath) && fs.lstatSync(absoluteModulePath).isDirectory()
+      let directory = fs.existsSync(absoluteModulePath) && fs.statSync(absoluteModulePath).isDirectory()
         ? absoluteModulePath
         : path.dirname(absoluteModulePath);
       while (true) {
@@ -59,7 +63,7 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
         extraNodeModules: config.resolver.extraNodeModules,
         fileSystemLookup: (filePath) => {
           if (!fs.existsSync(filePath)) return { exists: false };
-          const stats = fs.lstatSync(filePath);
+          const stats = fs.statSync(filePath);
           return { exists: true, realPath: fs.realpathSync(filePath), type: stats.isDirectory() ? 'd' : 'f' };
         },
         getPackage: readPackage,
@@ -81,7 +85,7 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
         unstable_logWarning: () => {},
       };
     }
-    function forwardedContext(moduleName) {
+    function forwardedContext(moduleName, platform) {
       let forwarded;
       config.resolver.resolveRequest({
         dev: true,
@@ -91,7 +95,7 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
           forwarded = innerContext;
           return { type: 'sourceFile', filePath: path.join(root, 'resolver-probe.js') };
         },
-      }, moduleName, 'web');
+      }, moduleName, platform);
       return {
         conditions: forwarded.unstable_conditionNames,
         originModulePath: forwarded.originModulePath,
@@ -99,14 +103,23 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
     }
 
     const moduleNames = ${JSON.stringify(moduleNames)};
-    const metroResolved = Object.fromEntries(moduleNames.map((moduleName) => {
-      const resolution = metroResolve(context(), moduleName, 'web');
-      if (resolution.type !== 'sourceFile') throw new Error(moduleName + ' did not resolve to a file');
-      return [moduleName, resolution.filePath];
-    }));
+    const platforms = ${JSON.stringify(platforms)};
+    const metroResolved = Object.fromEntries(platforms.map((platform) => [
+      platform,
+      Object.fromEntries(moduleNames.map((moduleName) => {
+        const resolution = metroResolve(context(), moduleName, platform);
+        if (resolution.type !== 'sourceFile') throw new Error(moduleName + ' did not resolve to a file');
+        return [moduleName, resolution.filePath];
+      })),
+    ]));
     const result = {
-      demoResolved: Object.fromEntries(moduleNames.map((name) => [name, demoRequire.resolve(name)])),
-      forwarded: Object.fromEntries(moduleNames.map((name) => [name, forwardedContext(name)])),
+      demoResolved: ${JSON.stringify(resolveWithNode)}
+        ? Object.fromEntries(moduleNames.map((name) => [name, demoRequire.resolve(name)]))
+        : {},
+      forwarded: Object.fromEntries(platforms.map((platform) => [
+        platform,
+        Object.fromEntries(moduleNames.map((name) => [name, forwardedContext(name, platform)])),
+      ])),
       metroResolved,
     };
     process.stdout.write(JSON.stringify(result));
@@ -116,7 +129,7 @@ function runMetroHarness(moduleNames: string[]): MetroHarnessResult {
   ) as MetroHarnessResult;
 }
 
-const metroHarness = runMetroHarness([
+const compatibilityHarness = runMetroHarness([
   'react',
   'react/jsx-runtime',
   'react-dom',
@@ -128,24 +141,63 @@ const metroHarness = runMetroHarness([
 describe('effective demo Metro resolver', () => {
   for (const moduleName of ['react', 'react/jsx-runtime', 'react-dom', 'react-native']) {
     it(`resolves ${moduleName} from the demo dependency tree`, () => {
-      expect(metroHarness.metroResolved[moduleName]).toBe(metroHarness.demoResolved[moduleName]);
-      expect(metroHarness.forwarded[moduleName]?.originModulePath).toBe(join(demoRoot, 'index.js'));
+      expect(compatibilityHarness.metroResolved.web?.[moduleName]).toBe(
+        compatibilityHarness.demoResolved[moduleName],
+      );
+      expect(compatibilityHarness.forwarded.web?.[moduleName]?.originModulePath).toBe(
+        join(demoRoot, 'index.js'),
+      );
     });
   }
 
   it('preserves the importer origin for NativeWind JSX interop', () => {
-    expect(metroHarness.forwarded['nativewind/jsx-runtime']?.originModulePath).toBe(
+    expect(compatibilityHarness.forwarded.web?.['nativewind/jsx-runtime']?.originModulePath).toBe(
       originModulePath,
     );
-    expect(metroHarness.metroResolved['nativewind/jsx-runtime']).toBe(
-      metroHarness.demoResolved['nativewind/jsx-runtime'],
+    expect(compatibilityHarness.metroResolved.web?.['nativewind/jsx-runtime']).toBe(
+      compatibilityHarness.demoResolved['nativewind/jsx-runtime'],
     );
   });
 
   it('preserves resolver conditions for unrelated packages', () => {
-    expect(metroHarness.forwarded['@legendapp/list']?.conditions).toEqual(['require', 'browser']);
-    expect(metroHarness.forwarded['@legendapp/list']?.originModulePath).toBe(originModulePath);
+    expect(compatibilityHarness.forwarded.web?.['@legendapp/list']?.conditions).toEqual([
+      'require',
+      'browser',
+    ]);
+    expect(compatibilityHarness.forwarded.web?.['@legendapp/list']?.originModulePath).toBe(
+      originModulePath,
+    );
   });
+});
+
+describe('workspace package source resolution', () => {
+  const expectedSources = {
+    'react-native-roster': 'src/index.ts',
+    'react-native-roster/core': 'src/core/index.ts',
+    'react-native-roster/rrule': 'src/adapters/rrule/index.ts',
+    'react-native-roster/nativewind': 'src/nativewind/index.ts',
+  } as const;
+  const sourceHarness = runMetroHarness(
+    Object.keys(expectedSources),
+    ['web', 'ios', 'android'],
+    false,
+  );
+
+  for (const platform of ['web', 'ios', 'android']) {
+    for (const [moduleName, sourcePath] of Object.entries(expectedSources)) {
+      it(`resolves ${moduleName} to source on ${platform} without rebuilding dist`, () => {
+        expect(sourceHarness.metroResolved[platform]?.[moduleName]).toBe(join(root, sourcePath));
+        expect(sourceHarness.forwarded[platform]?.[moduleName]?.conditions).toEqual([
+          'react-native',
+          'require',
+          'browser',
+        ]);
+        expect(sourceHarness.forwarded[platform]?.[moduleName]?.originModulePath).toBe(
+          originModulePath,
+        );
+      });
+    }
+  }
 });
 
 describe('Node package resolution', () => {
