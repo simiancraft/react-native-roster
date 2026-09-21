@@ -251,6 +251,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    discards old windows. Each identity retains at most 2,000 least-recently-used layout entries
    and 2,000 least-recently-used coverage entries; hits refresh recency. `clearCaches()` clears
    geometry and every registered cache scope whose module has loaded without resetting counters.
+   The loaded roster scope retains 2,000 least-recently-used tick entries, refreshes recency on
+   hits, and registers tick cleanup with `clearCaches()`.
    The loaded layers scope retains at most 2,000 least-recently-used style entries shared by both
    projections; hits refresh recency, and complete clearing releases them.
    Flag and coverage assembly does not invalidate rects.
