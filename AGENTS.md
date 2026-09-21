@@ -249,6 +249,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
    absent versions use a canonical structural encoding of layers only. Returned
    references are read-only by convention. Clear retained caches when a consumer
    discards old windows. Flag and coverage assembly does not invalidate rects.
+   Each mounted Schedule or useSchedule surface owns an isolated identity by default; pass one
+   explicit identity only when multiple surfaces render the same dataset.
 10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 total rects
     per lane per week (63 interval rects and 7 gap rects), in either projection.
     The test measures target-cold layout of 24 visible lanes and coverage of all

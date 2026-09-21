@@ -6,6 +6,7 @@ import type {
   LaneGeometry,
   Projection,
   Rect,
+  ScopedCacheIdentity,
   Source,
   Transition,
   Window,
@@ -18,6 +19,8 @@ export type ScheduleProjection = Extract<Projection, { orientation: 'columns' }>
 export type ScheduleInput = {
   lane: Lane;
   windowSpec: ScheduleWindowSpec;
+  /** Stable cache identity for deliberate reuse across surfaces rendering one dataset. */
+  cacheIdentity?: ScopedCacheIdentity;
   minuteStep?: number;
   /** Positive finite pixels per wall-clock hour; defaults to 48. */
   pxPerHour?: number;
