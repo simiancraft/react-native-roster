@@ -1,0 +1,10 @@
+{
+  "scope_tags": ["ci", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "test/workflows/ci.test.ts"
+  ],
+  "capture_commit": "4dca7003929478b60db881d6b4864b027d0cb576",
+  "capture_method": "bun install --frozen-lockfile; bun test test/workflows/ci.test.ts; bun run check",
+  "content_hash": "sha256:2ef3b451b85c41a95c27287dd6bba0a7022a13b6b9b7e08c9dfc90b67c454fe4"
+}
