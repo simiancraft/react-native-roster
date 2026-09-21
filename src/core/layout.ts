@@ -1,16 +1,30 @@
-import { counts, layoutCache } from './cache';
+import { counts, defaultScopedCacheIdentity, layoutCache } from './cache';
 import { coverageFor } from './coverage';
 import { flagFor } from './flag';
 import { laneKey, projectionKey } from './hash';
 import { type ScalePiece, scalePieces } from './scale';
 import { xAtTime } from './snap';
 import { sourceSpans } from './spans';
-import type { Interval, Lane, LaneGeometry, Layer, Projection, Rect, Window } from './types';
+import type {
+  Interval,
+  Lane,
+  LaneGeometry,
+  Layer,
+  Projection,
+  Rect,
+  ScopedCacheIdentity,
+  Window,
+} from './types';
 
-export function layoutLane(lane: Lane, window: Window, projection: Projection): LaneGeometry {
-  const key = `${laneKey(lane, window)}|${projectionKey(projection)}`;
+export function layoutLane(
+  lane: Lane,
+  window: Window,
+  projection: Projection,
+  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+): LaneGeometry {
+  const key = `${laneKey(lane, window, cacheIdentity)}|${projectionKey(projection)}`;
   let cached = layoutCache.get(key);
-  const coverage = coverageFor(lane, window);
+  const coverage = coverageFor(lane, window, cacheIdentity);
   const flag = flagFor(lane, window);
   if (cached) {
     counts.layout.cacheHits++;

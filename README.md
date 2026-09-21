@@ -256,6 +256,12 @@ render from. See [customization](https://github.com/simiancraft/react-native-ros
 
 ## Size and support
 
+Core geometry and coverage caches accept an optional `ScopedCacheIdentity`. Keep one stable empty
+identity object per dataset, and pass it to both `layoutLane` and `coverageFor`; independent
+datasets then cannot collide when they reuse lane IDs and versions. Omitting the identity uses the
+core-owned default, while deliberately reusing one identity shares target-warm coverage across
+projections.
+
 Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.2 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
 and `@js-temporal/polyfill`, which install with the package. Web runs in CI on

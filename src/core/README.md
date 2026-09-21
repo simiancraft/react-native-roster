@@ -5,7 +5,8 @@ no React Native, no dependencies.
 
 - Public subpath: `react-native-roster/core`; the root entry re-exports it
 - Authoritative types: `types.ts` (`Lane`, `Layer`, `Interval`, `Gap`,
-  `Source`, `Window`, `Projection`, `Rect`, `Coverage`, `LaneGeometry`)
+  `Source`, `Window`, `Projection`, `Rect`, `Coverage`, `LaneGeometry`,
+  `ScopedCacheIdentity`)
 - Interval helpers: `extentOf(segments: readonly Window[]): Window | null`,
   `intersectionOf(spans: readonly Window[]): Window | null`, and
   `unionOf(spans: readonly Window[]): Window[]`
@@ -24,6 +25,21 @@ no React Native, no dependencies.
 | `hit-test.ts` | the geometry walk both hooks use to resolve a press |
 | `order.ts`, `flag.ts` | lane comparators and lane flags |
 | `cache.ts`, `hash.ts` | layout and coverage caches keyed by lane content |
+
+`layoutLane(lane, window, projection, cacheIdentity?)` and
+`coverageFor(lane, window, cacheIdentity?)` use a stable `ScopedCacheIdentity` object to keep
+retained results within one dataset. Omitted identities use the core-owned default. Standalone
+callers should keep one empty identity object for each dataset and pass the same object to both
+functions; projections share coverage because projection fields remain outside the coverage key.
+
+```ts
+import type { ScopedCacheIdentity } from 'react-native-roster/core';
+import { coverageFor, layoutLane } from 'react-native-roster/core';
+
+const cacheIdentity: ScopedCacheIdentity = {};
+const coverage = coverageFor(lane, window, cacheIdentity);
+const geometry = layoutLane(lane, window, projection, cacheIdentity);
+```
 
 All interval helpers reuse the bare `{ start, end }` `Window` type with
 end-exclusive epoch millisecond bounds. `extentOf` bridges disjoint segments;

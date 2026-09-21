@@ -1,4 +1,6 @@
-import type { Coverage, LaneFlag, LaneGeometry, Rect } from './types';
+import type { Coverage, LaneFlag, LaneGeometry, Rect, ScopedCacheIdentity } from './types';
+
+export const defaultScopedCacheIdentity: ScopedCacheIdentity = {};
 
 export const layoutCache = new Map<
   string,
