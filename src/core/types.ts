@@ -39,6 +39,9 @@ export type Lane = {
   meta?: unknown;
 };
 
+/** A stable object reference that scopes retained geometry and coverage to one dataset. */
+export type ScopedCacheIdentity = Readonly<Record<PropertyKey, never>>;
+
 /** A span of absolute time. No span kind, no resolution; those are axis and component concerns (#6). */
 export type Window = { start: number; end: number };
 

@@ -56,4 +56,5 @@ export type {
   ScheduleWindowSpec,
 } from './components/schedule/schedule.types';
 export { useSchedule } from './components/schedule/use-schedule';
+export type { ScopedCacheIdentity } from './core';
 export * from './core';

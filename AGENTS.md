@@ -236,7 +236,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
    search locates exact boundaries. Two offset changes within one probe hour are
    outside this helper's assumption. Hermes formatToParts/device behavior still
    needs device verification; no extra Intl operation or dependency was added.
-9. **Cache lifecycle is explicit.** A supplied version must change with layers;
+9. **Cache lifecycle is explicit.** `ScopedCacheIdentity` is a stable empty object whose
+   reference identifies one dataset. Omitted core identities share the core-owned default;
+   independent datasets use distinct identities, while one dataset reuses its identity across
+   geometry and coverage calls and projections. A supplied version must change with layers;
    absent versions use a canonical structural encoding of layers only. Returned
    references are read-only by convention. Clear retained caches when a consumer
    discards old windows. Flag and coverage assembly does not invalidate rects.
