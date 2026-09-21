@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["docs", "api-contract"],
+  "covered_paths": [
+    "docs/caches.md",
+    "src/core/types.ts",
+    "src/core/layout.ts",
+    "src/core/coverage.ts",
+    "src/components/roster/roster.types.ts",
+    "src/components/schedule/schedule.types.ts"
+  ],
+  "capture_commit": "027ec57bc536d3bab49271f91eb37df487537b2c",
+  "capture_method": "remote ancestry, exported signature review, diff hygiene, and scope commands recorded in the artifact",
+  "content_hash": "sha256:7719d7d207948579453d957c0482650fd94bbb064089211b55c4f7559fef7cad"
+}

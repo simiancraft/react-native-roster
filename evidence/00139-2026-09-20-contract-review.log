@@ -1,0 +1,23 @@
+$ git rev-parse HEAD
+027ec57bc536d3bab49271f91eb37df487537b2c
+$ git merge-base --is-ancestor HEAD origin/fix/explain-cache-identity-lifecycle-139
+exit: 0
+$ rg -n "ScopedCacheIdentity|cacheIdentity" src/core/types.ts src/core/layout.ts src/core/coverage.ts src/components/roster/roster.types.ts src/components/schedule/schedule.types.ts
+src/components/schedule/schedule.types.ts:9:  ScopedCacheIdentity,
+src/components/schedule/schedule.types.ts:23:  cacheIdentity?: ScopedCacheIdentity;
+src/components/roster/roster.types.ts:19:  ScopedCacheIdentity,
+src/components/roster/roster.types.ts:50:  cacheIdentity?: ScopedCacheIdentity;
+src/core/layout.ts:1:import { counts, defaultScopedCacheIdentity, layoutCacheFor } from './cache';
+src/core/layout.ts:15:  ScopedCacheIdentity,
+src/core/layout.ts:23:  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+src/core/layout.ts:25:  const layoutCache = layoutCacheFor(cacheIdentity);
+src/core/layout.ts:28:  const coverage = coverageFor(lane, window, cacheIdentity);
+src/core/types.ts:43:export type ScopedCacheIdentity = Readonly<Record<PropertyKey, never>>;
+src/core/coverage.ts:1:import { counts, coverageCacheFor, defaultScopedCacheIdentity } from './cache';
+src/core/coverage.ts:3:import type { Coverage, Lane, LayerRole, ScopedCacheIdentity, Window } from './types';
+src/core/coverage.ts:8:  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+src/core/coverage.ts:10:  const coverageCache = coverageCacheFor(cacheIdentity);
+$ git diff --check origin/main...HEAD
+exit: 0
+$ git diff --name-only origin/main...HEAD
+docs/caches.md

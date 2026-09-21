@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["docs", "test", "package", "browser"],
+  "covered_paths": [
+    "docs/caches.md",
+    "package.json",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "027ec57bc536d3bab49271f91eb37df487537b2c",
+  "capture_method": "FORCE_COLOR=0 NO_COLOR=1 bun run check",
+  "content_hash": "sha256:82447d22e72bb8a50945a6d23173d908178d167e4efc9a8b8181445ba0a52777"
+}
