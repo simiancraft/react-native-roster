@@ -277,7 +277,10 @@ least-recently-used coverage entries. The loaded roster scope retains at most 2,
 least-recently-used tick entries. Core also retains 2,000 day columns, 2,000 date starts, and 100
 timezone formatters in shared least-recently-used maps. Cache hits refresh recency. `clearCaches()`
 clears geometry, these calendar and zone maps, and every other cache scope whose module has loaded
-and registered its cleanup, including roster ticks; counters remain cumulative. See
+and registered its cleanup, including roster ticks; counters remain cumulative. Loading the
+`/rrule` entry registers its occurrence and envelope caches
+without making core import recurrence dependencies; `clearCaches()` and `clearExpandCache()` then
+clear the same recurrence entries and preserve expansion counters. See
 [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
 Minified, with peers external: `/core` is 15.5 kB and the root entry is 53.2 kB.

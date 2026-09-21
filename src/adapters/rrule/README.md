@@ -11,6 +11,9 @@ provenance per span.
 - Internal imports: `../../core` only; never components or another adapter
 - Owns: `rrule-temporal` and the Temporal polyfill; ordinary installed dependencies
   imported only by this subpath, never by root or core
+- Cache lifecycle: loading this entry registers occurrence and envelope cleanup with core's
+  `clearCaches()`; it clears the same entries as repeatable `clearExpandCache()` calls without
+  resetting expansion counters
 
 ## Supported input
 
