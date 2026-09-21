@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["demo", "resolver", "test", "full-gate"],
+  "covered_paths": [
+    "demo/metro.config.js",
+    "test/demo/metro-resolution.test.ts",
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/gallery/README.md",
+    "package.json",
+    "demo/package.json",
+    "bun.lock",
+    ".github/workflows/ci.yml",
+    ".github/workflows/deploy-demo.yml"
+  ],
+  "capture_commit": "1c53d5864c3c5847436732a0a540d3a34359519a",
+  "capture_method": "env -u FORCE_COLOR NO_COLOR=1 bun run check",
+  "content_hash": "sha256:ab90b6f36e25071ffa69c62365b46ed64680f0bba67d5033d398be4a52389dd9"
+}
