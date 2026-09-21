@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["performance", "baseline", "github-actions"],
+  "covered_paths": [
+    "test/performance/measure-workload.ts",
+    "test/performance/workload.test.ts",
+    "test/performance/baseline.json"
+  ],
+  "capture_commit": "d987b5208956884d0f6944e7697c7a3783ff62d3",
+  "capture_method": "gh run view 35557036619 --log filtered to Bun version and Workload W timing output",
+  "content_hash": "sha256:29392ce6f9cbb98e6f93ecdcb2a041c564995f210996bdf771b67b5c66ace28a"
+}
