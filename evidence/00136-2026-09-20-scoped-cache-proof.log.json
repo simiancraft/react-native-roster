@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["core", "test", "performance"],
+  "covered_paths": [
+    "src/core/cache.ts",
+    "src/core/coverage.ts",
+    "src/core/hash.ts",
+    "src/core/layout.ts",
+    "test/core/layout.test.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/workload.test.ts"
+  ],
+  "capture_commit": "b4d4bc2eab9b2383871ca76682727b6af11ed13a",
+  "capture_method": "bun test test/core/layout.test.ts; bun run typecheck; bun run typecheck:test; bun run lint; 20 process-isolated CI=1 bun test test/performance/workload.test.ts runs",
+  "content_hash": "sha256:6ebe246708df7bf7a4b4672176278ba99a03070a1bc69ac53155d022462d215f"
+}

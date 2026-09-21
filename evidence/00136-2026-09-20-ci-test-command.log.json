@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["ci", "test", "coverage", "performance"],
+  "covered_paths": [
+    "src/core/cache.ts",
+    "src/core/coverage.ts",
+    "src/core/hash.ts",
+    "src/core/layout.ts",
+    "test/core/layout.test.ts",
+    "test/performance/measure-workload.ts",
+    "test/performance/workload.test.ts"
+  ],
+  "capture_commit": "b4d4bc2eab9b2383871ca76682727b6af11ed13a",
+  "capture_method": "CI=1 bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:dc5c3250f7b27ec604ec8530e16be1ef6156a89a0ee6b0d6e1081cbd3ebfea74"
+}
