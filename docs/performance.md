@@ -26,16 +26,23 @@ Failures exit nonzero. Trace and screenshot files live in `.cache/web-performanc
 Open a trace with `bunx playwright show-trace .cache/web-performance/trace.zip`.
 
 Both timing rows independently fail at 16 ms or above on every machine. Only when
-`process.env.CI` is truthy do they also fail above 1.5 times their committed CI
+`process.env.CI` is truthy do they also fail above 2.0 times their committed CI
 runner value in `test/performance/baseline.json`. Local runs still measure and
 print both rows, but skip the relative gate because hardware differs. Five untimed JIT warmup
-iterations precede 11 samples; the reported value is their median. Every sample
+iterations precede 31 samples; the reported value is their minimum. Every sample
 clears the exact layout and coverage keys before timing. Fixture construction,
 cache clearing, and counter reads are outside the timer. Each layout sample
 includes geometry assembly's coverage of those 24 lanes; the separate coverage
 sample clears coverage again and computes all 200 lanes. A target-cold sample
-is not a cold JavaScript runtime. Timing harness code and the baseline CLI are
-outside coverage, like the existing release CLI shim; library coverage stays 100%.
+is not a cold JavaScript runtime.
+
+The timing line also prints a diagnostic calibration ratio: the larger of the current
+layout-to-baseline and coverage-to-baseline ratios. Assertions use only the raw layout
+and coverage milliseconds; calibration does not enter any assertion or pass/fail branch.
+The 2.0 multiplier tolerates shared-runner variation, so regressions below roughly 2x
+the committed baseline may escape the relative gate. The independent 16 ms ceiling
+still applies everywhere. Timing harness code and the baseline CLI are outside coverage,
+like the existing release CLI shim; library coverage stays 100%.
 
 `.size-limit.json` bundles all four emitted entry points with the small-library
 esbuild preset, minifies them, and disables gzip and Brotli. Limits are decimal

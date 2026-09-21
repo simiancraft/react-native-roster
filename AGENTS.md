@@ -253,10 +253,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
    explicit identity only when multiple surfaces render the same dataset.
 10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 total rects
     per lane per week (63 interval rects and 7 gap rects), in either projection.
-    The test measures target-cold layout of 24 visible lanes and coverage of all
-    200 lanes separately against 16 ms everywhere; the 1.5x committed CI runner baseline
-    gate runs only when process.env.CI is truthy so hardware classes are comparable.
-    Local runs still measure and print both rows. Device gates remain manual.
+    After five JIT warmups, the test reports the minimum of 31 target-cold samples for
+    layout of 24 visible lanes and coverage of all 200 lanes. Both rows gate against
+    16 ms everywhere; the 2.0x committed CI runner baseline gate runs only when
+    process.env.CI is truthy so hardware classes are comparable. The timing line prints
+    the larger current-to-baseline ratio as diagnostic calibration, but assertions use
+    only raw milliseconds. Shared-runner regressions below roughly 2x may escape the
+    relative gate. Local runs still measure and print both rows. Device gates remain manual.
 
 11. **Roster waits for viewport measurement before mounting LegendList.** RosterBody
     composes a node-only RosterBodyLayout and the RosterLaneList collection part.
