@@ -1,0 +1,57 @@
+$ git rev-parse HEAD
+f1555563c2d9e6e16a12bf90ba6b731988fe04c7
+$ git merge-base --is-ancestor HEAD origin/fix/explain-cache-identity-lifecycle-139
+exit: 0
+$ git rev-list --count HEAD..origin/main
+0
+$ rg -n "ScopedCacheIdentity|cacheIdentity|WeakMap" selected contract files
+src/components/schedule/use-schedule.ts:2:import type { ScopedCacheIdentity } from '../../core';
+src/components/schedule/use-schedule.ts:11:  const [ownedCacheIdentity] = useState<ScopedCacheIdentity>(() => ({}));
+src/components/schedule/use-schedule.ts:12:  const cacheIdentity = input.cacheIdentity ?? ownedCacheIdentity;
+src/components/schedule/use-schedule.ts:32:  const geometry = layoutLane(lane, window, projection, cacheIdentity);
+src/components/schedule/schedule.types.ts:9:  ScopedCacheIdentity,
+src/components/schedule/schedule.types.ts:23:  cacheIdentity?: ScopedCacheIdentity;
+src/index.ts:59:export type { ScopedCacheIdentity } from './core';
+src/components/roster/use-roster.ts:4:import type { Lane, LaneGeometry, Rect, ScopedCacheIdentity, Window } from '../../core';
+src/components/roster/use-roster.ts:21:  const [ownedCacheIdentity] = useState<ScopedCacheIdentity>(() => ({}));
+src/components/roster/use-roster.ts:22:  const cacheIdentity = input.cacheIdentity ?? ownedCacheIdentity;
+src/components/roster/use-roster.ts:58:    lanes.map((lane) => [lane.id, coverageFor(lane, window, cacheIdentity)]),
+src/components/roster/use-roster.ts:68:    return layoutLane(lane, window, projection, cacheIdentity);
+src/components/roster/use-roster.ts:75:    cacheIdentity,
+src/components/roster/use-roster.ts:84:    cacheIdentity,
+src/components/roster/use-roster.ts:138:  cacheIdentity: ScopedCacheIdentity,
+src/components/roster/use-roster.ts:150:      for (const candidate of layoutLane(lane, window, projection, cacheIdentity).rects) {
+src/core/coverage.ts:1:import { counts, coverageCacheFor, defaultScopedCacheIdentity } from './cache';
+src/core/coverage.ts:3:import type { Coverage, Lane, LayerRole, ScopedCacheIdentity, Window } from './types';
+src/core/coverage.ts:8:  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+src/core/coverage.ts:10:  const coverageCache = coverageCacheFor(cacheIdentity);
+src/core/layout.ts:1:import { counts, defaultScopedCacheIdentity, layoutCacheFor } from './cache';
+src/core/layout.ts:15:  ScopedCacheIdentity,
+src/core/layout.ts:23:  cacheIdentity: ScopedCacheIdentity = defaultScopedCacheIdentity,
+src/core/layout.ts:25:  const layoutCache = layoutCacheFor(cacheIdentity);
+src/core/layout.ts:28:  const coverage = coverageFor(lane, window, cacheIdentity);
+src/core/layout.ts:44:    cached = { rects, gapRects, assemblies: new WeakMap() };
+src/core/index.ts:32:  ScopedCacheIdentity,
+src/core/cache.ts:1:import type { Coverage, LaneFlag, LaneGeometry, Rect, ScopedCacheIdentity } from './types';
+src/core/cache.ts:3:export const defaultScopedCacheIdentity: ScopedCacheIdentity = {};
+src/core/cache.ts:10:    assemblies: WeakMap<Coverage, Map<LaneFlag, LaneGeometry>>;
+src/core/cache.ts:14:let layoutCaches = new WeakMap<ScopedCacheIdentity, LayoutCache>();
+src/core/cache.ts:15:let coverageCaches = new WeakMap<ScopedCacheIdentity, Map<string, Coverage>>();
+src/core/cache.ts:36:export function layoutCacheFor(cacheIdentity: ScopedCacheIdentity): LayoutCache {
+src/core/cache.ts:37:  let cache = layoutCaches.get(cacheIdentity);
+src/core/cache.ts:40:    layoutCaches.set(cacheIdentity, cache);
+src/core/cache.ts:45:export function coverageCacheFor(cacheIdentity: ScopedCacheIdentity): Map<string, Coverage> {
+src/core/cache.ts:46:  let cache = coverageCaches.get(cacheIdentity);
+src/core/cache.ts:49:    coverageCaches.set(cacheIdentity, cache);
+src/core/cache.ts:55:  layoutCaches = new WeakMap();
+src/core/cache.ts:59:  coverageCaches = new WeakMap();
+src/core/types.ts:43:export type ScopedCacheIdentity = Readonly<Record<PropertyKey, never>>;
+src/components/roster/roster.types.ts:19:  ScopedCacheIdentity,
+src/components/roster/roster.types.ts:50:  cacheIdentity?: ScopedCacheIdentity;
+$ git diff --check origin/main...HEAD
+exit: 0
+$ git diff --name-only origin/main...HEAD
+docs/caches.md
+$ git diff --stat origin/main...HEAD
+ docs/caches.md | 93 ++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 88 insertions(+), 5 deletions(-)

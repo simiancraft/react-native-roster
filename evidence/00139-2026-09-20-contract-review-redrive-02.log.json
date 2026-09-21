@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["docs", "api-contract"],
+  "covered_paths": [
+    "docs/caches.md",
+    "src/core/types.ts",
+    "src/core/cache.ts",
+    "src/core/layout.ts",
+    "src/core/coverage.ts",
+    "src/core/index.ts",
+    "src/index.ts",
+    "src/components/roster/roster.types.ts",
+    "src/components/roster/use-roster.ts",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts"
+  ],
+  "capture_commit": "f1555563c2d9e6e16a12bf90ba6b731988fe04c7",
+  "capture_method": "remote ancestry, exported contract review, implementation review, diff hygiene, and scope commands recorded in the artifact",
+  "content_hash": "sha256:ce8f9227540d0de862847d141eecd76ca0090a5711e5a0db5b59da2380f3e9f3"
+}
