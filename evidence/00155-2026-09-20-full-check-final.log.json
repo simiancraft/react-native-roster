@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["repository", "test", "performance"],
+  "covered_paths": ["."],
+  "capture_commit": "bfbf405c6d7a45629896b3a787584d6627dd298b",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:fc53f8f8ab0b2f53be46147d8a587628a21f1752dd0d676a1c13a39d14b9644e"
+}
