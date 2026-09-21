@@ -327,7 +327,7 @@ describe('useSchedule hook harness', () => {
     act(() => trees.pop()?.unmount());
     expect(clear).toHaveBeenCalledWith(17);
   });
-  it('switches Roster to Schedule and back with expanded deltas 0 and layout runs deltas 1 then 0', () => {
+  it('keeps expansion warm while remounted default surfaces own isolated caches', () => {
     let tree!: ReactTestRenderer;
     const windowSpec = scheduleFixtures['schedule-layers'].windowSpec;
     function RosterHook() {
@@ -349,11 +349,11 @@ describe('useSchedule hook harness', () => {
     act(() => tree.update(createElement(ScheduleHook)));
     expect(expandStats().expanded - before.expansion.expanded).toBe(0);
     expect(layoutStats().runs - before.layout.runs).toBe(1);
-    expect(coverageStats().runs - before.coverage.runs).toBe(0);
+    expect(coverageStats().runs - before.coverage.runs).toBe(1);
     const columns = layoutStats();
     act(() => tree.update(createElement(RosterHook)));
     expect(expandStats().expanded - before.expansion.expanded).toBe(0);
-    expect(layoutStats().runs - columns.runs).toBe(0);
-    expect(layoutStats().cacheHits - columns.cacheHits).toBe(1);
+    expect(layoutStats().runs - columns.runs).toBe(1);
+    expect(layoutStats().cacheHits - columns.cacheHits).toBe(0);
   });
 });
