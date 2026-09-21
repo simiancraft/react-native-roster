@@ -10,7 +10,7 @@ import type {
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import type { RosterInput, RosterModel } from '../../../src/components/roster/roster.types';
 import { useRoster } from '../../../src/components/roster/use-roster';
-import type { Interval, Lane, Layer, Rect } from '../../../src/core';
+import type { Interval, Lane, Layer, Rect, ScopedCacheIdentity } from '../../../src/core';
 import {
   byCoverage,
   clearCoverageCache,
@@ -63,6 +63,64 @@ beforeEach(() => {
 });
 
 describe('useRoster hook without native rendering', () => {
+  it('isolates cache ownership by default and deliberately shares one dataset identity', () => {
+    const start = Date.UTC(2024, 0, 1);
+    function lane(minutes: number): Lane {
+      return {
+        id: 'member-1',
+        version: 1,
+        label: `Member ${minutes}`,
+        layers: [
+          {
+            id: 'open',
+            role: 'availability',
+            z: 0,
+            style: { color: 'green' },
+            intervals: [
+              {
+                start,
+                end: start + minutes * 60_000,
+                sources: [{ kind: 'rule', id: `${minutes}` }],
+              },
+            ],
+          },
+        ],
+      };
+    }
+    const windowSpec = {
+      span: 'custom' as const,
+      timezone: 'UTC',
+      window: { start, end: start + 60 * 60_000 },
+    };
+    const short = lane(10);
+    const long = lane(30);
+    const first = harness({ lanes: [short], windowSpec, pxPerMinute: 1, selectable: true });
+    const second = harness({ lanes: [long], windowSpec, pxPerMinute: 1, selectable: true });
+    expect(first.model.coverage.get(short.id)?.availabilityMinutes).toBe(10);
+    expect(second.model.coverage.get(long.id)?.availabilityMinutes).toBe(30);
+    expect(first.model.geometryFor(short).rects[0]?.width).toBe(10);
+    expect(second.model.geometryFor(long).rects[0]?.width).toBe(30);
+    act(() => first.model.press(short, 5, 10));
+    act(() => second.model.press(long, 20, 10));
+    expect(first.model.selection?.lane).toBe(short);
+    expect(second.model.selection?.lane).toBe(long);
+    first.close();
+    second.close();
+
+    clearLayoutCache();
+    clearCoverageCache();
+    resetStats();
+    const cacheIdentity: ScopedCacheIdentity = {};
+    const sharedFirst = harness({ lanes: [long], windowSpec, pxPerMinute: 1, cacheIdentity });
+    const sharedSecond = harness({ lanes: [long], windowSpec, pxPerMinute: 1, cacheIdentity });
+    const firstGeometry = sharedFirst.model.geometryFor(long);
+    expect(sharedSecond.model.coverage.get(long.id)).toBe(sharedFirst.model.coverage.get(long.id));
+    expect(sharedSecond.model.geometryFor(long)).toBe(firstGeometry);
+    expect(coverageStats()).toEqual({ runs: 1, cacheHits: 3 });
+    expect(layoutStats()).toEqual({ runs: 1, cacheHits: 1 });
+    sharedFirst.close();
+    sharedSecond.close();
+  });
   it('derives nowLine from elapsed time and the fitted projection with exclusive end bounds', () => {
     const input = { lanes: rosterFixtures['single-lane'].lanes, windowSpec: rosterWindowSpec };
     const h = harness(input);
@@ -350,12 +408,27 @@ it('selects only with detail content, dismisses, reconciles current data, and cl
   h.update({ ...enabled, lanes: [fresh] });
   expect(h.model.selection?.lane).toBe(fresh);
   expect(h.model.selection?.layer).toBe(fresh.layers[0]);
+  const moved = {
+    ...fresh,
+    version: 2,
+    layers: fresh.layers.map((layer) => ({
+      ...layer,
+      intervals: layer.intervals.map((interval) => ({
+        ...interval,
+        start: interval.start + 0.5,
+        end: interval.end + 0.5,
+      })),
+    })),
+  };
+  h.update({ ...enabled, lanes: [moved] });
+  expect(h.model.selection?.lane).toBe(moved);
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(moved).rects[0] as Rect);
   act(() => h.model.onLayout(layoutInput(20_160, 480)));
-  expect(h.model.selection?.rect).toBe(h.model.geometryFor(fresh).rects[0] as Rect);
+  expect(h.model.selection?.rect).toBe(h.model.geometryFor(moved).rects[0] as Rect);
   expect(h.model.press).toBe(press);
   act(() => h.model.dismissSelection());
   expect(h.model.selection).toBeNull();
-  act(() => press(fresh, 1200, 10));
+  act(() => press(moved, 1200, 10));
   h.update({ ...enabled, lanes: [] });
   expect(h.model.selection).toBeNull();
   h.update(enabled);
