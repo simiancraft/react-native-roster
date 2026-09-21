@@ -446,6 +446,10 @@ cache. Tick hits refresh recency; eviction and clearing preserve generated conte
 | resetExpandStats() | Zero expansion counters, preserve keys. |
 | clearExpandCache() | Empty occurrence entries and retained envelopes, preserve counters. |
 
+Loading react-native-roster/rrule registers clearExpandCache with clearCaches.
+Either call then clears the same loaded recurrence entries, is repeatable, and
+preserves expansion counters; core never imports the adapter or recurrence dependencies.
+
 Target-warm means exact requested keys exist. Target-cold means they do not.
 Neither describes the whole cache. A projection change can be target-cold for
 layout and target-warm for coverage. Equal absolute windows reuse coverage even
