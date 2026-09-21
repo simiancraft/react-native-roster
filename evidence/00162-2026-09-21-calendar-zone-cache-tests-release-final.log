@@ -1,0 +1,75 @@
+capture_commit: 2fd42d3cd64697893390b3e658cc3298214ab403
+command: bun test --coverage test/core/axis.test.ts test/core/cache.test.ts
+
+bun test v1.4.2 (744846f84)
+------------------------------------------------------|---------|---------|-------------------
+File                                                  | % Funcs | % Lines | Uncovered Line #s
+------------------------------------------------------|---------|---------|-------------------
+All files                                             |   24.43 |   31.04 |
+ src/components/layers/parts/gap.tsx                  |    0.00 |    0.00 | 3
+ src/components/layers/parts/interval.tsx             |    0.00 |   10.53 | 5-21
+ src/components/layers/utils/styles.ts                |    0.00 |   11.11 | 7-22
+ src/components/primitives/portal.tsx                 |    0.00 |   16.67 | 7-8,11-13,18-23,28-46
+ src/components/primitives/press-point.tsx            |    0.00 |    0.00 | 3
+ src/components/primitives/region-style.ts            |    0.00 |    0.00 | 9-13,17-19
+ src/components/roster/body-layout.tsx                |    0.00 |    4.17 | 5-50
+ src/components/roster/focus-safe-clip.ts             |  100.00 |  100.00 | 
+ src/components/roster/index.tsx                      |    0.00 |   11.92 | 23-155
+ src/components/roster/lanes/interval-hover.tsx       |    0.00 |    0.00 | 3
+ src/components/roster/lanes/lane.tsx                 |    0.00 |    8.57 | 25-88
+ src/components/roster/lanes/parts/incomplete.tsx     |    0.00 |    2.56 | 4-41
+ src/components/roster/lanes/parts/lane-label.tsx     |    0.00 |    2.78 | 4-38
+ src/components/roster/layout.tsx                     |    0.00 |   34.69 | 20-51
+ src/components/roster/parts/body.tsx                 |    0.00 |    3.64 | 6-58
+ src/components/roster/parts/corner.tsx               |    0.00 |    0.00 | 1
+ src/components/roster/parts/empty.tsx                |    0.00 |   50.00 | 3
+ src/components/roster/parts/grid.tsx                 |    0.00 |    4.76 | 4-23
+ src/components/roster/parts/header-cell.tsx          |    0.00 |   20.00 | 4-7
+ src/components/roster/parts/header.tsx               |    0.00 |   11.11 | 5-20
+ src/components/roster/parts/lane-label-column.tsx    |    0.00 |    7.69 | 5-28
+ src/components/roster/parts/lane-list.tsx            |    0.00 |    5.63 | 7-73
+ src/components/roster/parts/now-line.tsx             |    0.00 |    7.14 | 4-16
+ src/components/roster/selection/selection-layout.tsx |    0.00 |    6.02 | 10-87
+ src/components/roster/use-roster-press.ts            |    0.00 |    4.23 | 11-78
+ src/components/roster/use-roster.ts                  |    0.00 |    3.14 | 10-128,133-167
+ src/components/roster/utils/body-content-key.ts      |    0.00 |    7.69 | 6-11,15-44
+ src/components/roster/utils/ticks.ts                 |   50.00 |   11.67 | 12-64
+ src/components/schedule/days/day.tsx                 |    0.00 |    8.62 | 34-86
+ src/components/schedule/days/header-layout.tsx       |    0.00 |   50.00 | 10
+ src/components/schedule/days/layout.tsx              |    0.00 |    5.56 | 19-35
+ src/components/schedule/days/parts/column.tsx        |    0.00 |    7.55 | 7-55
+ src/components/schedule/days/parts/day-header.tsx    |    0.00 |    7.69 | 4-15
+ src/components/schedule/days/parts/grid.tsx          |    0.00 |    6.25 | 4-18
+ src/components/schedule/days/parts/now-line.tsx      |    0.00 |   14.29 | 3-8
+ src/components/schedule/days/parts/skipped-date.tsx  |    0.00 |    5.56 | 3-19
+ src/components/schedule/days/parts/transition.tsx    |    0.00 |    1.54 | 4-67
+ src/components/schedule/index.tsx                    |   33.33 |   19.39 | 23-41,46-105
+ src/components/schedule/layout.tsx                   |    0.00 |    8.00 | 17-39
+ src/components/schedule/parts/gutter.tsx             |    0.00 |    9.09 | 4-13
+ src/components/schedule/parts/incomplete.tsx         |    0.00 |   12.50 | 4-10
+ src/components/schedule/use-schedule-viewport.ts     |    0.00 |   28.57 | 7-11
+ src/components/schedule/use-schedule.ts              |    0.00 |    5.48 | 8-76
+ src/components/schedule/utils/days.ts                |    0.00 |    8.89 | 6-22,26-40,44-52
+ src/core/axis.ts                                     |  100.00 |  100.00 | 
+ src/core/cache.ts                                    |  100.00 |  100.00 | 
+ src/core/columns.ts                                  |  100.00 |  100.00 | 
+ src/core/coverage.ts                                 |   88.89 |   91.07 | 25-29
+ src/core/flag.ts                                     |  100.00 |  100.00 | 
+ src/core/hash.ts                                     |  100.00 |  100.00 | 
+ src/core/hit-test.ts                                 |    0.00 |    0.00 | 3-25
+ src/core/index.ts                                    |  100.00 |  100.00 | 
+ src/core/layout.ts                                   |  100.00 |  100.00 | 
+ src/core/lru.ts                                      |  100.00 |  100.00 | 
+ src/core/order.ts                                    |    0.00 |   10.00 | 5,9-16
+ src/core/scale.ts                                    |  100.00 |  100.00 | 
+ src/core/snap.ts                                     |   75.00 |   89.80 | 46-50
+ src/core/source.ts                                   |    0.00 |    0.00 | 4-6
+ src/core/spans.ts                                    |   42.86 |   57.65 | 29,66-73,82-90,100-114,118-120
+ src/core/zone.ts                                     |  100.00 |  100.00 | 
+ src/index.ts                                         |  100.00 |  100.00 | 
+------------------------------------------------------|---------|---------|-------------------
+
+ 27 pass
+ 0 fail
+ 354 expect() calls
+Ran 27 tests across 2 files. [1072.00ms]
