@@ -7,10 +7,18 @@ supplied `lane.version` whenever layers change. Labels, lane timezone, flags,
 completeness, and metadata do not invalidate rects. Treat returned references
 as read-only.
 
-`clearLayoutCache()` and `clearCoverageCache()` release retained keys; clear
-them when a consumer discards old windows. They do not reset counters.
-`layoutStats()` and `coverageStats()` return `{ runs, cacheHits }`;
-`resetStats()` resets both without clearing caches.
+Each dataset identity retains at most 2,000 layout entries and 2,000 coverage
+entries. Both maps use least-recently-used eviction; a hit refreshes recency.
+Eviction changes only retention, so requesting an evicted input recomputes an
+equal result.
+
+`clearLayoutCache()` and `clearCoverageCache()` release their corresponding
+geometry entries. `clearCaches()` releases both, then clears every other cache
+scope that has registered after its module was loaded. Registration does not
+make core import components, adapters, React, or recurrence dependencies. All
+three clear calls are repeatable and preserve counters. `layoutStats()` and
+`coverageStats()` return `{ runs, cacheHits }`; `resetStats()` resets both
+without clearing caches.
 
 The recurrence adapter keeps its own caches. `expandStats()` returns
 `{ rules, dates, expanded, cacheHits, cacheMisses }`; `resetExpandStats()`

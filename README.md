@@ -266,7 +266,12 @@ Every mounted `Roster`, `Schedule`, `useRoster`, and `useSchedule` surface owns 
 identity by default. Pass a stable `cacheIdentity` only when several surfaces render the same
 dataset and should deliberately share target-warm geometry and coverage.
 
-Minified, with peers external: `/core` is 13.6 kB and the root entry is 51.2 kB.
+Each identity retains at most 2,000 least-recently-used layout entries and 2,000
+least-recently-used coverage entries. Cache hits refresh recency. `clearCaches()` clears geometry
+and every other cache scope whose module has loaded and registered its cleanup; counters remain
+cumulative. See [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
+
+Minified, with peers external: `/core` is 14.6 kB and the root entry is 52.3 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
 and `@js-temporal/polyfill`, which install with the package. Web runs in CI on
 every ready pull request. iOS and Android are implemented but have not been

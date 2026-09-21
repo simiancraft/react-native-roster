@@ -245,7 +245,10 @@ Do not publish, tag, change repository settings, or push without task authorizat
    reconciliation. A supplied version must change with layers;
    absent versions use a canonical structural encoding of layers only. Returned
    references are read-only by convention. Clear retained caches when a consumer
-   discards old windows. Flag and coverage assembly does not invalidate rects.
+   discards old windows. Each identity retains at most 2,000 least-recently-used layout entries
+   and 2,000 least-recently-used coverage entries; hits refresh recency. `clearCaches()` clears
+   geometry and every registered cache scope whose module has loaded without resetting counters.
+   Flag and coverage assembly does not invalidate rects.
    Each mounted Schedule or useSchedule surface owns an isolated identity by default; pass one
    explicit identity only when multiple surfaces render the same dataset.
 10. **Workload W has measured density.** `test/fixtures/workload.ts` emits 70 total rects
