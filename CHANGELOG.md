@@ -1,3 +1,10 @@
+## [0.4.14](https://github.com/simiancraft/react-native-roster/compare/v0.4.13...v0.4.14) (2026-09-21)
+
+
+### Bug Fixes
+
+* **render:** bound and register layer style cache ([3f51ac2](https://github.com/simiancraft/react-native-roster/commit/3f51ac23e05db6685a1afff424e8e53ccbf26400))
+
 ## [0.4.13](https://github.com/simiancraft/react-native-roster/compare/v0.4.12...v0.4.13) (2026-09-21)
 
 
