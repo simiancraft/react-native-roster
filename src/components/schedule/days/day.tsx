@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import type { DayColumn, Lane, LaneGeometry } from '../../../core';
 import { pressPoint } from '../../primitives/press-point';
@@ -78,12 +78,13 @@ export function ScheduleDay({
         }
         windowBandZone={windowBandZone}
         transitionZone={day.transitions.map((transition) => (
-          <TransitionComponent
-            key={transition.at}
-            day={day}
-            transition={transition}
-            {...transitionBounds(day, transition, projection)}
-          />
+          <Fragment key={transition.at}>
+            <TransitionComponent
+              day={day}
+              transition={transition}
+              {...transitionBounds(day, transition, projection)}
+            />
+          </Fragment>
         ))}
         nowLineZone={nowLineZone}
       />
