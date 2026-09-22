@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { Card } from '../../ui/card';
 
 export function EventLayout({
   headerZone,
@@ -14,10 +14,15 @@ export function EventLayout({
   footerZone: ReactNode;
 }) {
   return (
-    <View className="w-[380px] max-w-full gap-3 rounded-xl border border-border bg-card p-3">
-      {headerZone}
-      {chartZone}
-      {footerZone}
-    </View>
+    <Card
+      className="w-[380px] max-w-full gap-3 p-3"
+      contentZone={
+        <>
+          {headerZone}
+          {chartZone}
+          {footerZone}
+        </>
+      }
+    />
   );
 }
