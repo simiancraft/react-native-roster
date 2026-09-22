@@ -262,12 +262,13 @@ Keep its viewport gate and measured estimatedListSize in custom compositions.
 | `headerCellComponent` | `HeaderCellInput` (`tick`) | `RosterHeaderCell`: tick label. |
 | `intervalComponent` | `rect`, `layer`, `lane`, `highlighted` | `RosterInterval`: positioned colored rect, with final inset bounds. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `incompleteComponent` | `RosterIncompleteInput` (`lane`, `geometry`, `width`, `label`) | `RosterIncomplete`: notice in the first empty span of an incomplete lane. |
 | `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive 2 px red vertical line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `cornerZone` | `ReactNode` | `RosterCorner`: nothing; the cell above the labels, laneLabelWidth wide. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels: LaneLabelInput[]`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight/hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight/hover, incomplete label and component, and rect components | `RosterBody`: virtualized lanes. |
 
 ## Selection
 
@@ -633,8 +634,8 @@ dragging, resizing, or month grid. No relative performance comparison exists.
 Measured on GitHub Actions ubuntu-latest (test/performance/baseline.json):
 target-cold layout of 24 lanes of a 200-lane week at 15-minute ticks takes
 2.070 ms; coverage of all 200 lanes takes 1.063 ms; both are gated below 16 ms.
-Minified, uncompressed, peers external: /core 13.6 kB (limit 15), /rrule 12.9 kB
-(limit 15), root 51.2 kB (limit 52), /nativewind 47.1 kB (limit 48). Web is
+Minified, uncompressed, peers external: /core 15.5 kB (limit 16), /rrule 14.1 kB
+(limit 15), root 54.2 kB (limit 54.214), /nativewind 50.2 kB (limit 50.235). Web is
 checked in Chromium on every pull request; iOS and Android device rendering,
 Hermes behavior, and phone frame rates are not yet recorded. The demo pins Expo
 SDK 54, React 19.1, React Native 0.81.5, LegendList 2.0.19, and Reanimated

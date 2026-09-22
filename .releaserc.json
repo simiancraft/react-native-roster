@@ -4,13 +4,90 @@
     [
       "@semantic-release/commit-analyzer",
       {
+        "preset": "conventionalcommits",
         "releaseRules": [
           {
             "scope": "demo",
             "release": false
           },
           {
+            "breaking": true,
+            "scope": "!demo",
+            "release": "major"
+          },
+          {
+            "breaking": true,
+            "scope": null,
+            "release": "major"
+          },
+          {
+            "type": "feat",
+            "scope": "!demo",
+            "release": "minor"
+          },
+          {
+            "type": "feat",
+            "scope": null,
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "fix",
+            "scope": null,
+            "release": "patch"
+          },
+          {
+            "type": "perf",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "perf",
+            "scope": null,
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "scope": null,
+            "release": "patch"
+          },
+          {
+            "type": "revert",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "revert",
+            "scope": null,
+            "release": "patch"
+          },
+          {
+            "type": "build",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "build",
+            "scope": null,
+            "release": "patch"
+          },
+          {
             "type": "docs",
+            "scope": "!demo",
+            "release": "patch"
+          },
+          {
+            "type": "docs",
+            "scope": null,
             "release": "patch"
           },
           {
@@ -22,11 +99,56 @@
             "type": "chore",
             "scope": "deps-dev",
             "release": "patch"
+          },
+          {
+            "type": "chore",
+            "scope": "!(demo|deps|deps-dev)",
+            "release": false
+          },
+          {
+            "type": "chore",
+            "scope": null,
+            "release": false
+          },
+          {
+            "type": "style",
+            "scope": "!demo",
+            "release": false
+          },
+          {
+            "type": "style",
+            "scope": null,
+            "release": false
+          },
+          {
+            "type": "test",
+            "scope": "!demo",
+            "release": false
+          },
+          {
+            "type": "test",
+            "scope": null,
+            "release": false
+          },
+          {
+            "type": "ci",
+            "scope": "!demo",
+            "release": false
+          },
+          {
+            "type": "ci",
+            "scope": null,
+            "release": false
           }
         ]
       }
     ],
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
     [
       "@semantic-release/changelog",
       {
