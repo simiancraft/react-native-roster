@@ -2,7 +2,7 @@
 import '../support/native-host';
 import { afterEach, expect, it, mock, spyOn } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { Pressable } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
 import type { Attendance, MemberEvent } from '../../demo/components/team-roster/events/event.types';
@@ -25,6 +25,7 @@ import {
 } from '../../demo/components/team-roster/members/parts/selection';
 import { WeekSchedule } from '../../demo/components/team-roster/members/parts/week-schedule';
 import { WeekNowLine } from '../../demo/components/team-roster/members/parts/week-zones';
+import { DayHeaderCell } from '../../demo/components/team-roster/parts/header-cell';
 import {
   AvailabilityBand,
   TeamInterval,
@@ -35,7 +36,12 @@ import {
   type TeamRosterModel,
   useTeamRoster,
 } from '../../demo/components/team-roster/use-team-roster';
-import { dayLabel, timeLabel } from '../../demo/components/team-roster/utils/format';
+import {
+  compactTimeLabel,
+  conciseDate,
+  dayLabel,
+  timeLabel,
+} from '../../demo/components/team-roster/utils/format';
 import { selectionFor } from '../../demo/components/team-roster/utils/selection';
 import {
   eventsFor,
@@ -82,6 +88,28 @@ function render(element: React.ReactElement) {
 }
 afterEach(() => {
   for (const tree of trees.splice(0)) act(() => tree.unmount());
+});
+
+it('repeats date context on detailed-week time cells at every people-column density', () => {
+  const time = Date.parse('2026-01-05T15:00:00Z');
+  const tick = { time, x: 0, label: '09:00', kind: 'time' as const };
+  const timezone = 'America/Chicago';
+  for (const density of ['full', 'compact', 'avatar'] as const) {
+    const day = render(
+      <DayHeaderCell tick={tick} timezone={timezone} density={density} span="day" />,
+    );
+    expect(day.root.findAllByType(Text).map((node) => node.props.children)).toEqual([
+      compactTimeLabel(time, timezone),
+    ]);
+
+    const week = render(
+      <DayHeaderCell tick={tick} timezone={timezone} density={density} span="week" />,
+    );
+    expect(week.root.findAllByType(Text).map((node) => node.props.children)).toEqual([
+      conciseDate(time, timezone),
+      compactTimeLabel(time, timezone),
+    ]);
+  }
 });
 
 it('generates deterministic people and all five presence states across event boundaries', () => {

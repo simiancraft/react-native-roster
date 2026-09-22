@@ -171,7 +171,12 @@ function TeamHeaderCell({ tick }: { tick: RosterTick }) {
   const context = useContext(TeamLaneContext);
   if (!context) throw new Error('TeamHeaderCell requires the team roster');
   return (
-    <DayHeaderCell tick={tick} timezone={context.model.timezone} density={context.model.density} />
+    <DayHeaderCell
+      tick={tick}
+      timezone={context.model.timezone}
+      density={context.model.density}
+      span={context.model.span}
+    />
   );
 }
 
