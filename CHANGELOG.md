@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/simiancraft/react-native-roster/compare/v0.4.17...v0.5.0) (2026-09-22)
+
+
+### Features
+
+* **render:** expose the Roster incomplete component slot ([276bbe1](https://github.com/simiancraft/react-native-roster/commit/276bbe19f3da83db54137b322f0b19de2dad3816))
+
 ## [0.4.17](https://github.com/simiancraft/react-native-roster/compare/v0.4.16...v0.4.17) (2026-09-22)
 
 
