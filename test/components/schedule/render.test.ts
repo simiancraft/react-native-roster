@@ -41,6 +41,50 @@ afterEach(() => {
 });
 
 describe('Schedule chassis and day zones', () => {
+  it('clips noninteractive day chrome and orders the window band below transition and now line', () => {
+    const tree = render(
+      createElement(ScheduleDayLayout, {
+        width: 120,
+        height: 240,
+        chromeZ: 9,
+        gridZone: createElement('grid-sentinel'),
+        columnZone: createElement('column-sentinel'),
+        windowBandZone: createElement('band-sentinel'),
+        transitionZone: createElement('transition-sentinel'),
+        nowLineZone: createElement('now-sentinel'),
+      }),
+    );
+    const [container, overlay] = tree.root.findAllByType('View' as ElementType);
+    expect(container?.props.style).toEqual({ width: 120, height: 240, overflow: 'hidden' });
+    expect(
+      container?.children.map((child) => (typeof child === 'string' ? child : child.type)),
+    ).toEqual(['grid-sentinel', 'column-sentinel', 'View']);
+    expect(overlay?.props).toMatchObject({
+      pointerEvents: 'none',
+      style: { position: 'absolute', width: 120, height: 240, zIndex: 9 },
+    });
+    expect(
+      overlay?.children.map((child) => (typeof child === 'string' ? child : child.type)),
+    ).toEqual(['band-sentinel', 'transition-sentinel', 'now-sentinel']);
+  });
+  it('preserves the day chrome tree when the window band is absent', () => {
+    const tree = render(
+      createElement(ScheduleDayLayout, {
+        width: 120,
+        height: 240,
+        chromeZ: 9,
+        gridZone: createElement('grid-sentinel'),
+        columnZone: createElement('column-sentinel'),
+        windowBandZone: null,
+        transitionZone: createElement('transition-sentinel'),
+        nowLineZone: createElement('now-sentinel'),
+      }),
+    );
+    const overlay = tree.root.findAllByType('View' as ElementType)[1];
+    expect(
+      overlay?.children.map((child) => (typeof child === 'string' ? child : child.type)),
+    ).toEqual(['transition-sentinel', 'now-sentinel']);
+  });
   it('uses the React 18 provider API and mounts both read surfaces', async () => {
     const source = await Bun.file(
       new URL('../../../src/components/schedule/index.tsx', import.meta.url),
@@ -124,10 +168,15 @@ describe('Schedule chassis and day zones', () => {
     const props = propsFor('schedule-layers');
     const onIntervalPress = mock();
     const onGapPress = mock();
-    const tree = render(createElement(Schedule, { ...props, onIntervalPress, onGapPress }));
+    const onCellPress = mock();
+    const tree = render(
+      createElement(Schedule, { ...props, onIntervalPress, onGapPress, onCellPress }),
+    );
     const column = tree.root
       .findAllByType('Pressable' as ElementType)
       .find((node) => node.props.testID === 'schedule-day-2024-01-01') as ReactTestInstance;
+    column.props.onPress({ nativeEvent: { locationX: 5, locationY: 48 } });
+    expect(onCellPress).toHaveBeenCalledTimes(1);
     column.props.onPress({ nativeEvent: { locationX: 5, locationY: 10.75 * 48 } });
     expect(onIntervalPress.mock.calls[0]?.[0].sources).toEqual([{ kind: 'session', id: '1' }]);
     const gap = tree.root
@@ -141,6 +190,8 @@ describe('Schedule chassis and day zones', () => {
     expect(stopPropagation).toHaveBeenCalledTimes(1);
     gap.props.onPress({ stopPropagation, nativeEvent: { locationX: 5, locationY: 1 } });
     expect(onIntervalPress).toHaveBeenCalledTimes(2);
+    expect(onGapPress).toHaveBeenCalledTimes(1);
+    expect(onCellPress).toHaveBeenCalledTimes(1);
   });
   it('shows transition badges, the spring hatch, and the repeated region divider at both offset sizes', () => {
     const tree = render(createElement(Schedule, propsFor('schedule-spring')));
