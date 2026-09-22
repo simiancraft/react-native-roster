@@ -27,6 +27,7 @@ export function RosterBody(
     highlightSource,
     onIntervalHover,
     incompleteLabel,
+    incompleteComponent,
     onRowRender,
   } = props;
   // LegendList requires a measured viewport and does not support static rendering.
@@ -52,6 +53,7 @@ export function RosterBody(
           highlightSource={highlightSource}
           onIntervalHover={onIntervalHover}
           incompleteLabel={incompleteLabel}
+          incompleteComponent={incompleteComponent}
           onRowRender={onRowRender}
         />
       }

@@ -4,7 +4,7 @@ import type { ComponentType, ReactElement } from 'react';
 import { Component, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import type { IntervalInput, RosterProps, ScheduleProps } from '../../src';
+import type { IntervalInput, RosterIncompleteInput, RosterProps, ScheduleProps } from '../../src';
 import {
   Roster,
   RosterBody,
@@ -24,6 +24,7 @@ import {
   ScheduleSkippedDate,
   ScheduleTransition,
 } from '../../src';
+import { RosterIncomplete } from '../../src/components/roster/lanes/parts/incomplete';
 import { rosterFixtures, rosterWindowSpec } from '../fixtures/roster';
 import { scheduleFixtures, scheduleLane } from '../fixtures/schedule';
 
@@ -65,6 +66,17 @@ function StatefulInterval({ lane, highlighted }: IntervalInput) {
   );
 }
 
+function StatefulIncomplete({ lane, geometry, width, label }: RosterIncompleteInput) {
+  const [count, setCount] = useState(0);
+  return (
+    <Pressable testID="stateful-incomplete" onPress={() => setCount(count + 1)}>
+      <Text>
+        {lane.label}:{geometry.rects.length}:{width}:{label}:{count}
+      </Text>
+    </Pressable>
+  );
+}
+
 const rosterSlots = {
   headerComponent: classSlot(RosterHeader),
   headerCellComponent: classSlot(RosterHeaderCell),
@@ -74,6 +86,7 @@ const rosterSlots = {
   gridComponent: classSlot(RosterGrid),
   intervalComponent: classSlot(StatefulInterval),
   gapComponent: classSlot(RosterGap),
+  incompleteComponent: classSlot(RosterIncomplete),
 } satisfies Partial<RosterProps>;
 const scheduleSlots = {
   gutterComponent: classSlot(ScheduleGutter),
@@ -92,7 +105,11 @@ describe('component slot mounting and identity', () => {
   it('mounts every Roster slot as a class and retains independent interval hook state', () => {
     const props = {
       ...rosterSlots,
-      lanes: [...rosterFixtures['two-layers'].lanes, ...rosterFixtures['full-day-gap'].lanes],
+      lanes: [
+        ...rosterFixtures['two-layers'].lanes,
+        ...rosterFixtures['full-day-gap'].lanes,
+        ...rosterFixtures['never-set'].lanes.filter((lane) => lane.complete === false),
+      ],
       windowSpec: rosterWindowSpec,
       cornerZone: <Text>Corner node</Text>,
     };
@@ -120,6 +137,26 @@ describe('component slot mounting and identity', () => {
     expect(
       tree.root.findAllByProps({ testID: 'stateful-interval' })[0]?.findByType(Text).props.children,
     ).toContain(0);
+    act(() => tree.update(<Roster {...input} incompleteComponent={StatefulIncomplete} />));
+    expect(tree.root.findAllByType(rosterSlots.incompleteComponent)).toHaveLength(0);
+    const incomplete = tree.root
+      .findAllByProps({ testID: 'stateful-incomplete' })
+      .find((node) => node.findByType(Text).props.children[0] === 'Incomplete lane');
+    expect(incomplete).toBeDefined();
+    if (!incomplete) throw new Error('Missing incomplete lane slot');
+    expect(incomplete.findByType(Text).props.children).toEqual([
+      'Incomplete lane',
+      ':',
+      0,
+      ':',
+      5040,
+      ':',
+      'Availability may be incomplete',
+      ':',
+      0,
+    ]);
+    act(() => incomplete.props.onPress());
+    expect(incomplete.findByType(Text).props.children).toContain(1);
   });
 
   it('accepts singleton nodes including null, without calling them', () => {
