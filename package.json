@@ -154,6 +154,7 @@
     "@typescript-eslint/parser": "^8.60.1",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "class-variance-authority": "0.7.1",
+    "conventional-changelog-conventionalcommits": "10.4.0",
     "eslint": "^10.11.0",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "expo": "~54.0.37",
@@ -181,5 +182,8 @@
   "packageManager": "bun@1.4.2",
   "workspaces": [
     "demo"
-  ]
+  ],
+  "overrides": {
+    "conventional-changelog-writer": "9.2.1"
+  }
 }
