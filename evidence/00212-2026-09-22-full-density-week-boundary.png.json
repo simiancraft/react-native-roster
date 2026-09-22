@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "visual"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/use-team-roster.ts",
+    "demo/components/team-roster/utils/format.ts",
+    "demo/global.css"
+  ],
+  "capture_commit": "f3edc27d8c7a7814f7664adc48620a6782b6aca6",
+  "capture_method": "Playwright Chromium at 1400x900 against the production Expo web export; click Week, wait for render, and capture the full-density header at the Monday day boundary",
+  "content_hash": "sha256:9f36a67f21f0552a5b0ff89a2d05f19ad0658b352cb4d8617fdba7b75cddbbc2"
+}

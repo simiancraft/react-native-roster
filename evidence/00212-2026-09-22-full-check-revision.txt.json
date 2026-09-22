@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["repository", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock",
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "f3edc27d8c7a7814f7664adc48620a6782b6aca6",
+  "capture_method": "bun install --frozen-lockfile && bun run check",
+  "content_hash": "sha256:01b5bc4b67e017dfd7bca05a3084ec1720da4d8cbba8f34cbfcc7bc180f87808"
+}
