@@ -20,15 +20,17 @@ type HeaderCellInput = {
 /** One header cell per tick kind: a time with week date context, or a dated day boundary. */
 const CELLS: Record<RosterTick['kind'], ComponentType<HeaderCellInput>> = {
   time: function TimeCell({ tick, timezone, span }) {
+    const time = compactTimeLabel(tick.time, timezone);
+    const showDate = span === 'week' && time !== '1am';
     return (
       <View className="h-10 justify-end gap-0.5 pb-1 pl-1 border-l border-grid">
-        {span === 'week' ? (
+        {showDate ? (
           <Text numberOfLines={1} className="text-[9px] leading-none text-muted-foreground">
             {conciseDate(tick.time, timezone)}
           </Text>
         ) : null}
         <Text numberOfLines={1} className="text-[10px] tabular-nums text-muted-foreground">
-          {compactTimeLabel(tick.time, timezone)}
+          {time}
         </Text>
       </View>
     );
