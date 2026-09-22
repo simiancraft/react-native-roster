@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "tests", "schedule"],
+  "covered_paths": [
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/utils/days.ts",
+    "test/components/schedule/use-schedule.test.ts",
+    "test/components/schedule/render.test.ts",
+    "test/components/component-slots.test.tsx",
+    "test/components/schedule/days.test.ts"
+  ],
+  "capture_commit": "e1b04045cc39d56daeeb960c262ef6be2221b7cb",
+  "capture_method": "bun test test/components/schedule/use-schedule.test.ts test/components/schedule/render.test.ts test/components/component-slots.test.tsx test/components/schedule/days.test.ts",
+  "content_hash": "sha256:82c89bc8cf9319697f4424118512ab5a418a5cbef39fca7a7a23c931f60a0b99"
+}

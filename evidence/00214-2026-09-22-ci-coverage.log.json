@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["code", "tests", "ci-command"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "src/",
+    "test/",
+    "scripts/lib/package-version.ts"
+  ],
+  "capture_commit": "e1b04045cc39d56daeeb960c262ef6be2221b7cb",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:91f6832ad635b234fbe85826c1aeafa8cdd62aee9ffb7d5ce897db5f50317142"
+}

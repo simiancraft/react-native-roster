@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "full-gate", "browser", "package"],
+  "covered_paths": [
+    "package.json",
+    "src/",
+    "test/",
+    "demo/",
+    "scripts/"
+  ],
+  "capture_commit": "e1b04045cc39d56daeeb960c262ef6be2221b7cb",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:88e435e360af002035740c3ce08a0d8d595c7634a084e3dffef9c67a7280ba7d"
+}
