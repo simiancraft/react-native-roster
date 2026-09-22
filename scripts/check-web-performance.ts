@@ -107,6 +107,23 @@ try {
     node.scrollTop = 0;
   });
   await settle(page);
+  await labelClip.hover();
+  await page.mouse.wheel(0, 240);
+  await settle(page);
+  const labelWheelTop = await vertical.evaluate((node) => node.scrollTop);
+  assert.equal(labelWheelTop, focusedScrollTop, 'Label wheel must match body wheel scrolling');
+  await assertLaneLabelAlignment(Math.round(labelWheelTop / 48));
+  await page.mouse.wheel(240, 0);
+  await settle(page);
+  assert.equal(await labelClip.evaluate((node) => node.scrollLeft), 0);
+  assert.equal(await vertical.evaluate((node) => node.scrollTop), labelWheelTop);
+  await page.mouse.wheel(0, -240);
+  await settle(page);
+  assert.equal(await vertical.evaluate((node) => node.scrollTop), 0);
+  await assertLaneLabelAlignment(0);
+  console.log(
+    'Label wheel: body-matching vertical scrolling, reverse scrolling, and aligned labels.',
+  );
   console.log(
     'Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.',
   );

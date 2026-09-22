@@ -26,6 +26,7 @@ export function RosterLaneList({
   const [initialScrollOffset] = useState(() => scroll.y.get());
   return (
     <LegendList
+      ref={scroll.verticalRef}
       testID="roster-vertical-scroll"
       initialScrollOffset={initialScrollOffset}
       data={lanes}

@@ -1,3 +1,4 @@
+import type { LegendListRef } from '@legendapp/list';
 import { useRef, useState } from 'react';
 import type { ScrollView } from 'react-native';
 import { makeMutable, useAnimatedStyle } from 'react-native-reanimated';
@@ -29,6 +30,7 @@ export function useRoster(input: RosterInput): RosterModel {
   // These shared values only track offsets, so no animation needs cancellation.
   const [x] = useState(() => makeMutable(0));
   const [y] = useState(() => makeMutable(0));
+  const verticalRef = useRef<LegendListRef>(null);
   const bodyRef = useRef<ScrollView>(null);
   // Explicit dependencies: a web bundler that skips Reanimated's Babel plugin
   // for node_modules (Vite, Storybook) throws on a worklet without them.
@@ -113,6 +115,7 @@ export function useRoster(input: RosterInput): RosterModel {
       x,
       y,
       bodyRef,
+      verticalRef,
       headerStyle,
       labelStyle,
       onBodyScroll: ({ nativeEvent }) => {

@@ -1,3 +1,4 @@
+import type { LegendListRef } from '@legendapp/list';
 import type { ComponentType, ReactNode, RefObject } from 'react';
 import type {
   LayoutChangeEvent,
@@ -37,6 +38,7 @@ export type RosterScroll = {
   x: SharedValue<number>;
   y: SharedValue<number>;
   bodyRef: RefObject<ScrollView | null>;
+  verticalRef: RefObject<LegendListRef | null>;
   onBodyScroll: (input: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onHeaderScroll: (input: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onVerticalScroll: (input: NativeSyntheticEvent<NativeScrollEvent>) => void;
