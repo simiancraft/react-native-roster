@@ -8,6 +8,8 @@ This feature is about a roster; its children are lanes.
 - `index.tsx`: the chassis; calls `useRoster`, branches on `status`, composes zones
 - `use-roster.ts`: the hook; owns window, projection, nowLine, scroll, geometry, and selection
 - `use-roster-press.ts`: isolates the stable press ref so React Compiler can retain derived body inputs
+- `focus-safe-clip.ts` / `focus-safe-clip.web.ts`: platform clipping styles with a browser remap
+- `parts/label-wheel.tsx` / `parts/label-wheel.web.tsx`: web wheel routing to the lane list, with shared types and a browser remap; native is a no-op
 - `layout.tsx`: arranges corner, header, label column, and body regions only
 - `roster.types.ts`: props, model, and every slot input type
 - `body-layout.tsx`: arranges grid, list, and optional absolute overlay nodes with horizontal scroll wiring
@@ -32,7 +34,10 @@ The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body
 content key tracks interval and gap component identity, including class components.
 The layout uses non-scrolling web clips around translated header and lane-label
 content, preventing focus from offsetting either region independently. Native keeps
-overflow clipping on the same regions.
+overflow clipping on the same regions. The label column routes vertical wheel input
+(including trackpad pixels and line/page delta modes) to the existing web list scroller.
+Horizontal wheel input never offsets labels independently. Native behavior is unchanged.
+List scroll events alone update the shared translation, without React state updates.
 
 `now` is a controlled epoch millisecond value, default null. `useRoster` derives
 `nowLine` (`{ x, now }`) during render via `xAtTime` using the fitted horizontal

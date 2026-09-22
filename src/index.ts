@@ -1,3 +1,6 @@
+import { RosterLaneLabelColumn as RosterLaneLabelColumnComponent } from './components/roster/parts/lane-label-column';
+import { RosterLaneList as RosterLaneListComponent } from './components/roster/parts/lane-list';
+
 export type { GapInput, IntervalInput } from './components/layers/layers.types';
 export { RosterGap } from './components/layers/parts/gap';
 export { RosterInterval } from './components/layers/parts/interval';
@@ -11,8 +14,8 @@ export { RosterEmpty } from './components/roster/parts/empty';
 export { RosterGrid } from './components/roster/parts/grid';
 export { RosterHeader } from './components/roster/parts/header';
 export { RosterHeaderCell } from './components/roster/parts/header-cell';
-export { RosterLaneLabelColumn } from './components/roster/parts/lane-label-column';
-export { RosterLaneList } from './components/roster/parts/lane-list';
+export const RosterLaneLabelColumn = RosterLaneLabelColumnComponent;
+export const RosterLaneList = RosterLaneListComponent;
 export { RosterNowLine } from './components/roster/parts/now-line';
 export type {
   BodyInput,

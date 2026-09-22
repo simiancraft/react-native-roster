@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import type { LabelColumnInput } from '../roster.types';
+import { labelWheelProps } from './label-wheel';
 
 export function RosterLaneLabelColumn({
   labels,
@@ -8,8 +9,10 @@ export function RosterLaneLabelColumn({
   scroll,
   laneLabelComponent: LaneLabelComponent,
 }: LabelColumnInput) {
+  const labelWheel = labelWheelProps(scroll);
   return (
     <Animated.View
+      {...labelWheel}
       testID="roster-labels"
       style={[{ height: labels.length * projection.rowHeight }, scroll.labelStyle]}
     >

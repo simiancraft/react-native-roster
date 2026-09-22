@@ -562,4 +562,7 @@ Do not publish, tag, change repository settings, or push without task authorizat
     content independently of the roster body. Native retains `overflow: hidden`. The browser
     remap selects the focus-safe-clip platform pair; keep both files and the package mapping
     together. The browser gate focuses clipped label and header content, then verifies alignment
-    after wheel scrolling.
+    after wheel scrolling. The label-wheel platform pair forwards vertical web wheel deltas
+    (pixels, lines, or pages) from the translated label column to the existing lane list;
+    native behavior is unchanged. Only list scroll events update the shared label translation,
+    never React state.
