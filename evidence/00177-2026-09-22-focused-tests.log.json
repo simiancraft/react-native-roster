@@ -15,5 +15,5 @@
   ],
   "capture_commit": "276bbe19f3da83db54137b322f0b19de2dad3816",
   "capture_method": "bun test test/components/component-slots.test.tsx test/components/roster/render.test.ts test/components/roster/utils.test.ts && bun run typecheck:test",
-  "content_hash": "sha256:83be6a12152a3d50236014ea542769cba03b4012da29521c5a2b3cc172c7d908"
+  "content_hash": "sha256:668c0e18b69cc5a57f627c1adb9892fe1e571c6796498245dd8a1d8e9c85f262"
 }
