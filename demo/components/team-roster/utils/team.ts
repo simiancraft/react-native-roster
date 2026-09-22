@@ -1,5 +1,6 @@
 import { en, Faker } from '@faker-js/faker';
 import {
+  dayColumnsFor,
   type Interval,
   type Lane,
   type Layer,
@@ -25,6 +26,11 @@ const TONES: Member['tone'][] = ['emerald', 'sky', 'violet', 'amber', 'rose', 't
 const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4];
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
+
+export type AuthoredTimeDisambiguation =
+  | { outcome: 'exact'; instant: number }
+  | { outcome: 'repeated'; earlier: number; later: number }
+  | { outcome: 'skipped'; transition: number };
 
 /** A private generator so render-time calls never touch shared random state. */
 function generator(seed: number): Faker {
@@ -288,6 +294,73 @@ function localDateEpoch(time: number, timezone: string): number {
   }).formatToParts(time);
   const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
   return Date.UTC(value('year'), value('month') - 1, value('day'));
+}
+
+/** Classify every instant represented by an authored local date and fractional hour. */
+export function resolveAuthoredTime(
+  date: string,
+  hour: number,
+  timezone: string,
+): AuthoredTimeDisambiguation {
+  if (!Number.isFinite(hour)) throw new RangeError('Expected a finite authored hour');
+  const target = Date.parse(`${date}T00:00:00.000Z`) + hour * HOUR;
+  if (!Number.isFinite(target)) throw new RangeError('Expected a valid YYYY-MM-DD local date');
+
+  const window = windowFor({ span: 'week', anchorDate: date, timezone });
+  const transitions = dayColumnsFor(window, timezone)
+    .flatMap((day) => day.transitions.map(({ at }) => at))
+    .filter((at, index, values) => values.indexOf(at) === index)
+    .sort((left, right) => left - right);
+  const boundaries = [window.start, ...transitions, window.end];
+  const possibilities: number[] = [];
+  for (let index = 0; index < boundaries.length - 1; index++) {
+    const start = boundaries[index] as number;
+    const end = boundaries[index + 1] as number;
+    const candidate = target - (wallEpoch(start, timezone) - start);
+    if (candidate >= start && candidate < end && wallEpoch(candidate, timezone) === target) {
+      possibilities.push(candidate);
+    }
+  }
+  possibilities.sort((left, right) => left - right);
+  const earlier = possibilities[0];
+  const later = possibilities[1];
+  if (earlier !== undefined && later !== undefined) {
+    return { outcome: 'repeated', earlier, later };
+  }
+  if (earlier !== undefined) return { outcome: 'exact', instant: earlier };
+
+  for (const transition of transitions) {
+    const skippedStart = wallEpoch(transition - 1, timezone) + 1;
+    const skippedEnd = wallEpoch(transition, timezone);
+    if (skippedStart <= target && target < skippedEnd) {
+      return { outcome: 'skipped', transition };
+    }
+  }
+  throw new RangeError('Authored time falls outside the resolved local week');
+}
+
+function wallEpoch(time: number, timezone: string): number {
+  const parts = new Intl.DateTimeFormat('en-US-u-ca-gregory-nu-latn', {
+    timeZone: timezone,
+    era: 'short',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(time);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value;
+  const date = new Date(0);
+  const year = Number(value('year'));
+  date.setUTCFullYear(
+    value('era') === 'BC' ? 1 - year : year,
+    Number(value('month')) - 1,
+    Number(value('day')),
+  );
+  date.setUTCHours(Number(value('hour')) % 24, Number(value('minute')), Number(value('second')), 0);
+  return date.getTime() + (((time % 1000) + 1000) % 1000);
 }
 
 /** Resolve daytime authored hours using the offset at that wall time, including DST changes. */
