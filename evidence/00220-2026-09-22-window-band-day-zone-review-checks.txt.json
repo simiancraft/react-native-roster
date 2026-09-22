@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "tests", "ci-gate"],
+  "covered_paths": [
+    ".size-limit.json",
+    "src/components/schedule/days/day.tsx",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "31fbf13944b090ca6bb4d3e6ac12fd3ca54f3a4a",
+  "capture_method": "bun install --frozen-lockfile; bun test test/components/schedule/render.test.ts; bun run typecheck; bun run typecheck:test; bun run check",
+  "content_hash": "sha256:20639111b71ba97eaf16f8ffc7a28e0d1d7a5e617e801966ef4bbbcebd750e3d"
+}
