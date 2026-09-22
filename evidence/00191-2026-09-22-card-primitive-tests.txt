@@ -1,0 +1,14 @@
+capture_commit=7c5738b61c16f0993661d74687c95d65f9a1fd7c
+command=bun test test/demo/demo-primitives.test.tsx
+bun test v1.4.2 (744846f84)
+
+test/demo/demo-primitives.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+ 5 pass
+ 0 fail
+ 13 expect() calls
+Ran 5 tests across 1 file. [19.00ms]

@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["frontend", "test"],
+  "covered_paths": [
+    "demo/components/ui/card.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "7c5738b61c16f0993661d74687c95d65f9a1fd7c",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx",
+  "content_hash": "sha256:06d39fc62878db5eef5cdb3c1eed159ce9091310b7a003c80807a3a3c5845be7"
+}

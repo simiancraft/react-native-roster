@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["frontend", "test", "ci"],
+  "covered_paths": [
+    "bun.lock",
+    "demo/components/team-roster/events/layout.tsx",
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/members/layout.tsx",
+    "demo/components/team-roster/members/parts/selection.tsx",
+    "demo/components/ui/card.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "demo/package.json",
+    "package.json",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "7c5738b61c16f0993661d74687c95d65f9a1fd7c",
+  "capture_method": "CI=1 bun run check",
+  "content_hash": "sha256:dc258ef66cf48a7674fcda19e8e11785e7b4ec94df0e92e14cf972a004cc945b"
+}
