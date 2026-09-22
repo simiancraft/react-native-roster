@@ -1,0 +1,26 @@
+{
+  "scope_tags": ["ci", "test", "build", "package", "performance"],
+  "covered_paths": [
+    ".size-limit.json",
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "docs/performance.md",
+    "llms.txt",
+    "src/components/roster/README.md",
+    "src/components/roster/index.tsx",
+    "src/components/roster/lanes/lane.tsx",
+    "src/components/roster/lanes/parts/incomplete.tsx",
+    "src/components/roster/parts/body.tsx",
+    "src/components/roster/parts/lane-list.tsx",
+    "src/components/roster/roster.types.ts",
+    "src/components/roster/utils/body-content-key.ts",
+    "src/index.ts",
+    "test/components/component-slots.test.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/roster/utils.test.ts"
+  ],
+  "capture_commit": "276bbe19f3da83db54137b322f0b19de2dad3816",
+  "capture_method": "CI=true FORCE_COLOR=0 bun run check",
+  "content_hash": "sha256:cdde391c49bd9009e6d8a4f2accc597813d34209d607057f10b84ceafb789599"
+}
