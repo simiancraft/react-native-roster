@@ -137,6 +137,9 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   exposing a future departure. Seeded arrival and departure facts stay immutable; late
   departures remain present after scheduled end. Member-local dates drive nonoverlapping
   events, union strips preserve gaps, and the inspector expands its full week independently.
+  Time-off presentation uses the complete gap source set in both projections: an exact singleton
+  lunch rule is partial, an exact singleton PTO date is whole-day, and unknown, absent,
+  identity-mismatched, or mixed sources are neutral. Width controls label visibility only.
   Event attendance detail lives in the selection popover;
   the inspector retains member selection.
   Inspector day header and cell presses set the roster anchor date in the view timezone.

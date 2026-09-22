@@ -44,10 +44,11 @@ import {
   seededNow,
   teamFor,
 } from '../../demo/components/team-roster/utils/team';
-import { timeOffNote } from '../../demo/components/team-roster/utils/time-off';
+import { timeOffNote, timeOffPresentation } from '../../demo/components/team-roster/utils/time-off';
 import { expandRuleSet } from '../../src/adapters/rrule';
+import type { GapInput } from '../../src/components/layers/layers.types';
 import type { IntervalDetailInput } from '../../src/components/roster/roster.types';
-import { layoutLane, windowFor } from '../../src/core';
+import { dayColumnsFor, layoutLane, type Source, windowFor } from '../../src/core';
 
 const Platform = { OS: 'ios' };
 const { attendanceInteraction: nativeInteraction } = await import(
@@ -931,22 +932,128 @@ it('clears lunch detail from the inspector when working hours or an event is pre
   }
 });
 
-it('identifies time off by source id suffix rather than source kind', () => {
+it('retains time-off notes by source id suffix', () => {
   expect(timeOffNote({ kind: 'rule', id: 'host:hours' })).toBeUndefined();
   for (const suffix of ['unknown', '__proto__', 'constructor', 'toString', 'hasOwnProperty']) {
     const source = { kind: 'date', id: `host:${suffix}` };
     expect(timeOffNote(source)).toBeUndefined();
-    const input = inputFor([]);
-    const tree = render(
-      <TimeOffGap {...input} rect={{ ...input.rect, width: 240, sources: [source] }} />,
-    );
-    expect(JSON.stringify(tree.toJSON())).toContain('Out of office');
   }
   expect(timeOffNote({ kind: 'date', id: 'host:lunch' })).toBe('Lunch break');
   expect(timeOffNote({ kind: 'rule', id: 'host:pto', label: 'Vacation' })).toBe('Vacation');
   expect(timeOffNote({ kind: 'date', id: 'host:pto' })).toBe('Out of office');
   expect(timeOffNote(undefined)).toBeUndefined();
 });
+
+it('derives roster and Schedule gap presentation from complete provenance at every width', () => {
+  const cases = [
+    {
+      name: 'lunch',
+      sources: [{ kind: 'rule', id: 'host:lunch' }],
+      meaning: 'partial',
+      label: 'Lunch break',
+      className: 'bg-background/70',
+    },
+    {
+      name: 'PTO',
+      sources: [{ kind: 'date', id: 'host:pto', label: 'Vacation' }],
+      meaning: 'wholeDay',
+      label: 'Vacation',
+      className: 'border border-dashed border-grid-strong bg-muted/60',
+    },
+    {
+      name: 'unknown',
+      sources: [{ kind: 'rule', id: 'host:unknown' }],
+      meaning: 'neutral',
+      label: undefined,
+      className: 'bg-background/70',
+    },
+    {
+      name: 'absent',
+      sources: [],
+      meaning: 'neutral',
+      label: undefined,
+      className: 'bg-background/70',
+    },
+    {
+      name: 'mixed',
+      sources: [
+        { kind: 'rule', id: 'host:lunch' },
+        { kind: 'date', id: 'host:pto', label: 'Vacation' },
+      ],
+      meaning: 'neutral',
+      label: undefined,
+      className: 'bg-background/70',
+    },
+  ] as const;
+
+  for (const testCase of cases) {
+    const presentation = timeOffPresentation(testCase.sources);
+    expect(presentation.meaning, testCase.name).toBe(testCase.meaning);
+    expect(presentation.label, testCase.name).toBe(testCase.label);
+    expect(presentation.className, testCase.name).toBe(testCase.className);
+    for (const width of [80, 240]) {
+      for (const { projection, input } of projectedGapInputs([...testCase.sources], width)) {
+        const tree = render(<TimeOffGap {...input} />);
+        const json = JSON.stringify(tree.toJSON());
+        expect(
+          tree.root.findByProps({ pointerEvents: 'none' }).props.className,
+          `${testCase.name} ${projection}`,
+        ).toContain(testCase.className);
+        if (testCase.label && width >= 200) {
+          expect(json, `${testCase.name} ${projection} wide label`).toContain(testCase.label);
+        } else {
+          expect(json, `${testCase.name} ${projection} hidden label`).not.toContain(
+            testCase.label ?? 'Out of office',
+          );
+        }
+      }
+    }
+  }
+
+  expect(timeOffPresentation([{ kind: 'date', id: 'host:lunch' }]).meaning).toBe('neutral');
+  expect(timeOffPresentation([{ kind: 'rule', id: 'host:pto' }]).meaning).toBe('neutral');
+});
+
+function projectedGapInputs(
+  sources: Source[],
+  width: number,
+): { projection: 'roster' | 'Schedule'; input: GapInput }[] {
+  const layer = {
+    id: 'availability',
+    role: 'availability' as const,
+    z: 0,
+    style: { color: '#000000' },
+    intervals: [],
+    gaps: [{ start: window.start, end: window.start + 60 * 60_000, sources }],
+  };
+  const lane = { id: 'gap', label: 'Gap', layers: [layer] };
+  const projections = [
+    {
+      projection: 'roster' as const,
+      geometry: layoutLane(lane, window, {
+        orientation: 'horizontal',
+        viewTimezone: 'America/Chicago',
+        pxPerMinute: width / 60,
+        rowHeight: 56,
+      }),
+    },
+    {
+      projection: 'Schedule' as const,
+      geometry: layoutLane(lane, window, {
+        orientation: 'columns',
+        viewTimezone: 'America/Chicago',
+        pxPerHour: 60,
+        columnWidth: width,
+        days: dayColumnsFor(window, 'America/Chicago'),
+      }),
+    },
+  ];
+  return projections.map(({ projection, geometry }) => {
+    const rect = geometry.gapRects[0];
+    if (!rect) throw new Error(`Expected ${projection} gap rect`);
+    return { projection, input: { rect, layer, lane } };
+  });
+}
 
 it('generates deterministic varied attendance for non-numeric host member ids', () => {
   const original = team.members[0];

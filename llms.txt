@@ -591,6 +591,10 @@ attendance legend and scheduled-band explanation. Web hover or visible keyboard
 focus shows row detail; keyboard focus wins when both are active. Native taps
 toggle detail or switch rows. Event detail belongs to the popover; the inspector
 retains member selection. See [showcase](./demo/components/team-roster/README.md).
+The showcase classifies an exact singleton lunch rule source as partial time off
+and an exact singleton PTO date source as whole-day time off in both projections.
+Unknown, absent, identity-mismatched, or mixed source sets stay neutral; rect width
+only controls whether a recognized source-derived label is visible.
 
 Every route exposes live counter functions on web window.__roster. Its identity
 stays stable until unmount; on-screen snapshots sample every 500 ms. The 200-lane

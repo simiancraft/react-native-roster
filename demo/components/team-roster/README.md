@@ -22,6 +22,10 @@ Its automatic system-clock now line is suppressed because Schedule has no contro
 Its lane is expanded separately for the full inspector week, including in day mode,
 and indexed by member id. Interval presses retain the member with no inspector detail;
 gap presses resolve time-off notes from source id suffixes (lunch or pto).
+Gap presentation uses the complete source set: an exact singleton authored lunch rule is partial,
+and an exact singleton authored PTO date is whole-day. Unknown, absent, identity-mismatched, or
+mixed sources stay neutral in both the roster and Schedule; width only hides or shows the
+source-derived label.
 Generated lanes are retained by team identity, window bounds, and now; selection changes
 preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
