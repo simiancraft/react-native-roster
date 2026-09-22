@@ -5,7 +5,6 @@ import { hasSource } from '../../../core';
 import { pressPoint } from '../../primitives/press-point';
 import type { BodyInput } from '../roster.types';
 import { intervalHoverProps } from './interval-hover';
-import { RosterIncomplete } from './parts/incomplete';
 
 export type LaneRowProps = Pick<
   BodyInput,
@@ -15,6 +14,7 @@ export type LaneRowProps = Pick<
   | 'highlightSource'
   | 'onIntervalHover'
   | 'incompleteLabel'
+  | 'incompleteComponent'
 > & {
   lane: Lane;
   geometry: LaneGeometry;
@@ -32,6 +32,7 @@ export function LaneRow({
   gapComponent: GapComponent,
   highlightSource,
   onIntervalHover,
+  incompleteComponent: IncompleteComponent,
   incompleteLabel = 'Availability may be incomplete',
 }: LaneRowProps) {
   const layers = [...lane.layers].sort((a, b) => a.z - b.z);
@@ -46,7 +47,7 @@ export function LaneRow({
       }}
       style={{ width, height: rowHeight }}
     >
-      <RosterIncomplete lane={lane} geometry={geometry} width={width} label={incompleteLabel} />
+      <IncompleteComponent lane={lane} geometry={geometry} width={width} label={incompleteLabel} />
       {layers.map((layer) => (
         <Fragment key={layer.id}>
           {geometry.rects

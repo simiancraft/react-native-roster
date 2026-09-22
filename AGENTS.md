@@ -196,8 +196,12 @@ lines, and no named section headers. Scopes: `core`, `rrule`, `render`, `axis`,
 Authorship is for humans only. Never credit an assistant as a contributor or
 co-author; human co-authors must be explicitly named by the user.
 
-`feat` produces a minor, `fix` a patch, and `!` or `BREAKING CHANGE:` a major.
-Demo-scoped commits never release. Commit library changes under a library scope.
+For unscoped commits and every non-demo scope, `!` subjects or `BREAKING CHANGE:`
+footers release a major; otherwise, `feat` releases a minor, and `fix`, `perf`,
+`refactor`, `revert`, `build`, `docs`, `chore(deps)`, and `chore(deps-dev)` release a
+patch. Other `chore` scopes, unscoped `chore`, `style`, `test`, and `ci` do not
+release. Any `demo` scope never releases, including breaking commits.
+Commit library changes under a library scope.
 Do not publish, tag, change repository settings, or push without task authorization.
 
 ## Things that will trip you up
@@ -289,7 +293,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     nowLineComponent out of RosterLaneList, LaneRow, and the body content key. LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
-    keys window, projection, highlight identity, and interval and gap component identities. Vertical scroll
+    keys window, projection, highlight identity, and interval, gap, and incomplete component
+    identities. Vertical scroll
     must not update React state; all lane labels share one translated column.
     Roster and Schedule retain a stable press function that reads current inputs
     from a ref; inline consumer callbacks must not enter the body content key.

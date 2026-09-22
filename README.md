@@ -258,7 +258,7 @@ lists them.
 ## Customization
 
 You can replace every region: header cells, lane labels, intervals, gaps, the
-grid, the now line, and the detail popover. Props ending in `Component` take a
+incomplete notice, the grid, the now line, and the detail popover. Props ending in `Component` take a
 component type; props ending in `Zone` take a node. If you want your own layout
 entirely, `useRoster` and `useSchedule` return the same models the components
 render from. See [customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md).
@@ -287,7 +287,7 @@ occurrence and envelope caches without making core import recurrence dependencie
 and `clearExpandCache()` then clear the same recurrence entries and preserve expansion counters. See
 [caches](https://github.com/simiancraft/react-native-roster/blob/main/docs/caches.md).
 
-Minified, with peers external: `/core` is 15.5 kB and the root entry is 53.2 kB.
+Minified, with peers external: `/core` is 15.5 kB and the root entry is 54.2 kB.
 `/rrule` adds 12.9 kB of its own code plus its two dependencies, `rrule-temporal`
 and `@js-temporal/polyfill`, which install with the package. Web runs in CI on
 every ready pull request. iOS and Android are implemented but have not been

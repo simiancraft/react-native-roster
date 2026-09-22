@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
 import { Text, View } from 'react-native';
 import type { RosterTick } from 'react-native-roster';
-import type { Density } from '../team-roster.types';
+import type { Density, SpanKey } from '../team-roster.types';
 import { compactTimeLabel, conciseDate, dayLabel } from '../utils/format';
 
 const DAY_LABEL: Record<Density, (time: number, timezone: string) => string> = {
@@ -10,15 +10,27 @@ const DAY_LABEL: Record<Density, (time: number, timezone: string) => string> = {
   avatar: conciseDate,
 };
 
-type HeaderCellInput = { tick: RosterTick; timezone: string; density: Density };
+type HeaderCellInput = {
+  tick: RosterTick;
+  timezone: string;
+  density: Density;
+  span: SpanKey;
+};
 
-/** One header cell per tick kind: a small hour label, or a day boundary with its date. */
+/** One header cell per tick kind: a time with week date context, or a dated day boundary. */
 const CELLS: Record<RosterTick['kind'], ComponentType<HeaderCellInput>> = {
-  time: function TimeCell({ tick, timezone }) {
+  time: function TimeCell({ tick, timezone, span }) {
+    const time = compactTimeLabel(tick.time, timezone);
+    const showDate = span === 'week' && time !== '1am';
     return (
-      <View className="h-10 justify-end pb-1 pl-1 border-l border-grid">
+      <View className="h-10 justify-end gap-0.5 pb-1 pl-1 border-l border-grid">
+        {showDate ? (
+          <Text numberOfLines={1} className="text-[9px] leading-none text-muted-foreground">
+            {conciseDate(tick.time, timezone)}
+          </Text>
+        ) : null}
         <Text numberOfLines={1} className="text-[10px] tabular-nums text-muted-foreground">
-          {compactTimeLabel(tick.time, timezone)}
+          {time}
         </Text>
       </View>
     );
