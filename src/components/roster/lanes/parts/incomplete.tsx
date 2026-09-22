@@ -1,17 +1,7 @@
 import { Text } from 'react-native';
-import type { Lane, LaneGeometry } from '../../../../core';
+import type { RosterIncompleteInput } from '../../roster.types';
 
-export function RosterIncomplete({
-  lane,
-  geometry,
-  width,
-  label,
-}: {
-  lane: Lane;
-  geometry: LaneGeometry;
-  width: number;
-  label: string;
-}) {
+export function RosterIncomplete({ lane, geometry, width, label }: RosterIncompleteInput) {
   if (lane.complete !== false) return null;
   // Choose the first empty span; the notice never covers an interval.
   let left = 0;

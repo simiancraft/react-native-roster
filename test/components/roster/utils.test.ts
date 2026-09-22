@@ -21,6 +21,7 @@ describe('roster utils', () => {
       projection,
       intervalComponent: () => null,
       gapComponent: () => null,
+      incompleteComponent: () => null,
       highlightSource: { kind: 'rule', id: 'one' },
     };
     const key = bodyContentKey(input);
@@ -42,6 +43,7 @@ describe('roster utils', () => {
       { highlightSource: { kind: 'rule', id: 'two' } },
       { intervalComponent: () => null },
       { gapComponent: () => null },
+      { incompleteComponent: () => null },
       { onIntervalHover: () => {} },
       { incompleteLabel: 'Partial data' },
     ])
@@ -53,6 +55,7 @@ describe('roster utils', () => {
       projection,
       intervalComponent: () => null,
       gapComponent: () => null,
+      incompleteComponent: () => null,
       now: null as number | null,
       nowLine: null as { x: number; now: number } | null,
       nowLineComponent: () => null,

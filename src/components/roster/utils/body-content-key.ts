@@ -20,6 +20,7 @@ export function bodyContentKey({
   gapComponent,
   onIntervalHover,
   incompleteLabel,
+  incompleteComponent,
 }: Pick<
   BodyInput,
   | 'window'
@@ -29,6 +30,7 @@ export function bodyContentKey({
   | 'gapComponent'
   | 'onIntervalHover'
   | 'incompleteLabel'
+  | 'incompleteComponent'
 >): string {
   return JSON.stringify([
     window.start,
@@ -42,5 +44,6 @@ export function bodyContentKey({
     identityId(gapComponent),
     onIntervalHover && identityId(onIntervalHover),
     incompleteLabel,
+    identityId(incompleteComponent),
   ]);
 }

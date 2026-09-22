@@ -7,6 +7,7 @@ import { RosterGap } from '../../../src/components/layers/parts/gap';
 import { RosterInterval } from '../../../src/components/layers/parts/interval';
 import { Roster } from '../../../src/components/roster';
 import { LaneRow } from '../../../src/components/roster/lanes/lane';
+import { RosterIncomplete } from '../../../src/components/roster/lanes/parts/incomplete';
 import { RosterLaneLabel } from '../../../src/components/roster/lanes/parts/lane-label';
 import { RosterBody } from '../../../src/components/roster/parts/body';
 import { RosterGrid } from '../../../src/components/roster/parts/grid';
@@ -18,6 +19,7 @@ import type {
   HeaderInput,
   LabelColumnInput,
   LaneLabelInput,
+  RosterIncompleteInput,
   RosterNowLineInput,
   RosterProps,
 } from '../../../src/components/roster/roster.types';
@@ -220,6 +222,7 @@ describe('Roster zones and rect primitives', () => {
     expect(bodyComponent.mock.calls[0]?.[0].scroll).toBe(headerComponent.mock.calls[0]?.[0].scroll);
     expect(typeof bodyComponent.mock.calls[0]?.[0].geometryFor).toBe('function');
     expect(typeof bodyComponent.mock.calls[0]?.[0].press).toBe('function');
+    expect(bodyComponent.mock.calls[0]?.[0].incompleteComponent).toBe(RosterIncomplete);
     close(tree);
   });
   it('keeps retained row presses current without changing the list content key', () => {
@@ -388,6 +391,7 @@ describe('Roster zones and rect primitives', () => {
       press,
       intervalComponent: RosterInterval,
       gapComponent: RosterGap,
+      incompleteComponent: RosterIncomplete,
       highlightSource: { kind: 'rule', id: 'one', label: 'Different display label' },
     };
     const tree = render(createElement(LaneRow, props));
@@ -408,6 +412,45 @@ describe('Roster zones and rect primitives', () => {
         .findAllByType('View' as ElementType)
         .some((view) => view.props.style[0].backgroundColor === '#f59e0b'),
     ).toBe(false);
+    close(tree);
+  });
+  it('places the default incomplete notice in empty geometry and preserves interval bounds', () => {
+    const original = rosterFixtures['single-lane'].lanes[0] as Lane;
+    const lane = { ...original, complete: false };
+    const geometry = layoutLane(lane, windowFor(rosterWindowSpec), {
+      orientation: 'horizontal',
+      viewTimezone: 'UTC',
+      pxPerMinute: 1,
+      rowHeight: 48,
+    });
+    const props = {
+      lane,
+      geometry,
+      width: 10080,
+      rowHeight: 48,
+      press: mock(),
+      intervalComponent: RosterInterval,
+      gapComponent: RosterGap,
+      incompleteComponent: RosterIncomplete,
+      incompleteLabel: 'Partial data',
+    };
+    const tree = render(createElement(LaneRow, props));
+    expect(tree.root.findByProps({ testID: 'roster-incomplete-one' }).props.style).toMatchObject({
+      left: 0,
+      width: 540,
+    });
+    const bounds = tree.root.findAllByType(RosterInterval).map((node) => node.props.rect);
+    const incompleteComponent = mock((input: RosterIncompleteInput) =>
+      createElement('custom-incomplete', input),
+    );
+    act(() => tree.update(createElement(LaneRow, { ...props, incompleteComponent })));
+    expect(incompleteComponent.mock.calls[0]?.[0]).toEqual({
+      lane,
+      geometry,
+      width: 10080,
+      label: 'Partial data',
+    });
+    expect(tree.root.findAllByType(RosterInterval).map((node) => node.props.rect)).toEqual(bounds);
     close(tree);
   });
   it('applies chrome styles after defaults, sizes the corner, and swaps the grid', () => {

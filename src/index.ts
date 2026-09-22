@@ -26,6 +26,7 @@ export type {
   LabelColumnInput,
   LaneLabelInput,
   LaneListInput,
+  RosterIncompleteInput,
   RosterInput,
   RosterModel,
   RosterNowLineInput,
