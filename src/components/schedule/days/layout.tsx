@@ -10,6 +10,8 @@ type ScheduleDayLayoutProps = {
   gridZone: ReactNode;
   /** The day's rects and pressable gaps, at final engine bounds. */
   columnZone: ReactNode;
+  /** Noninteractive absolute-window chrome above rects and below other day chrome. */
+  windowBandZone: ReactNode;
   /** Noninteractive skipped or repeated region chrome above rects. */
   transitionZone: ReactNode;
   /** Noninteractive current-time line at the projected occurrence. */
@@ -22,6 +24,7 @@ export function ScheduleDayLayout({
   chromeZ,
   gridZone,
   columnZone,
+  windowBandZone,
   transitionZone,
   nowLineZone,
 }: ScheduleDayLayoutProps) {
@@ -30,6 +33,7 @@ export function ScheduleDayLayout({
       {gridZone}
       {columnZone}
       <View pointerEvents="none" style={{ position: 'absolute', width, height, zIndex: chromeZ }}>
+        {windowBandZone}
         {transitionZone}
         {nowLineZone}
       </View>

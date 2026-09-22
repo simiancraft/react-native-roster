@@ -26,6 +26,8 @@ type ScheduleDayProps = ScheduleDayZones & {
   highlightSource: ScheduleProps['highlightSource'];
   hours: number[];
   press: (x: number, y: number) => void;
+  /** Noninteractive absolute-window chrome projected into this day. */
+  windowBandZone?: ReactNode;
   /** The current-time line when it falls on this day; otherwise nothing. */
   nowLineZone: ReactNode;
 };
@@ -45,6 +47,7 @@ export function ScheduleDay({
   transitionComponent: TransitionComponent,
   intervalComponent,
   gapComponent,
+  windowBandZone,
   nowLineZone,
 }: ScheduleDayProps) {
   return (
@@ -73,6 +76,7 @@ export function ScheduleDay({
             press={press}
           />
         }
+        windowBandZone={windowBandZone}
         transitionZone={day.transitions.map((transition) => (
           <Fragment key={transition.at}>
             <TransitionComponent
