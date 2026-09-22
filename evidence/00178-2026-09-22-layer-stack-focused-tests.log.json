@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["code", "render", "tests"],
+  "covered_paths": [
+    "src/components/layers/layer-stack.tsx",
+    "src/components/layers/layers.types.ts",
+    "src/components/primitives/press-point.tsx",
+    "src/core/source.ts",
+    "src/core/types.ts",
+    "test/components/layers/layer-stack.test.tsx",
+    "test/support/native-host.ts"
+  ],
+  "capture_commit": "d33a9ee282c6b14ecb92c2164c79dc8a49108699",
+  "capture_method": "NO_COLOR=1 FORCE_COLOR=0 script -q -e -c 'bun test test/components/layers/layer-stack.test.tsx && bun run typecheck:test'",
+  "content_hash": "sha256:b58b076f64ced8b3e6f7c512fc67d530ebb0c143ab520f2fc691295fdc2c6528"
+}

@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "full-gate", "browser", "package"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/layers/layer-stack.tsx",
+    "src/components/layers/layers.types.ts",
+    "test/components/layers/layer-stack.test.tsx"
+  ],
+  "capture_commit": "d33a9ee282c6b14ecb92c2164c79dc8a49108699",
+  "capture_method": "NO_COLOR=1 FORCE_COLOR=0 bun run check; stdout and stderr redirected to the receipt, followed by its exit code",
+  "content_hash": "sha256:b11383c54c40fbef459d734fed7414f4a9e422f311438457d421dadea9b30efe"
+}
