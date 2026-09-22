@@ -28,16 +28,13 @@ export function dayLabel(time: number, timezone: string): string {
   }).format(time);
 }
 
-/** The most concise date: 9.9.26. */
+/** The most concise date: Sep 9. */
 export function conciseDate(time: number, timezone: string): string {
-  const parts = new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
-    month: 'numeric',
+    month: 'short',
     day: 'numeric',
-    year: '2-digit',
-  }).formatToParts(time);
-  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
-  return `${value('month')}.${value('day')}.${value('year')}`;
+  }).format(time);
 }
 
 export function rangeLabel(start: number, end: number, timezone: string): string {
@@ -57,7 +54,12 @@ export function rangeLabel(start: number, end: number, timezone: string): string
 export function conciseRangeLabel(start: number, end: number, timezone: string): string {
   const first = conciseDate(start, timezone);
   const last = conciseDate(end - 1, timezone);
-  return first === last ? first : `${first} to ${last}`;
+  const year = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric' });
+  const firstYear = year.format(start);
+  const lastYear = year.format(end - 1);
+  if (first === last && firstYear === lastYear) return `${first}, ${firstYear}`;
+  if (firstYear === lastYear) return `${first} to ${last}, ${firstYear}`;
+  return `${first}, ${firstYear} to ${last}, ${lastYear}`;
 }
 
 export function hoursLabel(hours: { start: number; end: number }): string {

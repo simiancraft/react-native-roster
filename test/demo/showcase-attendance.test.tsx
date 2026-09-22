@@ -35,7 +35,12 @@ import {
   type TeamRosterModel,
   useTeamRoster,
 } from '../../demo/components/team-roster/use-team-roster';
-import { dayLabel, timeLabel } from '../../demo/components/team-roster/utils/format';
+import {
+  conciseDate,
+  conciseRangeLabel,
+  dayLabel,
+  timeLabel,
+} from '../../demo/components/team-roster/utils/format';
 import { selectionFor } from '../../demo/components/team-roster/utils/selection';
 import {
   eventsFor,
@@ -81,6 +86,51 @@ function render(element: React.ReactElement) {
 }
 afterEach(() => {
   for (const tree of trees.splice(0)) act(() => tree.unmount());
+});
+
+it('formats concise dates and same-year and cross-year ranges explicitly', () => {
+  expect(conciseDate(Date.parse('2026-01-05T12:00:00Z'), 'UTC')).toBe('Jan 5');
+  expect(
+    conciseRangeLabel(
+      Date.parse('2026-01-05T00:00:00Z'),
+      Date.parse('2026-01-12T00:00:00Z'),
+      'UTC',
+    ),
+  ).toBe('Jan 5 to Jan 11, 2026');
+  expect(
+    conciseRangeLabel(
+      Date.parse('2025-12-29T00:00:00Z'),
+      Date.parse('2026-01-05T00:00:00Z'),
+      'UTC',
+    ),
+  ).toBe('Dec 29, 2025 to Jan 4, 2026');
+});
+
+it('labels the window reset action for day and week spans', () => {
+  const hosts = readFileSync(new URL('../support/native-host.ts', import.meta.url), 'utf8').replace(
+    "Text: 'Text',",
+    "Text: 'Text', TextInput: 'TextInput',",
+  );
+  const script =
+    hosts +
+    `
+    mock.module('nativewind', () => ({ useColorScheme: () => ({ colorScheme: 'light' }) }));
+    const { strict: assert } = await import('node:assert');
+    const { act, create } = await import('react-test-renderer');
+    const { WindowNav } = await import('./demo/components/team-roster/parts/window-controls');
+    for (const span of ['day', 'week']) {
+      let tree;
+      act(() => { tree = create(createElement(WindowNav, {
+        span, onPrev() {}, onToday() {}, onNext() {},
+      })); });
+      const reset = tree.root.findByProps({ accessibilityLabel: \`Return to demo \${span}\` });
+      assert.equal(reset.findByType('Text').props.children, \`Demo \${span}\`);
+      act(() => tree.unmount());
+    }
+  `;
+  const result = Bun.spawnSync(['bun', '-e', script], { cwd: process.cwd() });
+  expect(result.stderr.toString()).not.toContain('Error');
+  expect(result.exitCode).toBe(0);
 });
 
 it('generates deterministic people and all five presence states across event boundaries', () => {
