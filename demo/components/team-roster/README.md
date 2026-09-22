@@ -25,6 +25,7 @@ gap presses resolve time-off notes from source id suffixes (lunch or pto).
 Generated lanes are retained by team identity, window bounds, and now; selection changes
 preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
+Inspector day header and cell presses set the roster anchor date in the view timezone.
 
 ## Event attendance
 

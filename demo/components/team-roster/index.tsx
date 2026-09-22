@@ -236,6 +236,8 @@ function DefaultInspector(model: TeamRosterReady) {
       member={model.selectedMember}
       selection={model.selection}
       windowSpec={model.weekWindowSpec}
+      focusDate={model.windowSpec.anchorDate}
+      selectDate={model.selectDate}
     />
   );
 }

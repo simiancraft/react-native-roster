@@ -85,7 +85,11 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setSelectedId(member.id);
     setSelection({ kind: 'none', member });
   }
+  function selectDate(localDate: string) {
+    setWindowSpec((spec) => ({ ...spec, anchorDate: localDate }));
+  }
   const common = {
+    selectDate,
     now,
     organization: team.organization,
     members: team.members,
