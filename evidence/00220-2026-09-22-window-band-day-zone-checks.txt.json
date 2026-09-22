@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["frontend", "tests", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "bun.lock",
+    "package.json",
+    "src/components/schedule/days/day.tsx",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "f6424338d46547195fd11505eda6bc67647b32c2",
+  "capture_method": "bun test test/components/schedule/render.test.ts; bun run typecheck; bun run typecheck:test; bun run check",
+  "content_hash": "sha256:32dac63c3957b05c3a14b6f9846cbbf8f947064421c273f0e2c3bbf62c2f49cf"
+}

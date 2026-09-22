@@ -1,0 +1,36 @@
+Issue 220 proof receipt
+
+Capture commit: f6424338d46547195fd11505eda6bc67647b32c2
+
+$ bun test test/components/schedule/render.test.ts
+16 pass
+0 fail
+108 expect() calls
+
+$ bun run typecheck
+$ tsgo --noEmit
+exit 0
+
+$ bun run typecheck:test
+$ tsgo --noEmit -p tsconfig.test.json
+exit 0
+
+$ bun run check
+Biome checked 272 files with no fixes required.
+Library, test, and demo typechecks passed.
+React Compiler safety passed.
+The production and development web exports completed with 44 static routes.
+2570 tests passed with 0 failures and 32067 assertions.
+Function and line coverage were both 100.00%.
+Knip and strict publint passed.
+Package sizes passed: root 53.95 kB of 54 kB, and nativewind 49.97 kB of 50 kB.
+Web action budgets passed with a 24-row viewport and 26 mounted lanes.
+The LaneRow profiler recorded zero updates on the second scroll pass.
+The selection profiler recorded zero mounted-row updates for detail open and cell dismissal.
+exit 0
+
+Re-check commands:
+  bun test test/components/schedule/render.test.ts
+  bun run typecheck
+  bun run typecheck:test
+  bun run check
