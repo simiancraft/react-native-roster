@@ -47,9 +47,12 @@ usually fewer than eight lines, with no named headings. Authorship is for humans
 only; co-author trailers are reserved for humans explicitly named by the author.
 Never use em dashes in prose; use semicolons, commas, or parentheses. Use the Oxford comma.
 
-`feat` releases a minor, `fix` a patch, and `!` or a `BREAKING CHANGE:` footer a
-major. Demo-scoped commits never release. Do not scope library changes to `demo`.
-Other maintenance commits do not release by default. Merge pull requests with a
+For unscoped commits and every non-demo scope, `!` subjects or `BREAKING CHANGE:`
+footers release a major; otherwise, `feat` releases a minor, and `fix`, `perf`,
+`refactor`, `revert`, `build`, `docs`, `chore(deps)`, and `chore(deps-dev)` release a
+patch. Other `chore` scopes, unscoped `chore`, `style`, `test`, and `ci` do not
+release. Any `demo` scope never releases, including breaking commits.
+Do not scope library changes to `demo`. Merge pull requests with a
 merge commit; squashing rewrites the subjects that semantic-release reads.
 CI and the demo bundle skip draft pull requests; marking one ready for review starts them.
 
