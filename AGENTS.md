@@ -139,6 +139,7 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   events, union strips preserve gaps, and the inspector expands its full week independently.
   Event attendance detail lives in the selection popover;
   the inspector retains member selection.
+  Inspector day header and cell presses set the roster anchor date in the view timezone.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
   page naming its subpath, exports, boundary, and file map; keep them current:
