@@ -1,5 +1,5 @@
 import '../../support/native-host';
-import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { Roster } from '../../../src/components/roster';
@@ -262,7 +262,6 @@ describe('Schedule chassis and day zones', () => {
     act(() => tree.update(createElement(Schedule, props)));
     expect(JSON.stringify(tree.toJSON())).toContain('Availability may be incomplete');
     const fall = propsFor('schedule-fall');
-    spyOn(Date, 'now').mockReturnValue(Date.parse('2024-11-03T07:30Z'));
     const columns: ScheduleColumnInput[] = [];
     const zones: Partial<ScheduleProps> = {
       headerStyle: { backgroundColor: 'red' },
@@ -290,7 +289,14 @@ describe('Schedule chassis and day zones', () => {
       complete: false,
       layers: fall.lane.layers.map((layer) => ({ ...layer, gaps: layer.intervals })),
     };
-    const replaced = render(createElement(Schedule, { ...fall, ...zones, lane: withGaps }));
+    const replaced = render(
+      createElement(Schedule, {
+        ...fall,
+        ...zones,
+        lane: withGaps,
+        now: Date.parse('2024-11-03T07:30Z'),
+      }),
+    );
     expect(replaced.root.findByType('custom-gutter' as ElementType).props.hours).toHaveLength(24);
     expect(replaced.root.findAllByType('custom-grid' as ElementType)).toHaveLength(7);
     expect(replaced.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(0);
@@ -309,14 +315,28 @@ describe('Schedule chassis and day zones', () => {
       expect(input.rects.every((rect) => rect.column === column)).toBe(true);
     columns[0]?.press(1, 1);
   });
-  it('draws the default now line in the current occurrence above all layer z values', () => {
-    spyOn(Date, 'now').mockReturnValue(Date.parse('2024-11-03T07:30Z'));
-    const tree = render(createElement(Schedule, propsFor('schedule-fall')));
+  it('moves and removes the controlled now line across repeated-hour occurrences', () => {
+    const props = propsFor('schedule-fall');
+    const tree = render(createElement(Schedule, props));
+    expect(tree.root.findAllByProps({ testID: 'schedule-now-6' })).toHaveLength(0);
+    act(() => tree.update(createElement(Schedule, { ...props, now: null })));
+    expect(tree.root.findAllByProps({ testID: 'schedule-now-6' })).toHaveLength(0);
+    act(() =>
+      tree.update(createElement(Schedule, { ...props, now: Date.parse('2024-11-03T06:30Z') })),
+    );
+    expect(tree.root.findByProps({ testID: 'schedule-now-6' }).props.style.top).toBe(1.25 * 48);
+    act(() =>
+      tree.update(createElement(Schedule, { ...props, now: Date.parse('2024-11-03T07:30Z') })),
+    );
     const line = tree.root.findByProps({ testID: 'schedule-now-6' });
     expect(line.props.style.top).toBe(1.75 * 48);
     expect(line.props.pointerEvents).toBe('none');
     const day = tree.root.findAllByType(ScheduleDayLayout)[6] as ReactTestInstance;
     expect(day.props.chromeZ).toBeGreaterThan(0);
+    act(() =>
+      tree.update(createElement(Schedule, { ...props, now: core.windowFor(props.windowSpec).end })),
+    );
+    expect(tree.root.findAllByProps({ testID: 'schedule-now-6' })).toHaveLength(0);
   });
   it('does not draw a transition whose skipped wall region belongs entirely to the omitted date', () => {
     const tree = render(

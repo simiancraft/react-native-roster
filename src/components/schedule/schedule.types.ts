@@ -24,6 +24,8 @@ export type ScheduleInput = {
   minuteStep?: number;
   /** Positive finite pixels per wall-clock hour; defaults to 48. */
   pxPerHour?: number;
+  /** Current instant in epoch milliseconds; default null draws no now line. */
+  now?: number | null;
   highlightSource?: Source;
   onNavigate?: (next: WindowSpec) => void;
   onIntervalPress?: (rect: Rect, lane: Lane) => void;

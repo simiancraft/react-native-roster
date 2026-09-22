@@ -1,5 +1,5 @@
 import '../support/native-host';
-import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
 import type { ComponentType, ReactElement } from 'react';
 import { Component, useState } from 'react';
 import { Pressable, Text } from 'react-native';
@@ -140,7 +140,6 @@ describe('component slot mounting and identity', () => {
   });
 
   it('mounts all Schedule classes, preserves hooks, and mounts skipped dates conditionally', () => {
-    spyOn(Date, 'now').mockReturnValue(Date.parse('2024-11-03T07:30Z'));
     const windowSpec = scheduleFixtures['schedule-fall'].windowSpec;
     const base = scheduleLane('schedule-fall', windowSpec);
     const lane = {
@@ -148,7 +147,12 @@ describe('component slot mounting and identity', () => {
       complete: false,
       layers: base.layers.map((layer) => ({ ...layer, gaps: layer.intervals })),
     };
-    const props = { ...scheduleSlots, lane, windowSpec };
+    const props = {
+      ...scheduleSlots,
+      lane,
+      windowSpec,
+      now: Date.parse('2024-11-03T07:30Z'),
+    };
     const tree = render(<Schedule {...props} />);
     const { skippedDateComponent, ...ordinary } = scheduleSlots;
     for (const Slot of Object.values(ordinary))

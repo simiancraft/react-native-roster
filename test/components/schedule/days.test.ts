@@ -24,14 +24,15 @@ function projection(anchorDate: string, timezone: string): ScheduleProjection {
 describe('Schedule day chrome geometry', () => {
   it('round-trips now through both repeat sub-regions and ordinary days', () => {
     const p = projection('2024-10-28', 'America/Chicago');
-    for (const time of [
-      '2024-10-28T14:00Z',
-      '2024-11-03T06:30Z',
-      '2024-11-03T07:30Z',
-      '2024-11-03T15:00Z',
-    ]) {
+    for (const [time, expected] of [
+      ['2024-10-28T14:00Z', { column: 0, y: 9 * 48 }],
+      ['2024-11-03T06:30Z', { column: 6, y: 1.25 * 48 }],
+      ['2024-11-03T07:30Z', { column: 6, y: 1.75 * 48 }],
+      ['2024-11-03T15:00Z', { column: 6, y: 9 * 48 }],
+    ] as const) {
       const absolute = Date.parse(time);
       const position = nowPosition(p, absolute) as { column: number; y: number };
+      expect(position).toEqual(expected);
       expect(timeAtY(p, position.column, position.y)).toBe(absolute);
     }
     expect(nowPosition(p, null)).toBeNull();

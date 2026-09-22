@@ -1135,7 +1135,7 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
   expect(tree.root.findAllByType(SlotSelection)).toHaveLength(0);
 });
 
-it('suppresses the inspector system-clock line even when that clock falls within its week', () => {
+it('suppresses the inspector now line without consulting the system clock', () => {
   const clock = spyOn(Date, 'now').mockReturnValue(now + 3600000);
   try {
     const lane = lanes[0];
@@ -1156,11 +1156,8 @@ it('suppresses the inspector system-clock line even when that clock falls within
           nativeEvent: { layout: { width: 380, height: 600, x: 0, y: 0 } },
         }),
     );
-    expect(clock).toHaveBeenCalled();
-    expect(Date.now()).not.toBe(now);
-    const line = tree.root.findByType(WeekNowLine);
-    expect(line.props.y).toBeGreaterThan(0);
-    expect(line.children).toEqual([]);
+    expect(clock).not.toHaveBeenCalled();
+    expect(tree.root.findAllByType(WeekNowLine)).toHaveLength(0);
     expect(JSON.stringify(tree.toJSON())).not.toContain('bg-rose-500');
   } finally {
     clock.mockRestore();
