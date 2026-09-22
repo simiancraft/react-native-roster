@@ -14,11 +14,15 @@ export function MemberInspector({
   member,
   selection,
   windowSpec,
+  focusDate,
+  selectDate,
 }: {
   lane: Lane;
   member: Member;
   selection: Selection;
   windowSpec: WeekWindowSpec;
+  focusDate: string;
+  selectDate: (localDate: string) => void;
 }) {
   return (
     <MemberInspectorLayout
@@ -31,7 +35,14 @@ export function MemberInspector({
         </>
       }
       selectionZone={<SelectionDetail selection={selection} timezone={windowSpec.timezone} />}
-      scheduleZone={<WeekSchedule lane={lane} windowSpec={windowSpec} />}
+      scheduleZone={
+        <WeekSchedule
+          lane={lane}
+          windowSpec={windowSpec}
+          focusDate={focusDate}
+          selectDate={selectDate}
+        />
+      }
     />
   );
 }

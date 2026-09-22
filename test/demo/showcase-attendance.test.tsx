@@ -786,7 +786,7 @@ it('retains lane identities on selection and expands the inspector week in day m
   expect(memberMeta(model.weekLane).events.some((event) => event.start >= window.end)).toBe(true);
 });
 
-it('defaults host slots and dispatches measured layouts, scheme colors, and empty filters', () => {
+it('navigates inspector days and defaults host slots, layouts, scheme colors, and filters', () => {
   // Isolate the additional TextInput host from the suite's already loaded native module.
   const hosts = readFileSync(new URL('../support/native-host.ts', import.meta.url), 'utf8').replace(
     "Text: 'Text',",
@@ -803,7 +803,9 @@ it('defaults host slots and dispatches measured layouts, scheme colors, and empt
     const { teamFor } = await import('./demo/components/team-roster/utils/team');
     const { TeamRosterLayout } = await import('./demo/components/team-roster/screen-layout');
     const { TeamToolbarLayout } = await import('./demo/components/team-roster/toolbar-layout');
-    const { Roster } = await import('react-native-roster');
+    const { Roster, Schedule } = await import('react-native-roster');
+    const { WeekSchedule } = await import('./demo/components/team-roster/members/parts/week-schedule');
+    const { SpanChips, ZoneChips } = await import('./demo/components/team-roster/parts/window-controls');
     const { MUTED_FOREGROUND_HEX } = await import('./demo/components/team-roster/utils/tones');
     const team = teamFor();
     let tree;
@@ -834,6 +836,39 @@ it('defaults host slots and dispatches measured layouts, scheme colors, and empt
       assert.equal(tree.root.findByType(Roster).props.laneLabelWidth, labelWidth);
       assert.equal(controls.props.filterZone.props.density, density);
     }
+    const schedule = () => tree.root.findByType(Schedule);
+    const roster = () => tree.root.findByType(Roster);
+    const header = (label) => tree.root.findByProps({ accessibilityLabel: label });
+    act(() => schedule().find(node => typeof node.props.onLayout === 'function').props.onLayout({
+      nativeEvent: { layout: { width: 380, height: 600, x: 0, y: 0 } },
+    }));
+    assert.equal(header('Show Monday, Jan 5').props.accessibilityRole, 'button');
+    assert.equal(header('Show Monday, Jan 5').props.accessibilityState.selected, true);
+    assert.ok(header('Show Monday, Jan 5').props.className.includes('bg-background'));
+    act(() => schedule().props.onCellPress(schedule().props.lane, Date.parse('2026-01-07T02:00:00Z')));
+    assert.deepEqual(roster().props.windowSpec, {
+      span: 'day', anchorDate: '2026-01-06', timezone: 'America/Chicago',
+    });
+    assert.equal(header('Show Monday, Jan 5').props.accessibilityState.selected, false);
+    assert.equal(header('Show Tuesday, Jan 6').props.accessibilityState.selected, true);
+    act(() => header('Show Thursday, Jan 8').props.onPress());
+    assert.equal(roster().props.windowSpec.anchorDate, '2026-01-08');
+    assert.equal(header('Show Thursday, Jan 8').props.accessibilityState.selected, true);
+    assert.ok(header('Show Thursday, Jan 8').props.className.includes('bg-background'));
+    act(() => tree.root.findByType(SpanChips).props.onChange('week'));
+    const weekBounds = schedule().props.windowSpec;
+    act(() => header('Show Friday, Jan 9').props.onPress());
+    assert.deepEqual(roster().props.windowSpec, {
+      span: 'week', anchorDate: '2026-01-09', timezone: 'America/Chicago',
+    });
+    const { windowFor } = await import('react-native-roster/core');
+    assert.deepEqual(windowFor(roster().props.windowSpec), windowFor(weekBounds));
+    act(() => tree.root.findByType(ZoneChips).props.onChange('Asia/Tokyo'));
+    act(() => schedule().props.onCellPress(schedule().props.lane, Date.parse('2026-01-06T23:00:00Z')));
+    assert.deepEqual(roster().props.windowSpec, {
+      span: 'week', anchorDate: '2026-01-07', timezone: 'Asia/Tokyo',
+    });
+    assert.equal(tree.root.findByType(WeekSchedule).props.focusDate, '2026-01-07');
     assert.equal(tree.root.findByType('TextInput').props.placeholderTextColor, MUTED_FOREGROUND_HEX.light);
     scheme = 'dark';
     act(() => tree.root.findByType('TextInput').props.onChangeText('a'));
@@ -861,6 +896,8 @@ it('clears lunch detail from the inspector when working hours or an event is pre
         member={model.selectedMember}
         selection={model.selection}
         windowSpec={model.weekWindowSpec}
+        focusDate={model.windowSpec.anchorDate}
+        selectDate={model.selectDate}
       />
     );
   }
@@ -965,6 +1002,8 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
         member={model.selectedMember}
         selection={model.selection}
         windowSpec={model.weekWindowSpec}
+        focusDate={model.windowSpec.anchorDate}
+        selectDate={model.selectDate}
       />
     );
   }
@@ -992,7 +1031,14 @@ it('suppresses the inspector system-clock line even when that clock falls within
     const lane = lanes[0];
     if (!lane) throw new Error('Expected lane');
     const spec = { span: 'week' as const, anchorDate: '2026-01-05', timezone: 'America/Chicago' };
-    const tree = render(<WeekSchedule lane={lane} windowSpec={spec} />);
+    const tree = render(
+      <WeekSchedule
+        lane={lane}
+        windowSpec={spec}
+        focusDate={spec.anchorDate}
+        selectDate={() => {}}
+      />,
+    );
     act(() =>
       tree.root
         .find((node) => typeof node.props.onLayout === 'function')

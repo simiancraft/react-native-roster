@@ -79,3 +79,17 @@ export function offsetLabel(actual: number, planned: number): string {
   if (minutes < 0) return `${-minutes} min early`;
   return `${minutes} min late`;
 }
+
+/** The absolute time's local date in the view timezone. */
+export function localDateFor(time: number, timezone: string): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    calendar: 'gregory',
+    numberingSystem: 'latn',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(time);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+  return `${value('year')}-${value('month')}-${value('day')}`;
+}
