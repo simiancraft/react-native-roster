@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["code", "ci-gate"],
+  "covered_paths": ["."],
+  "capture_commit": "8998f7fefc0f7034c8dfd4022c91c0019b514f90",
+  "capture_method": "CI=1 NO_COLOR=1 bun run check",
+  "content_hash": "sha256:09dab65d283c0c1ed3ac1c5fdde3ba54b9b9fe10d1a113cae124b7fc02e805ee"
+}

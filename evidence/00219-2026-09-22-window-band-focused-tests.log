@@ -1,0 +1,12 @@
+Script started on 2026-09-22 06:11:12-05:00 [<not executed on terminal>]
+Capture commit: 8998f7fefc0f7034c8dfd4022c91c0019b514f90
+bun test v1.4.2 (744846f84)
+
+ 8 pass
+ 0 fail
+ 158 expect() calls
+Ran 8 tests across 1 file. [26.00ms]
+$ tsgo --noEmit
+$ tsgo --noEmit -p tsconfig.test.json
+
+Script done on 2026-09-22 06:11:13-05:00 [COMMAND_EXIT_CODE="0"]

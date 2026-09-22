@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "test", "timezone-geometry"],
+  "covered_paths": [
+    "src/components/schedule/utils/window-band.ts",
+    "src/components/schedule/schedule.types.ts",
+    "src/core/index.ts",
+    "src/core/scale.ts",
+    "src/core/layout.ts",
+    "src/core/columns.ts",
+    "src/core/zone.ts",
+    "test/components/schedule/window-band.test.ts"
+  ],
+  "capture_commit": "8998f7fefc0f7034c8dfd4022c91c0019b514f90",
+  "capture_method": "bun test test/components/schedule/window-band.test.ts && bun run typecheck && bun run typecheck:test",
+  "content_hash": "sha256:a2a17c2aab18bcd985929f43d9eb0ee0972d2ecac0f7864289913f6222a5785a"
+}
