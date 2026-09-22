@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["code", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "demo/components/team-roster/utils/team.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "db16d4a9a125ad4a0f38bfdaea9dedc2b1556322",
+  "capture_method": "env -u FORCE_COLOR NO_COLOR=1 bun run check",
+  "content_hash": "sha256:000eb06f6c2d60b82f7c858a4ca55ba7d120b471b8dd5038a71e6e5d01330a55"
+}

@@ -1,0 +1,512 @@
+$ bun run lint && bun run typecheck && bun run typecheck:test && bun run typecheck:demo && bun run check:react-compiler && bun run build:web && bun run test && bun run check:knip && bun run check:package && bun run check:size && bun run check:web
+$ biome check
+Checked 269 files in 50ms. No fixes applied.
+$ tsgo --noEmit
+$ tsgo --noEmit -p tsconfig.test.json
+$ tsgo --noEmit -p demo/tsconfig.json
+$ eslint 'src/components/**/*.{ts,tsx}' 'demo/components/**/*.{ts,tsx}' 'demo/app/**/*.tsx' --no-error-on-unmatched-pattern
+$ bun run build && cd demo && bunx expo export -p web
+$ bun run clean && tsgo -p tsconfig.build.json
+$ rm -rf dist
+React Compiler enabled
+Starting Metro Bundler
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
+Web Bundled 1011ms node_modules/expo-router/entry.js (1082 modules)
+λ Bundled 1019ms node_modules/expo-router/node/render.js (1075 modules)
+
+› web bundles (2):
+_expo/static/css/web-47a8e70e170fd464e9ebef6d9f946fb5.css (17.9 kB)
+_expo/static/js/web/entry-56f6e6f1ed3e5696b060b1165ecb3b1e.js (5.63 MB)
+
+› Static routes (44):
+/ (index) (58.8 kB)
+/showcase (61.5 kB)
+/_sitemap (17.5 kB)
+/+not-found (17.5 kB)
+/gallery/empty (37.4 kB)
+/gallery/day-15 (67.2 kB)
+/gallery/day-30 (53.2 kB)
+/gallery/day-60 (46.3 kB)
+/gallery/equal-z (41.2 kB)
+/gallery/week-15 (41.4 kB)
+/gallery/week-30 (41.4 kB)
+/gallery/week-60 (41.4 kB)
+/gallery/20-lanes (48.8 kB)
+/gallery/dst-week (89.3 kB)
+/gallery/month-15 (48.6 kB)
+/gallery/month-30 (48.6 kB)
+/gallery/month-60 (48.6 kB)
+/gallery/200-lanes (123 kB)
+/gallery/never-set (42.3 kB)
+/gallery/every-zone (41.6 kB)
+/gallery/two-layers (41.3 kB)
+/gallery/single-lane (41.3 kB)
+/gallery/adapter-caps (44 kB)
+/gallery/full-day-gap (41.2 kB)
+/gallery/default-zones (41.8 kB)
+/gallery/schedule-apia (38.2 kB)
+/gallery/schedule-fall (38.2 kB)
+/gallery/sort-coverage (122 kB)
+/gallery/adapter-weekly (42.8 kB)
+/gallery/booking-in-gap (41.2 kB)
+/gallery/highlight-rule (49.5 kB)
+/gallery/schedule-empty (38.2 kB)
+/gallery/interval-detail (47 kB)
+/gallery/mixed-timezones (89.5 kB)
+/gallery/schedule-layers (38.3 kB)
+/gallery/schedule-spring (38.2 kB)
+/gallery/adapter-overrides (43.6 kB)
+/gallery/schedule-excluded (38.2 kB)
+/gallery/schedule-midnight (38.2 kB)
+/gallery/schedule-lord-howe (38.2 kB)
+/gallery/schedule-every-zone (39.9 kB)
+/gallery/schedule-incomplete (38.2 kB)
+/gallery/incomplete-expansion (41.3 kB)
+/gallery/schedule-side-by-side (42.2 kB)
+
+Exported: dist
+$ bun test --coverage
+bun test v1.4.2 (744846f84)
+
+test/components/component-slots.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/integration/provenance.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/integration/timezones.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/performance/workload.test.ts:
+Workload W density: 70 total rects per lane per week (63 interval rects and 7 gap rects).
+Workload W target-cold: layout 24 lanes 0.978 ms (baseline 2.195 ms); coverage 200 lanes 0.520 ms (baseline 1.412 ms); calibration 0.446x; 15-minute ticks.
+
+test/demo/rule-set-draft.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/demo/showcase-attendance.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/demo/schedule-fixture.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/primitives/portal.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/roster/render.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/roster/use-roster.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/roster/selection-layout.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/roster/label-scroll.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/schedule/use-schedule.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+test/components/schedule/render.test.ts:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+----------------------------------------------------------|---------|---------|-------------------
+File                                                      | % Funcs | % Lines | Uncovered Line #s
+----------------------------------------------------------|---------|---------|-------------------
+All files                                                 |  100.00 |  100.00 |
+ scripts/lib/package-version.ts                           |  100.00 |  100.00 | 
+ src/adapters/rrule/cache.ts                              |  100.00 |  100.00 | 
+ src/adapters/rrule/envelope.ts                           |  100.00 |  100.00 | 
+ src/adapters/rrule/expand.ts                             |  100.00 |  100.00 | 
+ src/adapters/rrule/hash.ts                               |  100.00 |  100.00 | 
+ src/adapters/rrule/index.ts                              |  100.00 |  100.00 | 
+ src/adapters/rrule/net.ts                                |  100.00 |  100.00 | 
+ src/adapters/rrule/occurrences.ts                        |  100.00 |  100.00 | 
+ src/adapters/rrule/validate.ts                           |  100.00 |  100.00 | 
+ src/components/layers/parts/gap.tsx                      |  100.00 |  100.00 | 
+ src/components/layers/parts/interval.tsx                 |  100.00 |  100.00 | 
+ src/components/layers/utils/styles.ts                    |  100.00 |  100.00 | 
+ src/components/primitives/portal.tsx                     |  100.00 |  100.00 | 
+ src/components/primitives/press-point.tsx                |  100.00 |  100.00 | 
+ src/components/primitives/press-point.web.tsx            |  100.00 |  100.00 | 
+ src/components/primitives/region-style.ts                |  100.00 |  100.00 | 
+ src/components/roster/body-layout.tsx                    |  100.00 |  100.00 | 
+ src/components/roster/focus-safe-clip.ts                 |  100.00 |  100.00 | 
+ src/components/roster/index.tsx                          |  100.00 |  100.00 | 
+ src/components/roster/lanes/interval-hover.tsx           |  100.00 |  100.00 | 
+ src/components/roster/lanes/interval-hover.web.tsx       |  100.00 |  100.00 | 
+ src/components/roster/lanes/lane.tsx                     |  100.00 |  100.00 | 
+ src/components/roster/lanes/parts/incomplete.tsx         |  100.00 |  100.00 | 
+ src/components/roster/lanes/parts/lane-label.tsx         |  100.00 |  100.00 | 
+ src/components/roster/layout.tsx                         |  100.00 |  100.00 | 
+ src/components/roster/parts/body.tsx                     |  100.00 |  100.00 | 
+ src/components/roster/parts/corner.tsx                   |  100.00 |  100.00 | 
+ src/components/roster/parts/empty.tsx                    |  100.00 |  100.00 | 
+ src/components/roster/parts/grid.tsx                     |  100.00 |  100.00 | 
+ src/components/roster/parts/header-cell.tsx              |  100.00 |  100.00 | 
+ src/components/roster/parts/header.tsx                   |  100.00 |  100.00 | 
+ src/components/roster/parts/label-wheel.tsx              |  100.00 |  100.00 | 
+ src/components/roster/parts/label-wheel.web.tsx          |  100.00 |  100.00 | 
+ src/components/roster/parts/lane-label-column.tsx        |  100.00 |  100.00 | 
+ src/components/roster/parts/lane-list.tsx                |  100.00 |  100.00 | 
+ src/components/roster/parts/now-line.tsx                 |  100.00 |  100.00 | 
+ src/components/roster/selection/selection-layout.tsx     |  100.00 |  100.00 | 
+ src/components/roster/selection/selection-layout.web.tsx |  100.00 |  100.00 | 
+ src/components/roster/use-roster-press.ts                |  100.00 |  100.00 | 
+ src/components/roster/use-roster.ts                      |  100.00 |  100.00 | 
+ src/components/roster/utils/body-content-key.ts          |  100.00 |  100.00 | 
+ src/components/roster/utils/ticks.ts                     |  100.00 |  100.00 | 
+ src/components/schedule/days/day.tsx                     |  100.00 |  100.00 | 
+ src/components/schedule/days/header-layout.tsx           |  100.00 |  100.00 | 
+ src/components/schedule/days/layout.tsx                  |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/column.tsx            |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/day-header.tsx        |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/grid.tsx              |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/now-line.tsx          |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/skipped-date.tsx      |  100.00 |  100.00 | 
+ src/components/schedule/days/parts/transition.tsx        |  100.00 |  100.00 | 
+ src/components/schedule/index.tsx                        |  100.00 |  100.00 | 
+ src/components/schedule/layout.tsx                       |  100.00 |  100.00 | 
+ src/components/schedule/parts/gutter.tsx                 |  100.00 |  100.00 | 
+ src/components/schedule/parts/incomplete.tsx             |  100.00 |  100.00 | 
+ src/components/schedule/use-schedule-viewport.ts         |  100.00 |  100.00 | 
+ src/components/schedule/use-schedule.ts                  |  100.00 |  100.00 | 
+ src/components/schedule/utils/days.ts                    |  100.00 |  100.00 | 
+ src/core/axis.ts                                         |  100.00 |  100.00 | 
+ src/core/cache.ts                                        |  100.00 |  100.00 | 
+ src/core/columns.ts                                      |  100.00 |  100.00 | 
+ src/core/coverage.ts                                     |  100.00 |  100.00 | 
+ src/core/flag.ts                                         |  100.00 |  100.00 | 
+ src/core/hash.ts                                         |  100.00 |  100.00 | 
+ src/core/hit-test.ts                                     |  100.00 |  100.00 | 
+ src/core/index.ts                                        |  100.00 |  100.00 | 
+ src/core/layout.ts                                       |  100.00 |  100.00 | 
+ src/core/lru.ts                                          |  100.00 |  100.00 | 
+ src/core/order.ts                                        |  100.00 |  100.00 | 
+ src/core/scale.ts                                        |  100.00 |  100.00 | 
+ src/core/snap.ts                                         |  100.00 |  100.00 | 
+ src/core/source.ts                                       |  100.00 |  100.00 | 
+ src/core/spans.ts                                        |  100.00 |  100.00 | 
+ src/core/zone.ts                                         |  100.00 |  100.00 | 
+ src/index.ts                                             |  100.00 |  100.00 | 
+ src/nativewind/index.ts                                  |  100.00 |  100.00 | 
+ test/fixtures/adapters.ts                                |  100.00 |  100.00 | 
+ test/fixtures/performance-lanes.ts                       |  100.00 |  100.00 | 
+ test/fixtures/provenance.ts                              |  100.00 |  100.00 | 
+ test/fixtures/roster-zones.tsx                           |  100.00 |  100.00 | 
+ test/fixtures/roster.ts                                  |  100.00 |  100.00 | 
+ test/fixtures/schedule.ts                                |  100.00 |  100.00 | 
+ test/fixtures/timezones.ts                               |  100.00 |  100.00 | 
+ test/fixtures/workload.ts                                |  100.00 |  100.00 | 
+----------------------------------------------------------|---------|---------|-------------------
+
+ 2561 pass
+ 0 fail
+ 32041 expect() calls
+Ran 2561 tests across 34 files. [255.84s]
+$ knip
+$ publint --strict
+Running publint v0.3.24 for react-native-roster...
+Packing files with `bun pack`...
+Linting...
+Suggestions:
+1. pkg.browser with an object value can be refactored to use pkg.exports/pkg.imports and the "browser" condition to declare browser-specific exports. (This may be a breaking change)
+$ size-limit
+- Adding to empty esbuild project
+✔ Adding to empty esbuild project
+  
+  react-native-roster/core
+  Size limit: 16 kB
+  Size:       15.49 kB with all dependencies and minified
+  
+  react-native-roster/rrule
+  Size limit: 15 kB
+  Size:       14.09 kB with all dependencies and minified
+  
+  react-native-roster
+  Size limit: 54 kB
+  Size:       53.95 kB with all dependencies and minified
+  
+  react-native-roster/nativewind
+  Size limit: 50 kB
+  Size:       49.97 kB with all dependencies and minified
+  
+$ bun run build:web:dev && bun scripts/check-web-performance.ts
+$ cd demo && bunx expo export -p web --dev --output-dir .cache/dev-dist
+React Compiler enabled
+Starting Metro Bundler
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
+λ Bundled 814ms node_modules/expo-router/node/render.js (1120 modules)
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+λ  WARN  Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+Web Bundled 1076ms node_modules/expo-router/entry.js (1291 modules)
+
+› web bundles (2):
+_expo/static/css/web-47a8e70e170fd464e9ebef6d9f946fb5.css (17.9 kB)
+_expo/static/js/web/entry-d41d8cd98f00b204e9800998ecf8427e.js (6.72 MB)
+
+› Static routes (44):
+/ (index) (64.6 kB)
+/showcase (70 kB)
+/_sitemap (21.3 kB)
+/+not-found (21.3 kB)
+/gallery/empty (42 kB)
+/gallery/day-15 (77.7 kB)
+/gallery/day-30 (60.8 kB)
+/gallery/day-60 (52.4 kB)
+/gallery/equal-z (46.3 kB)
+/gallery/week-15 (46.5 kB)
+/gallery/week-30 (46.5 kB)
+/gallery/week-60 (46.5 kB)
+/gallery/20-lanes (55.2 kB)
+/gallery/dst-week (104 kB)
+/gallery/month-15 (55.2 kB)
+/gallery/month-30 (55.2 kB)
+/gallery/month-60 (55.2 kB)
+/gallery/200-lanes (142 kB)
+/gallery/never-set (47.6 kB)
+/gallery/every-zone (46.3 kB)
+/gallery/two-layers (46.4 kB)
+/gallery/single-lane (46.4 kB)
+/gallery/adapter-caps (49.2 kB)
+/gallery/full-day-gap (46.3 kB)
+/gallery/default-zones (47 kB)
+/gallery/schedule-apia (42.9 kB)
+/gallery/schedule-fall (42.9 kB)
+/gallery/sort-coverage (140 kB)
+/gallery/adapter-weekly (48 kB)
+/gallery/booking-in-gap (46.3 kB)
+/gallery/highlight-rule (55.9 kB)
+/gallery/schedule-empty (42.9 kB)
+/gallery/interval-detail (53.2 kB)
+/gallery/mixed-timezones (105 kB)
+/gallery/schedule-layers (42.9 kB)
+/gallery/schedule-spring (42.9 kB)
+/gallery/adapter-overrides (48.8 kB)
+/gallery/schedule-excluded (42.9 kB)
+/gallery/schedule-midnight (42.9 kB)
+/gallery/schedule-lord-howe (42.9 kB)
+/gallery/schedule-every-zone (44.8 kB)
+/gallery/schedule-incomplete (42.9 kB)
+/gallery/incomplete-expansion (46.4 kB)
+/gallery/schedule-side-by-side (47.4 kB)
+
+Exported: .cache/dev-dist
+Detected 1 process preventing Expo from exiting, forcefully exiting now.
+  - /home/the-simian/.nvm/versions/node/v24.19.0/bin/node /home/the-simian/Simiancraft_Programming/Simiancraft/.react-native-roster-loop/issue-188/node_modules/nativewind/dist/metro/tailwind/v3/child.js
+Focus offsets: labels 0px; header 0px.
+Label wheel: body-matching vertical scrolling, reverse scrolling, and aligned labels.
+Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.
+view-zone change: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+scroll (second pass): {"layout":{"runs":0,"cacheHits":28},"coverage":{"runs":0,"cacheHits":28},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+lane selection: {"layout":{"runs":0,"cacheHits":13},"coverage":{"runs":0,"cacheHits":13},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+highlight: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":26},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+sort: {"layout":{"runs":0,"cacheHits":0},"coverage":{"runs":0,"cacheHits":200},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+unrelated lane-zone change: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":226},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+rule body change: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":1,"cacheHits":1,"cacheMisses":1}}
+next week outside all retained envelopes: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":2,"cacheHits":0,"cacheMisses":2}}
+previous week inside retained envelope: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":226},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+Web performance: all action budgets pass; 24-row viewport, 26 mounted lanes.
+Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.
+LaneRow profiler: 14 continuously mounted lanes, zero updates on the second scroll pass; mount and update controls pass.
+Selection profiler: zero mounted-row updates when opening details or dismissing on a cell.

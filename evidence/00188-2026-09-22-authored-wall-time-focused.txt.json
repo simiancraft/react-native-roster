@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/utils/team.ts",
+    "test/demo/showcase-attendance.test.tsx",
+    "src/core/axis.ts",
+    "src/core/columns.ts",
+    "src/core/zone.ts"
+  ],
+  "capture_commit": "db16d4a9a125ad4a0f38bfdaea9dedc2b1556322",
+  "capture_method": "env -u FORCE_COLOR NO_COLOR=1 bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:275bddcad292b8ac3772a2486a60e644b0fab541e985ce3bb1931f063b2c6606"
+}
