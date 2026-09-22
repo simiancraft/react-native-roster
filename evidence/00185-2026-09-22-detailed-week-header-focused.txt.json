@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/utils/format.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "fa2b82d43ab2bc1720d1b1696d52964a4e590542",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx && bun run typecheck:demo",
+  "content_hash": "sha256:a771402887194c6805335a5b1f81432981a74419669233e750a0060779c0f8bc"
+}

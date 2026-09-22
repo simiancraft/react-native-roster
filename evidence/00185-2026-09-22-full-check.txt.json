@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["repository", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/",
+    "demo/",
+    "test/",
+    "scripts/"
+  ],
+  "capture_commit": "fa2b82d43ab2bc1720d1b1696d52964a4e590542",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:46532008ec4bfd06f15de9dbdd81c940ef6f750870767d05a4ff51db68ddd8bf"
+}
