@@ -1,3 +1,15 @@
+## [0.4.16](https://github.com/simiancraft/react-native-roster/compare/v0.4.15...v0.4.16) (2026-09-22)
+
+
+### Bug Fixes
+
+* **render:** scroll lanes from wheel input over the label column ([0b2fb50](https://github.com/simiancraft/react-native-roster/commit/0b2fb50358f721dfc7bb4d807a547bce19bf61df))
+
+
+### Features
+
+* **demo:** navigate the roster from inspector day presses ([6a741b7](https://github.com/simiancraft/react-native-roster/commit/6a741b7179a7a77590029d24d0133a5f9f448cc2))
+
 ## [0.4.15](https://github.com/simiancraft/react-native-roster/compare/v0.4.14...v0.4.15) (2026-09-21)
 
 
