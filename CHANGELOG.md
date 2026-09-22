@@ -1,3 +1,13 @@
+## [0.4.17](https://github.com/simiancraft/react-native-roster/compare/v0.4.16...v0.4.17) (2026-09-22)
+
+
+### Bug Fixes
+
+* **demo:** classify authored wall-time outcomes ([db16d4a](https://github.com/simiancraft/react-native-roster/commit/db16d4a9a125ad4a0f38bfdaea9dedc2b1556322))
+* **demo:** keep week day boundaries legible ([f3edc27](https://github.com/simiancraft/react-native-roster/commit/f3edc27d8c7a7814f7664adc48620a6782b6aca6))
+* **demo:** repeat date context across week ticks ([fa2b82d](https://github.com/simiancraft/react-native-roster/commit/fa2b82d43ab2bc1720d1b1696d52964a4e590542))
+* **schedule:** preserve transition fragment ([31fbf13](https://github.com/simiancraft/react-native-roster/commit/31fbf13944b090ca6bb4d3e6ac12fd3ca54f3a4a))
+
 ## [0.4.16](https://github.com/simiancraft/react-native-roster/compare/v0.4.15...v0.4.16) (2026-09-22)
 
 
