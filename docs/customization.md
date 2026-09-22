@@ -23,11 +23,12 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `intervalDetailComponent` | `rect`, `layer`, `lane`, `highlighted`, absolute `start` and `end`, `viewTimezone` | Absent by default; enables selection and fills its details. |
 | `selectionLayout` | `SelectionLayoutProps`: nodes, targetBounds, open, dismissal, host, and shared scroll | `RosterSelectionPopover`: native portal or Radix web popover; replace at runtime. |
 | `gapComponent` | `rect`, `layer`, `lane` | `RosterGap`: no visible content; the row supplies pressable bounds. |
+| `incompleteComponent` | `RosterIncompleteInput` (`lane`, `geometry`, `width`, `label`) | `RosterIncomplete`: notice in the first empty span of an incomplete lane. |
 | `nowLineComponent` | `RosterNowLineInput` (`x`, `now`) | `RosterNowLine`: noninteractive vertical red line across the body. |
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label and component, and rect components | `RosterBody`: virtualized lanes. |
 
 `RosterBody` composes `RosterBodyLayout`, which arranges `gridZone`, `listZone`, and optional `overlayZone`
 nodes with scroll wiring, and `RosterLaneList`, which owns LegendList and its

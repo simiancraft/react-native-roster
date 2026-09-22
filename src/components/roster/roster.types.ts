@@ -98,6 +98,12 @@ export type LaneLabelInput = {
   incompleteLabel: string;
   neverSetLabel: string;
 };
+export type RosterIncompleteInput = {
+  lane: Lane;
+  geometry: LaneGeometry;
+  width: number;
+  label: string;
+};
 export type RosterNowLineInput = { x: number; now: number };
 export type HeaderCellInput = { tick: RosterTick };
 export type GridInput = { ticks: RosterTick[]; contentWidth: number };
@@ -118,6 +124,8 @@ export type LaneListInput = Pick<
   highlightSource?: Source;
   onIntervalHover?: (rect: Rect, lane: Lane) => void;
   incompleteLabel?: string;
+  /** Incomplete-lane notice; position it within empty geometry, as RosterIncomplete does. */
+  incompleteComponent: ComponentType<RosterIncompleteInput>;
   /** Covered rect view; position it using the final rect bounds, as RosterInterval does. */
   intervalComponent: ComponentType<IntervalInput>;
   /** Removed rect filler, placed inside a pressable by LaneRow. */
@@ -172,6 +180,8 @@ export type RosterProps = Omit<RosterInput, 'selectable'> &
      */
     portalHost?: string;
     incompleteLabel?: string;
+    /** Incomplete-lane notice placed in the first empty span by RosterIncomplete. */
+    incompleteComponent?: ComponentType<RosterIncompleteInput>;
     neverSetLabel?: string;
     /** Label, differing lane zone, effective flag, and completeness notice. */
     laneLabelComponent?: ComponentType<LaneLabelInput>;

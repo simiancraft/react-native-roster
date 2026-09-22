@@ -286,7 +286,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     nowLineComponent out of RosterLaneList, LaneRow, and the body content key. LegendList
     2.x lacks a server snapshot; mounting it during static rendering causes hydration
     recovery. geometryFor calls cached layoutLane for each mounted lane. extraData
-    keys window, projection, highlight identity, and interval and gap component identities. Vertical scroll
+    keys window, projection, highlight identity, and interval, gap, and incomplete component
+    identities. Vertical scroll
     must not update React state; all lane labels share one translated column.
     Roster and Schedule retain a stable press function that reads current inputs
     from a ref; inline consumer callbacks must not enter the body content key.

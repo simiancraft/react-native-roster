@@ -18,6 +18,7 @@ export function RosterLaneList({
   highlightSource,
   onIntervalHover,
   incompleteLabel,
+  incompleteComponent,
   onRowRender,
 }: LaneListInput & {
   /** Development-only Profiler hook used by the gallery; not a supported customization point. */
@@ -38,6 +39,7 @@ export function RosterLaneList({
         gapComponent,
         onIntervalHover,
         incompleteLabel,
+        incompleteComponent,
       })}
       keyExtractor={(lane) => lane.id}
       estimatedListSize={{ width: contentWidth, height: viewport.height }}
@@ -62,6 +64,7 @@ export function RosterLaneList({
             highlightSource={highlightSource}
             onIntervalHover={onIntervalHover}
             incompleteLabel={incompleteLabel}
+            incompleteComponent={incompleteComponent}
           />
         );
         if (onRowRender)
