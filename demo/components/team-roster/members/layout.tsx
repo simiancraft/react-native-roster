@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import { Card } from '../../ui/card';
 
 type MemberInspectorLayoutProps = {
   /** Avatar, name, role, and team. */
@@ -19,11 +20,16 @@ export function MemberInspectorLayout({
   scheduleZone,
 }: MemberInspectorLayoutProps) {
   return (
-    <View className="flex-1 min-h-0 gap-3 rounded-xl border border-border bg-card p-3">
-      {identityZone}
-      <View className="flex-row flex-wrap gap-2">{factsZone}</View>
-      {selectionZone}
-      <View className="flex-1 min-h-0">{scheduleZone}</View>
-    </View>
+    <Card
+      className="flex-1 min-h-0 gap-3 p-3"
+      contentZone={
+        <>
+          {identityZone}
+          <View className="flex-row flex-wrap gap-2">{factsZone}</View>
+          {selectionZone}
+          <View className="flex-1 min-h-0">{scheduleZone}</View>
+        </>
+      }
+    />
   );
 }

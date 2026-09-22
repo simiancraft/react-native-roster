@@ -2,6 +2,7 @@ import { type ReactNode, useId } from 'react';
 import { hasSource } from '../../core';
 import { RosterGap } from '../layers/parts/gap';
 import { RosterInterval } from '../layers/parts/interval';
+import { RosterIncomplete } from './lanes/parts/incomplete';
 import { RosterLaneLabel } from './lanes/parts/lane-label';
 import { RosterLayout } from './layout';
 import { RosterBody } from './parts/body';
@@ -52,6 +53,7 @@ export function Roster(props: RosterProps) {
     gapComponent = RosterGap,
     gridComponent = RosterGrid,
     nowLineComponent = RosterNowLine,
+    incompleteComponent = RosterIncomplete,
     incompleteLabel = 'Availability may be incomplete',
     neverSetLabel = 'No availability set',
   } = props;
@@ -149,6 +151,7 @@ export function Roster(props: RosterProps) {
               highlightSource={props.highlightSource}
               onIntervalHover={props.onIntervalHover}
               incompleteLabel={incompleteLabel}
+              incompleteComponent={incompleteComponent}
             />
           }
         />

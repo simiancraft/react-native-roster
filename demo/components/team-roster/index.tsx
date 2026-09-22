@@ -1,9 +1,10 @@
 import type { ComponentType, ReactNode } from 'react';
 import { createContext, useContext } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import type { LaneLabelInput, RosterTick } from 'react-native-roster';
 import { Roster } from 'react-native-roster';
 import { SiteFooter } from '../site-footer';
+import { Card } from '../ui/card';
 import { EventDetail } from './events';
 import { TeamHeaderLayout } from './header-layout';
 import { MemberInspector } from './members';
@@ -151,9 +152,12 @@ function TeamRoster({
 
 function NobodyMatches() {
   return (
-    <View className="flex-1 items-center justify-center rounded-xl border border-border bg-card p-6">
-      <Text className="text-sm text-muted-foreground">Nobody matches that filter.</Text>
-    </View>
+    <Card
+      className="flex-1 items-center justify-center p-6"
+      contentZone={
+        <Text className="text-sm text-muted-foreground">Nobody matches that filter.</Text>
+      }
+    />
   );
 }
 
@@ -167,7 +171,12 @@ function TeamHeaderCell({ tick }: { tick: RosterTick }) {
   const context = useContext(TeamLaneContext);
   if (!context) throw new Error('TeamHeaderCell requires the team roster');
   return (
-    <DayHeaderCell tick={tick} timezone={context.model.timezone} density={context.model.density} />
+    <DayHeaderCell
+      tick={tick}
+      timezone={context.model.timezone}
+      density={context.model.density}
+      span={context.model.span}
+    />
   );
 }
 

@@ -2,7 +2,7 @@
 import '../support/native-host';
 import { afterEach, expect, it, mock, spyOn } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { Pressable } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 
 import type { Attendance, MemberEvent } from '../../demo/components/team-roster/events/event.types';
@@ -25,6 +25,7 @@ import {
 } from '../../demo/components/team-roster/members/parts/selection';
 import { WeekSchedule } from '../../demo/components/team-roster/members/parts/week-schedule';
 import { WeekNowLine } from '../../demo/components/team-roster/members/parts/week-zones';
+import { DayHeaderCell } from '../../demo/components/team-roster/parts/header-cell';
 import {
   AvailabilityBand,
   TeamInterval,
@@ -36,6 +37,7 @@ import {
   useTeamRoster,
 } from '../../demo/components/team-roster/use-team-roster';
 import {
+  compactTimeLabel,
   conciseDate,
   conciseRangeLabel,
   dayLabel,
@@ -46,6 +48,7 @@ import {
   eventsFor,
   laneFor,
   memberMeta,
+  resolveAuthoredTime,
   seededNow,
   teamFor,
 } from '../../demo/components/team-roster/utils/team';
@@ -131,6 +134,54 @@ it('labels the window reset action for day and week spans', () => {
   const result = Bun.spawnSync(['bun', '-e', script], { cwd: process.cwd() });
   expect(result.stderr.toString()).not.toContain('Error');
   expect(result.exitCode).toBe(0);
+});
+
+it('repeats date context on detailed-week time cells at every people-column density', () => {
+  const time = Date.parse('2026-01-05T15:00:00Z');
+  const tick = { time, x: 0, label: '09:00', kind: 'time' as const };
+  const timezone = 'America/Chicago';
+  for (const density of ['full', 'compact', 'avatar'] as const) {
+    const day = render(
+      <DayHeaderCell tick={tick} timezone={timezone} density={density} span="day" />,
+    );
+    expect(day.root.findAllByType(Text).map((node) => node.props.children)).toEqual([
+      compactTimeLabel(time, timezone),
+    ]);
+
+    const week = render(
+      <DayHeaderCell tick={tick} timezone={timezone} density={density} span="week" />,
+    );
+    expect(week.root.findAllByType(Text).map((node) => node.props.children)).toEqual([
+      conciseDate(time, timezone),
+      compactTimeLabel(time, timezone),
+    ]);
+  }
+});
+
+it('keeps the full-density day boundary clear of the following time tick', () => {
+  const timezone = 'America/Chicago';
+  const density = 'full';
+  const day = Date.parse('2026-01-05T06:00:00Z');
+  const one = Date.parse('2026-01-05T07:00:00Z');
+  const two = Date.parse('2026-01-05T08:00:00Z');
+  const childrenFor = (time: number, kind: 'day' | 'time') => {
+    const tree = render(
+      <DayHeaderCell
+        tick={{ time, x: 0, label: '', kind }}
+        timezone={timezone}
+        density={density}
+        span="week"
+      />,
+    );
+    return tree.root.findAllByType(Text).map((node) => node.props.children);
+  };
+
+  expect(childrenFor(day, 'day')).toEqual([dayLabel(day, timezone)]);
+  expect(childrenFor(one, 'time')).toEqual([compactTimeLabel(one, timezone)]);
+  expect(childrenFor(two, 'time')).toEqual([
+    conciseDate(two, timezone),
+    compactTimeLabel(two, timezone),
+  ]);
 });
 
 it('generates deterministic people and all five presence states across event boundaries', () => {
@@ -699,6 +750,61 @@ it('generates local dates on both sides of a Chicago day and across DST', () => 
   expect(losAngeles).toHaveLength(2);
   for (const lane of losAngeles) expect(memberMeta(lane).events.length).toBeGreaterThan(0);
 });
+
+it('classifies exact, repeated, and skipped authored wall times', () => {
+  const exactCases = [
+    ['2026-01-05', 9, 'America/Chicago', '2026-01-05T15:00:00.000Z'],
+    ['2026-01-05', 9.25, 'Asia/Kathmandu', '2026-01-05T03:30:00.000Z'],
+  ] as const;
+  for (const [date, hour, timezone, expected] of exactCases) {
+    const result = resolveAuthoredTime(date, hour, timezone);
+    expect(result).toEqual({ outcome: 'exact', instant: Date.parse(expected) });
+    if (result.outcome !== 'exact') throw new Error('Expected an exact authored time');
+    expect(authoredFields(result.instant, timezone)).toEqual({ date, hour });
+  }
+
+  const repeated = resolveAuthoredTime('2026-11-01', 1.5, 'America/New_York');
+  expect(repeated).toEqual({
+    outcome: 'repeated',
+    earlier: Date.parse('2026-11-01T05:30:00.000Z'),
+    later: Date.parse('2026-11-01T06:30:00.000Z'),
+  });
+  if (repeated.outcome !== 'repeated') throw new Error('Expected a repeated authored time');
+  expect(authoredFields(repeated.earlier, 'America/New_York')).toEqual({
+    date: '2026-11-01',
+    hour: 1.5,
+  });
+  expect(authoredFields(repeated.later, 'America/New_York')).toEqual({
+    date: '2026-11-01',
+    hour: 1.5,
+  });
+
+  expect(resolveAuthoredTime('2024-10-06', 2.25, 'Australia/Lord_Howe')).toEqual({
+    outcome: 'skipped',
+    transition: Date.parse('2024-10-05T15:30:00.000Z'),
+  });
+  expect(resolveAuthoredTime('2011-12-30', 12, 'Pacific/Apia')).toEqual({
+    outcome: 'skipped',
+    transition: Date.parse('2011-12-30T10:00:00.000Z'),
+  });
+});
+
+function authoredFields(instant: number, timezone: string): { date: string; hour: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(instant);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+  return {
+    date: `${value('year')}-${value('month')}-${value('day')}`,
+    hour: Number(value('hour')) + Number(value('minute')) / 60,
+  };
+}
 
 it('keeps facts and actual departures stable through consecutive clock instants', () => {
   let checked = 0;

@@ -31,7 +31,7 @@ gallery, not a supported customization point. Production Profiler callbacks are 
 
 Input-bearing slots accept component types and mount in the data-owning parts.
 The chassis binds defaults once; emptyZone and cornerZone accept nodes. The body
-content key tracks interval and gap component identity, including class components.
+content key tracks interval, gap, and incomplete component identity, including class components.
 The layout uses non-scrolling web clips around translated header and lane-label
 content, preventing focus from offsetting either region independently. Native keeps
 overflow clipping on the same regions. The label column routes vertical wheel input
