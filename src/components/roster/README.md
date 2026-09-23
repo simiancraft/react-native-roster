@@ -12,7 +12,7 @@ This feature is about a roster; its children are lanes.
 - `parts/label-wheel.tsx` / `parts/label-wheel.web.tsx`: web wheel routing to the lane list, with shared types and a browser remap; native is a no-op
 - `layout.tsx`: arranges corner, header, label column, and body regions only
 - `roster.types.ts`: props, model, and every slot input type
-- `body-layout.tsx`: arranges grid, list, and optional absolute overlay nodes with horizontal scroll wiring
+- `body-layout.tsx`: owns horizontal scroll wiring and passes its inner nodes to the shared PlotStack
 - `parts/lane-list.tsx`: `RosterLaneList` owns LegendList and its lane render callback
 - `parts/`: collection-level parts (body, header, header cell, grid, now line, corner, label column, empty)
 - `lanes/`: `LaneRow`, which mounts the shared LayerStack beside its incomplete component,

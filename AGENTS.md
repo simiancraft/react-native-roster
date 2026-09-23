@@ -47,7 +47,7 @@ src/
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
-    layers/                # shared LayerStack collection plus interval and gap components
+    layers/                # shared LayerStack collection, PlotStack layout, and plot parts
     primitives/            # portal store, press-point platform pair, and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/

@@ -10,8 +10,8 @@ This feature is about a schedule; its children are days.
 - `layout.tsx`: arranges header, gutter, and days regions only
 - `schedule.types.ts`: props, model, and every slot input type
 - `parts/`: collection-level parts (gutter, incomplete)
-- `days/`: `ScheduleDay`, the day and day-header layouts, and `ScheduleColumn`, which mounts
-  the shared LayerStack
+- `days/`: `ScheduleDay`, the day and day-header layouts, and `ScheduleColumn`; the day layout
+  mounts the shared PlotStack, and the column mounts the shared LayerStack
 - `utils/days.ts`: header dates, now position, and transition bounds
 - `utils/window-band.ts`: absolute-window clipping and scale-piece projection
 
