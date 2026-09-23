@@ -225,7 +225,7 @@ are clamped up to window.start and rejected at or beyond window.end.
 
 Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
 Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), now (epoch milliseconds or null), bandWindow (absolute Window), highlightSource,
-onNavigate, onDayPress, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
+onNavigate, onDayPress, onIntervalPress, onGapPress, onCellPress, windowBandComponent, style, headerStyle,
 gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
 className, headerClassName, gutterClassName, and daysClassName. No month/custom
 spec, sort, or interval-hover prop.
@@ -241,6 +241,12 @@ those updates.
 bandWindow projects an absolute window into translucent pieces clipped to the displayed window and
 real day columns. It does not change the Schedule extent, lane geometry, coverage, layers, sources,
 or press behavior. Omitted, empty, reversed, and nonoverlapping values produce no pieces.
+windowBandComponent?: ComponentType<WindowBandInput> replaces each piece. WindowBandInput contains
+the real day: DayColumn, zero-based column, clipped absolute start and end, and final x, y, width,
+and height. ScheduleWindowBand is the root-exported translucent default. Example:
+<Schedule bandWindow={{start,end}} windowBandComponent={FocusWindowBand} ... /> where the
+module-scope FocusWindowBand accepts WindowBandInput and returns positioned pointer-transparent
+content.
 Each mounted Schedule or useSchedule surface owns an isolated cache identity by default.
 Reuse one explicit cacheIdentity only across surfaces that render the same dataset.
 

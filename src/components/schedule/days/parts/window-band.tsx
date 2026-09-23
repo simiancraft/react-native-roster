@@ -1,7 +1,7 @@
 import { View } from 'react-native';
-import type { WindowBandPiece } from '../../utils/window-band';
+import type { WindowBandInput } from '../../schedule.types';
 
-export function ScheduleWindowBand({ x, y, width, height }: WindowBandPiece) {
+export function ScheduleWindowBand({ x, y, width, height }: WindowBandInput) {
   return (
     <View
       testID="schedule-window-band"
