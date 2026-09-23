@@ -47,7 +47,7 @@ src/
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
-    layers/                # shared LayerStack collection plus interval and gap components
+    layers/                # shared LayerStack collection, PlotStack layout, and rect components
     primitives/            # portal store, press-point platform pair, and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
@@ -293,9 +293,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
 
 11. **Roster waits for viewport measurement before mounting LegendList.** RosterBody
     composes a node-only RosterBodyLayout and the RosterLaneList collection part.
-    RosterBodyLayout arranges gridZone, listZone, and optional overlayZone above both
-    inside horizontal scroll content, mounting the overlay wrapper only for a provided
-    node. BodyInput extends positive LaneListInput with ticks, grid, and now-line
+    RosterBodyLayout passes gridZone, listZone, and optional overlayZone to the shared
+    PlotStack inside horizontal scroll content; PlotStack mounts the overlay wrapper only
+    for a provided node. BodyInput extends positive LaneListInput with ticks, grid, and now-line
     inputs; RosterBody picks the lane-list props explicitly. Controlled now defaults
     to null; useRoster retains raw now and derives nowLine ({ x, now }) via xAtTime with the fitted
     projection; nowLine is null when now is null or outside end-exclusive window bounds.
@@ -426,6 +426,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     hooks use a 280 px grid; the chassis subtracts the 48 px gutter from measured width.
     pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
     walk, filtering rects by column and keeping the original pointer for final bounds.
+    ScheduleDayLayout mounts the shared PlotStack with clipped day bounds. Its overlay keeps the
+    window band, transitions, and current-time line in that order at chromeZ above every rect.
     onDayPress receives the actual DayColumn for ordinary dates. ScheduleDayHeaderInput gives custom
     dayHeaderComponent implementations that day and a bound optional onPress handler. The default
     header renders an actionable button only when the handler exists; omission stays presentational,
