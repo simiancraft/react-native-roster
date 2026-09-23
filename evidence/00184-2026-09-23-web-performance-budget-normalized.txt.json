@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "render", "performance"],
+  "covered_paths": [
+    "scripts/check-web-performance.ts",
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/roster/lanes/lane.tsx",
+    "src/components/schedule/days/layout.tsx"
+  ],
+  "capture_commit": "6ff5a21d1e7c2cf2b953fd01e0d7d41aea3efb8e",
+  "capture_method": "bun run check:web",
+  "content_hash": "sha256:eba4c3e78fb4058b7efb603526cea9a6999d9d0ed8aeabbdd1b189a9ac5fdbef"
+}
