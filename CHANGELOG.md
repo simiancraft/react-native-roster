@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/simiancraft/react-native-roster/compare/v1.0.0...v1.1.0) (2026-09-23)
+
+### Features
+
+* **rrule:** support YEARLY frequency ([9636f83](https://github.com/simiancraft/react-native-roster/commit/9636f8383825a4a96e3ef7d660a9094b25adbb9a))
+
 ## [1.0.0](https://github.com/simiancraft/react-native-roster/compare/v0.5.1...v1.0.0) (2026-09-23)
 
 ### ⚠ BREAKING CHANGES
