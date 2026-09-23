@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["api", "tests", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/index.ts",
+    "test/components/component-slots.test.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "bad772c909135b3ddfcd2ffc0fffaac15dd48d9b",
+  "capture_method": "bun test test/components/schedule/render.test.ts test/components/component-slots.test.tsx --verbose; bun run check",
+  "content_hash": "sha256:fb132122ff7c4b2d66d0558019f7ed3b0098c7e2a882f660c3bfd05051899044"
+}
