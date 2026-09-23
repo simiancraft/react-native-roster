@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["ci", "render", "performance"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/layers/README.md",
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/schedule/README.md",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "02506c30662d27efeabf36177b503e7ab6d3e274",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:e489c7f839042fab20acca9ffd1bbb72cb6fd1dc5393581375d2953558d78556"
+}
