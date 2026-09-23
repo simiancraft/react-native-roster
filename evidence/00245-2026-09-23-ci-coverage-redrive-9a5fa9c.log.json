@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["ci", "coverage", "tests"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/schedule/days/parts/window-band.tsx",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "src/components/schedule/utils/window-band.ts",
+    "test/components/schedule/window-band.test.ts",
+    "test/components/schedule/use-schedule.test.ts",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "9a5fa9c8cdcb0d9305588134a0acff4dc628d52d",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:3889aa19f170752c89d612b15e07d50a9c3dbe3ec6b3763b27e1c7c9c0010ed8"
+}

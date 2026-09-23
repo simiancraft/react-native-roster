@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["schedule", "render", "interaction", "tests"],
+  "covered_paths": [
+    "src/components/schedule/days/parts/window-band.tsx",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "src/components/schedule/utils/window-band.ts",
+    "test/components/schedule/window-band.test.ts",
+    "test/components/schedule/use-schedule.test.ts",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "9a5fa9c8cdcb0d9305588134a0acff4dc628d52d",
+  "capture_method": "bun test test/components/schedule/window-band.test.ts test/components/schedule/use-schedule.test.ts test/components/schedule/render.test.ts",
+  "content_hash": "sha256:f2f091c9b7f03bee335a48102cbb96c84451acb3ede6c146ca65bb38c1e5a6c4"
+}
