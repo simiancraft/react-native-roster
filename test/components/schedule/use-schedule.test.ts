@@ -353,25 +353,29 @@ describe('useSchedule hook harness', () => {
     h.update(input);
     expect(h.model.geometry).toBe(geometry);
   });
-  it('updates now on the clock lifecycle, includes window start, and excludes window end', () => {
+  it('controls now without timers, preserves layout and press identity, and uses end-exclusive bounds', () => {
     const input = inputFor('schedule-empty');
-    const now = spyOn(Date, 'now').mockReturnValue(Date.parse('2024-01-01T00:00Z'));
-    let tick!: () => void;
-    spyOn(globalThis, 'setInterval').mockImplementation(((callback: () => void) => {
-      tick = callback;
-      return 17;
-    }) as unknown as typeof setInterval);
+    const interval = spyOn(globalThis, 'setInterval').mockImplementation(
+      (() => 17) as unknown as typeof setInterval,
+    );
     const clear = spyOn(globalThis, 'clearInterval').mockImplementation(() => {});
     const h = harness(input);
-    expect(h.model.now).toBe(h.model.window.start);
-    now.mockReturnValue(h.model.window.end - 1);
-    act(tick);
-    expect(h.model.now).toBe(h.model.window.end - 1);
-    now.mockReturnValue(h.model.window.end);
-    act(tick);
+    const geometry = h.model.geometry;
+    const press = h.model.press;
     expect(h.model.now).toBeNull();
-    act(() => trees.pop()?.unmount());
-    expect(clear).toHaveBeenCalledWith(17);
+    h.update({ ...input, now: null });
+    expect(h.model.now).toBeNull();
+    h.update({ ...input, now: h.model.window.start });
+    expect(h.model.now).toBe(h.model.window.start);
+    h.update({ ...input, now: h.model.window.end - 1 });
+    expect(h.model.now).toBe(h.model.window.end - 1);
+    h.update({ ...input, now: h.model.window.end });
+    expect(h.model.now).toBeNull();
+    expect(h.model.geometry).toBe(geometry);
+    expect(h.model.press).toBe(press);
+    expect(layoutStats().runs).toBe(1);
+    expect(interval).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
   });
   it('keeps expansion warm while remounted default surfaces own isolated caches', () => {
     let tree!: ReactTestRenderer;
