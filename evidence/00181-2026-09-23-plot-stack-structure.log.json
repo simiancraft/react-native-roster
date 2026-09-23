@@ -1,0 +1,10 @@
+{
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/components/layers/plot-stack.tsx",
+    "test/components/layers/plot-stack.test.tsx"
+  ],
+  "capture_commit": "944d76543decc3254fdbd8c17f9617650948a178",
+  "capture_method": "bun test test/components/layers/plot-stack.test.tsx && bun run typecheck:test",
+  "content_hash": "sha256:377551d4a44f93a3a67dd94c8371cae80d5d83215f5117da8b59a0007a092e02"
+}

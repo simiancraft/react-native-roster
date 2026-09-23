@@ -1,0 +1,15 @@
+capture_commit: 944d76543decc3254fdbd8c17f9617650948a178
+command: bun test test/components/layers/plot-stack.test.tsx && bun run typecheck:test
+bun test v1.4.2 (744846f84)
+
+test/components/layers/plot-stack.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+ 3 pass
+ 0 fail
+ 7 expect() calls
+Ran 3 tests across 1 file. [16.00ms]
+$ tsgo --noEmit -p tsconfig.test.json
+exit_code: 0

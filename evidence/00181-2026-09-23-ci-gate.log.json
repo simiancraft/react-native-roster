@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/layers/README.md",
+    "src/components/layers/plot-stack.tsx",
+    "test/components/layers/plot-stack.test.tsx"
+  ],
+  "capture_commit": "944d76543decc3254fdbd8c17f9617650948a178",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:5d59de1382f17db41d2ecc485c585e393e987c01001c0df9fabce53222339fae"
+}
