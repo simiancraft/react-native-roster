@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["docs", "ci-gate"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "d7a237d0e8795d27e96a582edd6cf236ed2d3778",
+  "capture_method": "bun install --frozen-lockfile; bun run check",
+  "content_hash": "sha256:c37fc0fc20f322d7c123fb9d7742e05a8e1d12f231e211986bd92bc1dbb43660"
+}
