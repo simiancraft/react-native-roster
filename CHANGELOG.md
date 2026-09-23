@@ -1,3 +1,13 @@
+## [1.7.0](https://github.com/simiancraft/react-native-roster/compare/v1.6.2...v1.7.0) (2026-09-23)
+
+### Features
+
+* **schedule:** render an optional projected window band ([e6fe2ab](https://github.com/simiancraft/react-native-roster/commit/e6fe2ab8e07e4dc997e5cf3339c8c94df90615d3))
+
+### Bug Fixes
+
+* **demo:** apply authored wall-time policy ([1e1b8bc](https://github.com/simiancraft/react-native-roster/commit/1e1b8bc192511ec744128d0174bc5e739b0c5b6a))
+
 ## [1.6.2](https://github.com/simiancraft/react-native-roster/compare/v1.6.1...v1.6.2) (2026-09-23)
 
 ## [1.6.1](https://github.com/simiancraft/react-native-roster/compare/v1.6.0...v1.6.1) (2026-09-23)
