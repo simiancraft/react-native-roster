@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "ci-gate"],
+  "covered_paths": [
+    ".size-limit.json",
+    ".github/workflows/ci.yml",
+    "src/components/layers/layer-stack.tsx",
+    "src/components/schedule/days/parts/column.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "3aa6e20bc23150ef66c583e845e90c9f5bee1832",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:6bdc8a432bcd60777f4981c59d225179005798b56a036ea6732499768cd8a744"
+}
