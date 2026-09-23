@@ -1,0 +1,37 @@
+Issue #222: replaceable Schedule window-band component
+Captured at: c5a0f7bb1f40ad7aa36f9c726a8505a324b1ecc0
+
+Remote commit verification
+
+$ git fetch origin fix/expose-window-band-component-222
+$ git merge-base --is-ancestor c5a0f7bb1f40ad7aa36f9c726a8505a324b1ecc0 origin/fix/expose-window-band-component-222
+exit code: 0
+
+Focused replacement-slot receipt
+
+$ bun test test/components/component-slots.test.tsx test/components/schedule/render.test.ts test/components/schedule/window-band.test.ts
+33 pass
+0 fail
+358 expect() calls
+Ran 33 tests across 3 files.
+exit code: 0
+
+The focused suites assert the public root type and default export, function and class replacements,
+hook lifecycle state, replacement swaps, clipped first-day inputs, and all four pieces across the
+America/Chicago repeated hour.
+
+Repository gate receipt
+
+$ bun run check
+Biome: 278 files checked, no fixes applied
+Library, test, and demo typechecks: pass
+React Compiler safety: pass
+Library build and 44-route Expo web export: pass
+Tests: 2786 pass, 0 fail, 32699 expect() calls across 38 files
+Coverage: 100.00% functions, 100.00% lines
+Knip: pass
+Publint strict: pass with one pre-existing browser-condition suggestion
+Size limits: core 15.49 kB / 16 kB; rrule 15.11 kB / 15.12 kB;
+root 55.48 kB / 55.83 kB; nativewind 51.37 kB / 51.85 kB
+Web performance and interaction budgets: pass
+exit code: 0

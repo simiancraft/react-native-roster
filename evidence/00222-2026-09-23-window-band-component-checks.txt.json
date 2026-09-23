@@ -1,0 +1,20 @@
+{
+  "scope_tags": ["api", "tests", "documentation"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "llms.txt",
+    "src/components/schedule/README.md",
+    "src/components/schedule/days/parts/window-band.tsx",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/utils/window-band.ts",
+    "src/index.ts",
+    "test/components/component-slots.test.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "c5a0f7bb1f40ad7aa36f9c726a8505a324b1ecc0",
+  "capture_method": "bun test test/components/component-slots.test.tsx test/components/schedule/render.test.ts test/components/schedule/window-band.test.ts; bun run check",
+  "content_hash": "sha256:ce74d95b2cb09d37cc51fc4769a15cbdb5647035b3f845ce1ecb84f10200a434"
+}
