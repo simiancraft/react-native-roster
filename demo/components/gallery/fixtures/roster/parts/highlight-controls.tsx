@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Control } from '../../parts/control';
+import { Control, ToggleControl } from '../../parts/control';
 
 /** Highlight the fixture's rule with a fresh source object, or clear it. */
 export function HighlightControls({
@@ -13,7 +13,7 @@ export function HighlightControls({
 }) {
   return (
     <View className="flex-row gap-2">
-      <Control label="Highlight rule (fresh source)" selected={active} onPress={onHighlight} />
+      <ToggleControl label="Highlight rule (fresh source)" pressed={active} onPress={onHighlight} />
       <Control label="Clear highlight" onPress={onClear} />
     </View>
   );
