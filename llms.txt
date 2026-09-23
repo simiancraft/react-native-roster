@@ -473,7 +473,7 @@ error; do not silently map errors to definitive empty lanes. A zero-duration win
 timezone, then returns empty intervals and gaps, complete=true, and expanded=0.
 
 RuleSet is {rules:RosterRule[],dates:RosterDate[]}.
-RosterRule requires id, kind:'include'|'exclude', frequency:'DAILY'|'WEEKLY'|'MONTHLY',
+RosterRule requires id, kind:'include'|'exclude', frequency:'DAILY'|'WEEKLY'|'MONTHLY'|'YEARLY',
 dtstart (ISO date/datetime), hourstart, hourend, and timezone (IANA).
 Optional: until, count, interval, wkst, byweekday, bymonth, bymonthday, bysetpos.
 RosterDate requires id, kind, date (local ISO date), and timezone; optional note
@@ -487,14 +487,14 @@ Expansion uses one absolute envelope for every include, exclude, and date:
 envelopeFor(window) is window +/-48 absolute hours. The view zone is not an input.
 Enumeration retains the original dtstart except for interval-1 rules without
 COUNT whose anchor is exactly local midnight. Those rules may skip whole periods
-in plain-date space, preserving the weekly weekday and monthly day, and stepping
-back past nonexistent dates. Date-only and local-datetime dtstart preserve their
+in plain-date space, preserving the weekly weekday, monthly day, or yearly month
+and day, and stepping back past nonexistent dates. Date-only and local-datetime dtstart preserve their
 authored date and time, even inside a skipped date or hour. Explicit-offset dtstart
 remains an instant, converted to wall fields and an offset in the rule's zone.
 The engine iterates those wall fields in UTC calendar space.
 Every rule enumerates from the period containing DTSTART at the anchor wall time,
-aligned to WKST for WEEKLY and day 1 for MONTHLY, so interval phases follow the
-DTSTART period rather than the first matching date. Dates before DTSTART are
+aligned to WKST for WEEKLY, day 1 for MONTHLY, and January 1 for YEARLY, so interval
+phases follow the DTSTART period rather than the first matching date. Dates before DTSTART are
 rejected before COUNT and cap admission.
 DAILY weekday filters are applied by the adapter to the authored daily sequence
 because the engine otherwise re-anchors at the first matching date.
@@ -505,14 +505,14 @@ UTC calendar bound of the envelope query.
 The enumeration bound is conservative through the wall date after any cross-date rollback
 at the envelope end, and envelope clipping discards the extra candidates.
 The adapter owns BYSETPOS after every other BYxxx filter, grouping plain dates
-by day, WKST week, or year-month before deduplication, UNTIL, COUNT, and cap admission.
+by day, WKST week, year-month, or year before deduplication, UNTIL, COUNT, and cap admission.
 Positional enumeration includes complete edge periods, then rejects dates before
 DTSTART and spans outside the envelope. The engine iteration limit is the number
 of authored periods from the enumeration anchor through the query bound, so empty
 candidate periods terminate completely without an arbitrary cutoff. Only that
 exact engine limit error signals completed enumeration; other failures propagate.
-Replayed iterator passes stop before buffering positional candidates.
-YEARLY is unsupported and rejected by input validation.
+Replayed iterator passes stop before buffering positional candidates. Implicit monthly days and
+yearly months and days are supplied explicitly, so calendar-constrained anchors do not drift.
 The adapter
 drops wholly nonexistent dates before counting existing dates from the original
 anchor for COUNT. A skipped date never becomes a different weekday or consumes

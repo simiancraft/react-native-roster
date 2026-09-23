@@ -112,12 +112,18 @@ export function enumerate(
         : input.frequency === 'WEEKLY' && !input.bymonthday?.length
           ? [allowedWeekdays[(original.dayOfWeek - 1) as Weekday]]
           : undefined,
-    byMonth: input.bymonth,
-    // Explicitly preserve the implicit monthly day; 1.5.2's fallback otherwise
-    // constrains a 31st through February and drifts subsequent months.
+    // Explicitly preserve the implicit yearly month; the engine otherwise
+    // constrains a leap-day anchor to February 28 and drifts subsequent years.
+    byMonth: input.bymonth?.length
+      ? input.bymonth
+      : input.frequency === 'YEARLY' && !input.byweekday?.length && !input.bymonthday?.length
+        ? [original.month]
+        : undefined,
+    // Explicitly preserve implicit monthly and yearly days; the engine otherwise
+    // constrains a 31st through February or a leap day through non-leap years.
     byMonthDay: input.bymonthday?.length
       ? input.bymonthday
-      : input.frequency === 'MONTHLY' && !input.byweekday?.length
+      : (input.frequency === 'MONTHLY' || input.frequency === 'YEARLY') && !input.byweekday?.length
         ? [original.day]
         : undefined,
     tzid: 'UTC',
@@ -236,7 +242,7 @@ function plain(value: RuleDateTime): Spec.Temporal.PlainDateTime {
 }
 
 // Keep the original wall time and back up one period so WKST/BYDAY cannot lose
-// an earlier candidate. A monthly jump must never constrain the 31st to the 28th.
+// an earlier candidate. Calendar jumps must preserve the authored month and day.
 function advance(
   original: Spec.Temporal.PlainDateTime,
   envelope: Window,
@@ -246,8 +252,7 @@ function advance(
   const lower = Temporal.Instant.fromEpochMilliseconds(envelope.start)
     .toZonedDateTimeISO(input.timezone)
     .startOfDay();
-  const unit =
-    input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
+  const unit = periodUnit(input);
   const originalDate = original.toPlainDate();
   const interval = input.interval ?? 1;
   const distance = originalDate.until(lower.toPlainDate(), { largestUnit: unit })[unit];
@@ -257,6 +262,8 @@ function advance(
     if (
       (unit !== 'weeks' || candidate.dayOfWeek === originalDate.dayOfWeek) &&
       (unit !== 'months' || candidate.day === originalDate.day) &&
+      (unit !== 'years' ||
+        (candidate.month === originalDate.month && candidate.day === originalDate.day)) &&
       candidate.toZonedDateTime(input.timezone).toPlainDate().equals(candidate)
     )
       return candidate.toPlainDateTime(original.toPlainTime());
@@ -276,11 +283,13 @@ function anchorFor(
     : date.toPlainDateTime(original.toPlainTime()).toZonedDateTime(timezone);
 }
 
-function periodUnit(input: RosterRule): 'days' | 'weeks' | 'months' {
+function periodUnit(input: RosterRule): 'days' | 'weeks' | 'months' | 'years' {
+  if (input.frequency === 'YEARLY') return 'years';
   return input.frequency === 'MONTHLY' ? 'months' : input.frequency === 'WEEKLY' ? 'weeks' : 'days';
 }
 
 function periodStart(date: Spec.Temporal.PlainDate, input: RosterRule): Spec.Temporal.PlainDate {
+  if (input.frequency === 'YEARLY') return date.with({ month: 1, day: 1 });
   if (input.frequency === 'MONTHLY') return date.with({ day: 1 });
   if (input.frequency === 'WEEKLY')
     return date.subtract({ days: (date.dayOfWeek - 1 - (input.wkst ?? 0) + 7) % 7 });

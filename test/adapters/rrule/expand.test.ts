@@ -1367,6 +1367,96 @@ describe('recurrence fields and local boundaries', () => {
   });
 });
 
+describe('yearly recurrence', () => {
+  it('nets an annual whole-day exclusion against daily local hours', () => {
+    for (const [year, start, end] of [
+      [2026, '2026-12-25T14:00Z', '2026-12-25T22:00Z'],
+      [2027, '2027-12-25T14:00Z', '2027-12-25T22:00Z'],
+    ] as const) {
+      const output = expandRuleSet(
+        set(
+          [
+            rule({ id: 'w', timezone: 'America/New_York' }),
+            rule({
+              id: 'x',
+              kind: 'exclude',
+              frequency: 'YEARLY',
+              dtstart: '2026-12-25',
+              hourstart: 0,
+              hourend: 24,
+              timezone: 'America/New_York',
+            }),
+          ],
+          [],
+        ),
+        windowFor({
+          span: 'day',
+          anchorDate: `${year}-12-25`,
+          timezone: 'America/New_York',
+        }),
+      );
+      expect(output.intervals).toEqual([]);
+      expect(output.gaps).toEqual([span(start, end, 'rule', 'x')]);
+      expect(output.complete).toBe(true);
+    }
+  });
+
+  it('preserves an implicit February 29 anchor across non-leap years and anchor advancement', () => {
+    const input = rule({ frequency: 'YEARLY', dtstart: '2020-02-29' });
+    const target = { start: epoch('2024-01-01'), end: epoch('2030-01-01') };
+    const expected = {
+      spans: [
+        { start: epoch('2024-02-29T09:00Z'), end: epoch('2024-02-29T17:00Z') },
+        { start: epoch('2028-02-29T09:00Z'), end: epoch('2028-02-29T17:00Z') },
+      ],
+      capped: false,
+    };
+    expect(enumerate(input, target, 400, false)).toEqual(expected);
+    expect(enumerate(input, target, 400, true)).toEqual(expected);
+  });
+
+  it('drops a skipped DTSTART before applying yearly COUNT', () => {
+    const input = rule({
+      frequency: 'YEARLY',
+      dtstart: '2011-12-30',
+      count: 2,
+      timezone: 'Pacific/Apia',
+      hourend: 10,
+    });
+    const target = { start: epoch('2011-12-29'), end: epoch('2014-01-02') };
+    const expected = {
+      spans: [
+        { start: epoch('2012-12-29T19:00Z'), end: epoch('2012-12-29T20:00Z') },
+        { start: epoch('2013-12-29T19:00Z'), end: epoch('2013-12-29T20:00Z') },
+      ],
+      capped: false,
+    };
+    expect(enumerate(input, target, 400, false)).toEqual(expected);
+    expect(enumerate(input, target, 400, true)).toEqual(expected);
+  });
+
+  it('groups BYSETPOS by year before inclusive UNTIL and COUNT admission', () => {
+    const input = rule({
+      frequency: 'YEARLY',
+      dtstart: '2024-01-01',
+      bymonth: [3, 11],
+      byweekday: [0, 1, 2, 3, 4],
+      bysetpos: [-1],
+      until: '2025-11-28',
+      count: 2,
+    });
+    const output = expandRuleSet(set([input], []), {
+      start: epoch('2024-01-01'),
+      end: epoch('2027-01-01'),
+    });
+    expect(output.intervals).toEqual([
+      span('2024-11-29T09:00Z', '2024-11-29T17:00Z', 'rule', 'a'),
+      span('2025-11-28T09:00Z', '2025-11-28T17:00Z', 'rule', 'a'),
+    ]);
+    expect(output.complete).toBe(true);
+  });
+});
+
 describe('validation', () => {
   it('rejects either unpaired date hour with a clear error', () => {
     for (const hours of [{ hourstart: 9 }, { hourend: 17 }]) {

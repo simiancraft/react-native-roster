@@ -10,8 +10,9 @@ the reference for anyone reading or changing `src/adapters/rrule`.
 
 Expansion retains the original `dtstart` unless it is exactly local midnight
 with interval 1 (or absent) and no COUNT. Such rules may skip whole periods in
-plain-date space while preserving the weekly weekday and monthly day, stepping
-back past nonexistent dates. All other rules keep the original anchor.
+plain-date space while preserving the weekly weekday, monthly day, or yearly
+month and day, stepping back past nonexistent dates. All other rules keep the
+original anchor.
 
 Date-only and local-datetime DTSTART preserve their authored date and time, even
 inside a skipped date or hour. Explicit-offset DTSTART remains an instant whose
@@ -20,12 +21,13 @@ fields in UTC calendar space, so a wholly skipped date cannot become another
 weekday.
 
 Every rule enumerates from the period containing DTSTART at the anchor wall time,
-aligned to WKST for WEEKLY and day 1 for MONTHLY, so interval phases follow the
-DTSTART period rather than the first matching date. Dates before DTSTART are
-rejected before COUNT and cap admission. DAILY weekday filters are applied by the
-adapter to the authored daily sequence because the engine otherwise re-anchors at
-the first matching date. The implicit monthly day is supplied explicitly so a
-31st cannot drift through February.
+aligned to WKST for WEEKLY, day 1 for MONTHLY, and January 1 for YEARLY, so
+interval phases follow the DTSTART period rather than the first matching date.
+Dates before DTSTART are rejected before COUNT and cap admission. DAILY weekday
+filters are applied by the adapter to the authored daily sequence because the
+engine otherwise re-anchors at the first matching date. The implicit monthly day
+and yearly month and day are supplied explicitly, so a 31st cannot drift through
+February, and February 29 cannot drift through non-leap years.
 
 ## UNTIL
 
@@ -48,7 +50,7 @@ end; envelope clipping discards the extra candidates.
 The adapter never passes COUNT to the engine. It drops wholly nonexistent dates
 before counting existing dates from the original anchor, so a skipped date never
 becomes a different weekday or consumes COUNT. The adapter owns BYSETPOS after
-every other BYxxx filter, grouping plain dates by day, WKST week, or year-month
+every other BYxxx filter, grouping plain dates by day, WKST week, year-month, or year
 before deduplication, UNTIL, COUNT, and cap admission. Positional enumeration
 includes complete edge periods, then rejects dates before DTSTART and spans
 outside the envelope. Out-of-envelope occurrences consume no cap.
@@ -57,8 +59,7 @@ The engine iteration limit is the number of authored periods from the enumeratio
 anchor through the query bound, so empty candidate periods terminate without an
 arbitrary cutoff. Only that exact engine limit error signals completed
 enumeration; other failures propagate. Replayed iterator passes stop before
-buffering positional candidates. YEARLY is unsupported and rejected by input
-validation.
+buffering positional candidates.
 
 ## Validation
 
