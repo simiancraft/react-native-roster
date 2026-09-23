@@ -251,6 +251,7 @@ function DefaultCorner(model: TeamRosterModel) {
 function DefaultInspector(model: TeamRosterReady) {
   return (
     <MemberInspector
+      now={model.now}
       lane={model.weekLane}
       member={model.selectedMember}
       selection={model.selection}

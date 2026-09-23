@@ -18,7 +18,11 @@ The `TeamRosterSlots` type groups component slots with inputs using `ComponentTy
 and the `backZone` node. Stable interval,
 header-cell, and lane-label components read display settings from context.
 The member Schedule uses TeamScheduleInterval and omits the horizontal attendance strip.
-Its automatic system-clock now line is suppressed because Schedule has no controlled clock.
+The showcase passes its fixed seeded `now` through the inspector and displays the normal Schedule
+now line when that instant is inside the inspector week. In general, omitted `now` and null hide
+the line. A host that wants live time keeps `now` in state, updates it with its own interval, and
+clears that interval on cleanup. Consumers migrating from Schedule's former automatic clock must
+supply `now` and own its updates.
 Its lane is expanded separately for the full inspector week, including in day mode,
 and indexed by member id. Interval presses retain the member with no inspector detail;
 gap presses resolve time-off notes from source id suffixes (lunch or pto).
