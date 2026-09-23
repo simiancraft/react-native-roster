@@ -6,6 +6,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { LayerStack } from '../../../src/components/layers/layer-stack';
 import { RosterGap } from '../../../src/components/layers/parts/gap';
 import { RosterInterval } from '../../../src/components/layers/parts/interval';
+import { PlotStack } from '../../../src/components/layers/plot-stack';
 import { Roster } from '../../../src/components/roster';
 import { LaneRow } from '../../../src/components/roster/lanes/lane';
 import { RosterIncomplete } from '../../../src/components/roster/lanes/parts/incomplete';
@@ -50,6 +51,11 @@ describe('Roster zones and rect primitives', () => {
     );
     expect(tree.root.findAllByType(RosterNowLine)).toHaveLength(0);
     expect(tree.root.findAll((node) => node.props.style?.zIndex === 1)).toHaveLength(0);
+    const plot = tree.root.findByType(PlotStack);
+    expect(plot.props).toMatchObject({ width: 5040, height: 480, overlayZ: 1 });
+    expect(plot.props.gridZone.type).toBe(RosterGrid);
+    expect(plot.props.marksZone.type).toBe(RosterLaneList);
+    expect(plot.props.overlayZone).toBeNull();
     const now = windowFor(rosterWindowSpec).start + 90 * 60_000;
     act(() => tree.update(createElement(Roster, { ...input, now })));
     const line = tree.root.findByProps({ testID: 'roster-now-line' });
@@ -67,10 +73,12 @@ describe('Roster zones and rect primitives', () => {
     expect(overlay?.props.style).toMatchObject({
       position: 'absolute',
       top: 0,
+      right: 0,
       bottom: 0,
+      left: 0,
       zIndex: 1,
     });
-    expect(overlay?.parent?.parent?.props.testID).toBe('roster-horizontal-scroll');
+    expect(plot.parent?.props.testID).toBe('roster-horizontal-scroll');
     const nowLineComponent = mock((value: RosterNowLineInput) =>
       createElement('custom-now', value),
     );
