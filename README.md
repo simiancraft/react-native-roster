@@ -168,6 +168,10 @@ function LiveSchedule() {
 Before the controlled clock contract, Schedule started and updated its own clock. Consumers
 migrating from that behavior must now supply `now` and update it when needed.
 
+Pass `bandWindow={{ start, end }}` to mark an absolute window without changing the Schedule's own
+day or week extent. The default translucent band is clipped to the displayed window and its real
+day columns. Omitted, empty, reversed, and nonoverlapping windows draw no band.
+
 ### Recurrence from rrule
 
 The `/rrule` adapter turns daily, weekly, monthly, and yearly rules into intervals and

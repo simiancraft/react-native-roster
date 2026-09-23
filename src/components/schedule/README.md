@@ -12,6 +12,7 @@ This feature is about a schedule; its children are days.
 - `parts/`: collection-level parts (gutter, incomplete)
 - `days/`: `ScheduleDay`, the day and day-header layouts, and day-local parts
 - `utils/days.ts`: header dates, now position, and transition bounds
+- `utils/window-band.ts`: absolute-window clipping and scale-piece projection
 
 Interval and gap components live in `../layers`; press geometry and `regionStyle`
 in `../primitives`. Zone contracts and a complete example live in the
@@ -26,6 +27,11 @@ Schedule has ten input-bearing component slots and no zero-argument singleton sl
 milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in
 state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
 the former automatic line must supply `now` and own its updates.
+
+`bandWindow` optionally projects an absolute `Window` as translucent pieces through the real day
+columns. Omitted, empty, reversed, and nonoverlapping values produce no pieces. Derivation stays
+outside lane layout and cache keys, so changing the band preserves the displayed window, geometry,
+coverage, layers, sources, and press behavior.
 
 Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
 Pass one stable `cacheIdentity` to multiple surfaces only when they render the same dataset and

@@ -236,6 +236,11 @@ example `const [now, setNow] = useState(() => Date.now())`, followed by an effec
 state as `<Schedule now={now} ... />`. Schedule previously created this timer automatically;
 migrating consumers must now supply and update `now` themselves.
 
+`bandWindow={{ start, end }}` marks an absolute window with the default translucent band. Its pieces
+are clipped to the displayed window and real day columns, including clock-change scale pieces.
+Changing the band does not change the Schedule extent, lane geometry, coverage, layers, sources, or
+press behavior. Omitted, empty, reversed, and nonoverlapping values draw nothing.
+
 | Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
 | `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |

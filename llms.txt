@@ -224,20 +224,23 @@ windows use their exact elapsed duration, including sub-minute spans. Cell times
 are clamped up to window.start and rejected at or beyond window.end.
 
 Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
-Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), now (epoch milliseconds or null), highlightSource,
+Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), now (epoch milliseconds or null), bandWindow (absolute Window), highlightSource,
 onNavigate, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
 gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
 className, headerClassName, gutterClassName, and daysClassName. No month/custom
 spec, sort, or interval-hover prop.
 
 useSchedule returns window, days, projection, geometry, now (epoch ms or null),
-press(columnIndex,x,y), and status:'ready'. The standalone hook uses a 280 px grid.
+windowBandPieces, press(columnIndex,x,y), and status:'ready'. The standalone hook uses a 280 px grid.
 The chassis measures width, reserves a 48 px gutter, and fits all actual day
 columns without horizontal scrolling; the body scrolls vertically. Omitted now and null hide the
 line. A supplied now is also hidden outside the selected window. Schedule does not start a clock.
 For a live line, the host keeps now in state, updates it from its own interval, and clears that
 interval on cleanup. Consumers migrating from the former automatic clock must supply now and own
 those updates.
+bandWindow projects an absolute window into translucent pieces clipped to the displayed window and
+real day columns. It does not change the Schedule extent, lane geometry, coverage, layers, sources,
+or press behavior. Omitted, empty, reversed, and nonoverlapping values produce no pieces.
 Each mounted Schedule or useSchedule surface owns an isolated cache identity by default.
 Reuse one explicit cacheIdentity only across surfaces that render the same dataset.
 

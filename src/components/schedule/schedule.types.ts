@@ -13,6 +13,7 @@ import type {
   WindowSpec,
 } from '../../core';
 import type { GapInput, IntervalInput } from '../layers/layers.types';
+import type { WindowBandPiece } from './utils/window-band';
 
 export type ScheduleWindowSpec = WindowSpec & { span: 'day' | 'week' };
 export type ScheduleProjection = Extract<Projection, { orientation: 'columns' }>;
@@ -26,6 +27,8 @@ export type ScheduleInput = {
   pxPerHour?: number;
   /** Current instant in epoch milliseconds; default null draws no now line. */
   now?: number | null;
+  /** Absolute window projected as a translucent band without changing the displayed window. */
+  bandWindow?: Window;
   highlightSource?: Source;
   onNavigate?: (next: WindowSpec) => void;
   /** Called when an ordinary day heading is activated. */
@@ -40,6 +43,8 @@ export type ScheduleModel = {
   projection: ScheduleProjection;
   geometry: LaneGeometry;
   now: number | null;
+  /** Visible pieces of bandWindow clipped and projected through the real day columns. */
+  windowBandPieces: WindowBandPiece[];
   press: (columnIndex: number, x: number, y: number) => void;
   status: 'ready';
 };
