@@ -1,11 +1,15 @@
 import { useColorScheme } from 'nativewind';
 import { TextInput } from 'react-native';
-import { type SortKey, type SpanKey, VIEW_TIMEZONES } from '../team-roster.types';
+import { type SortKey, type SpanKey, VIEW_TIMEZONES, type WeekDensity } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
 import { MUTED_FOREGROUND_HEX } from '../utils/tones';
 import { Chip, ChipGroup, ToolbarButton } from './chips';
 
 const SPAN_LABELS: Record<SpanKey, string> = { day: 'Day', week: 'Week' };
+const WEEK_DENSITY_LABELS: Record<WeekDensity, string> = {
+  fitted: 'Fitted',
+  detailed: 'Detailed',
+};
 const SORT_LABELS: Record<SortKey, string> = {
   name: 'Name',
   availability: 'Most hours',
@@ -27,6 +31,28 @@ export function SpanChips({
           key={key}
           label={SPAN_LABELS[key]}
           selected={key === span}
+          onPress={() => onChange(key)}
+        />
+      ))}
+    />
+  );
+}
+
+export function WeekDensityChips({
+  density,
+  onChange,
+}: {
+  density: WeekDensity;
+  onChange: (density: WeekDensity) => void;
+}) {
+  return (
+    <ChipGroup
+      label="Density"
+      chipsZone={(Object.keys(WEEK_DENSITY_LABELS) as WeekDensity[]).map((key) => (
+        <Chip
+          key={key}
+          label={WEEK_DENSITY_LABELS[key]}
+          selected={key === density}
           onPress={() => onChange(key)}
         />
       ))}

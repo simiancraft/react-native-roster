@@ -6,6 +6,7 @@ export type Team = { organization: string; members: Member[] };
 
 export type SortKey = 'name' | 'availability' | 'free';
 export type SpanKey = ScheduleWindowSpec['span'];
+export type WeekDensity = 'fitted' | 'detailed';
 /** The full week expanded for the member inspector. */
 export type WeekWindowSpec = ScheduleWindowSpec & { span: 'week' };
 /** How much of each person fits beside the lanes: full card, stacked name, or avatar only. */
