@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["rrule", "test"],
+  "covered_paths": [
+    "src/adapters/rrule/occurrences.ts",
+    "src/adapters/rrule/types.ts",
+    "src/adapters/rrule/validate.ts",
+    "test/adapters/rrule/expand.test.ts"
+  ],
+  "capture_commit": "ff315168df1d85d74cf3bb68b8f670c2bcfc6ee0",
+  "capture_method": "FORCE_COLOR=0 bun test test/adapters/rrule/expand.test.ts -t 'BYHOUR|byhour'",
+  "content_hash": "sha256:8c290ac06120c8a3017a8e1ad69facc413ccc7501f31b4343b47cee11ed20754"
+}
