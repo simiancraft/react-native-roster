@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "accessibility", "flow"],
+  "covered_paths": [
+    "src/components/schedule/days/parts/day-header.tsx",
+    "demo/components/gallery/fixtures/schedule/index.tsx",
+    "demo/components/gallery/fixtures/schedule/use-schedule-fixture.ts",
+    "scripts/check-web-performance.ts"
+  ],
+  "capture_commit": "4e79a995296d2528615e14814ec29b20c7c8e47c",
+  "capture_method": "Playwright Chromium against the exported schedule-layers route; click, Enter, Space, then full-page screenshot",
+  "content_hash": "sha256:bf3340031e59d1dd5a575f11439029e6bb8b8d378732eca6071e8c9a7a9cdb54"
+}

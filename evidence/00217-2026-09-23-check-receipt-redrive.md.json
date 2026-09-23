@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["frontend", "accessibility", "test", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    ".size-limit.json",
+    "demo/components/gallery/fixtures/schedule/index.tsx",
+    "demo/components/gallery/fixtures/schedule/use-schedule-fixture.ts",
+    "scripts/check-web-performance.ts",
+    "src/components/schedule/days/parts/day-header.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "4e79a995296d2528615e14814ec29b20c7c8e47c",
+  "capture_method": "bun install --frozen-lockfile; bun test test/components/schedule/render.test.ts; bun run check",
+  "content_hash": "sha256:770b9845e37eded48d6f4a04c6b49a7ae2efc4be217be1f4a37453fb660722ac"
+}
