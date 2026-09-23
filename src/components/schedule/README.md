@@ -7,6 +7,7 @@ This feature is about a schedule; its children are days.
 
 - `index.tsx`: the chassis; measures the viewport, calls `useSchedule`, composes zones
 - `use-schedule.ts`, `use-schedule-viewport.ts`: the hook and the width context
+- `constants.ts`: the shared 48 px gutter width used by layout and viewport measurement
 - `layout.tsx`: arranges header, gutter, and days regions only
 - `schedule.types.ts`: props, model, and every slot input type
 - `parts/`: collection-level parts (gutter, incomplete)

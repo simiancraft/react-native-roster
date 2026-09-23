@@ -62,14 +62,17 @@ The loaded roster scope retains at most 2,000 tick entries in one least-recently
 refresh recency. It registers tick cleanup with `clearCaches()`, which is repeatable, so cleared or
 evicted inputs regenerate equal tick content.
 
-`selection/` holds the runtime-swappable presentation strategies (native popover, web popover) for one `SelectionLayoutProps` contract.
+`selection/` holds compatibility adapters from the runtime-swappable public
+`SelectionLayoutProps` contract to the projection-neutral surface in `../selection`.
 
 - `selection/selection-layout.types.ts`: exported `SelectionLayoutProps`, with body
   and detail nodes, targetBounds, open, dismissal, host name, and shared scroll
   limited to x, y, headerStyle, and labelStyle
-- `selection/selection-layout.tsx`: exported native `RosterSelectionPopover`, local
-  portal host, body press passthrough, hardware back, measured viewport clamping, and shared scroll positioning
-- `selection/selection-layout.web.tsx`: Radix presentation with a browser remap
+- `selection/selection-layout.tsx` / `selection-layout.web.tsx`: exported
+  `RosterSelectionPopover` compatibility adapters; the shared surface owns native and web behavior
+
+The shared surface owns the native portal host, body press passthrough, hardware back, measured
+viewport clamping, shared offset positioning, and Radix web presentation.
 
 `intervalDetailComponent` receives `IntervalDetailInput`, the interval input plus absolute
 `start`, `end`, and `viewTimezone`; presses still invoke onIntervalPress.

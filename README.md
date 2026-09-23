@@ -51,6 +51,9 @@ Give each person or resource a lane. `Roster` draws every lane on one time axis;
 `Schedule` draws any one of them as a week, days across and hours down. The same
 lane feeds both.
 
+Roster selection uses a shared projection-neutral presentation surface internally while keeping
+the exported `RosterSelectionPopover` and `SelectionLayoutProps` customization contract stable.
+
 `Roster` draws elapsed time, so the week the clocks change is 167 or 169 hours
 wide; `Schedule` hatches the hour they skipped.
 

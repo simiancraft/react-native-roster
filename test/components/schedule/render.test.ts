@@ -4,6 +4,7 @@ import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { Roster } from '../../../src/components/roster';
 import { Schedule } from '../../../src/components/schedule';
+import { SCHEDULE_GUTTER_WIDTH } from '../../../src/components/schedule/constants';
 import { ScheduleDayLayout } from '../../../src/components/schedule/days/layout';
 import { ScheduleColumn } from '../../../src/components/schedule/days/parts/column';
 import { ScheduleTransition } from '../../../src/components/schedule/days/parts/transition';
@@ -239,13 +240,17 @@ describe('Schedule chassis and day zones', () => {
       act(() => measure.props.onLayout({ nativeEvent: { layout: { width, height: 720 } } }));
       const days = tree.root.findAllByType(ScheduleDayLayout);
       expect(days).toHaveLength(7);
-      expect(days.reduce((sum, day) => sum + day.props.width, 48)).toBeCloseTo(width);
+      expect(days.reduce((sum, day) => sum + day.props.width, SCHEDULE_GUTTER_WIDTH)).toBeCloseTo(
+        width,
+      );
       expect(days.every((day) => day.props.height === 24 * 48)).toBe(true);
       expect(tree.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(7 * 24);
       const column = tree.root
         .findAllByType('Pressable' as ElementType)
         .find((node) => node.props.testID === 'schedule-day-2024-01-01') as ReactTestInstance;
-      expect(column.findByType(ScheduleDayLayout).props.width).toBe((width - 48) / 7);
+      expect(column.findByType(ScheduleDayLayout).props.width).toBe(
+        (width - SCHEDULE_GUTTER_WIDTH) / 7,
+      );
     }
     const runs = layoutStats().runs;
     act(() => measure.props.onLayout({ nativeEvent: { layout: { width: 1280, height: 500 } } }));

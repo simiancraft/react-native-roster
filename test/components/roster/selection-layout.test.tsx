@@ -9,8 +9,46 @@ import { RosterSelectionPopover } from '../../../src/components/roster/selection
 import type { SelectionLayoutProps } from '../../../src/components/roster/selection/selection-layout.types';
 import { RosterSelectionPopover as WebPopover } from '../../../src/components/roster/selection/selection-layout.web';
 import { useRoster } from '../../../src/components/roster/use-roster';
+import { SelectionSurface } from '../../../src/components/selection/selection-layout';
+import { SelectionSurface as WebSelectionSurface } from '../../../src/components/selection/selection-layout.web';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 import { backHandlers } from '../../support/native-host';
+
+it('keeps the shared selection surface independent of Roster modules', async () => {
+  const sources = await Promise.all(
+    ['selection-layout.tsx', 'selection-layout.web.tsx', 'selection-layout.types.ts'].map((file) =>
+      Bun.file(new URL(`../../../src/components/selection/${file}`, import.meta.url)).text(),
+    ),
+  );
+  for (const source of sources) {
+    expect(source).not.toMatch(/from ['"][^'"]*roster/i);
+  }
+});
+
+it('adapts the public Roster contract to projection-neutral shared offsets', () => {
+  let tree!: ReactTestRenderer;
+  function Example() {
+    const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
+    return (
+      <RosterSelectionPopover
+        open={false}
+        targetBounds={null}
+        anchorZone="body"
+        contentZone={null}
+        portalHost="adapter-test"
+        scroll={scroll}
+        onDismiss={() => {}}
+      />
+    );
+  }
+  act(() => {
+    tree = create(<Example />);
+  });
+  const surface = tree.root.findByType(SelectionSurface);
+  expect(Object.keys(surface.props.offsets).sort()).toEqual(['x', 'y']);
+  expect(surface.props).not.toHaveProperty('scroll');
+  act(() => tree.unmount());
+});
 
 it('keeps native selection chrome outside the Roster plot stack', () => {
   const fixture = rosterFixtures['interval-detail'];
@@ -208,9 +246,11 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   expect(onDismiss).toHaveBeenCalledTimes(1);
   act(() => tree.update(<Example targetBounds={{ x: 30, y: 40, width: 100, height: 48 }} />));
   expect(tree.root.findAllByType('div')[1]?.props.style).toMatchObject({ left: 30, top: 88 });
+  const target = tree.root.findByType(WebSelectionSurface);
+  expect(target.props.offsets.x.get()).toBe(12);
+  expect(target.props.offsets.y.get()).toBe(24);
   const overlays = tree.root.findAllByType('AnimatedView' as ElementType);
-  expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }]);
-  expect(overlays[1]?.props.style.transform).toEqual([{ translateY: -24 }]);
+  expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }, { translateY: -24 }]);
   act(() => tree.unmount());
 });
 

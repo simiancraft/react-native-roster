@@ -127,6 +127,9 @@ is in the module graph. Native and core-only consumers do not need it.
 Native mounts a local `PortalHost` and registers `Portal` content; web uses Radix
 for portal placement, outside press, Escape, and collisions. The layout returns focus
 to the previously focused element only after Escape.
+Both platform implementations delegate to an internal projection-neutral selection surface.
+The public Roster adapter maps `scroll.x` and `scroll.y` to that surface while preserving the full
+`SelectionLayoutProps` object for custom consumer layouts.
 The overlay tracks both scroll offsets with Reanimated shared values, without
 React scroll state. Native clamps details horizontally to the measured viewport,
 flips above when that fits, and uses the top edge when neither vertical placement

@@ -308,6 +308,8 @@ Custom chassis mount their content and layout using the returned model.
 
 selectionLayout?: ComponentType<SelectionLayoutProps> defaults to the root-exported
 RosterSelectionPopover. It is the explicit naming exception to the Component suffix.
+RosterSelectionPopover is a compatibility adapter over an internal projection-neutral
+SelectionSurface; custom layouts continue to receive the public SelectionLayoutProps contract.
 The chassis mounts the strategy once around the body node, then passes that node
 to RosterLayout.bodyZone. SelectionLayoutProps is exported: anchorZone and contentZone
 are ReactNode; targetBounds is {x,y,width,height}|null in body-content coordinates, including

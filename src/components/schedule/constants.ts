@@ -1,0 +1,1 @@
+export const SCHEDULE_GUTTER_WIDTH = 48;

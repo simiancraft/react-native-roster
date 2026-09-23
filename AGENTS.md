@@ -42,6 +42,7 @@ src/
   adapters/rrule/index.ts  # the shipped adapter: recurrence expansion, caps, provenance, and cache API
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/
+    selection/             # projection-neutral selection surface platform pair
     roster/                # Roster chassis, hook, layout, and collection parts
     roster/selection/      # native/web selection layouts and shared presentation contract
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
@@ -158,7 +159,8 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   page naming its subpath, exports, boundary, and file map; keep them current:
   [core](src/core/README.md), [roster](src/components/roster/README.md),
   [schedule](src/components/schedule/README.md), [layers](src/components/layers/README.md),
-  [primitives](src/components/primitives/README.md), [rrule](src/adapters/rrule/README.md),
+  [selection](src/components/selection/README.md), [primitives](src/components/primitives/README.md),
+  [rrule](src/adapters/rrule/README.md),
   [nativewind](src/nativewind/README.md), [gallery](demo/components/gallery/README.md),
   [team-roster](demo/components/team-roster/README.md), [site-footer](demo/components/site-footer/README.md),
   and [theme](demo/components/theme/README.md).
@@ -523,6 +525,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The chassis defaults selectionLayout once and passes mounted body and detail nodes.
     targetBounds names the selected bounds; anchorZone holds the mounted body.
     Layout scroll inputs contain only x, y, headerStyle, and labelStyle.
+    RosterSelectionPopover is a compatibility adapter over the internal, projection-neutral
+    SelectionSurface. The shared surface accepts resolved zones, targetBounds, and only the x and
+    y shared offsets; it imports no Roster types.
     The default native layout owns PortalHost, named from the roster's useId unless
     portalHost overrides it; independent rosters must use different names. Do not mount
     duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
@@ -542,15 +547,15 @@ Do not publish, tag, change repository settings, or push without task authorizat
     A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
     native also retains contentOffset. LegendList restores initialScrollOffset through
     its own web mount effect and native initial offset.
-    Keep selection out of the body content key. selection-layout.web.tsx imports Radix
+    Keep selection out of the body content key. The shared selection-layout.web.tsx imports Radix
     unconditionally. Its peer is optional for native and core-only imports, but required
-    by web root and nativewind imports even with selection disabled. The layout uses
-    a zero-size pointer-transparent anchor; preserve its package.json browser
-    remap and selection-layout.types.ts. Schedule selection is a later change.
+    by web root and nativewind imports even with selection disabled. The surface uses
+    a zero-size pointer-transparent anchor; preserve both selection platform-pair browser
+    remaps and their selection-layout.types.ts files. Schedule selection is a later change.
 
     Root and core entry points bind aliases to the existing immutable function declarations,
-    preserving identity while avoiding CommonJS re-export getter overhead. The web layout
-    composes the shared header and label translations so its Animated import needs no namespace helper.
+    preserving identity while avoiding CommonJS re-export getter overhead. The web surface
+    derives both translations directly from shared x and y offsets.
 
     use-roster-press.ts isolates the stable press ref. The compiler skips that ref integration
     but compiles useRoster's derived values, so selection does not regenerate lane list data.
