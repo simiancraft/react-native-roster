@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["frontend", "accessibility", "browser", "tests", "build"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    "demo/components/gallery/fixtures/roster/index.tsx",
+    "demo/components/gallery/fixtures/roster/parts/highlight-controls.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "demo/components/ui/toggle.tsx",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "test/demo/demo-primitives.test.tsx",
+    "test/support/native-host.ts"
+  ],
+  "capture_commit": "6efd6ad31599f48a4ea09ca48c9ad3620eefde6b",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:9f8e8c927d51b020ba6c561002d089285b6d3d4a4dcf94df68a10e4288ea6283"
+}
