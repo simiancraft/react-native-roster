@@ -1,0 +1,94 @@
+Script started on 2026-09-22 21:33:40-05:00 [<not executed on terminal>]
+Capture commit: 84b688e534b6755fe523ef01376f369fecf84c4d
+Controlled-now commit:
+965da111f63f61bfc483267eb8a092484ecd932d
+feat(schedule)!: adopt controlled now in showcase
+Pass the seeded instant through the member inspector into Schedule. Render the default now line only inside the inspector window. Document the null default, migration, and host-owned clock updates.
+
+BREAKING CHANGE: Schedule no longer creates or updates an automatic clock; consumers must supply now.
+
+===== README.md =====
+151-
+152:`Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+153:fixed instant, pass its epoch milliseconds. To keep the line live, the host owns the updates:
+154-
+--
+160-  useEffect(() => {
+161:    const timer = setInterval(() => setNow(Date.now()), 60_000);
+162:    return () => clearInterval(timer);
+163-  }, []);
+--
+167-
+168:Before the controlled clock contract, Schedule started and updated its own clock. Consumers
+169:migrating from that behavior must now supply `now` and update it when needed.
+170-
+--
+288-identity object per dataset, and pass it to both `layoutLane` and `coverageFor`; independent
+289:datasets then cannot collide when they reuse lane IDs and versions. Omitting the identity uses the
+290-core-owned default, while deliberately reusing one identity shares target-warm coverage across
+--
+329-- [Design note](https://github.com/simiancraft/react-native-roster/blob/main/docs/design.md): why intervals, and why geometry is computed before render.
+330:- [Migrations](https://github.com/simiancraft/react-native-roster/blob/main/docs/migrations.md): prop renames by version.
+331-- [llms.txt](https://github.com/simiancraft/react-native-roster/blob/main/llms.txt): the full contract, defaults, and edge cases in one file, written for coding agents.
+===== llms.txt =====
+62-Expect a green 09:00 to 17:00 interval on January 1, 2024. Scroll horizontally to
+63:see the time range. A bounded viewport is required. In a controlled app, own
+64-WindowSpec in your screen's hook; update
+--
+185-use the current names below instead of the 0.0.x props. Singleton emptyZone and
+186:cornerZone keep their names and now take nodes. See [docs/migrations.md](./docs/migrations.md).
+187-Zone props are ReactNode.
+--
+214-bodies compute geometry only for mounted lanes, preserving virtualization.
+215:Each Roster or useRoster instance owns an isolated cache identity when cacheIdentity is omitted.
+216-Pass the same stable identity to surfaces that deliberately share one dataset.
+--
+235-The chassis measures width, reserves a 48 px gutter, and fits all actual day
+236:columns without horizontal scrolling; the body scrolls vertically. Omitted now and null hide the
+237-line. A supplied now is also hidden outside the selected window. Schedule does not start a clock.
+238:For a live line, the host keeps now in state, updates it from its own interval, and clears that
+239:interval on cleanup. Consumers migrating from the former automatic clock must supply now and own
+240-those updates.
+--
+368-Month navigation clamps to the target month's final day when needed.
+369:Consumer controls update the controlled spec; there is no automatic toolbar.
+370-
+--
+423-projection-independent. ScopedCacheIdentity is a stable empty object whose reference
+424:identifies one dataset. Omitted identities use the core-owned default; pass the same
+425-explicit identity to share one dataset across calls and projections, and use distinct
+===== AGENTS.md =====
+250-9. **Cache lifecycle is explicit.** `ScopedCacheIdentity` is a stable empty object whose
+251:   reference identifies one dataset. Omitted core identities share the core-owned default;
+252-   independent datasets use distinct identities, while one dataset reuses its identity across
+--
+410-    walk, filtering rects by column and keeping the original pointer for final bounds.
+411:    Schedule now is controlled and defaults to null; omitted and null values hide the line.
+412:    Hosts that need a live line own now state, update it from their own interval, and clear that
+413:    interval on cleanup. Consumers migrating from the former automatic clock must supply now.
+414-    Skipped dates have a zero-width header marker supplied by skippedDateComponent and
+===== docs/customization.md =====
+231-
+232:Schedule time is controlled. Omitted `now` and `now={null}` both hide the now line. Supply epoch
+233:milliseconds for a fixed line. A host that needs a live line owns a state value and timer, for
+234-example `const [now, setNow] = useState(() => Date.now())`, followed by an effect that calls
+235-`setInterval(() => setNow(Date.now()), 60_000)` and clears the interval during cleanup. Pass that
+236:state as `<Schedule now={now} ... />`. Schedule previously created this timer automatically;
+237:migrating consumers must now supply and update `now` themselves.
+238-
+===== src/components/schedule/README.md =====
+24-
+25:`now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
+26:milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in
+27:state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
+28:the former automatic line must supply `now` and own its updates.
+29-
+===== demo/components/team-roster/README.md =====
+21-The showcase passes its fixed seeded `now` through the inspector and displays the normal Schedule
+22:now line when that instant is inside the inspector week. In general, omitted `now` and null hide
+23:the line. A host that wants live time keeps `now` in state, updates it with its own interval, and
+24:clears that interval on cleanup. Consumers migrating from Schedule's former automatic clock must
+25:supply `now` and own its updates.
+26-Its lane is expanded separately for the full inspector week, including in day mode,
+
+Script done on 2026-09-22 21:33:40-05:00 [COMMAND_EXIT_CODE="0"]

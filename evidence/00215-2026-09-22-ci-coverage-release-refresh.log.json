@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["ci", "test", "coverage"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "test/demo/showcase-attendance.test.tsx",
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-schedule.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx",
+    "package.json"
+  ],
+  "capture_commit": "84b688e534b6755fe523ef01376f369fecf84c4d",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:d3880441a6bc7673c92e4e691ca208b6c8fbb096d190ad252fdc253a82ffa109"
+}

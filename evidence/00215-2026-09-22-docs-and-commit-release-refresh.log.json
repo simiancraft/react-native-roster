@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["docs", "release"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "docs/customization.md",
+    "src/components/schedule/README.md",
+    "demo/components/team-roster/README.md"
+  ],
+  "capture_commit": "84b688e534b6755fe523ef01376f369fecf84c4d",
+  "capture_method": "git show controlled-now commit and rg the six required documents for the controlled default, host-owned updates, and migration language",
+  "content_hash": "sha256:b18746f14768d75d16404738499688a65fdf16cd55f4b109cf0c14eada7d87d1"
+}
