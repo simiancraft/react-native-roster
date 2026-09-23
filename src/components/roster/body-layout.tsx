@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
+import { PlotStack } from '../layers/plot-stack';
 import type { BodyInput } from './roster.types';
 
 export function RosterBodyLayout({
@@ -17,17 +18,6 @@ export function RosterBodyLayout({
   /** Noninteractive content above the grid and lane list, following horizontal scroll. */
   overlayZone?: ReactNode;
 }) {
-  let overlay: ReactNode = null;
-  if (overlayZone != null) {
-    overlay = (
-      <View
-        pointerEvents="none"
-        style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1 }}
-      >
-        {overlayZone}
-      </View>
-    );
-  }
   const [contentOffset] = useState(() => ({ x: scroll.x.get(), y: 0 }));
   const bodyRef = scroll.bodyRef;
   useEffect(() => {
@@ -43,11 +33,14 @@ export function RosterBodyLayout({
       scrollEventThrottle={16}
       style={{ flex: 1 }}
     >
-      <View style={{ width: contentWidth, height: viewport.height }}>
-        {gridZone}
-        {listZone}
-        {overlay}
-      </View>
+      <PlotStack
+        width={contentWidth}
+        height={viewport.height}
+        overlayZ={1}
+        gridZone={gridZone}
+        marksZone={listZone}
+        overlayZone={overlayZone}
+      />
     </ScrollView>
   );
 }
