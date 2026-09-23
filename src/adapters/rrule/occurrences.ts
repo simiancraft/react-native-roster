@@ -89,6 +89,7 @@ export function enumerate(
     Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate;
   const lastPeriod = periodStart(bound.toPlainDate(), input);
   if (Temporal.PlainDate.compare(firstPeriod, lastPeriod) > 0) return result;
+  const hasYearSelector = input.byyearday?.length || input.byweekno?.length;
   // 1.5.2 tests UNTIL only while visiting candidates in its monthly loop.
   // Every supported loop advances at least one authored period per iteration.
   // Exhaustion after the final query period is complete, even with no candidates.
@@ -120,8 +121,7 @@ export function enumerate(
       : input.frequency === 'YEARLY' &&
           !input.byweekday?.length &&
           !input.bymonthday?.length &&
-          !input.byyearday?.length &&
-          !input.byweekno?.length
+          !hasYearSelector
         ? [original.month]
         : undefined,
     // Explicitly preserve implicit monthly and yearly days; the engine otherwise
@@ -130,8 +130,7 @@ export function enumerate(
       ? input.bymonthday
       : (input.frequency === 'MONTHLY' || input.frequency === 'YEARLY') &&
           !input.byweekday?.length &&
-          !input.byyearday?.length &&
-          !input.byweekno?.length
+          !hasYearSelector
         ? [original.day]
         : undefined,
     byYearDay: input.byyearday,
