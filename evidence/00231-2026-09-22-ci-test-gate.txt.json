@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["adapter", "tests", "ci-gate"],
+  "covered_paths": ["src/", "test/", "scripts/lib/package-version.ts"],
+  "capture_commit": "4f94a3c04af70d1f55c394b2740a75722d69c80e",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:aa0a6c69fe3064b73433969931d00690a8a56edb2cb1e5fc87db969ffa78be41"
+}
