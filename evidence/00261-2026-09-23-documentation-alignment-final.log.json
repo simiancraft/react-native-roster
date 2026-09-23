@@ -1,0 +1,26 @@
+{
+  "scope_tags": [
+    "documentation",
+    "implementation-alignment",
+    "ci-gate"
+  ],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/gallery/README.md",
+    "demo/components/ui/card.tsx",
+    "demo/components/ui/eyebrow.tsx",
+    "demo/components/ui/toggle.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    "demo/components/team-roster/parts/chips.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "package.json",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "a1462c6cd06f6877ec954e443ed55edc97f193c5",
+  "capture_method": "source alignment assertions followed by bun run check",
+  "content_hash": "sha256:80b67fa16a4615d3341170a109242c6e5cd573885b11a008e0123da4faee0cf3"
+}
