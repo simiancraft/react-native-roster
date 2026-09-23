@@ -573,7 +573,7 @@ async function profileStats() {
 async function assertShowcaseWeekAxes() {
   await page.setViewportSize({ width: 1100, height: 900 });
   await page.goto(`${server.url}showcase`, { waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: 'Week', exact: true }).click();
+  await page.getByRole('radio', { name: 'Week', exact: true }).click();
   await settle(page);
 
   for (const [density, width] of [
@@ -632,14 +632,14 @@ async function assertShowcaseWeekAxes() {
     await settle(page);
     const horizontal = page.getByTestId('roster-horizontal-scroll');
     const detailed = await horizontal.evaluate((node) => node.scrollWidth);
-    await page.getByRole('button', { name: 'Fitted', exact: true }).click();
+    await page.getByRole('radio', { name: 'Fitted', exact: true }).click();
     await settle(page);
     const fitted = await horizontal.evaluate((node) => node.scrollWidth);
     assert(
       fitted < detailed,
       `${label}: fitted week must not retain detailed width: ${fitted} versus ${detailed}`,
     );
-    await page.getByRole('button', { name: 'Detailed', exact: true }).click();
+    await page.getByRole('radio', { name: 'Detailed', exact: true }).click();
     await settle(page);
   }
   await page.screenshot({ path: '.cache/web-performance/showcase-week-axes.png' });

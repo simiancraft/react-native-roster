@@ -1,7 +1,9 @@
+import { cva } from 'class-variance-authority';
 import type { ComponentType } from 'react';
 import { Text, View } from 'react-native';
 import type { LaneLabelInput } from 'react-native-roster';
 import { Toggle } from '../../ui/toggle';
+import { cn } from '../../ui/utils/classes';
 import type { Member } from '../members/member.types';
 import type { Density } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
@@ -14,21 +16,19 @@ export type MemberLabelProps = LaneLabelInput & {
   onPress: () => void;
 };
 
-const ROW: Record<MemberLabelProps['variant'], Record<Density, string>> = {
-  idle: {
-    full: 'flex-1 flex-row items-center gap-3 border-b border-border px-3 active:bg-accent/60',
-    compact: 'flex-1 flex-row items-center gap-3 border-b border-border px-3 active:bg-accent/60',
-    avatar:
-      'flex-1 flex-row items-center justify-center border-b border-border active:bg-accent/60',
+const rowVariants = cva('flex-1 flex-row items-center border-b border-border', {
+  variants: {
+    density: {
+      full: 'gap-3 px-3',
+      compact: 'gap-3 px-3',
+      avatar: 'justify-center',
+    },
+    variant: {
+      idle: 'active:bg-accent/60',
+      selected: 'border-l-2 border-l-primary bg-accent/70',
+    },
   },
-  selected: {
-    full: 'flex-1 flex-row items-center gap-3 border-b border-border border-l-2 border-l-primary bg-accent/70 px-3',
-    compact:
-      'flex-1 flex-row items-center gap-3 border-b border-border border-l-2 border-l-primary bg-accent/70 px-3',
-    avatar:
-      'flex-1 flex-row items-center justify-center border-b border-border border-l-2 border-l-primary bg-accent/70',
-  },
-};
+});
 
 /** One person beside their lane; density decides how much of them shows. */
 export function MemberLabel({
@@ -48,10 +48,10 @@ export function MemberLabel({
       pressed={variant === 'selected'}
       accessibilityLabel={`${member.name}, ${member.role}`}
       onPress={onPress}
-      className={ROW[variant][density]}
+      className={rowVariants({ density, variant })}
     >
-      <View className={`h-8 w-8 items-center justify-center rounded-full ${tone.avatar}`}>
-        <Text className={`text-xs font-semibold ${tone.avatarText}`}>{member.initials}</Text>
+      <View className={cn('h-8 w-8 items-center justify-center rounded-full', tone.avatar)}>
+        <Text className={cn('text-xs font-semibold', tone.avatarText)}>{member.initials}</Text>
       </View>
       <Detail member={member} complete={complete} viewTimezone={viewTimezone} />
     </Toggle>

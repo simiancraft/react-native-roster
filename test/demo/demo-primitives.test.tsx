@@ -2,6 +2,7 @@
 
 import { afterEach, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import {
@@ -14,10 +15,11 @@ import { HighlightControls } from '../../demo/components/gallery/fixtures/roster
 import type { LinkInput } from '../../demo/components/gallery/home/home.types';
 import { FixtureSection } from '../../demo/components/gallery/home/parts/fixture-section';
 import { GalleryHero } from '../../demo/components/gallery/home/parts/hero';
-import { ChipGroup, ToolbarButton } from '../../demo/components/team-roster/parts/chips';
+import { Chip, ChipGroup, ToolbarButton } from '../../demo/components/team-roster/parts/chips';
 import { TeamCorner } from '../../demo/components/team-roster/parts/header-cell';
 import { MemberLabel } from '../../demo/components/team-roster/parts/member-label';
 import { teamFor } from '../../demo/components/team-roster/utils/team';
+import { TONE_CLASSES } from '../../demo/components/team-roster/utils/tones';
 import { Card, type CardProps } from '../../demo/components/ui/card';
 import { Eyebrow, type EyebrowProps } from '../../demo/components/ui/eyebrow';
 import { Toggle } from '../../demo/components/ui/toggle';
@@ -25,6 +27,21 @@ import type { Lane } from '../../src/core';
 import { testPlatform } from '../support/native-host';
 
 const trees: ReactTestRenderer[] = [];
+
+function ChipGroupHarness() {
+  const [selected, setSelected] = useState<'day' | 'week'>('day');
+  return (
+    <ChipGroup
+      label="View"
+      chipsZone={
+        <>
+          <Chip label="Day" selected={selected === 'day'} onPress={() => setSelected('day')} />
+          <Chip label="Week" selected={selected === 'week'} onPress={() => setSelected('week')} />
+        </>
+      }
+    />
+  );
+}
 
 function renderCard(props: Omit<CardProps, 'contentZone'> = {}) {
   let tree!: ReactTestRenderer;
@@ -274,6 +291,36 @@ it('composes a programmatically named fixture radio group', () => {
   expect(choices.map((choice) => choice.props['aria-checked'])).toEqual([true, false]);
 });
 
+it('labels team-roster chips as an exclusive radio group and activates a choice on web', () => {
+  testPlatform.OS = 'web';
+  const tree = render(<ChipGroupHarness />);
+  const group = tree.root.findByProps({ accessibilityRole: 'radiogroup' });
+  const choices = group.findAllByType(Pressable);
+
+  expect(group.props.accessibilityLabel).toBe('View');
+  expect(choices.map((choice) => choice.props.accessibilityRole)).toEqual(['radio', 'radio']);
+  expect(choices.map((choice) => choice.props['aria-checked'])).toEqual([true, false]);
+
+  act(() => choices[1]?.props.onPress());
+  expect(group.findAllByType(Pressable).map((choice) => choice.props['aria-checked'])).toEqual([
+    false,
+    true,
+  ]);
+});
+
+it('exposes the team-roster radio group and checked choices on native', () => {
+  const tree = render(<ChipGroupHarness />);
+  const group = tree.root.findByProps({ accessibilityRole: 'radiogroup' });
+  const choices = group.findAllByType(Pressable);
+
+  expect(group.props.accessibilityLabel).toBe('View');
+  expect(choices.map((choice) => choice.props.accessibilityRole)).toEqual(['radio', 'radio']);
+  expect(choices.map((choice) => choice.props.accessibilityState)).toEqual([
+    { checked: true, disabled: undefined },
+    { checked: false, disabled: undefined },
+  ]);
+});
+
 it('keeps fixture actions ordinary', () => {
   const action = render(<Control label="Next" onPress={() => {}} />).root.findByType(Pressable);
   expect(action.props.accessibilityRole).toBe('button');
@@ -304,7 +351,50 @@ it('routes fixture now and highlight choices through pressed toggles', () => {
   expect(controls[1]?.props['aria-selected']).toBeUndefined();
 });
 
-it('uses pressed-toggle semantics for member selection and keeps toolbar actions ordinary', () => {
+for (const density of ['full', 'compact', 'avatar'] as const) {
+  for (const variant of ['idle', 'selected'] as const) {
+    it(`preserves the ${density} ${variant} MemberLabel classes through declared variants`, () => {
+      const member = teamFor(1318, 1).members[0];
+      if (!member) throw new Error('Expected one seeded member');
+      const lane: Lane = {
+        id: member.id,
+        label: member.name,
+        layers: [],
+        meta: { member, events: [], now: 0 },
+      };
+      const memberLabel = render(
+        <MemberLabel
+          lane={lane}
+          flag="none"
+          complete
+          viewTimezone="UTC"
+          incompleteLabel="Partial hours"
+          neverSetLabel="Never set"
+          density={density}
+          variant={variant}
+          onPress={() => {}}
+        />,
+      ).root.findByType(Pressable);
+      const densityClasses = density === 'avatar' ? ['justify-center'] : ['gap-3', 'px-3'];
+      const variantClasses =
+        variant === 'selected'
+          ? ['border-l-2', 'border-l-primary', 'bg-accent/70']
+          : ['active:bg-accent/60'];
+
+      expect(memberLabel.props.className.split(' ')).toEqual([
+        'flex-1',
+        'flex-row',
+        'items-center',
+        'border-b',
+        'border-border',
+        ...densityClasses,
+        ...variantClasses,
+      ]);
+    });
+  }
+}
+
+it('joins both MemberLabel avatar tone classes with cn', () => {
   const member = teamFor(1318, 1).members[0];
   if (!member) throw new Error('Expected one seeded member');
   const lane: Lane = {
@@ -313,7 +403,7 @@ it('uses pressed-toggle semantics for member selection and keeps toolbar actions
     layers: [],
     meta: { member, events: [], now: 0 },
   };
-  const memberLabel = render(
+  const tree = render(
     <MemberLabel
       lane={lane}
       flag="none"
@@ -325,16 +415,40 @@ it('uses pressed-toggle semantics for member selection and keeps toolbar actions
       variant="selected"
       onPress={() => {}}
     />,
-  ).root.findByType(Pressable);
+  );
+  const memberLabel = tree.root.findByType(Pressable);
+  const avatar = tree.root
+    .findAllByType(View)
+    .find((view) => view.props.className?.includes('rounded-full'));
+  const initials = tree.root
+    .findAllByType(Text)
+    .find((text) => text.props.children === member.initials);
+  const tone = TONE_CLASSES[member.tone];
+
   expect(memberLabel.props.accessibilityRole).toBe('togglebutton');
   expect(memberLabel.props.accessibilityState).toEqual({ checked: true, disabled: undefined });
+  expect(avatar?.props.className).toBe(
+    `h-8 w-8 items-center justify-center rounded-full ${tone.avatar}`,
+  );
+  expect(initials?.props.className).toBe(`text-xs font-semibold ${tone.avatarText}`);
 
+  const source = readFileSync(
+    new URL('../../demo/components/team-roster/parts/member-label.tsx', import.meta.url),
+    'utf8',
+  );
+  expect(source).toContain("cn('h-8 w-8 items-center justify-center rounded-full', tone.avatar)");
+  expect(source).toContain("cn('text-xs font-semibold', tone.avatarText)");
+});
+
+it('keeps toolbar actions ordinary buttons without toggle or radio state', () => {
   const toolbar = render(
     <ToolbarButton label="Previous" accessibilityLabel="Previous day" onPress={() => {}} />,
   ).root.findByType(Pressable);
   expect(toolbar.props.accessibilityRole).toBe('button');
   expect(toolbar.props.accessibilityState).toBeUndefined();
+  expect(toolbar.props['aria-selected']).toBeUndefined();
   expect(toolbar.props['aria-pressed']).toBeUndefined();
+  expect(toolbar.props['aria-checked']).toBeUndefined();
 });
 
 function render(element: React.ReactElement) {
