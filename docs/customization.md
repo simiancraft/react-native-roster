@@ -220,6 +220,7 @@ export function Week({ lane }: { lane: Lane }) {
   return <Schedule lane={lane} minuteStep={60}
     style={{ height: 600, flex: undefined }}
     windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+    onDayPress={(day) => console.log(day.localDate)}
     onIntervalPress={(rect) => console.log(rect.sources)} />;
 }
 ```
@@ -241,12 +242,19 @@ are clipped to the displayed window and real day columns, including clock-change
 Changing the band does not change the Schedule extent, lane geometry, coverage, layers, sources, or
 press behavior. Omitted, empty, reversed, and nonoverlapping values draw nothing.
 
+`onDayPress` receives the actual `DayColumn` when an ordinary day heading is activated. A custom
+`dayHeaderComponent` receives the root-exported `ScheduleDayHeaderInput`, containing `day` and an
+optional `onPress` already bound to that day. Mount the handler when present; when `onDayPress` is
+omitted, the handler is absent and the default heading stays presentational instead of becoming an
+inert button. Wholly skipped local dates mount `skippedDateComponent` directly, so they never
+receive or expose a day action.
+
 | Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
 | `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
 | `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
-| `dayHeaderComponent` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
-| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
+| `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
+| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
 | `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
 | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
 | `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line for the caller-supplied `now` in its containing day. |

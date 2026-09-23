@@ -151,10 +151,18 @@ export function ScheduleExample() {
       lane={lane}
       style={{ height: 480, flex: undefined }}
       windowSpec={{ span: 'week', anchorDate: '2026-09-21', timezone: 'UTC' }}
+      onDayPress={(day) => console.log(day.localDate)}
     />
   );
 }
 ```
+
+`onDayPress` makes each ordinary default day heading actionable with pointer, keyboard, and screen
+reader activation. Custom `dayHeaderComponent` implementations receive the root-exported
+`ScheduleDayHeaderInput`: the actual `day` and an optional bound `onPress` handler. When
+`onDayPress` is omitted, `onPress` is absent and the default heading stays presentational instead
+of rendering an inert button. A wholly skipped local date uses `skippedDateComponent`, not a day
+header, and has no day action.
 
 `Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
 fixed instant, pass its epoch milliseconds. To keep the line live, the host owns the updates:
