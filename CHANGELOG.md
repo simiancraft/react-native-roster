@@ -1,3 +1,9 @@
+## [2.1.0](https://github.com/simiancraft/react-native-roster/compare/v2.0.1...v2.1.0) (2026-09-23)
+
+### Features
+
+* **schedule:** expose window band component ([85d634e](https://github.com/simiancraft/react-native-roster/commit/85d634e923630a1aa62201b93359cbd24341635a))
+
 ## [2.0.1](https://github.com/simiancraft/react-native-roster/compare/v2.0.0...v2.0.1) (2026-09-23)
 
 ## [2.0.0](https://github.com/simiancraft/react-native-roster/compare/v1.7.0...v2.0.0) (2026-09-23)
