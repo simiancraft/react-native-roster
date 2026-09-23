@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "flow"],
+  "covered_paths": [
+    "demo/components/team-roster/use-team-roster.ts",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-schedule.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx"
+  ],
+  "capture_commit": "c84ba2238114ecfddc09558b23206506afd72df7",
+  "capture_method": "Playwright Chromium at 1100x900: open /showcase, wait for Linked to roster at Jan 5, verify a Schedule window band, and capture the full page",
+  "content_hash": "sha256:8e3f7d3c23f4006de72892121cb55f02da86b7ca7af7eaba4cd05b93bb310a0e"
+}

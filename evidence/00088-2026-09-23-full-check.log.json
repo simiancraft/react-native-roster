@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "frontend", "flow", "ci-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "demo/components/team-roster/",
+    "scripts/check-web-performance.ts",
+    "test/demo/showcase-attendance.test.tsx",
+    "README.md",
+    "llms.txt",
+    "AGENTS.md"
+  ],
+  "capture_commit": "c84ba2238114ecfddc09558b23206506afd72df7",
+  "capture_method": "bun run check; includes the CI workflow's lint, typecheck, build, check:web, size, package, knip, and coverage decision paths",
+  "content_hash": "sha256:d776aea3c668f72e968cbded75fa2bf14a3438748eab4e517fe089f5641cb434"
+}

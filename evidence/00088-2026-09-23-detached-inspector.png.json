@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["frontend", "flow"],
+  "covered_paths": [
+    "demo/components/team-roster/use-team-roster.ts",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx"
+  ],
+  "capture_commit": "c84ba2238114ecfddc09558b23206506afd72df7",
+  "capture_method": "Playwright Chromium at 1100x900: activate Next inspector week, verify Detached from roster and Back to roster at Jan 5, and capture the full page",
+  "content_hash": "sha256:bedf5b22bf73538b79e21893183a69f09ca794ab71528e0c4efe3ef0512c055e"
+}
