@@ -61,6 +61,7 @@ demo/
   app/gallery/             # thin named roster and schedule fixture route shells
   components/gallery/      # the gallery: home/ and fixtures/{roster,schedule}
   components/team-roster/  # the showcase: members, attendance, toolbar, and inspector
+  components/ui/           # demo-only Card, Eyebrow, Toggle, and class utilities; no barrel
   components/site-footer/  # project links and the Simiancraft credit on every demo page
   components/theme/        # the scheme toggle and its stored choice
   app.config.js            # CommonJS config; build identity and Pages base URL
@@ -162,6 +163,14 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   [nativewind](src/nativewind/README.md), [gallery](demo/components/gallery/README.md),
   [team-roster](demo/components/team-roster/README.md), [site-footer](demo/components/site-footer/README.md),
   and [theme](demo/components/theme/README.md).
+- Shared demo visuals use direct file imports from `demo/components/ui`; do not add a barrel.
+  `Card` owns `default`, `inset`, and `dashed` surface tones through `contentZone`, and `Eyebrow`
+  owns `default` and `compact` caption typography. Declare variants with `cva` and literal,
+  scanner-visible utility classes; compose conditional or caller-supplied classes with `cn` from
+  `ui/utils/classes`. `Toggle` is only for persistent `pressed` controls or exclusive `radio`
+  choices. Keep ordinary actions as buttons without selected, pressed, radio, or checked state.
+  Put exclusive choices in a programmatically labeled `radiogroup`; expose checked state on its
+  radios. These primitives are demo-only and are never package exports.
 - Keep `coverageThreshold = 1.0`. Build before export tests; missing emitted files
   must fail. Tests, demo output, and the subprocess-tested release CLI shim are
   outside coverage; the version writer is covered. Do not commit a red tree.

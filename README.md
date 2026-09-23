@@ -341,6 +341,14 @@ component type; props ending in `Zone` take a node. If you want your own layout
 entirely, `useRoster` and `useSchedule` return the same models the components
 render from. See [customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md).
 
+The workspace demo shares visual primitives through direct imports from
+`demo/components/ui`: `Card` supplies `default`, `inset`, and `dashed` surface tones,
+`Eyebrow` supplies `default` and `compact` caption sizes, and `Toggle` supplies persistent
+`pressed` and exclusive `radio` modes. Ordinary actions remain buttons without selected or
+pressed state. Exclusive choices are radios inside programmatically labeled radio groups. The
+demo uses `cva` for scanner-visible variants and `cn` for conditional class composition and
+Tailwind conflict resolution. These files have no barrel and are demo-only, not package exports.
+
 ## Size and support
 
 Core geometry and coverage caches accept an optional `ScopedCacheIdentity`. Keep one stable empty

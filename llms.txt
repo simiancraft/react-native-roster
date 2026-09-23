@@ -615,6 +615,17 @@ ruleSetEditorZone. useRuleSetDraft owns text, parse result, and the applied set;
 Apply validates before updating the roster, keeping the last valid set on error.
 These are demo hooks/zones, not library exports.
 
+Shared demo visuals live in demo/components/ui and are imported directly from their files; there
+is no ui barrel. Card owns default, inset, and dashed surface tones through a contentZone.
+Eyebrow owns default and compact caption typography. Toggle owns persistent pressed controls and
+exclusive radio choices. A persistent toggle is a button with aria-pressed on web and a
+togglebutton with checked accessibility state on native. An exclusive choice is a radio with
+checked state inside a programmatically named radiogroup. Ordinary actions stay buttons and carry
+no selected, pressed, radio, or checked state. Use cva for variants with literal, scanner-visible
+utility classes, and use cn from demo/components/ui/utils/classes for conditional composition and
+Tailwind conflict resolution. These primitives and utilities are demo implementation details, not
+react-native-roster exports.
+
 The home page also links to /showcase. Its feature lives in
 demo/components/team-roster. Every generated event has a scheduled window, title,
 description, expected attendees, and seeded attendance for elapsed time. The hook
