@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "accessibility", "regression"],
+  "covered_paths": [
+    "demo/components/team-roster/parts/chips.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "demo/components/ui/toggle.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "c66c2f23ba9d1af6b81b2a34573aaacf36349909",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx --reporter=junit",
+  "content_hash": "sha256:858adc5b7dac7168571131ea78de98692be0f14b957e59f5b07ce5318726ac47"
+}

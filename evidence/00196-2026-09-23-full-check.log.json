@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["ci", "frontend", "integration", "regression"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/team-roster/parts/chips.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "c66c2f23ba9d1af6b81b2a34573aaacf36349909",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:75ae81e4efe36d8573f429d13f68a0f21dfb87845cdf01e5b8efc15c0397a48c"
+}

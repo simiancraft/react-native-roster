@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bun test" tests="28" assertions="83" failures="0" skipped="0" time="0.088681276">
+  <testsuite name="test/demo/demo-primitives.test.tsx" file="test/demo/demo-primitives.test.tsx" tests="28" assertions="83" failures="0" skipped="0" time="0.086354327">
+    <testcase name="renders the default Card tone with its literal classes" classname="" time="0.006676" file="test/demo/demo-primitives.test.tsx" line="80" assertions="3" />
+    <testcase name="renders the inset Card tone with its literal classes" classname="" time="0.000267" file="test/demo/demo-primitives.test.tsx" line="80" assertions="3" />
+    <testcase name="renders the dashed Card tone with its literal classes" classname="" time="0.000216" file="test/demo/demo-primitives.test.tsx" line="80" assertions="3" />
+    <testcase name="merges local layout classes without retaining conflicting defaults" classname="" time="0.000399" file="test/demo/demo-primitives.test.tsx" line="90" assertions="1" />
+    <testcase name="keeps every Card variant class scanner-visible" classname="" time="0.00019" file="test/demo/demo-primitives.test.tsx" line="103" assertions="3" />
+    <testcase name="renders linked gallery fixtures through the muted Card tone" classname="" time="0.001401" file="test/demo/demo-primitives.test.tsx" line="114" assertions="4" />
+    <testcase name="renders the linked showcase through the default Card tone and merges swatch classes" classname="" time="0.001671" file="test/demo/demo-primitives.test.tsx" line="145" assertions="4" />
+    <testcase name="renders the default Eyebrow size with its literal classes" classname="" time="0.000509" file="test/demo/demo-primitives.test.tsx" line="186" assertions="2" />
+    <testcase name="renders the compact Eyebrow size with its literal classes" classname="" time="0.000213" file="test/demo/demo-primitives.test.tsx" line="186" assertions="2" />
+    <testcase name="keeps every Eyebrow variant class scanner-visible" classname="" time="0.000071" file="test/demo/demo-primitives.test.tsx" line="194" assertions="2" />
+    <testcase name="renders team roster captions through Eyebrow without changing their text" classname="" time="0.000645" file="test/demo/demo-primitives.test.tsx" line="204" assertions="3" />
+    <testcase name="exposes pressed and unpressed Toggle state as a button on web" classname="" time="0.00062" file="test/demo/demo-primitives.test.tsx" line="222" assertions="4" />
+    <testcase name="exposes checked Toggle state through the native togglebutton role" classname="" time="0.000167" file="test/demo/demo-primitives.test.tsx" line="235" assertions="3" />
+    <testcase name="exposes radio state on web and native" classname="" time="0.000344" file="test/demo/demo-primitives.test.tsx" line="245" assertions="6" />
+    <testcase name="preserves disabled state and activation behavior" classname="" time="0.000312" file="test/demo/demo-primitives.test.tsx" line="263" assertions="3" />
+    <testcase name="composes a programmatically named fixture radio group" classname="" time="0.000484" file="test/demo/demo-primitives.test.tsx" line="278" assertions="3" />
+    <testcase name="labels team-roster chips as an exclusive radio group and activates a choice on web" classname="" time="0.001807" file="test/demo/demo-primitives.test.tsx" line="294" assertions="4" />
+    <testcase name="exposes the team-roster radio group and checked choices on native" classname="" time="0.000317" file="test/demo/demo-primitives.test.tsx" line="311" assertions="3" />
+    <testcase name="keeps fixture actions ordinary" classname="" time="0.000214" file="test/demo/demo-primitives.test.tsx" line="324" assertions="5" />
+    <testcase name="routes fixture now and highlight choices through pressed toggles" classname="" time="0.000539" file="test/demo/demo-primitives.test.tsx" line="333" assertions="5" />
+    <testcase name="preserves the full idle MemberLabel classes through declared variants" classname="" time="0.002043" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="preserves the full selected MemberLabel classes through declared variants" classname="" time="0.000811" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="preserves the compact idle MemberLabel classes through declared variants" classname="" time="0.00057" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="preserves the compact selected MemberLabel classes through declared variants" classname="" time="0.000385" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="preserves the avatar idle MemberLabel classes through declared variants" classname="" time="0.000422" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="preserves the avatar selected MemberLabel classes through declared variants" classname="" time="0.000573" file="test/demo/demo-primitives.test.tsx" line="356" assertions="1" />
+    <testcase name="joins both MemberLabel avatar tone classes with cn" classname="" time="0.000602" file="test/demo/demo-primitives.test.tsx" line="397" assertions="6" />
+    <testcase name="keeps toolbar actions ordinary buttons without toggle or radio state" classname="" time="0.000151" file="test/demo/demo-primitives.test.tsx" line="443" assertions="5" />
+  </testsuite>
+</testsuites>
