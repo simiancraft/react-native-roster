@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "test", "ci-command"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/team-roster/utils/format.ts",
+    "demo/components/team-roster/parts/window-controls.tsx",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "e2b6aface6eadae6a880fccb302293d146cd2636",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:ab88d477afa8b6be97619c17019a29bbbe1378100c1cdf18f6e3384cc3cf43ba"
+}
