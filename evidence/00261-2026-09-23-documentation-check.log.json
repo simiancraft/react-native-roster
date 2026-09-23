@@ -1,0 +1,23 @@
+{
+  "scope_tags": ["documentation", "code", "ci-gate"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/gallery/README.md",
+    "demo/components/ui/card.tsx",
+    "demo/components/ui/eyebrow.tsx",
+    "demo/components/ui/toggle.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "demo/components/team-roster/parts/chips.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock"
+  ],
+  "capture_commit": "1e9a2a482d29c20051aa1d184b06ebe344af1b26",
+  "capture_method": "source alignment and stale-guidance scans followed by bun run check",
+  "content_hash": "sha256:5c9e2bfb932049bde6ed24a5a1a80120d2d895e4510780232b5894e795afefb7"
+}
