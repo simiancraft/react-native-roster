@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["test", "frontend", "browser", "performance"],
+  "covered_paths": [
+    "scripts/check-web-performance.ts",
+    "demo/components/team-roster",
+    "src/components/roster",
+    "src/core"
+  ],
+  "capture_commit": "7b009562e76c8f25bfa68872284bb7d19e8c539d",
+  "capture_method": "bun run check:web",
+  "content_hash": "sha256:4c622b12d21eabb6b218bae572fc0dbe9c30db013f41a26bf8808da1156eb709"
+}

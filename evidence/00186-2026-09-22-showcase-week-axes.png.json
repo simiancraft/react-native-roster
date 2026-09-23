@@ -1,0 +1,11 @@
+{
+  "scope_tags": ["frontend", "browser", "visual"],
+  "covered_paths": [
+    "scripts/check-web-performance.ts",
+    "demo/components/team-roster",
+    "src/components/roster"
+  ],
+  "capture_commit": "7b009562e76c8f25bfa68872284bb7d19e8c539d",
+  "capture_method": "bun run check:web; Playwright screenshot after week-axis assertions",
+  "content_hash": "sha256:c9c6d98c9c2e38351d0e7cb46fee282b7d08856f12ddc18fb5aeb537fd21e85a"
+}
