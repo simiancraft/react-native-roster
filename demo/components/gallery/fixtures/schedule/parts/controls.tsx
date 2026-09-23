@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { next, prev } from 'react-native-roster/core';
-import { Control } from '../../parts/control';
+import { Control, RadioControl, RadioGroup } from '../../parts/control';
 import type { useScheduleFixture } from '../use-schedule-fixture';
 
 type ScheduleControlsProps = Pick<
@@ -45,48 +45,62 @@ export function ScheduleControls({
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         <Control label="Previous" onPress={() => navigate(prev(windowSpec))} />
         <Control label="Next" onPress={() => navigate(next(windowSpec))} />
-        {(['day', 'week'] as const).map((span) => (
-          <Control
-            key={span}
-            label={span}
-            selected={span === windowSpec.span}
-            onPress={() => setSpan(span)}
-          />
-        ))}
-        {[15, 30, 60].map((step) => (
-          <Control
-            key={step}
-            label={`${step} min`}
-            selected={step === minuteStep}
-            onPress={() => setMinuteStep(step)}
-          />
-        ))}
-        {[32, 48, 64].map((scale) => (
-          <Control
-            key={scale}
-            label={`${scale} px/hour`}
-            selected={scale === pxPerHour}
-            onPress={() => setPxPerHour(scale)}
-          />
-        ))}
-        {['UTC', 'America/Chicago', 'Pacific/Auckland', 'Australia/Lord_Howe', 'Pacific/Apia'].map(
-          (timezone) => (
-            <Control
+        <RadioGroup label="Span">
+          {(['day', 'week'] as const).map((span) => (
+            <RadioControl
+              key={span}
+              label={span}
+              checked={span === windowSpec.span}
+              onPress={() => setSpan(span)}
+            />
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Minute step">
+          {[15, 30, 60].map((step) => (
+            <RadioControl
+              key={step}
+              label={`${step} min`}
+              checked={step === minuteStep}
+              onPress={() => setMinuteStep(step)}
+            />
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Scale">
+          {[32, 48, 64].map((scale) => (
+            <RadioControl
+              key={scale}
+              label={`${scale} px/hour`}
+              checked={scale === pxPerHour}
+              onPress={() => setPxPerHour(scale)}
+            />
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Timezone">
+          {[
+            'UTC',
+            'America/Chicago',
+            'Pacific/Auckland',
+            'Australia/Lord_Howe',
+            'Pacific/Apia',
+          ].map((timezone) => (
+            <RadioControl
               key={timezone}
               label={timezone}
-              selected={timezone === windowSpec.timezone}
+              checked={timezone === windowSpec.timezone}
               onPress={() => setTimezone(timezone)}
             />
-          ),
-        )}
-        {(['roster', 'schedule', 'both'] as const).map((value) => (
-          <Control
-            key={value}
-            label={value}
-            selected={value === view}
-            onPress={() => setView(value)}
-          />
-        ))}
+          ))}
+        </RadioGroup>
+        <RadioGroup label="View">
+          {(['roster', 'schedule', 'both'] as const).map((value) => (
+            <RadioControl
+              key={value}
+              label={value}
+              checked={value === view}
+              onPress={() => setView(value)}
+            />
+          ))}
+        </RadioGroup>
       </View>
     </View>
   );
