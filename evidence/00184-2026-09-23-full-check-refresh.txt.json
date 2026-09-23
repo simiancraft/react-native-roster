@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["render", "regression", "performance", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/layers/plot-stack.test.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/roster/selection-layout.test.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "14f5461f0cb26fcc3c1f0f7cda686c8b0571655e",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:a2f4de0de5083f974aeb533e8dcb69ce917d68f063775caa6f7ca272f96be52f"
+}
