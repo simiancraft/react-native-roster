@@ -159,31 +159,46 @@ it('repeats date context on detailed-week time cells at every people-column dens
   }
 });
 
-it('keeps the full-density day boundary clear of the following time tick', () => {
-  const timezone = 'America/Chicago';
-  const density = 'full';
-  const day = Date.parse('2026-01-05T06:00:00Z');
-  const one = Date.parse('2026-01-05T07:00:00Z');
-  const two = Date.parse('2026-01-05T08:00:00Z');
-  const childrenFor = (time: number, kind: 'day' | 'time') => {
-    const tree = render(
-      <DayHeaderCell
-        tick={{ time, x: 0, label: '', kind }}
-        timezone={timezone}
-        density={density}
-        span="week"
-      />,
-    );
-    return tree.root.findAllByType(Text).map((node) => node.props.children);
-  };
+it.each([
+  {
+    timezone: 'America/Chicago',
+    day: '2026-01-05T06:00:00Z',
+    first: '2026-01-05T07:00:00Z',
+    next: '2026-01-05T08:00:00Z',
+  },
+  {
+    timezone: 'Europe/London',
+    day: '2026-03-29T00:00:00Z',
+    first: '2026-03-29T01:00:00Z',
+    next: '2026-03-29T02:00:00Z',
+  },
+])(
+  'keeps the full-density $timezone day boundary clear of its first time neighbor',
+  ({ timezone, day: dayValue, first: firstValue, next: nextValue }) => {
+    const density = 'full';
+    const day = Date.parse(dayValue);
+    const first = Date.parse(firstValue);
+    const next = Date.parse(nextValue);
+    const childrenFor = (time: number, kind: 'day' | 'time') => {
+      const tree = render(
+        <DayHeaderCell
+          tick={{ time, x: 0, label: '', kind }}
+          timezone={timezone}
+          density={density}
+          span="week"
+        />,
+      );
+      return tree.root.findAllByType(Text).map((node) => node.props.children);
+    };
 
-  expect(childrenFor(day, 'day')).toEqual([dayLabel(day, timezone)]);
-  expect(childrenFor(one, 'time')).toEqual([compactTimeLabel(one, timezone)]);
-  expect(childrenFor(two, 'time')).toEqual([
-    conciseDate(two, timezone),
-    compactTimeLabel(two, timezone),
-  ]);
-});
+    expect(childrenFor(day, 'day')).toEqual([dayLabel(day, timezone)]);
+    expect(childrenFor(first, 'time')).toEqual([compactTimeLabel(first, timezone)]);
+    expect(childrenFor(next, 'time')).toEqual([
+      conciseDate(next, timezone),
+      compactTimeLabel(next, timezone),
+    ]);
+  },
+);
 
 it('generates deterministic people and all five presence states across event boundaries', () => {
   expect(teamFor()).toEqual(team);
