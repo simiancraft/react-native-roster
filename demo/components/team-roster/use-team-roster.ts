@@ -11,6 +11,7 @@ import type {
   SortKey,
   SpanKey,
   Team,
+  WeekDensity,
   WeekWindowSpec,
 } from './team-roster.types';
 import { selectionFor } from './utils/selection';
@@ -26,8 +27,9 @@ function bounded(spec: WindowSpec): ScheduleWindowSpec {
   if (spec.span === 'custom') return INITIAL;
   return { ...spec, span: spec.span === 'week' ? 'week' : 'day' };
 }
-/** A day scrolls once the lanes are narrower than 1152 px; a week scrolls at 42 px per hour. */
-const PX_PER_MINUTE: Record<SpanKey, number> = { day: 0.8, week: 0.7 };
+/** A day scrolls once the lanes are narrower than 1152 px; a detailed week uses 42 px per hour. */
+const DAY_PX_PER_MINUTE = 0.8;
+const DETAILED_WEEK_PX_PER_MINUTE = 0.7;
 const SORTS: Record<SortKey, LaneComparator> = {
   name: byLabel,
   availability: byCoverage({ measure: 'availability' }),
@@ -49,6 +51,7 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(INITIAL);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
+  const [weekDensity, setWeekDensity] = useState<WeekDensity>('detailed');
   const [selectedId, setSelectedId] = useState(team.members[0]?.id ?? '');
   const [selection, setSelection] = useState<Selection | null>(null);
   const [contentWidth, setContentWidth] = useState(1280);
@@ -75,6 +78,15 @@ export function useTeamRoster(input: { team?: Team } = {}) {
       .includes(query.toLowerCase());
   });
   const density = densityFor(contentWidth);
+  const labelWidth = LABEL_WIDTH[density];
+  const elapsedMinutes = (window.end - window.start) / 60_000;
+  const fittedWeekPxPerMinute = (contentWidth - labelWidth) / elapsedMinutes;
+  const pxPerMinute =
+    windowSpec.span === 'day'
+      ? DAY_PX_PER_MINUTE
+      : weekDensity === 'detailed'
+        ? DETAILED_WEEK_PX_PER_MINUTE
+        : fittedWeekPxPerMinute;
   function selectGap(rect: Rect, lane: Lane) {
     const { member } = memberMeta(lane);
     setSelectedId(member.id);
@@ -98,16 +110,18 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     windowSpec,
     timezone: windowSpec.timezone,
     span: windowSpec.span,
-    pxPerMinute: PX_PER_MINUTE[windowSpec.span],
+    pxPerMinute,
+    weekDensity,
     query,
     sort,
     sortLanes: SORTS[sort],
     density,
-    labelWidth: LABEL_WIDTH[density],
+    labelWidth,
     contentDirection: contentWidth < 960 ? ('column' as const) : ('row' as const),
     measureContent: (input: LayoutChangeEvent) => setContentWidth(input.nativeEvent.layout.width),
     setQuery,
     setSort,
+    setWeekDensity,
     setSpan: (span: SpanKey) => setWindowSpec((spec) => ({ ...spec, span })),
     goPrev: () => setWindowSpec((spec) => bounded(prev(spec))),
     goNext: () => setWindowSpec((spec) => bounded(next(spec))),
