@@ -610,6 +610,16 @@ The showcase classifies an exact singleton lunch rule source as partial time off
 and an exact singleton PTO date source as whole-day time off in both projections.
 Unknown, absent, identity-mismatched, or mixed source sets stay neutral; rect width
 only controls whether a recognized source-derived label is visible.
+The showcase toolbar labels its spans Day and Week and its corresponding reset
+actions Demo day and Demo week. Compact dates use month names, and cross-year
+ranges name both years. Week mode alone adds Detailed and Fitted choices. Detailed
+keeps the scrollable 42-pixel-per-hour axis and repeats a compact date beside time
+ticks across the week, after leaving the first time neighbor of each day boundary
+bare for legibility. Fitted divides the measured plot width after the people column
+by the resolved week's actual elapsed minutes, so ordinary and DST weeks fit after
+resizing. Day mode keeps its fixed axis and concise time-only cells. These controls,
+labels, and calculations belong to demo/components/team-roster; they do not add a
+library API or change Roster fitting semantics.
 
 Every route exposes live counter functions on web window.__roster. Its identity
 stays stable until unmount; on-screen snapshots sample every 500 ms. The 200-lane

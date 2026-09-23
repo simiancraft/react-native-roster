@@ -143,6 +143,13 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   Event attendance detail lives in the selection popover;
   the inspector retains member selection.
   Inspector day header and cell presses set the roster anchor date in the view timezone.
+  Showcase span controls are explicitly `Day` and `Week`; their reset labels are `Demo day` and
+  `Demo week`. Compact date labels use month names, and cross-year ranges name both years. Week
+  mode alone offers `Detailed` and `Fitted`. Detailed keeps the scrollable 42-pixel-per-hour axis
+  and repeats compact date context after each day boundary's bare first time neighbor. Fitted uses
+  measured plot width after the people column divided by actual elapsed week minutes, including
+  167-hour and 169-hour DST weeks. Day mode retains its fixed, time-only axis. These are demo
+  choices and do not alter the library's `Roster` API or fitting semantics.
   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
   page naming its subpath, exports, boundary, and file map; keep them current:
