@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["frontend", "accessibility", "tests"],
+  "covered_paths": [
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    "demo/components/gallery/fixtures/roster/index.tsx",
+    "demo/components/gallery/fixtures/roster/parts/highlight-controls.tsx",
+    "demo/components/team-roster/parts/member-label.tsx",
+    "demo/components/ui/toggle.tsx",
+    "test/demo/demo-primitives.test.tsx",
+    "test/support/native-host.ts"
+  ],
+  "capture_commit": "8ee60a23bb2024248eeaed6be327cfbeb38ddd49",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx test/components/roster/render.test.ts test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:978e393ae2230cde981c15b3e3ac029f73efa6bb123cda817c9c74df651a9084"
+}
