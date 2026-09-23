@@ -3,12 +3,42 @@ import * as Popover from '@radix-ui/react-popover';
 import type { ElementType } from 'react';
 import { View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { PlotStack } from '../../../src/components/layers/plot-stack';
+import { Roster } from '../../../src/components/roster';
 import { RosterSelectionPopover } from '../../../src/components/roster/selection/selection-layout';
 import type { SelectionLayoutProps } from '../../../src/components/roster/selection/selection-layout.types';
 import { RosterSelectionPopover as WebPopover } from '../../../src/components/roster/selection/selection-layout.web';
 import { useRoster } from '../../../src/components/roster/use-roster';
-import { rosterWindowSpec } from '../../fixtures/roster';
+import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 import { backHandlers } from '../../support/native-host';
+
+it('keeps native selection chrome outside the Roster plot stack', () => {
+  const fixture = rosterFixtures['interval-detail'];
+  let tree!: ReactTestRenderer;
+  act(() => {
+    tree = create(
+      <Roster
+        lanes={fixture.lanes}
+        windowSpec={fixture.windowSpec ?? rosterWindowSpec}
+        intervalDetailComponent={fixture.zones.intervalDetailComponent}
+      />,
+    );
+  });
+  act(() => {
+    for (const node of tree.root.findAllByType('View' as ElementType)) {
+      node.props.onLayout?.({ nativeEvent: { layout: { width: 600, height: 240 } } });
+    }
+  });
+  act(() =>
+    tree.root.findByProps({ testID: 'roster-lane-one' }).props.onPress({
+      nativeEvent: { locationX: 300, locationY: 20 },
+    }),
+  );
+  const plot = tree.root.findByType(PlotStack);
+  expect(plot.findAllByType('AnimatedView' as ElementType)).toHaveLength(0);
+  expect(tree.root.findAllByType('AnimatedView' as ElementType).length).toBeGreaterThan(0);
+  act(() => tree.unmount());
+});
 
 it('keeps a native host mounted, positions and flips details, and leaves the body unobstructed and dismisses on back', () => {
   let tree!: ReactTestRenderer;
