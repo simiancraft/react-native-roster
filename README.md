@@ -36,6 +36,13 @@ that produced it; press a gap to get the sources that removed it.
 The showcase derives gap presentation from the complete source set: its authored lunch rules are
 partial, its authored PTO dates are whole-day, and unknown, absent, or mixed sources stay neutral.
 Width only controls whether the source-derived label is visible in either projection.
+In the showcase toolbar, `Day` and `Week` name the spans, while `Demo day` and `Demo week` reset
+their respective windows. Compact dates use month names, and a range crossing New Year names both
+years. Week mode also offers `Detailed` and `Fitted`: Detailed keeps a scrollable 42-pixel-per-hour
+axis whose time ticks repeat compact date context after each day boundary's bare first neighbor.
+Fitted uses the measured plot width and the week's actual elapsed duration, including 167-hour and
+169-hour DST weeks. Day mode keeps its fixed axis. These are showcase choices, not additional
+`Roster` props or fitting behavior.
 
 Give each person or resource a lane. `Roster` draws every lane on one time axis;
 `Schedule` draws any one of them as a week, days across and hours down. The same
