@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import type { ScopedCacheIdentity } from '../../core';
 import { dayColumnsFor, layoutLane, snapToStep, timeAtY, windowFor } from '../../core';
 import { hitTest } from '../../core/hit-test';
@@ -6,16 +6,10 @@ import type { ScheduleInput, ScheduleModel, ScheduleProjection } from './schedul
 import { ScheduleWidth } from './use-schedule-viewport';
 
 export function useSchedule(input: ScheduleInput): ScheduleModel {
-  const { lane, windowSpec, minuteStep = 60, pxPerHour = 48 } = input;
+  const { lane, windowSpec, now = null, minuteStep = 60, pxPerHour = 48 } = input;
   const width = useContext(ScheduleWidth);
   const [ownedCacheIdentity] = useState<ScopedCacheIdentity>(() => ({}));
   const cacheIdentity = input.cacheIdentity ?? ownedCacheIdentity;
-  const [clock, setClock] = useState(Date.now);
-  // The current-time indicator follows the wall clock for the mounted surface's lifetime.
-  useEffect(() => {
-    const timer = setInterval(() => setClock(Date.now()), 60_000);
-    return () => clearInterval(timer);
-  }, []);
   if (!Number.isInteger(minuteStep) || minuteStep <= 0 || 60 % minuteStep !== 0)
     throw new RangeError('minuteStep must be a positive divisor of 60');
   if (!Number.isFinite(pxPerHour) || pxPerHour <= 0)
@@ -71,7 +65,7 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
     days,
     projection,
     geometry,
-    now: clock >= window.start && clock < window.end ? clock : null,
+    now: now !== null && now >= window.start && now < window.end ? now : null,
     press,
     status: 'ready',
   };
