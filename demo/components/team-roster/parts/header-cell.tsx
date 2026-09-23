@@ -1,8 +1,10 @@
 import type { ComponentType } from 'react';
 import { Text, View } from 'react-native';
-import type { RosterTick } from 'react-native-roster';
+import { type RosterTick, windowFor } from 'react-native-roster';
 import type { Density, SpanKey } from '../team-roster.types';
-import { compactTimeLabel, conciseDate, dayLabel } from '../utils/format';
+import { compactTimeLabel, conciseDate, dayLabel, localDateFor } from '../utils/format';
+
+const HOUR = 60 * 60_000;
 
 const DAY_LABEL: Record<Density, (time: number, timezone: string) => string> = {
   full: dayLabel,
@@ -21,7 +23,9 @@ type HeaderCellInput = {
 const CELLS: Record<RosterTick['kind'], ComponentType<HeaderCellInput>> = {
   time: function TimeCell({ tick, timezone, span }) {
     const time = compactTimeLabel(tick.time, timezone);
-    const showDate = span === 'week' && time !== '1am';
+    const localDate = localDateFor(tick.time, timezone);
+    const dayStart = windowFor({ span: 'day', anchorDate: localDate, timezone }).start;
+    const showDate = span === 'week' && tick.time !== dayStart + HOUR;
     return (
       <View className="h-10 justify-end gap-0.5 pb-1 pl-1 border-l border-grid">
         {showDate ? (
