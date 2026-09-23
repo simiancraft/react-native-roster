@@ -3,7 +3,7 @@ import type { Gap, Interval, Weekday, Window } from '../../core';
 export type RosterRule = {
   id: string;
   kind: 'include' | 'exclude';
-  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   dtstart: string;
   until?: string;
   count?: number;
