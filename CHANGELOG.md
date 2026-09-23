@@ -1,3 +1,13 @@
+## [1.5.0](https://github.com/simiancraft/react-native-roster/compare/v1.4.0...v1.5.0) (2026-09-23)
+
+### Features
+
+* **rrule:** accept yearly day and week filters ([0f36455](https://github.com/simiancraft/react-native-roster/commit/0f36455f63a07b09a7eaeb7289b6d5de5b987bed))
+
+### Bug Fixes
+
+* **rrule:** satisfy yearly selector size gate ([bd57a13](https://github.com/simiancraft/react-native-roster/commit/bd57a1319911ea68fcf4c0aad84f301a19e6af91))
+
 ## [1.4.0](https://github.com/simiancraft/react-native-roster/compare/v1.3.0...v1.4.0) (2026-09-23)
 
 ### Features
