@@ -1,0 +1,7 @@
+{
+  "scope_tags": ["repository", "ci"],
+  "covered_paths": ["."],
+  "capture_commit": "13d1d65b911833781f92570b328f123c21c9ce71",
+  "capture_method": "FORCE_COLOR=0 NO_COLOR=1 CI=true bun run check",
+  "content_hash": "sha256:ca475aed54c2421ef412f5a1fa6aac57c806e385bc7592a9c71c53b6d7b14e74"
+}
