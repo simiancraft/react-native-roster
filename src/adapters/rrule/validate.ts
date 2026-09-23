@@ -34,7 +34,7 @@ export function validateInput(input: RosterRule | RosterDate): void {
     throw new RangeError(`${input.id}: hourstart and hourend must both be present or both absent`);
   }
   if ('frequency' in input) {
-    if (!['DAILY', 'WEEKLY', 'MONTHLY'].includes(input.frequency))
+    if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency))
       throw new RangeError('Unsupported frequency');
     if (hourstart === undefined) throw new RangeError('Rules require hourstart and hourend');
     for (const name of ['count', 'interval'] as const) {

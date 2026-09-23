@@ -340,13 +340,14 @@ Do not publish, tag, change repository settings, or push without task authorizat
     those wall fields as UTC, so a wholly skipped date cannot become another weekday.
     Do not pass COUNT to the engine; drop nonexistent dates before counting existing
     dates from the original anchor.
-    Supply the implicit monthly day explicitly to avoid a 31st drifting through
-    February. Only interval-1 rules without COUNT and with an exactly local-midnight
+    Supply the implicit monthly day and yearly month and day explicitly to avoid a
+    31st drifting through February or February 29 drifting through non-leap years.
+    Only interval-1 rules without COUNT and with an exactly local-midnight
     anchor may skip periods. Compute candidates in plain
-    date space, retaining the weekly weekday and monthly day, and step back past
+    date space, retaining the weekly weekday, monthly day, or yearly month and day, and step back past
     nonexistent dates. All other rules retain the original anchor.
     Every rule enumerates from the period containing DTSTART at the anchor wall time,
-    aligned to WKST for WEEKLY and day 1 for MONTHLY, so interval phases follow the
+    aligned to WKST for WEEKLY, day 1 for MONTHLY, and January 1 for YEARLY, so interval phases follow the
     DTSTART period rather than the first matching date. Dates before DTSTART are
     rejected before COUNT and cap admission.
     DAILY weekday filters are applied by the adapter to the authored daily sequence
@@ -368,14 +369,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
     This preserves results across anchor paths and retained envelopes. Skip
     out-of-envelope occurrences without consuming the cap.
     The adapter owns BYSETPOS after every other BYxxx filter, grouping plain dates
-    by day, WKST week, or year-month before deduplication, UNTIL, COUNT, and cap admission.
+    by day, WKST week, year-month, or year before deduplication, UNTIL, COUNT, and cap admission.
     Positional enumeration includes complete edge periods, then rejects dates before
     DTSTART and spans outside the envelope. The engine iteration limit is the number
     of authored periods from the enumeration anchor through the query bound, so empty
     candidate periods terminate completely without an arbitrary cutoff. Only that
     exact engine limit error signals completed enumeration; other failures propagate.
     Replayed iterator passes stop before buffering positional candidates.
-    YEARLY is unsupported and rejected by input validation.
 
 19. **Provenance hover is web-only.** `roster/lanes/interval-hover.tsx` attaches nothing
     on native; `interval-hover.web.tsx` resolves row-relative pointer movement against
