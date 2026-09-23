@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["performance", "browser"],
+  "covered_paths": [
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/schedule/days/layout.tsx",
+    "scripts/check-web-performance.ts"
+  ],
+  "capture_commit": "17147ce57192a28f15cfcc03e5ddf17bee8ea902",
+  "capture_method": "bun run check:web after bun run build:web produced demo/dist",
+  "content_hash": "sha256:ceb9679b8607a2f4c1f676379bf5f59a4db55aeb8f75437efccb651c1f62ac8e"
+}

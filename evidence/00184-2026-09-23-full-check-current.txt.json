@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["ci", "regression", "performance", "package"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "src/components/layers/README.md",
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/schedule/README.md",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "17147ce57192a28f15cfcc03e5ddf17bee8ea902",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:4bdfcf7251cac053fc632754785eff945ec53a249df43f1593fd1d35663991ed"
+}
