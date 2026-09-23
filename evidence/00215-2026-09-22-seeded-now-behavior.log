@@ -1,0 +1,10 @@
+bun test v1.4.2 (744846f84)
+
+test/demo/showcase-attendance.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+ 1 pass
+ 39 filtered out
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [194.00ms]

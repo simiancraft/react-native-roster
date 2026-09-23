@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "flow", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-schedule.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "601cc2d621139f7a5ca0cd61a9bbe9170c6ca9f3",
+  "capture_method": "FORCE_COLOR=0 bun test test/demo/showcase-attendance.test.tsx --test-name-pattern 'passes the seeded now'",
+  "content_hash": "sha256:02d5a2a6807654340538c1524b70776d1ca052215c220228b73228d2b52dd1ca"
+}

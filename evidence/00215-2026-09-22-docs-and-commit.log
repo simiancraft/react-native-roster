@@ -1,0 +1,31 @@
+commit 965da111f63f61bfc483267eb8a092484ecd932d
+Author: the-simian <harlinjesse@gmail.com>
+Commit: the-simian <harlinjesse@gmail.com>
+
+    feat(schedule)!: adopt controlled now in showcase
+    
+    Pass the seeded instant through the member inspector into Schedule. Render the default now line only inside the inspector window. Document the null default, migration, and host-owned clock updates.
+    
+    BREAKING CHANGE: Schedule no longer creates or updates an automatic clock; consumers must supply now.
+demo/components/team-roster/README.md:22:now line when that instant is inside the inspector week. In general, omitted `now` and null hide
+demo/components/team-roster/README.md:23:the line. A host that wants live time keeps `now` in state, updates it with its own interval, and
+demo/components/team-roster/README.md:24:clears that interval on cleanup. Consumers migrating from Schedule's former automatic clock must
+docs/customization.md:232:Schedule time is controlled. Omitted `now` and `now={null}` both hide the now line. Supply epoch
+docs/customization.md:233:milliseconds for a fixed line. A host that needs a live line owns a state value and timer, for
+docs/customization.md:237:migrating consumers must now supply and update `now` themselves.
+AGENTS.md:251:   reference identifies one dataset. Omitted core identities share the core-owned default;
+AGENTS.md:411:    Schedule now is controlled and defaults to null; omitted and null values hide the line.
+AGENTS.md:412:    Hosts that need a live line own now state, update it from their own interval, and clear that
+AGENTS.md:413:    interval on cleanup. Consumers migrating from the former automatic clock must supply now.
+AGENTS.md:563:    its own week lane in the hook and uses a Schedule interval without a horizontal strip.
+src/components/schedule/README.md:25:`now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
+src/components/schedule/README.md:27:state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
+src/components/schedule/README.md:28:the former automatic line must supply `now` and own its updates.
+README.md:152:`Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+README.md:169:migrating from that behavior must now supply `now` and update it when needed.
+README.md:289:datasets then cannot collide when they reuse lane IDs and versions. Omitting the identity uses the
+llms.txt:236:columns without horizontal scrolling; the body scrolls vertically. Omitted now and null hide the
+llms.txt:237:line. A supplied now is also hidden outside the selected window. Schedule does not start a clock.
+llms.txt:238:For a live line, the host keeps now in state, updates it from its own interval, and clears that
+llms.txt:239:interval on cleanup. Consumers migrating from the former automatic clock must supply now and own
+llms.txt:424:identifies one dataset. Omitted identities use the core-owned default; pass the same
