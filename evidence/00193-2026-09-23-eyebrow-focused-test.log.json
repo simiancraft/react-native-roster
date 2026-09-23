@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["frontend", "test"],
+  "covered_paths": [
+    "demo/components/ui/eyebrow.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/parts/chips.tsx",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "18c3aba4b680fa59171d2bfd9eae0ae0bb5de16b",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx",
+  "content_hash": "sha256:23051c055c486321ad5cc5174d32545e7347349ac6a8620c30f62743302a1bb5"
+}

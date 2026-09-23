@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["ci", "repository"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock",
+    "demo/components/ui/eyebrow.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/parts/chips.tsx",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "18c3aba4b680fa59171d2bfd9eae0ae0bb5de16b",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:4cfdd7ac816196b8b67760b7d6b8ed6fa4c662df92d9a2bd84190a59df7b13d1"
+}
