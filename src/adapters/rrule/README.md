@@ -24,7 +24,11 @@ provenance per span.
 interval per contiguous selected hour run; without an explicit band, its minimum
 and maximum selected hours define the bounds. `RosterDate` is a single local
 date, whole day or with hours. Both are `include` or `exclude`. Unbounded strings
-are rejected by validation.
+and fields outside these declared inputs are rejected by validation. `byminute`
+and `bysecond` are permanently unsupported; use fractional `hourstart` and
+`hourend` values for sub-hour bands. `HOURLY`, `MINUTELY`, and `SECONDLY` are
+permanently unsupported because an occurrence is a dated band, so sub-daily
+repetition has no meaning.
 
 ## File map
 
