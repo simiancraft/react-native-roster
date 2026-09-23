@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["demo", "accessibility", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/events/parts/attendance-interaction.ts",
+    "demo/components/team-roster/events/parts/attendance-interaction.types.ts",
+    "demo/components/team-roster/events/parts/attendance-interaction.web.ts",
+    "demo/components/team-roster/events/parts/attendances.tsx",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "43ad16ec4662822ddec92cc147cb1b98fea8a432",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:d56afce584fd0fee9ffaa7ec2e91eddbac2730b6e2798ce330456cfb4e745303"
+}
