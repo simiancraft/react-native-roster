@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { cn } from '../../../ui/utils/classes';
 import { KIND_CLASSES } from '../../utils/tones';
 import type { AttendanceModel, AttendanceRowModel } from '../utils/attendance';
 import { attendanceInteraction } from './attendance-interaction';
@@ -66,7 +67,7 @@ function AttendanceRow({
 }: {
   row: AttendanceRowModel;
   tone: string;
-} & AttendanceInteractionInput) {
+} & Omit<AttendanceInteractionInput, 'accessibilityLabel'>) {
   let barZone: ReactNode = (
     <View testID="attendance-empty" className="absolute top-1 left-0 right-0 h-px bg-border" />
   );
@@ -74,7 +75,7 @@ function AttendanceRow({
     barZone = (
       <View
         testID="attendance-actual"
-        className={`absolute top-0 h-[10px] rounded-sm ${tone}`}
+        className={cn('absolute top-0 h-[10px] rounded-sm', tone)}
         style={{ left: `${row.bar.left}%`, width: `${row.bar.width}%` }}
       />
     );
@@ -87,9 +88,12 @@ function AttendanceRow({
         </Text>
       </Text>
       <Pressable
-        accessibilityLabel={`${row.attendee.name}: ${row.detail}`}
         className="relative h-[10px]"
-        {...attendanceInteraction({ onActivate, onDeactivate })}
+        {...attendanceInteraction({
+          accessibilityLabel: `${row.attendee.name}: ${row.detail}`,
+          onActivate,
+          onDeactivate,
+        })}
       >
         {barZone}
       </Pressable>

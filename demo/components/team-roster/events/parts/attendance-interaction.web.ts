@@ -5,11 +5,17 @@ import type {
 
 /** Web focus activates detail only when the browser marks it focus-visible. */
 export function attendanceInteraction({
+  accessibilityLabel,
   onActivate,
   onDeactivate,
 }: AttendanceInteractionInput): AttendanceInteractionHandlers {
   return {
-    onPress: (event) => event.stopPropagation(),
+    accessibilityLabel,
+    accessibilityRole: 'button',
+    onPress(event) {
+      event.stopPropagation();
+      onActivate('press');
+    },
     onHoverIn: () => onActivate('hover'),
     onHoverOut: () => onDeactivate('hover'),
     onFocus(event) {
