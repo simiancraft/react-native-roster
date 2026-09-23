@@ -602,6 +602,9 @@ owns a fixed seeded now separating past, live, and future events. Attendees have
 expected, pending, present, attended, or absent presence states. Present spans draw
 through now without exposing future departures; immutable seeded arrival and
 departure facts keep late departures present after scheduled end.
+Generated showcase events omit skipped authored starts, choose the earlier occurrence for repeated
+starts and ends, and clamp skipped ends to the first instant after the skipped span. Empty or
+negative results are omitted. This authored wall-time policy is local to the showcase.
 TeamInterval draws disjoint strips over the union of attendances on the lighter
 scheduled block, retaining gaps and overhang. EventDetail in team-roster/events
 is the intervalDetailComponent; its popover shows named presence rows against a

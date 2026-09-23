@@ -170,8 +170,12 @@ export function eventsFor(
         { weight: 2, value: 'session' },
       ]);
       const length = kind === 'focus' ? 2 : faker.helpers.arrayElement([0.5, 1, 1, 1.5]);
-      const start = authoredHour(dateLabel, hour, member.timezone);
-      const end = authoredHour(dateLabel, hour + length, member.timezone);
+      const span = eventSpanForAuthoredTimes(
+        resolveAuthoredTime(dateLabel, hour, member.timezone),
+        resolveAuthoredTime(dateLabel, hour + length, member.timezone),
+      );
+      if (!span) continue;
+      const { start, end } = span;
 
       events.push({
         id: `${member.id}:${dateLabel}:${hour}`,
@@ -339,6 +343,23 @@ export function resolveAuthoredTime(
   throw new RangeError('Authored time falls outside the resolved local week');
 }
 
+/** Apply the showcase policy to resolved authored event bounds. */
+export function eventSpanForAuthoredTimes(
+  authoredStart: AuthoredTimeDisambiguation,
+  authoredEnd: AuthoredTimeDisambiguation,
+): Window | null {
+  if (authoredStart.outcome === 'skipped') return null;
+  const start =
+    authoredStart.outcome === 'repeated' ? authoredStart.earlier : authoredStart.instant;
+  const end =
+    authoredEnd.outcome === 'skipped'
+      ? authoredEnd.transition
+      : authoredEnd.outcome === 'repeated'
+        ? authoredEnd.earlier
+        : authoredEnd.instant;
+  return end > start ? { start, end } : null;
+}
+
 function wallEpoch(time: number, timezone: string): number {
   const parts = new Intl.DateTimeFormat('en-US-u-ca-gregory-nu-latn', {
     timeZone: timezone,
@@ -361,26 +382,4 @@ function wallEpoch(time: number, timezone: string): number {
   );
   date.setUTCHours(Number(value('hour')) % 24, Number(value('minute')), Number(value('second')), 0);
   return date.getTime() + (((time % 1000) + 1000) % 1000);
-}
-
-/** Resolve daytime authored hours using the offset at that wall time, including DST changes. */
-function authoredHour(date: string, hour: number, timezone: string): number {
-  const day = windowFor({ span: 'day', anchorDate: date, timezone });
-  const target = Date.parse(`${date}T00:00:00Z`) + hour * HOUR;
-  let instant = day.start + hour * HOUR;
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  });
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const parts = formatter.formatToParts(instant);
-    const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-    const wall =
-      localDateEpoch(instant, timezone) + value('hour') * HOUR + value('minute') * 60_000;
-    if (wall === target) return instant;
-    instant += target - wall;
-  }
-  return instant;
 }

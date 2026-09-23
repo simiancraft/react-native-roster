@@ -44,6 +44,7 @@ import {
 } from '../../demo/components/team-roster/utils/format';
 import { selectionFor } from '../../demo/components/team-roster/utils/selection';
 import {
+  eventSpanForAuthoredTimes,
   eventsFor,
   laneFor,
   memberMeta,
@@ -55,7 +56,7 @@ import { timeOffNote, timeOffPresentation } from '../../demo/components/team-ros
 import { expandRuleSet } from '../../src/adapters/rrule';
 import type { GapInput } from '../../src/components/layers/layers.types';
 import type { IntervalDetailInput } from '../../src/components/roster/roster.types';
-import { dayColumnsFor, layoutLane, type Source, windowFor } from '../../src/core';
+import { dayColumnsFor, layoutLane, type Source, type Weekday, windowFor } from '../../src/core';
 
 const Platform = { OS: 'ios' };
 const { attendanceInteraction: nativeInteraction } = await import(
@@ -802,6 +803,61 @@ it('classifies exact, repeated, and skipped authored wall times', () => {
     outcome: 'skipped',
     transition: Date.parse('2011-12-30T10:00:00.000Z'),
   });
+});
+
+it('applies authored wall-time policy to generated events', () => {
+  const original = team.members[0];
+  if (!original) throw new Error('Expected member');
+  const generate = (id: string, date: string, timezone: string, start: number) => {
+    const member = {
+      ...original,
+      id,
+      timezone,
+      workdays: [0, 1, 2, 3, 4, 5, 6] as Weekday[],
+      hours: { start, end: start + 2 },
+      rules: { rules: [], dates: [] },
+    };
+    const bounds = windowFor({ span: 'day', anchorDate: date, timezone });
+    return eventsFor(member, bounds, [member], bounds.end + 86_400_000);
+  };
+
+  expect(generate('skipped-start', '2026-03-08', 'America/New_York', 2)).toEqual([]);
+
+  const repeatedStart = generate('repeat-start', '2026-11-01', 'America/New_York', 1);
+  expect(repeatedStart).toHaveLength(1);
+  expect(repeatedStart[0]?.id).toBe('repeat-start:2026-11-01:1');
+  expect(repeatedStart[0]?.start).toBe(Date.parse('2026-11-01T05:00:00.000Z'));
+
+  const repeatedEnd = generate('repeat-end', '2026-11-01', 'America/New_York', 0.5);
+  expect(repeatedEnd).toHaveLength(1);
+  expect(repeatedEnd[0]?.id).toBe('repeat-end:2026-11-01:0.5');
+  expect(repeatedEnd[0]?.end).toBe(Date.parse('2026-11-01T05:00:00.000Z'));
+
+  const skippedEnd = generate('skipped-end-0', '2026-03-08', 'America/New_York', 1);
+  expect(skippedEnd).toHaveLength(1);
+  expect(skippedEnd[0]).toMatchObject({
+    id: 'skipped-end-0:2026-03-08:1',
+    start: Date.parse('2026-03-08T06:00:00.000Z'),
+    end: Date.parse('2026-03-08T07:00:00.000Z'),
+  });
+
+  const fractionalOffset = generate('fractional-offset', '2026-01-05', 'Asia/Kathmandu', 9.25);
+  expect(fractionalOffset[0]?.start).toBe(Date.parse('2026-01-05T03:30:00.000Z'));
+  expect(generate('skipped-date', '2011-12-30', 'Pacific/Apia', 9)).toEqual([]);
+
+  for (const event of [...repeatedStart, ...repeatedEnd, ...skippedEnd, ...fractionalOffset]) {
+    expect(event.end).toBeGreaterThan(event.start);
+  }
+  expect(generate('skipped-end-0', '2026-03-08', 'America/New_York', 1)).toEqual(skippedEnd);
+  expect(
+    eventSpanForAuthoredTimes(
+      { outcome: 'exact', instant: 10 },
+      {
+        outcome: 'skipped',
+        transition: 10,
+      },
+    ),
+  ).toBeNull();
 });
 
 function authoredFields(instant: number, timezone: string): { date: string; hour: number } {
