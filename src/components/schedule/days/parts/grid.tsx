@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { defaultGridBorderColor } from '../../../layers/utils/paint';
 import type { ScheduleHoursInput } from '../../schedule.types';
 
 export function ScheduleGrid({ hours, pxPerHour }: ScheduleHoursInput) {
@@ -12,7 +13,7 @@ export function ScheduleGrid({ hours, pxPerHour }: ScheduleHoursInput) {
             height: pxPerHour,
             borderTopWidth: 1,
             borderRightWidth: 1,
-            borderColor: '#e2e8f0',
+            borderColor: defaultGridBorderColor,
           }}
         />
       ))}
