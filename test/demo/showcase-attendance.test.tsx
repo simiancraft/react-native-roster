@@ -318,6 +318,10 @@ it('selects compact glyphs and actual bars for every presence state', () => {
     );
     expect(tree.root.findAllByProps({ testID: 'attendance-scheduled' })).toHaveLength(1);
     expect(tree.root.findAllByProps({ testID: 'attendance-actual' })).toHaveLength(bars);
+    if (bars === 1)
+      expect(tree.root.findByProps({ testID: 'attendance-actual' }).props.className).toBe(
+        'absolute top-0 h-[10px] rounded-sm bg-sky-500',
+      );
     expect(tree.root.findAllByProps({ testID: 'attendance-tooltip' })).toHaveLength(0);
   }
 });
@@ -506,6 +510,7 @@ for (const platform of ['web', 'ios'] as const) {
         const legend = `${attendance.state === 'expected' ? 'Expected attendees' : 'Actual attendance'}; the shaded band is the scheduled window`;
         expect(footer()).toBe(legend);
         expect(bar.props.accessibilityLabel).toBe(`Person a: ${detail}`);
+        expect(bar.props.accessibilityRole).toBe('button');
         const activate = platform === 'web' ? 'onHoverIn' : 'onPress';
         const deactivate = platform === 'web' ? 'onHoverOut' : 'onPress';
         act(() => bar.props[activate]({ stopPropagation() {} }));
@@ -542,8 +547,9 @@ for (const platform of ['web', 'ios'] as const) {
           }),
         );
         expect(stopped).toBe(true);
-        expect(bar.props.accessibilityRole).toBe(platform === 'web' ? undefined : 'button');
-        expect(footer()).toBe(platform === 'web' ? legend : `Person a · ${detail}`);
+        expect(footer()).toBe(`Person a · ${detail}`);
+        act(() => bar.props.onPress({ stopPropagation() {} }));
+        expect(footer()).toBe(legend);
       }
     } finally {
       Platform.OS = previous;
