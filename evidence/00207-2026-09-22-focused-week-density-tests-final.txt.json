@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/window-controls.tsx",
+    "demo/components/team-roster/team-roster.types.ts",
+    "demo/components/team-roster/use-team-roster.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "ef6abe9f34a799ea04110ddbc9d7ef32d07c57a4",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:8a749f905e49342627cd776b54bf8476c1b1d395afdf3d57190e133c5b010f4e"
+}

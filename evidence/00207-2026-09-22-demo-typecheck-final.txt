@@ -1,0 +1,4 @@
+capture_commit=ef6abe9f34a799ea04110ddbc9d7ef32d07c57a4
+command=bun run typecheck:demo
+$ tsgo --noEmit -p demo/tsconfig.json
+typecheck_demo_exit=0
