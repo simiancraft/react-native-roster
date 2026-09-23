@@ -1,5 +1,5 @@
 import '../../support/native-host';
-import { afterEach, describe, expect, it, mock } from 'bun:test';
+import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { Roster } from '../../../src/components/roster';
@@ -226,6 +226,81 @@ describe('Schedule chassis and day zones', () => {
     expect(onIntervalPress).toHaveBeenCalledTimes(2);
     expect(onGapPress).toHaveBeenCalledTimes(1);
     expect(onCellPress).toHaveBeenCalledTimes(1);
+  });
+  it('renders Schedule column rects through the shared layer stack', () => {
+    const error = spyOn(console, 'error').mockImplementation(() => {});
+    const press = mock();
+    const source = { kind: 'rule', id: 'shared', label: 'Stored label' } as const;
+    const below: core.Layer = {
+      id: 'below',
+      role: 'availability',
+      z: 10,
+      style: { color: 'green' },
+      intervals: [],
+    };
+    const above: core.Layer = {
+      id: 'above',
+      role: 'booking',
+      z: 20,
+      style: { color: 'red' },
+      intervals: [],
+    };
+    const lane: core.Lane = { id: 'lane', label: 'Lane', layers: [above, below] };
+    const split: core.Rect = {
+      layerId: 'below',
+      x: 2,
+      y: 10,
+      width: 20,
+      height: 5,
+      z: 10,
+      column: 0,
+      sources: [source],
+    };
+    const otherSplit = { ...split };
+    const higher = { ...split, layerId: 'above', y: 20, sources: [] };
+    const gap = { ...split, x: 30, y: 40, width: 50, height: 60, z: 7 };
+    const tree = render(
+      createElement(ScheduleColumn, {
+        day: {
+          start: 0,
+          end: 1,
+          localDate: '2024-01-01',
+          label: 'Mon',
+          transitions: [],
+        },
+        lane,
+        rects: [higher, split, otherSplit],
+        gapRects: [gap],
+        press,
+        highlightSource: { kind: 'rule', id: 'shared', label: 'Fresh label' },
+        intervalComponent: (input) => createElement('interval-sentinel', input),
+        gapComponent: (input) => createElement('gap-sentinel', input),
+      }),
+    );
+
+    const intervals = tree.root.findAllByType('interval-sentinel' as ElementType);
+    expect(intervals.map((node) => node.props.rect)).toEqual([split, otherSplit, higher]);
+    expect(intervals[0]?.props.rect).toBe(split);
+    expect(intervals[1]?.props.rect).toBe(otherSplit);
+    expect(intervals.map((node) => node.props.highlighted)).toEqual([true, true, false]);
+    expect(error.mock.calls.some((call) => call.join(' ').includes('same key'))).toBe(false);
+
+    const wrapper = tree.root.findByType('Pressable' as ElementType);
+    expect(wrapper.props).toMatchObject({
+      accessibilityLabel: 'Lane: removed time',
+      style: {
+        position: 'absolute',
+        left: 30,
+        top: 40,
+        width: 50,
+        height: 60,
+        zIndex: 7,
+      },
+    });
+    const stopPropagation = mock();
+    wrapper.props.onPress({ stopPropagation, nativeEvent: { locationX: 4, locationY: 5 } });
+    expect(stopPropagation).toHaveBeenCalledTimes(1);
+    expect(press).toHaveBeenCalledWith(34, 45);
   });
   it('shows transition badges, the spring hatch, and the repeated region divider at both offset sizes', () => {
     const tree = render(createElement(Schedule, propsFor('schedule-spring')));
