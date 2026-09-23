@@ -132,9 +132,10 @@ uncovered. COUNT counts admitted dates, and occurrence caps count emitted spans.
 
 Convert enums to those exact values, `Date` values to appropriate ISO strings,
 and database `null` to omitted optional fields. `byyearday` and `byweekno` are valid only on
-yearly rules. Drop unsupported recurrence fields: `byminute` and `bysecond`. Do not imply
-that dropping a semantically active field preserves an arbitrary upstream rule;
-reject unsupported semantics or handle them in your own adapter. Source kinds
+yearly rules. The adapter rejects fields outside its declared inputs, including
+`byminute` and `bysecond`; use fractional hour bounds for sub-hour bands. It also
+rejects `HOURLY`, `MINUTELY`, and `SECONDLY` because occurrences are dated bands.
+Handle those unsupported semantics in your own adapter. Source kinds
 emitted here are `rule` and `date`; a dated `note` becomes source label metadata.
 
 The rule/date zone interprets local hours. Lane timezone is a display cue.

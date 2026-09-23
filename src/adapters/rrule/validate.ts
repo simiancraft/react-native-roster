@@ -1,6 +1,36 @@
 import type { Window } from '../../core';
 import type { RosterDate, RosterRule } from './types';
 
+const ruleFields = new Set<keyof RosterRule>([
+  'id',
+  'kind',
+  'frequency',
+  'dtstart',
+  'until',
+  'count',
+  'interval',
+  'wkst',
+  'byweekday',
+  'bymonth',
+  'bymonthday',
+  'byyearday',
+  'byweekno',
+  'bysetpos',
+  'byhour',
+  'hourstart',
+  'hourend',
+  'timezone',
+]);
+const dateFields = new Set<keyof RosterDate>([
+  'id',
+  'kind',
+  'date',
+  'timezone',
+  'note',
+  'hourstart',
+  'hourend',
+]);
+
 export function validateWindow(window: Window): void {
   if (
     !Number.isSafeInteger(window.start) ||
@@ -17,7 +47,17 @@ export function nonnegativeInteger(value: number, name: string): number {
   return value;
 }
 
-export function validateInput(input: RosterRule | RosterDate): void {
+export function validateInput(input: RosterRule | RosterDate, type: 'rule' | 'date'): void {
+  const fields: ReadonlySet<string> = type === 'rule' ? ruleFields : dateFields;
+  for (const name of Object.keys(input)) {
+    if (fields.has(name)) continue;
+    if (name === 'byminute' || name === 'bysecond') {
+      throw new RangeError(
+        `${input.id}: ${name} is unsupported; use fractional hourstart and hourend for sub-hour bands`,
+      );
+    }
+    throw new RangeError(`${input.id}: unsupported ${type} field ${name}`);
+  }
   if (!input.id || !['include', 'exclude'].includes(input.kind)) {
     throw new RangeError('Each rule or date needs an id and an include or exclude kind');
   }
@@ -34,8 +74,14 @@ export function validateInput(input: RosterRule | RosterDate): void {
     throw new RangeError(`${input.id}: hourstart and hourend must both be present or both absent`);
   }
   if ('frequency' in input) {
-    if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency))
-      throw new RangeError('Unsupported frequency');
+    if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency)) {
+      if (['HOURLY', 'MINUTELY', 'SECONDLY'].includes(input.frequency)) {
+        throw new RangeError(
+          `${input.id}: ${input.frequency} is unsupported; sub-daily repetition has no meaning for dated bands`,
+        );
+      }
+      throw new RangeError(`${input.id}: unsupported frequency ${input.frequency}`);
+    }
     if (hourstart === undefined && !input.byhour?.length)
       throw new RangeError('Rules require hourstart and hourend or a nonempty byhour');
     for (const name of ['count', 'interval'] as const) {
