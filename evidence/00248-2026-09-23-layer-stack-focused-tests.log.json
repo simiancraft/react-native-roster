@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["code", "tests"],
+  "covered_paths": [
+    "src/components/layers/layer-stack.tsx",
+    "src/components/roster/lanes/lane.tsx",
+    "src/components/schedule/days/parts/column.tsx",
+    "test/components/component-slots.test.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "f3dd073860ea43482b28e2b717262e68e765c8bd",
+  "capture_method": "bun test test/components/component-slots.test.tsx test/components/roster/render.test.ts test/components/schedule/render.test.ts",
+  "content_hash": "sha256:e1c606c58f1d0c269292ad2b8a373f681024266bf1ef3b618d073e2e959b2981"
+}

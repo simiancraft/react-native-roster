@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["code", "tests", "web-performance", "ci-gate"],
+  "covered_paths": [
+    "package.json",
+    ".github/workflows/ci.yml",
+    "src/components/layers/layer-stack.tsx",
+    "src/components/roster/lanes/lane.tsx",
+    "test/components/roster/render.test.ts",
+    "scripts/check-web-performance.ts"
+  ],
+  "capture_commit": "f3dd073860ea43482b28e2b717262e68e765c8bd",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:067aedef516ab4ee5bd9bfe18dedb66d5bb770ac1b05ca04ba6326bf08bc9ed0"
+}
