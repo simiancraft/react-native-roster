@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { LaneLabelInput } from 'react-native-roster';
+import { Toggle } from '../../ui/toggle';
 import type { Member } from '../members/member.types';
 import type { Density } from '../team-roster.types';
 import { zoneShort } from '../utils/format';
@@ -42,10 +43,10 @@ export function MemberLabel({
   const Detail = DETAIL[density];
   const tone = TONE_CLASSES[member.tone];
   return (
-    <Pressable
-      accessibilityRole="button"
+    <Toggle
+      mode="pressed"
+      pressed={variant === 'selected'}
       accessibilityLabel={`${member.name}, ${member.role}`}
-      accessibilityState={{ selected: variant === 'selected' }}
       onPress={onPress}
       className={ROW[variant][density]}
     >
@@ -53,7 +54,7 @@ export function MemberLabel({
         <Text className={`text-xs font-semibold ${tone.avatarText}`}>{member.initials}</Text>
       </View>
       <Detail member={member} complete={complete} viewTimezone={viewTimezone} />
-    </Pressable>
+    </Toggle>
   );
 }
 

@@ -2,6 +2,7 @@ import { mock } from 'bun:test';
 import { createElement, type ReactNode, useRef } from 'react';
 
 export const backHandlers = new Set<() => boolean>();
+export const testPlatform = { OS: 'ios' };
 
 // Native hosts are supplied by the app runtime, which Bun does not implement.
 mock.module('react-native', () => ({
@@ -12,6 +13,7 @@ mock.module('react-native', () => ({
     },
   },
   Linking: { openURL: async () => true },
+  Platform: testPlatform,
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',

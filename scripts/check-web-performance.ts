@@ -307,6 +307,15 @@ try {
   await assertDayActivations(3);
   assert.deepEqual(errors, [], 'Day header browser runtime errors');
   console.log('Day header: pointer, Enter, and Space each activate the actual day exactly once.');
+  await page.goto(`${server.url}gallery/every-zone`, { waitUntil: 'networkidle' });
+  const nowToggle = page.getByRole('button', { name: 'Now at window midpoint', exact: true });
+  assert.equal(await nowToggle.getAttribute('aria-pressed'), 'false', 'Now: unpressed control');
+  await click('Now at window midpoint');
+  const nextAction = page.getByRole('button', { name: 'Next', exact: true });
+  assert.equal(await nextAction.getAttribute('aria-pressed'), null, 'Next: ordinary action');
+  assert.equal(await nextAction.getAttribute('aria-selected'), null, 'Next: unselected action');
+  assert.deepEqual(errors, [], 'Toggle browser runtime errors');
+  console.log('Toggle semantics: now and highlight expose pressed state; actions do not.');
   await page.setViewportSize({ width: 1440, height: 1600 });
   root = resolve('demo/.cache/dev-dist');
   assert(
@@ -433,12 +442,12 @@ async function click(name: string) {
   const control = page.getByRole('button', { name, exact: true });
   await control.click();
   await settle(page);
-  if (
-    name.startsWith('Sort:') ||
-    ['UTC', 'America/Chicago', '15 min', 'Highlight rule (fresh source)'].includes(name)
-  ) {
-    // The shared Control reports selection through accessibilityState, not paint.
+  if (name.startsWith('Sort:') || ['UTC', 'America/Chicago', '15 min'].includes(name)) {
+    // Exclusive fixture choices remain selected buttons until their owning piece migrates them.
     assert.equal(await control.getAttribute('aria-selected'), 'true', `${name}: selected control`);
+  }
+  if (['Highlight rule (fresh source)', 'Now at window midpoint'].includes(name)) {
+    assert.equal(await control.getAttribute('aria-pressed'), 'true', `${name}: pressed control`);
   }
 }
 async function scrollRange(afterScroll?: () => Promise<void>) {
