@@ -28,6 +28,8 @@ export type ScheduleInput = {
   now?: number | null;
   highlightSource?: Source;
   onNavigate?: (next: WindowSpec) => void;
+  /** Called when an ordinary day heading is activated. */
+  onDayPress?: (day: DayColumn) => void;
   onIntervalPress?: (rect: Rect, lane: Lane) => void;
   onGapPress?: (rect: Rect, lane: Lane) => void;
   onCellPress?: (lane: Lane, time: number) => void;
@@ -63,6 +65,11 @@ export type ScheduleColumnInput = {
   gapComponent: ComponentType<GapInput>;
 };
 export type ScheduleHoursInput = { hours: number[]; pxPerHour: number };
+export type ScheduleDayHeaderInput = {
+  day: DayColumn;
+  /** Activates this heading's day when the Schedule supplies onDayPress. */
+  onPress?: () => void;
+};
 /**
  * Chrome style props and their NativeWind class twins. Class props resolve only
  * after `react-native-roster/nativewind` registers the component; without that
@@ -90,7 +97,7 @@ export type ScheduleProps = ScheduleInput &
     /** Hour bands behind each day's rects; ScheduleGrid draws 24 bordered bands. */
     gridComponent?: ComponentType<ScheduleHoursInput>;
     /** Frozen day heading; ScheduleDayHeader shows weekday, localDate, and a transition badge. */
-    dayHeaderComponent?: ComponentType<{ day: DayColumn }>;
+    dayHeaderComponent?: ComponentType<ScheduleDayHeaderInput>;
     /** Wholly skipped local date marker; ScheduleSkippedDate labels its zero-width header gap. */
     skippedDateComponent?: ComponentType<{ localDate: string }>;
     /** The day's covered and removed rects; ScheduleColumn draws final bounds in layer order. */

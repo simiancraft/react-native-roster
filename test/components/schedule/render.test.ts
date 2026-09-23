@@ -10,6 +10,7 @@ import { ScheduleTransition } from '../../../src/components/schedule/days/parts/
 import { ScheduleGutter } from '../../../src/components/schedule/parts/gutter';
 import type {
   ScheduleColumnInput,
+  ScheduleDayHeaderInput,
   ScheduleProps,
 } from '../../../src/components/schedule/schedule.types';
 import { ScheduleWidth } from '../../../src/components/schedule/use-schedule-viewport';
@@ -304,6 +305,58 @@ describe('Schedule chassis and day zones', () => {
       '2011-12-30',
     );
     expect(tree.root.findAllByProps({ testID: 'schedule-missing-2011-12-30' })).toHaveLength(0);
+  });
+  it('binds real days to custom headers and updates or omits their action', () => {
+    const props = propsFor('schedule-empty');
+    const firstAction = mock();
+    const secondAction = mock();
+    const dayHeaderComponent = mock(({ day, onPress }: ScheduleDayHeaderInput) =>
+      createElement('custom-header', { day, onPress }),
+    );
+    const tree = render(
+      createElement(Schedule, { ...props, dayHeaderComponent, onDayPress: firstAction }),
+    );
+    const firstHeader = tree.root.findAllByType('custom-header' as ElementType)[0];
+    const firstDay = firstHeader?.props.day;
+    firstHeader?.props.onPress();
+    expect(firstAction).toHaveBeenCalledTimes(1);
+    expect(firstAction).toHaveBeenCalledWith(firstDay);
+
+    act(() =>
+      tree.update(
+        createElement(Schedule, { ...props, dayHeaderComponent, onDayPress: secondAction }),
+      ),
+    );
+    const replacementHeader = tree.root.findAllByType('custom-header' as ElementType)[0];
+    expect(replacementHeader?.props.day).toBe(firstDay);
+    replacementHeader?.props.onPress();
+    expect(firstAction).toHaveBeenCalledTimes(1);
+    expect(secondAction).toHaveBeenCalledTimes(1);
+    expect(secondAction).toHaveBeenCalledWith(firstDay);
+
+    act(() => tree.update(createElement(Schedule, { ...props, dayHeaderComponent })));
+    expect(
+      tree.root.findAllByType('custom-header' as ElementType)[0]?.props.onPress,
+    ).toBeUndefined();
+
+    const apia = { span: 'week', anchorDate: '2011-12-26', timezone: 'Pacific/Apia' } as const;
+    act(() =>
+      tree.update(
+        createElement(Schedule, {
+          ...props,
+          windowSpec: apia,
+          dayHeaderComponent,
+          onDayPress: secondAction,
+        }),
+      ),
+    );
+    expect(tree.root.findAllByType('custom-header' as ElementType)).toHaveLength(6);
+    expect(
+      tree.root
+        .findAllByType('custom-header' as ElementType)
+        .some((header) => header.props.day.localDate === '2011-12-30'),
+    ).toBe(false);
+    expect(tree.root.findByProps({ testID: 'schedule-missing-2011-12-30' })).toBeDefined();
   });
   it('shows localized incompleteness outside covered time and composes every replaceable zone', () => {
     const props = propsFor('schedule-incomplete');

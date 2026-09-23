@@ -49,6 +49,7 @@ function ScheduleContent(props: ScheduleProps) {
     lane,
     windowSpec,
     highlightSource,
+    onDayPress,
     gutterComponent: GutterComponent = ScheduleGutter,
     dayHeaderComponent: DayHeaderComponent = ScheduleDayHeader,
     skippedDateComponent: SkippedDateComponent = ScheduleSkippedDate,
@@ -77,7 +78,12 @@ function ScheduleContent(props: ScheduleProps) {
           <ScheduleDayHeaderLayout
             key={localDate}
             width={projection.columnWidth}
-            headerZone={<DayHeaderComponent day={day} />}
+            headerZone={
+              <DayHeaderComponent
+                day={day}
+                onPress={onDayPress ? () => onDayPress(day) : undefined}
+              />
+            }
           />
         );
       })}
