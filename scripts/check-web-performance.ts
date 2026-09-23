@@ -127,7 +127,13 @@ try {
   console.log(
     'Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.',
   );
-  await page.getByRole('button', { name: '15 min', exact: true }).click();
+  const sixtyMinuteChoice = page.getByRole('radio', { name: '60 min', exact: true });
+  await click('15 min');
+  assert.equal(
+    await sixtyMinuteChoice.getAttribute('aria-checked'),
+    'false',
+    '15 min activation must uncheck 60 min',
+  );
   await page.evaluate(() => {
     const bridge = window.__roster as CounterBridgeInput;
     bridge.clearLayoutCache();
@@ -147,8 +153,20 @@ try {
     layout: mounted,
     coverage: 200,
   });
+  assert.equal(
+    await page.getByRole('radio', { name: 'UTC', exact: true }).getAttribute('aria-checked'),
+    'false',
+    'America/Chicago activation must uncheck UTC',
+  );
   // Edit while back at the original absolute window so unchanged rules retain exact envelope keys.
   await click('UTC');
+  assert.equal(
+    await page
+      .getByRole('radio', { name: 'America/Chicago', exact: true })
+      .getAttribute('aria-checked'),
+    'false',
+    'UTC activation must uncheck America/Chicago',
+  );
   await scrollRange();
   await row('scroll (second pass)', scrollRange, { expanded: 0, layout: 0 });
   await row(
@@ -165,7 +183,21 @@ try {
   await row('highlight', () => click('Highlight rule (fresh source)'), { expanded: 0, layout: 0 });
   // Visit the target sort once, then return before measuring its target-warm revisit.
   await click('Sort: availability');
+  assert.equal(
+    await page
+      .getByRole('radio', { name: 'Sort: label', exact: true })
+      .getAttribute('aria-checked'),
+    'false',
+    'Sort availability activation must uncheck Sort label',
+  );
   await click('Sort: label');
+  assert.equal(
+    await page
+      .getByRole('radio', { name: 'Sort: availability', exact: true })
+      .getAttribute('aria-checked'),
+    'false',
+    'Sort label activation must uncheck Sort availability',
+  );
   await row('sort', () => click('Sort: availability'), { expanded: 0, layout: 0 });
   await row('unrelated lane-zone change', () => click('Change last lane zone'), {
     expanded: 0,
@@ -314,8 +346,30 @@ try {
   const nextAction = page.getByRole('button', { name: 'Next', exact: true });
   assert.equal(await nextAction.getAttribute('aria-pressed'), null, 'Next: ordinary action');
   assert.equal(await nextAction.getAttribute('aria-selected'), null, 'Next: unselected action');
+  assert.equal(await nextAction.getAttribute('aria-checked'), null, 'Next: unchecked action');
+  for (const groupName of ['Span', 'Minute step', 'Timezone', 'Sort']) {
+    const group = page.getByRole('radiogroup', { name: groupName, exact: true });
+    assert.equal(await group.count(), 1, `${groupName}: one named radio group`);
+    assert.equal(
+      await group.getByRole('radio', { checked: true }).count(),
+      1,
+      `${groupName}: one checked choice`,
+    );
+  }
+  await page.goto(`${server.url}gallery/schedule-every-zone`, { waitUntil: 'networkidle' });
+  for (const groupName of ['Zone style', 'Span', 'Minute step', 'Scale', 'Timezone', 'View']) {
+    const group = page.getByRole('radiogroup', { name: groupName, exact: true });
+    assert.equal(await group.count(), 1, `${groupName}: one named radio group`);
+    assert.equal(
+      await group.getByRole('radio', { checked: true }).count(),
+      1,
+      `${groupName}: one checked choice`,
+    );
+  }
   assert.deepEqual(errors, [], 'Toggle browser runtime errors');
-  console.log('Toggle semantics: now and highlight expose pressed state; actions do not.');
+  console.log(
+    'Control semantics: fixture choices are named radios, persistent controls are pressed, and actions remain buttons.',
+  );
   await page.setViewportSize({ width: 1440, height: 1600 });
   root = resolve('demo/.cache/dev-dist');
   assert(
@@ -439,12 +493,12 @@ async function assertLaneLabelAlignment(index: number) {
   );
 }
 async function click(name: string) {
-  const control = page.getByRole('button', { name, exact: true });
+  const exclusive = name.startsWith('Sort:') || ['UTC', 'America/Chicago', '15 min'].includes(name);
+  const control = page.getByRole(exclusive ? 'radio' : 'button', { name, exact: true });
   await control.click();
   await settle(page);
-  if (name.startsWith('Sort:') || ['UTC', 'America/Chicago', '15 min'].includes(name)) {
-    // Exclusive fixture choices remain selected buttons until their owning piece migrates them.
-    assert.equal(await control.getAttribute('aria-selected'), 'true', `${name}: selected control`);
+  if (exclusive) {
+    assert.equal(await control.getAttribute('aria-checked'), 'true', `${name}: checked choice`);
   }
   if (['Highlight rule (fresh source)', 'Now at window midpoint'].includes(name)) {
     assert.equal(await control.getAttribute('aria-pressed'), 'true', `${name}: pressed control`);

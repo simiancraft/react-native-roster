@@ -1,4 +1,5 @@
-import { Pressable, Text } from 'react-native';
+import type { ReactNode } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { Toggle } from '../../../ui/toggle';
 
 const STATE = {
@@ -6,27 +7,47 @@ const STATE = {
   selected: 'rounded-md border border-primary bg-primary/15 px-2.5 py-1.5',
 } as const;
 
-/** One fixture control: a small toggle or action button shared by every fixture. */
-export function Control({
+/** One ordinary fixture action shared by every fixture. */
+export function Control({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} className={STATE.idle}>
+      <Text className="text-xs text-foreground">{label}</Text>
+    </Pressable>
+  );
+}
+
+/** A programmatically named set of exclusive fixture choices. */
+export function RadioGroup({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View
+      accessibilityRole="radiogroup"
+      accessibilityLabel={label}
+      className="flex-row flex-wrap gap-1.5"
+    >
+      {children}
+    </View>
+  );
+}
+
+/** One exclusive choice within a fixture radio group. */
+export function RadioControl({
   label,
-  selected,
+  checked,
   onPress,
 }: {
   label: string;
-  selected?: boolean;
+  checked: boolean;
   onPress: () => void;
 }) {
-  const selectedState =
-    selected === undefined ? {} : { accessibilityState: { selected }, 'aria-selected': selected };
   return (
-    <Pressable
-      accessibilityRole="button"
-      {...selectedState}
+    <Toggle
+      mode="radio"
+      checked={checked}
       onPress={onPress}
-      className={STATE[selected ? 'selected' : 'idle']}
+      className={STATE[checked ? 'selected' : 'idle']}
     >
       <Text className="text-xs text-foreground">{label}</Text>
-    </Pressable>
+    </Toggle>
   );
 }
 
