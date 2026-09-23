@@ -3,15 +3,17 @@ import type { Lane } from 'react-native-roster/core';
 import { TeamScheduleInterval, TeamTimezone, TimeOffGap } from '../../parts/layer-fillers';
 import type { WeekWindowSpec } from '../../team-roster.types';
 import { localDateFor } from '../../utils/format';
-import { WeekDayHeader, WeekFocusDate, WeekGrid, WeekGutter, WeekNowLine } from './week-zones';
+import { WeekDayHeader, WeekFocusDate, WeekGrid, WeekGutter } from './week-zones';
 
 /** The member's week in day columns, styled through class props and zone fillers. */
 export function WeekSchedule({
+  now,
   lane,
   windowSpec,
   focusDate,
   selectDate,
 }: {
+  now: number;
   lane: Lane;
   windowSpec: WeekWindowSpec;
   focusDate: string;
@@ -21,6 +23,7 @@ export function WeekSchedule({
     <TeamTimezone.Provider value={windowSpec.timezone}>
       <WeekFocusDate.Provider value={{ focusDate, selectDate }}>
         <Schedule
+          now={now}
           lane={lane}
           windowSpec={windowSpec}
           pxPerHour={28}
@@ -33,7 +36,6 @@ export function WeekSchedule({
           dayHeaderComponent={WeekDayHeader}
           intervalComponent={TeamScheduleInterval}
           gapComponent={TimeOffGap}
-          nowLineComponent={WeekNowLine}
         />
       </WeekFocusDate.Provider>
     </TeamTimezone.Provider>
