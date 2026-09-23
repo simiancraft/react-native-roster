@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["frontend", "test", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "demo/components/ui/eyebrow.tsx",
+    "demo/components/team-roster/parts/chips.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "9ea4f053a0852c4db97b72ebc307934fd6d96c2f",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:6b0fda11a5d93c192e71cd80765cda6a1a578bda56f452c89c30616790ba2f89"
+}
