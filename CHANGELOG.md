@@ -1,3 +1,13 @@
+## [1.2.0](https://github.com/simiancraft/react-native-roster/compare/v1.1.1...v1.2.0) (2026-09-23)
+
+### Features
+
+* **schedule:** expose day header action contract ([d1e9d22](https://github.com/simiancraft/react-native-roster/commit/d1e9d22302614e38401c665da9f04f73b466ab32))
+
+### Bug Fixes
+
+* **demo:** keep skipped-hour boundaries legible ([36d21b4](https://github.com/simiancraft/react-native-roster/commit/36d21b4e9820b1b930ec6b50eb61d32268543ac7))
+
 ## [1.1.1](https://github.com/simiancraft/react-native-roster/compare/v1.1.0...v1.1.1) (2026-09-23)
 
 ### Bug Fixes
