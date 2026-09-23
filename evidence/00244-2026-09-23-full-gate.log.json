@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["verification", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "bun.lock",
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "llms.txt",
+    "src/components/schedule/README.md"
+  ],
+  "capture_commit": "317d0a480e3731e904b846a411e10377652b212f",
+  "capture_method": "FORCE_COLOR=0 bun install --frozen-lockfile && FORCE_COLOR=0 bun run check",
+  "content_hash": "sha256:842d8dce4794ba494f4c30cd7b55182012af1b92ed8964ce0e92e789c3165259"
+}

@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["docs", "contract"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "llms.txt",
+    "src/components/schedule/README.md",
+    "src/components/schedule/days/parts/day-header.tsx",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/index.ts",
+    "test/components/component-slots.test.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "317d0a480e3731e904b846a411e10377652b212f",
+  "capture_method": "git diff --check and rg comparison of all five documentation files against exported types, binding behavior, default presentation, skipped-date behavior, and tests",
+  "content_hash": "sha256:3ccc07debe472b53d4ef6ad4d5224da1dcac21dfd121e69b5363a235b0912345"
+}
