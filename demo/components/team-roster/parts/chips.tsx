@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { Eyebrow } from '../../ui/eyebrow';
 
 type ChipGroupProps = {
   label: string;
@@ -14,9 +15,9 @@ export function ChipGroup({ label, chipsZone }: ChipGroupProps) {
       accessibilityLabel={label}
       className="relative flex-row items-center gap-1 rounded-lg border border-border bg-card p-1"
     >
-      <Text className="absolute -top-2 left-2 bg-background px-1 text-[9px] font-medium uppercase leading-3 tracking-wider text-muted-foreground">
+      <Eyebrow size="compact" className="absolute -top-2 left-2 bg-background px-1">
         {label}
-      </Text>
+      </Eyebrow>
       {chipsZone}
     </View>
   );

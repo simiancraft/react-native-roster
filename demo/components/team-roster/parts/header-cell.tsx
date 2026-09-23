@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { Text, View } from 'react-native';
 import { type RosterTick, windowFor } from 'react-native-roster';
+import { Eyebrow } from '../../ui/eyebrow';
 import type { Density, SpanKey } from '../team-roster.types';
 import { compactTimeLabel, conciseDate, dayLabel, localDateFor } from '../utils/format';
 
@@ -73,12 +74,7 @@ export function TeamCorner({
 }) {
   return (
     <View className="h-10 justify-center px-3">
-      <Text
-        numberOfLines={1}
-        className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
-      >
-        {CORNER[density](label, count)}
-      </Text>
+      <Eyebrow numberOfLines={1}>{CORNER[density](label, count)}</Eyebrow>
     </View>
   );
 }
