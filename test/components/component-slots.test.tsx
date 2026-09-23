@@ -4,7 +4,13 @@ import type { ComponentType, ReactElement } from 'react';
 import { Component, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import type { IntervalInput, RosterIncompleteInput, RosterProps, ScheduleProps } from '../../src';
+import type {
+  IntervalInput,
+  RosterIncompleteInput,
+  RosterProps,
+  ScheduleDayHeaderInput,
+  ScheduleProps,
+} from '../../src';
 import {
   Roster,
   RosterBody,
@@ -16,7 +22,6 @@ import {
   RosterLaneLabelColumn,
   Schedule,
   ScheduleColumn,
-  ScheduleDayHeader,
   ScheduleGrid,
   ScheduleGutter,
   ScheduleIncomplete,
@@ -77,6 +82,23 @@ function StatefulIncomplete({ lane, geometry, width, label }: RosterIncompleteIn
   );
 }
 
+function StatefulDayHeader({ day, onPress }: ScheduleDayHeaderInput) {
+  const [count, setCount] = useState(0);
+  return (
+    <Pressable
+      testID={`stateful-day-header-${day.localDate}`}
+      onPress={() => {
+        setCount(count + 1);
+        onPress?.();
+      }}
+    >
+      <Text>
+        {day.localDate}:{count}
+      </Text>
+    </Pressable>
+  );
+}
+
 const rosterSlots = {
   headerComponent: classSlot(RosterHeader),
   headerCellComponent: classSlot(RosterHeaderCell),
@@ -91,7 +113,7 @@ const rosterSlots = {
 const scheduleSlots = {
   gutterComponent: classSlot(ScheduleGutter),
   gridComponent: classSlot(ScheduleGrid),
-  dayHeaderComponent: classSlot(ScheduleDayHeader),
+  dayHeaderComponent: classSlot(StatefulDayHeader),
   skippedDateComponent: classSlot(ScheduleSkippedDate),
   columnComponent: classSlot(ScheduleColumn),
   transitionComponent: classSlot(ScheduleTransition),
@@ -189,12 +211,23 @@ describe('component slot mounting and identity', () => {
       lane,
       windowSpec,
       now: Date.parse('2024-11-03T07:30Z'),
+      onDayPress: mock(),
     };
     const tree = render(<Schedule {...props} />);
     const { skippedDateComponent, ...ordinary } = scheduleSlots;
     for (const Slot of Object.values(ordinary))
       expect(tree.root.findAllByType(Slot).length).toBeGreaterThan(0);
     expect(tree.root.findAllByType(skippedDateComponent)).toHaveLength(0);
+    const dayHeader = tree.root.findAll(
+      (node) =>
+        typeof node.props.testID === 'string' &&
+        node.props.testID.startsWith('stateful-day-header-'),
+    )[0];
+    const day = tree.root.findAllByType(scheduleSlots.dayHeaderComponent)[0]?.props.day;
+    act(() => dayHeader?.props.onPress());
+    expect(props.onDayPress).toHaveBeenCalledTimes(1);
+    expect(props.onDayPress).toHaveBeenCalledWith(day);
+    expect(dayHeader?.findByType(Text).props.children).toContain(1);
     const interval = tree.root.findAllByProps({ testID: 'stateful-interval' })[0];
     act(() => interval?.props.onPress());
     const instance = tree.root.findAllByType(scheduleSlots.intervalComponent)[0]?.instance;
@@ -202,6 +235,15 @@ describe('component slot mounting and identity', () => {
     expect(tree.root.findAllByType(scheduleSlots.intervalComponent)[0]?.instance).toBe(instance);
     expect(
       tree.root.findAllByProps({ testID: 'stateful-interval' })[0]?.findByType(Text).props.children,
+    ).toContain(1);
+    expect(
+      tree.root
+        .findAll(
+          (node) =>
+            typeof node.props.testID === 'string' &&
+            node.props.testID.startsWith('stateful-day-header-'),
+        )[0]
+        ?.findByType(Text).props.children,
     ).toContain(1);
     const apia = { span: 'week', anchorDate: '2011-12-26', timezone: 'Pacific/Apia' } as const;
     act(() => tree.update(<Schedule {...props} windowSpec={apia} />));

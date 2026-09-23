@@ -50,6 +50,7 @@ export { ScheduleGutter } from './components/schedule/parts/gutter';
 export { ScheduleIncomplete } from './components/schedule/parts/incomplete';
 export type {
   ScheduleColumnInput,
+  ScheduleDayHeaderInput,
   ScheduleHoursInput,
   ScheduleInput,
   ScheduleModel,
