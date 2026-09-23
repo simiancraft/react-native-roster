@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["showcase", "test", "docs"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-schedule.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx",
+    "test/demo/showcase-attendance.test.tsx",
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "docs/customization.md",
+    "src/components/schedule/README.md",
+    "demo/components/team-roster/README.md"
+  ],
+  "capture_commit": "bd1aaaa15c35784f265395a2961fae6fc63a0349",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx --test-name-pattern 'passes the seeded now'; rg inspection of all six required documents; git diff --check origin/main...HEAD",
+  "content_hash": "sha256:3c2d5a2c32127a9e7d2d5990a7d4e3fcbf23ba2c04d68cbb7e4f7c958ab2c2a9"
+}

@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["code", "test", "docs", "web"],
+  "covered_paths": [
+    "AGENTS.md",
+    "README.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/members/index.tsx",
+    "demo/components/team-roster/members/parts/week-schedule.tsx",
+    "demo/components/team-roster/members/parts/week-zones.tsx",
+    "docs/customization.md",
+    "llms.txt",
+    "src/components/schedule/README.md",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "bd1aaaa15c35784f265395a2961fae6fc63a0349",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:78f7998ae00c746ebbc033089a3d35d632ec22650659e038ca93b7217b499b5b"
+}

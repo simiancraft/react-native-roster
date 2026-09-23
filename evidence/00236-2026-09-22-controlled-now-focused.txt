@@ -1,0 +1,36 @@
++zsh:1> git rev-parse HEAD
+bd1aaaa15c35784f265395a2961fae6fc63a0349
++zsh:1> bun test test/demo/showcase-attendance.test.tsx --test-name-pattern 'passes the seeded now'
+bun test v1.4.2 (744846f84)
+
+test/demo/showcase-attendance.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+ 1 pass
+ 40 filtered out
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [167.00ms]
++zsh:1> rg -n 'controlled|Omitting `now`|omitted `now`|null hide|live line|live-clock|migrating|former automatic|previously created|automatic clock' README.md llms.txt AGENTS.md docs/customization.md src/components/schedule/README.md demo/components/team-roster/README.md
+demo/components/team-roster/README.md:22:now line when that instant is inside the inspector week. In general, omitted `now` and null hide
+demo/components/team-roster/README.md:24:clears that interval on cleanup. Consumers migrating from Schedule's former automatic clock must
+src/components/schedule/README.md:25:`now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
+src/components/schedule/README.md:26:milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in
+src/components/schedule/README.md:27:state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
+src/components/schedule/README.md:28:the former automatic line must supply `now` and own its updates.
+AGENTS.md:411:    Schedule now is controlled and defaults to null; omitted and null values hide the line.
+AGENTS.md:412:    Hosts that need a live line own now state, update it from their own interval, and clear that
+AGENTS.md:413:    interval on cleanup. Consumers migrating from the former automatic clock must supply now.
+docs/customization.md:232:Schedule time is controlled. Omitted `now` and `now={null}` both hide the now line. Supply epoch
+docs/customization.md:233:milliseconds for a fixed line. A host that needs a live line owns a state value and timer, for
+docs/customization.md:236:state as `<Schedule now={now} ... />`. Schedule previously created this timer automatically;
+docs/customization.md:237:migrating consumers must now supply and update `now` themselves.
+README.md:152:`Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+README.md:168:Before the controlled clock contract, Schedule started and updated its own clock. Consumers
+README.md:169:migrating from that behavior must now supply `now` and update it when needed.
+llms.txt:63:see the time range. A bounded viewport is required. In a controlled app, own
+llms.txt:236:columns without horizontal scrolling; the body scrolls vertically. Omitted now and null hide the
+llms.txt:238:For a live line, the host keeps now in state, updates it from its own interval, and clears that
+llms.txt:239:interval on cleanup. Consumers migrating from the former automatic clock must supply now and own
+llms.txt:369:Consumer controls update the controlled spec; there is no automatic toolbar.
++zsh:1> git diff --check origin/main...HEAD
