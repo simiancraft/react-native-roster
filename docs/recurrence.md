@@ -61,13 +61,31 @@ arbitrary cutoff. Only that exact engine limit error signals completed
 enumeration; other failures propagate. Replayed iterator passes stop before
 buffering positional candidates.
 
+COUNT admits local dates, independent of how many spans each date emits. The
+per-rule and total occurrence caps count emitted spans.
+
+## BYHOUR runs
+
+`byhour` selects unique integer local hours from 0 through 23. Selected hours are
+sorted and combined into contiguous runs, with one interval emitted per run. An
+omitted hour is uncovered time; it becomes a sourced gap only when an exclude
+overlaps included time. When `hourstart` and `hourend` are present, every selected
+hour must begin inside that end-exclusive band, and a final run is clipped to a
+fractional `hourend`. When both bounds are absent, the selected runs derive the
+band.
+
+Each run boundary uses compatible timezone disambiguation. A run wholly inside a
+skipped hour collapses and is discarded. Omitting a repeated hour removes both
+repeats. A run ending after hour 23 resolves its end at the next local midnight.
+
 ## Validation
 
 Every rule and date is validated even for zero-duration windows. Numeric fields
 are bounded (`wkst` and `byweekday` 0 to 6, `bymonth` 1 to 12, `bymonthday` and
 `bysetpos` signed ranges, `byyearday` plus or minus 1 to 366, `byweekno` plus or minus
-1 to 53, and hours `0 <= hourstart < hourend <= 24`). `byyearday` and `byweekno` are
-valid only on yearly rules. `dtstart`,
+1 to 53, unique `byhour` values 0 to 23, and hours `0 <= hourstart < hourend <= 24`).
+`byyearday` and `byweekno` are valid only on yearly rules. Rules require an explicit
+hour band or a nonempty `byhour`. `dtstart`,
 `until`, and `date` must be strings of at most 64 characters; a full
 offset-and-zone form is under 50, and the bound keeps the offset regex linear on
 hostile input.

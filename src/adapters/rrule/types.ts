@@ -15,9 +15,11 @@ export type RosterRule = {
   byyearday?: number[];
   byweekno?: number[];
   bysetpos?: number[];
+  /** Unique local integer hours to include, optionally within the explicit hour band. */
+  byhour?: number[];
   /** Local hours in timezone, end-exclusive; 24 means next local midnight. */
-  hourstart: number;
-  hourend: number;
+  hourstart?: number;
+  hourend?: number;
   timezone: string;
 };
 

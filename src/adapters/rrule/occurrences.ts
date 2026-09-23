@@ -23,14 +23,15 @@ export function enumerate(
 ): Occurrences {
   const result: Occurrences = { spans: [], capped: false };
   const admit = (date: Spec.Temporal.PlainDate): boolean => {
-    const span = hoursFor(date, input);
-    if (span.start >= envelope.end || span.end <= envelope.start || span.start >= span.end)
-      return true;
-    if (result.spans.length === cap) {
-      result.capped = true;
-      return false;
+    for (const span of hoursFor(date, input)) {
+      if (span.start >= envelope.end || span.end <= envelope.start || span.start >= span.end)
+        continue;
+      if (result.spans.length === cap) {
+        result.capped = true;
+        return false;
+      }
+      result.spans.push(span);
     }
-    result.spans.push(span);
     return true;
   };
   if ('date' in input) {
@@ -219,20 +220,33 @@ export function validateDates(input: RosterRule | RosterDate): void {
     plain(dateTime(input.until, input.timezone, true)).toZonedDateTime(input.timezone);
 }
 
-function hoursFor(date: Spec.Temporal.PlainDate, input: RosterRule | RosterDate): Window {
+function hoursFor(date: Spec.Temporal.PlainDate, input: RosterRule | RosterDate): Window[] {
   const midnight = date.toPlainDateTime();
   const dayStart = date.toZonedDateTime(input.timezone);
   if (!dayStart.toPlainDate().equals(date)) {
-    return { start: dayStart.epochMilliseconds, end: dayStart.epochMilliseconds };
+    return [{ start: dayStart.epochMilliseconds, end: dayStart.epochMilliseconds }];
   }
-  const wholeDay = input.hourstart === undefined && input.hourend === undefined;
+  const wholeDay = !('frequency' in input) && input.hourstart === undefined;
   // Whole-day bounds resolve PlainDates to first instants. Explicit hours use
   // compatible wall time, choosing the earlier repeat and advancing skips.
   const at = (hour: number) => {
     const wall = midnight.add({ milliseconds: Math.round(hour * 3_600_000) });
     return (wholeDay ? wall.toPlainDate() : wall).toZonedDateTime(input.timezone).epochMilliseconds;
   };
-  return { start: at(input.hourstart ?? 0), end: at(input.hourend ?? 24) };
+  if (!('frequency' in input) || input.byhour === undefined) {
+    return [{ start: at(input.hourstart ?? 0), end: at(input.hourend ?? 24) }];
+  }
+  const hours = [...input.byhour].sort((a, b) => a - b);
+  const runs: Array<{ start: number; end: number }> = [];
+  for (const hour of hours) {
+    const previous = runs.at(-1);
+    if (previous?.end === hour) previous.end = hour + 1;
+    else runs.push({ start: hour, end: hour + 1 });
+  }
+  return runs.map((run) => ({
+    start: at(Math.max(input.hourstart ?? run.start, run.start)),
+    end: at(Math.min(input.hourend ?? run.end, run.end)),
+  }));
 }
 
 function dateTime(value: string, timezone: string, endOfDate = false): RuleDateTime {

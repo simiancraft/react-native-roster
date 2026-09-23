@@ -48,6 +48,109 @@ beforeEach(() => {
   resetExpandStats();
 });
 
+describe('BYHOUR runs', () => {
+  it('emits one sourced interval per contiguous run and leaves omitted hours uncovered', () => {
+    const input = rule({
+      id: 'r',
+      dtstart: '2026-03-01',
+      count: 1,
+      hourstart: 9,
+      hourend: 17,
+      byhour: [9, 10, 11, 13, 14, 15, 16],
+    });
+    const output = expandRuleSet(set([input], []), {
+      start: epoch('2026-03-01'),
+      end: epoch('2026-03-02'),
+    });
+    expect(output.intervals).toEqual([
+      span('2026-03-01T09:00Z', '2026-03-01T12:00Z', 'rule', 'r'),
+      span('2026-03-01T13:00Z', '2026-03-01T17:00Z', 'rule', 'r'),
+    ]);
+    expect(output.gaps).toEqual([]);
+  });
+
+  it('derives the band when hours are absent and clips runs to fractional band ends', () => {
+    const derived = rule({
+      count: 1,
+      hourstart: undefined,
+      hourend: undefined,
+      byhour: [23],
+    });
+    expect(
+      expandRuleSet(set([derived], []), {
+        start: epoch('2024-01-01'),
+        end: epoch('2024-01-03'),
+      }).intervals,
+    ).toEqual([span('2024-01-01T23:00Z', '2024-01-02T00:00Z', 'rule', 'a')]);
+
+    const fractional = rule({
+      dtstart: '2024-03-05',
+      count: 1,
+      hourstart: 9.5,
+      hourend: 17.5,
+      byhour: [10, 11, 17],
+    });
+    expect(expandRuleSet(set([fractional], []), window).intervals).toEqual([
+      span('2024-03-05T10:00Z', '2024-03-05T12:00Z', 'rule', 'a'),
+      span('2024-03-05T17:00Z', '2024-03-05T17:30Z', 'rule', 'a'),
+    ]);
+  });
+
+  it('drops a run in a skipped hour and omits both repeats of an unselected hour', () => {
+    const spring = rule({
+      dtstart: '2024-03-10',
+      count: 1,
+      timezone: 'America/Chicago',
+      hourstart: 2,
+      hourend: 3,
+      byhour: [2],
+    });
+    const dstWindow = { start: epoch('2024-03-10'), end: epoch('2024-11-05') };
+    expect(expandRuleSet(set([spring], []), dstWindow).intervals).toEqual([]);
+
+    const fall = rule({
+      dtstart: '2024-11-03',
+      count: 1,
+      timezone: 'America/Chicago',
+      hourstart: 0,
+      hourend: 3,
+      byhour: [0, 2],
+    });
+    expect(expandRuleSet(set([fall], []), dstWindow).intervals).toEqual([
+      span('2024-11-03T05:00Z', '2024-11-03T06:00Z', 'rule', 'a'),
+      span('2024-11-03T08:00Z', '2024-11-03T09:00Z', 'rule', 'a'),
+    ]);
+  });
+
+  it('counts dates for COUNT, counts runs for caps, and keys cached occurrences by byhour', () => {
+    const input = rule({ count: 2, byhour: [9, 11] });
+    const target = { start: epoch('2024-01-01'), end: epoch('2024-01-04') };
+    const expected = [
+      span('2024-01-01T09:00Z', '2024-01-01T10:00Z', 'rule', 'a'),
+      span('2024-01-01T11:00Z', '2024-01-01T12:00Z', 'rule', 'a'),
+      span('2024-01-02T09:00Z', '2024-01-02T10:00Z', 'rule', 'a'),
+      span('2024-01-02T11:00Z', '2024-01-02T12:00Z', 'rule', 'a'),
+    ];
+    const exact = expandRuleSet(set([input], []), target, { caps: { perRuleOccurrences: 4 } });
+    expect(exact.intervals).toEqual(expected);
+    expect(exact.complete).toBe(true);
+
+    clearExpandCache();
+    const capped = expandRuleSet(set([input], []), target, { caps: { perRuleOccurrences: 3 } });
+    expect(capped.intervals).toEqual(expected.slice(0, 3));
+    expect(capped.complete).toBe(false);
+    expect(capped.truncated).toEqual([{ id: 'a', droppedAtLeast: 1 }]);
+
+    clearExpandCache();
+    expandRuleSet(set([rule({ byhour: [9] })], []), window);
+    const edited = expandRuleSet(set([rule({ byhour: [10] })], []), window);
+    expect(edited.stats).toMatchObject({ expanded: 1, cacheHits: 0, cacheMisses: 1 });
+    expect(edited.intervals[0]).toEqual(
+      span('2024-03-04T10:00Z', '2024-03-04T11:00Z', 'rule', 'a'),
+    );
+  });
+});
+
 describe('retained envelope right boundaries across date rollbacks', () => {
   for (const sample of [
     {
@@ -1559,6 +1662,26 @@ describe('yearly recurrence', () => {
 });
 
 describe('validation', () => {
+  it('validates BYHOUR values, uniqueness, and explicit band membership', () => {
+    for (const byhour of [[-1], [24], [9.5], [9, 9]]) {
+      expect(() => expandRuleSet(set([rule({ byhour })], []), window)).toThrow('Invalid byhour');
+    }
+    for (const input of [
+      rule({ hourstart: 9.5, hourend: 17, byhour: [9] }),
+      rule({ hourstart: 9, hourend: 17, byhour: [17] }),
+    ]) {
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(
+        'byhour values must be within [hourstart, hourend)',
+      );
+    }
+    expect(() =>
+      expandRuleSet(
+        set([rule({ hourstart: undefined, hourend: undefined, byhour: [] })], []),
+        window,
+      ),
+    ).toThrow('Rules require hourstart and hourend or a nonempty byhour');
+  });
+
   it('rejects either unpaired date hour with a clear error', () => {
     for (const hours of [{ hourstart: 9 }, { hourend: 17 }]) {
       expect(() => expandRuleSet(set([], [date(hours)]), window)).toThrow(
