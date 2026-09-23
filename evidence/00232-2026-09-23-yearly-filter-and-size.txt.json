@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "test", "package-size"],
+  "covered_paths": [
+    ".size-limit.json",
+    "src/adapters/rrule/types.ts",
+    "src/adapters/rrule/validate.ts",
+    "src/adapters/rrule/occurrences.ts",
+    "test/adapters/rrule/expand.test.ts"
+  ],
+  "capture_commit": "bd57a1319911ea68fcf4c0aad84f301a19e6af91",
+  "capture_method": "bun test test/adapters/rrule/expand.test.ts -t 'yearly recurrence|rejects year-day and week-number' && bun run build && bunx size-limit --json",
+  "content_hash": "sha256:da88582cdc4c3415bca0b8fb7229a35f586081e25bf4aa78e9b8a63a3fb8e498"
+}

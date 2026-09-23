@@ -1,0 +1,42 @@
+Script started on 2026-09-23 00:43:06-05:00 [<not executed on terminal>]
+Capture commit: bd57a1319911ea68fcf4c0aad84f301a19e6af91
+Command: bun test test/adapters/rrule/expand.test.ts -t 'yearly recurrence|rejects year-day and week-number' && bun run build && bunx size-limit --json
+bun test v1.4.2 (744846f84)
+
+ 9 pass
+ 2286 filtered out
+ 0 fail
+ 26 expect() calls
+Ran 9 tests across 1 file. [70.00ms]
+$ bun run clean && tsgo -p tsconfig.build.json
+$ rm -rf dist
+(node:20081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[
+  {
+    "name": "react-native-roster/core",
+    "passed": true,
+    "size": 15491,
+    "sizeLimit": 16000
+  },
+  {
+    "name": "react-native-roster/rrule",
+    "passed": true,
+    "size": 15108,
+    "sizeLimit": 15116
+  },
+  {
+    "name": "react-native-roster",
+    "passed": true,
+    "size": 54147,
+    "sizeLimit": 54214
+  },
+  {
+    "name": "react-native-roster/nativewind",
+    "passed": true,
+    "size": 50168,
+    "sizeLimit": 50235
+  }
+]
+
+Script done on 2026-09-23 00:43:06-05:00 [COMMAND_EXIT_CODE="0"]
