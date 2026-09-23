@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["frontend", "semantics", "tests"],
+  "covered_paths": [
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    "demo/components/gallery/fixtures/roster/parts/controls.tsx",
+    "demo/components/gallery/fixtures/schedule/parts/controls.tsx",
+    "demo/components/gallery/fixtures/schedule/parts/zone-examples.tsx",
+    "test/demo/demo-primitives.test.tsx",
+    "test/demo/fixture-controls.test.tsx"
+  ],
+  "capture_commit": "397346288df3765aa188406e69ba9519d11e1dfd",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx test/demo/fixture-controls.test.tsx",
+  "content_hash": "sha256:7fadf60e7da22e0dbdfc6c3db53a8fecb1ccc456fe685f821b2b67e49ed6fbfb"
+}
