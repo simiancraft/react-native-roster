@@ -89,6 +89,7 @@ export function enumerate(
     Temporal.ZonedDateTime.compare(untilDateEnd, upperDate) < 0 ? untilDateEnd : upperDate;
   const lastPeriod = periodStart(bound.toPlainDate(), input);
   if (Temporal.PlainDate.compare(firstPeriod, lastPeriod) > 0) return result;
+  const hasYearSelector = input.byyearday?.length || input.byweekno?.length;
   // 1.5.2 tests UNTIL only while visiting candidates in its monthly loop.
   // Every supported loop advances at least one authored period per iteration.
   // Exhaustion after the final query period is complete, even with no candidates.
@@ -117,16 +118,23 @@ export function enumerate(
     // constrains a leap-day anchor to February 28 and drifts subsequent years.
     byMonth: input.bymonth?.length
       ? input.bymonth
-      : input.frequency === 'YEARLY' && !input.byweekday?.length && !input.bymonthday?.length
+      : input.frequency === 'YEARLY' &&
+          !input.byweekday?.length &&
+          !input.bymonthday?.length &&
+          !hasYearSelector
         ? [original.month]
         : undefined,
     // Explicitly preserve implicit monthly and yearly days; the engine otherwise
     // constrains a 31st through February or a leap day through non-leap years.
     byMonthDay: input.bymonthday?.length
       ? input.bymonthday
-      : (input.frequency === 'MONTHLY' || input.frequency === 'YEARLY') && !input.byweekday?.length
+      : (input.frequency === 'MONTHLY' || input.frequency === 'YEARLY') &&
+          !input.byweekday?.length &&
+          !hasYearSelector
         ? [original.day]
         : undefined,
+    byYearDay: input.byyearday,
+    byWeekNo: input.byweekno,
     tzid: 'UTC',
     includeDtstart: false,
     maxIterations,

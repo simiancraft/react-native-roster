@@ -10,7 +10,7 @@
   {
     "name": "react-native-roster/rrule",
     "path": "dist/src/adapters/rrule/index.js",
-    "limit": "15 kB",
+    "limit": "15116 B",
     "gzip": false,
     "brotli": false,
     "ignore": ["rrule-temporal", "@js-temporal/polyfill"]

@@ -47,7 +47,11 @@ export function validateInput(input: RosterRule | RosterDate): void {
     validateNumbers(input.byweekday, 'byweekday', 0, 6);
     validateNumbers(input.bymonth, 'bymonth', 1, 12);
     validateNumbers(input.bymonthday, 'bymonthday', -31, 31, true);
+    validateNumbers(input.byyearday, 'byyearday', -366, 366, true);
+    validateNumbers(input.byweekno, 'byweekno', -53, 53, true);
     validateNumbers(input.bysetpos, 'bysetpos', -366, 366, true);
+    if (input.frequency !== 'YEARLY' && (input.byyearday || input.byweekno))
+      throw new RangeError('Year selector requires YEARLY frequency');
     validateNumbers(input.byhour, 'byhour', 0, 23, false, true);
     if (
       hourstart !== undefined &&
