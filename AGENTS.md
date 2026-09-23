@@ -408,6 +408,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     hooks use a 280 px grid; the chassis subtracts the 48 px gutter from measured width.
     pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
     walk, filtering rects by column and keeping the original pointer for final bounds.
+    Schedule now is controlled and defaults to null; omitted and null values hide the line.
+    Hosts that need a live line own now state, update it from their own interval, and clear that
+    interval on cleanup. Consumers migrating from the former automatic clock must supply now.
     Skipped dates have a zero-width header marker supplied by skippedDateComponent and
     ScheduleSkippedDate, never a fabricated day column.
     Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
