@@ -183,6 +183,9 @@ gaps. Here is the Wednesday from the top of this page: weekdays 09:00 to 17:00
 in New York, and a dentist appointment on the 23rd. Press the empty day and it
 names `dentist`.
 
+Yearly rules accept signed `byyearday` values from 1 to 366 and signed `byweekno`
+values from 1 to 53. Both fields are rejected on other frequencies.
+
 ```tsx
 import { Roster } from 'react-native-roster';
 import { windowFor } from 'react-native-roster/core';

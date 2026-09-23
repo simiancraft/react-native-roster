@@ -350,6 +350,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     aligned to WKST for WEEKLY, day 1 for MONTHLY, and January 1 for YEARLY, so interval phases follow the
     DTSTART period rather than the first matching date. Dates before DTSTART are
     rejected before COUNT and cap admission.
+    BYYEARDAY and BYWEEKNO are valid only for YEARLY rules; pass them to the recurrence engine
+    without applying the implicit yearly month and day.
     DAILY weekday filters are applied by the adapter to the authored daily sequence
     because the engine otherwise re-anchors at the first matching date.
     The engine uses the end of UNTIL's local date as a conservative UTC enumeration bound.

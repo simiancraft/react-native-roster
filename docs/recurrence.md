@@ -82,9 +82,10 @@ repeats. A run ending after hour 23 resolves its end at the next local midnight.
 
 Every rule and date is validated even for zero-duration windows. Numeric fields
 are bounded (`wkst` and `byweekday` 0 to 6, `bymonth` 1 to 12, `bymonthday` and
-`bysetpos` signed ranges, unique `byhour` values 0 to 23, and hours
-`0 <= hourstart < hourend <= 24`). Rules require an explicit hour band or a
-nonempty `byhour`. `dtstart`,
+`bysetpos` signed ranges, `byyearday` plus or minus 1 to 366, `byweekno` plus or minus
+1 to 53, unique `byhour` values 0 to 23, and hours `0 <= hourstart < hourend <= 24`).
+`byyearday` and `byweekno` are valid only on yearly rules. Rules require an explicit
+hour band or a nonempty `byhour`. `dtstart`,
 `until`, and `date` must be strings of at most 64 characters; a full
 offset-and-zone form is under 50, and the bound keeps the offset regex linear on
 hostile input.

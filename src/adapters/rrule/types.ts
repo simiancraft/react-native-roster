@@ -12,6 +12,8 @@ export type RosterRule = {
   byweekday?: Weekday[];
   bymonth?: number[];
   bymonthday?: number[];
+  byyearday?: number[];
+  byweekno?: number[];
   bysetpos?: number[];
   /** Unique local integer hours to include, optionally within the explicit hour band. */
   byhour?: number[];
