@@ -1,0 +1,20 @@
+{
+  "scope_tags": ["repository", "package", "browser", "performance"],
+  "covered_paths": [
+    ".size-limit.json",
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "llms.txt",
+    "src/components/schedule/README.md",
+    "src/components/schedule/index.tsx",
+    "src/components/schedule/schedule.types.ts",
+    "src/components/schedule/use-schedule.ts",
+    "src/components/schedule/days/parts/window-band.tsx",
+    "test/components/schedule/render.test.ts",
+    "test/components/schedule/use-schedule.test.ts"
+  ],
+  "capture_commit": "94f3a6b274b181602017f3cfd8179f46f35a6dad",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:be2430c9166b581fa5cc994183545cace29132c1c413ed5aeeeee71f9b098ab4"
+}
