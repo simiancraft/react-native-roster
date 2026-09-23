@@ -46,6 +46,11 @@ axis whose time ticks repeat compact date context after each day boundary's bare
 Fitted uses the measured plot width and the week's actual elapsed duration, including 167-hour and
 169-hour DST weeks. Day mode keeps its fixed axis. These are showcase choices, not additional
 `Roster` props or fitting behavior.
+The roster and member inspector share a focus date and timezone, but keep independent extents.
+Roster navigation moves a linked inspector. Inspector week navigation detaches without moving the
+roster; its dated Back to roster action and an inspector day heading restore the link. The
+inspector projects the roster extent as a Schedule window band, and its cell and gap actions show
+open-slot and time-off detail.
 
 Give each person or resource a lane. `Roster` draws every lane on one time axis;
 `Schedule` draws any one of them as a week, days across and hours down. The same

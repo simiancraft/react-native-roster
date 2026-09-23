@@ -56,7 +56,15 @@ import { timeOffNote, timeOffPresentation } from '../../demo/components/team-ros
 import { expandRuleSet } from '../../src/adapters/rrule';
 import type { GapInput } from '../../src/components/layers/layers.types';
 import type { IntervalDetailInput } from '../../src/components/roster/roster.types';
-import { dayColumnsFor, layoutLane, type Source, type Weekday, windowFor } from '../../src/core';
+import { Schedule } from '../../src/components/schedule';
+import {
+  dayColumnsFor,
+  layoutLane,
+  type Rect,
+  type Source,
+  type Weekday,
+  windowFor,
+} from '../../src/core';
 
 const Platform = { OS: 'ios' };
 const { attendanceInteraction: nativeInteraction } = await import(
@@ -1079,7 +1087,7 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     const { TeamToolbarLayout } = await import('./demo/components/team-roster/toolbar-layout');
     const { Roster, Schedule } = await import('react-native-roster');
     const { WeekSchedule } = await import('./demo/components/team-roster/members/parts/week-schedule');
-    const { SpanChips, WeekDensityChips, ZoneChips } = await import('./demo/components/team-roster/parts/window-controls');
+    const { SpanChips, WeekDensityChips, WindowNav, ZoneChips } = await import('./demo/components/team-roster/parts/window-controls');
     const { MUTED_FOREGROUND_HEX } = await import('./demo/components/team-roster/utils/tones');
     const team = teamFor();
     let tree;
@@ -1113,24 +1121,47 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     const schedule = () => tree.root.findByType(Schedule);
     const roster = () => tree.root.findByType(Roster);
     const header = (label) => tree.root.findByProps({ accessibilityLabel: label });
+    const rosterWindow = () => windowFor(roster().props.windowSpec);
     act(() => schedule().find(node => typeof node.props.onLayout === 'function').props.onLayout({
       nativeEvent: { layout: { width: 380, height: 600, x: 0, y: 0 } },
     }));
     assert.equal(tree.root.findByType(WeekSchedule).props.now, seededNow());
     assert.equal(schedule().props.now, seededNow());
+    const { windowFor } = await import('react-native-roster/core');
+    assert.deepEqual(schedule().props.bandWindow, rosterWindow());
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Linked to roster · Jan 5'));
+    act(() => tree.root.findByType(WindowNav).props.onNext());
+    assert.equal(roster().props.windowSpec.anchorDate, '2026-01-06');
+    assert.equal(schedule().props.windowSpec.anchorDate, '2026-01-06');
+    assert.deepEqual(schedule().props.bandWindow, rosterWindow());
+    act(() => tree.root.findByType(WindowNav).props.onToday());
     assert.equal(header('Show Monday, Jan 5').props.accessibilityRole, 'button');
     assert.equal(header('Show Monday, Jan 5').props.accessibilityState.selected, true);
     assert.ok(header('Show Monday, Jan 5').props.className.includes('bg-background'));
+    const originalRoster = roster().props.windowSpec;
     act(() => schedule().props.onCellPress(schedule().props.lane, Date.parse('2026-01-07T02:00:00Z')));
-    assert.deepEqual(roster().props.windowSpec, {
-      span: 'day', anchorDate: '2026-01-06', timezone: 'America/Chicago',
-    });
-    assert.equal(header('Show Monday, Jan 5').props.accessibilityState.selected, false);
-    assert.equal(header('Show Tuesday, Jan 6').props.accessibilityState.selected, true);
+    assert.deepEqual(roster().props.windowSpec, originalRoster);
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Open slot'));
     act(() => header('Show Thursday, Jan 8').props.onPress());
     assert.equal(roster().props.windowSpec.anchorDate, '2026-01-08');
     assert.equal(header('Show Thursday, Jan 8').props.accessibilityState.selected, true);
     assert.ok(header('Show Thursday, Jan 8').props.className.includes('bg-background'));
+    const linkedWeek = schedule().props.windowSpec;
+    act(() => header('Next inspector week').props.onPress());
+    assert.deepEqual(roster().props.windowSpec, {
+      span: 'day', anchorDate: '2026-01-08', timezone: 'America/Chicago',
+    });
+    assert.notDeepEqual(schedule().props.windowSpec, linkedWeek);
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Detached from roster'));
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Back to roster · Jan 8'));
+    const detachedWeek = schedule().props.windowSpec;
+    act(() => tree.root.findByType(WindowNav).props.onNext());
+    assert.equal(roster().props.windowSpec.anchorDate, '2026-01-09');
+    assert.deepEqual(schedule().props.windowSpec, detachedWeek);
+    assert.deepEqual(schedule().props.bandWindow, rosterWindow());
+    act(() => header('Back to roster at Jan 9').props.onPress());
+    assert.equal(schedule().props.windowSpec.anchorDate, '2026-01-09');
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Linked to roster · Jan 9'));
     act(() => tree.root.findByType(SpanChips).props.onChange('week'));
     assert.equal(tree.root.findAllByType(WeekDensityChips).length, 1);
     const densityChips = tree.root.findByType(WeekDensityChips);
@@ -1144,10 +1175,11 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     assert.deepEqual(roster().props.windowSpec, {
       span: 'week', anchorDate: '2026-01-09', timezone: 'America/Chicago',
     });
-    const { windowFor } = await import('react-native-roster/core');
     assert.deepEqual(windowFor(roster().props.windowSpec), windowFor(weekBounds));
     act(() => tree.root.findByType(ZoneChips).props.onChange('Asia/Tokyo'));
-    act(() => schedule().props.onCellPress(schedule().props.lane, Date.parse('2026-01-06T23:00:00Z')));
+    assert.equal(schedule().props.windowSpec.anchorDate, roster().props.windowSpec.anchorDate);
+    assert.equal(schedule().props.windowSpec.timezone, 'Asia/Tokyo');
+    act(() => header('Show Wednesday, Jan 7').props.onPress());
     assert.deepEqual(roster().props.windowSpec, {
       span: 'week', anchorDate: '2026-01-07', timezone: 'Asia/Tokyo',
     });
@@ -1175,6 +1207,7 @@ it('clears lunch detail from the inspector when working hours or an event is pre
   function Probe() {
     model = useTeamRoster({ team });
     if (model.status !== 'ready') return null;
+    const weekLane = model.weekLane;
     return (
       <MemberInspector
         now={model.now}
@@ -1182,8 +1215,15 @@ it('clears lunch detail from the inspector when working hours or an event is pre
         member={model.selectedMember}
         selection={model.selection}
         windowSpec={model.weekWindowSpec}
-        focusDate={model.windowSpec.anchorDate}
+        rosterWindow={model.window}
+        focusDate={model.focusDate}
+        inspectorLink={model.inspectorLink}
+        goPrev={model.goInspectorPrev}
+        goNext={model.goInspectorNext}
+        linkToRoster={model.linkInspector}
         selectDate={model.selectDate}
+        selectCell={(time) => model.selectCell(weekLane, time)}
+        selectGap={(rect) => model.selectGap(rect, weekLane)}
       />
     );
   }
@@ -1388,6 +1428,7 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
   function Probe() {
     model = useTeamRoster({ team });
     if (model.status !== 'ready') return null;
+    const weekLane = model.weekLane;
     return (
       <MemberInspector
         now={model.now}
@@ -1395,8 +1436,15 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
         member={model.selectedMember}
         selection={model.selection}
         windowSpec={model.weekWindowSpec}
-        focusDate={model.windowSpec.anchorDate}
+        rosterWindow={model.window}
+        focusDate={model.focusDate}
+        inspectorLink={model.inspectorLink}
+        goPrev={model.goInspectorPrev}
+        goNext={model.goInspectorNext}
+        linkToRoster={model.linkInspector}
         selectDate={model.selectDate}
+        selectCell={(time) => model.selectCell(weekLane, time)}
+        selectGap={(rect) => model.selectGap(rect, weekLane)}
       />
     );
   }
@@ -1429,8 +1477,11 @@ it('passes the seeded now to the inspector and draws it only inside the week win
         now={now}
         lane={lane}
         windowSpec={spec}
+        rosterWindow={windowFor(spec)}
         focusDate={spec.anchorDate}
         selectDate={() => {}}
+        selectCell={() => {}}
+        selectGap={() => {}}
       />,
     );
     act(() =>
@@ -1448,8 +1499,11 @@ it('passes the seeded now to the inspector and draws it only inside the week win
           now={now}
           lane={lane}
           windowSpec={{ ...spec, anchorDate: '2026-01-12' }}
+          rosterWindow={windowFor(spec)}
           focusDate="2026-01-12"
           selectDate={() => {}}
+          selectCell={() => {}}
+          selectGap={() => {}}
         />,
       ),
     );
@@ -1457,6 +1511,48 @@ it('passes the seeded now to the inspector and draws it only inside the week win
   } finally {
     clock.mockRestore();
   }
+});
+
+it('binds the inspector window band, cell action, and gap action without promising events', () => {
+  const lane = lanes[0];
+  if (!lane) throw new Error('Expected lane');
+  const spec = { span: 'week' as const, anchorDate: '2026-01-05', timezone: 'America/Chicago' };
+  const rosterWindow = windowFor({ ...spec, span: 'day' });
+  const cells: number[] = [];
+  const gaps: Rect[] = [];
+  const tree = render(
+    <WeekSchedule
+      now={now}
+      lane={lane}
+      windowSpec={spec}
+      rosterWindow={rosterWindow}
+      focusDate={spec.anchorDate}
+      selectDate={() => {}}
+      selectCell={(time) => cells.push(time)}
+      selectGap={(rect) => gaps.push(rect)}
+    />,
+  );
+  const schedule = tree.root.findByType(Schedule);
+  const time = rosterWindow.start + 60 * 60_000;
+  const rect: Rect = {
+    x: 0,
+    y: 0,
+    width: 1,
+    height: 1,
+    layerId: 'availability',
+    z: 0,
+    sources: [{ kind: 'rule', id: 'lunch' }],
+  };
+  act(() => schedule.props.onCellPress(lane, time));
+  act(() => schedule.props.onGapPress(rect, lane));
+  expect(schedule.props.bandWindow).toEqual(rosterWindow);
+  expect(schedule.props.onIntervalPress).toBeUndefined();
+  expect(cells).toEqual([time]);
+  expect(gaps).toEqual([rect]);
+  const prompt = render(<NoSelection />);
+  const text = JSON.stringify(prompt.toJSON());
+  expect(text).toContain('Press an open slot, or time off to inspect it.');
+  expect(text).not.toContain('event');
 });
 
 it('dispatches availability and custom schedule layers to the member band', () => {

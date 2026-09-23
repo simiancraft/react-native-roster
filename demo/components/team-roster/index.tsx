@@ -256,8 +256,15 @@ function DefaultInspector(model: TeamRosterReady) {
       member={model.selectedMember}
       selection={model.selection}
       windowSpec={model.weekWindowSpec}
-      focusDate={model.windowSpec.anchorDate}
+      rosterWindow={model.window}
+      focusDate={model.focusDate}
+      inspectorLink={model.inspectorLink}
+      goPrev={model.goInspectorPrev}
+      goNext={model.goInspectorNext}
+      linkToRoster={model.linkInspector}
       selectDate={model.selectDate}
+      selectCell={(time) => model.selectCell(model.weekLane, time)}
+      selectGap={(rect) => model.selectGap(rect, model.weekLane)}
     />
   );
 }

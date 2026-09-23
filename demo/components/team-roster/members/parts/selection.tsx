@@ -55,7 +55,7 @@ export function NoSelection() {
       className="rounded-lg p-3"
       contentZone={
         <Text className="text-xs text-muted-foreground">
-          Press an open slot, or an event to open its details.
+          Press an open slot, or time off to inspect it.
         </Text>
       }
     />

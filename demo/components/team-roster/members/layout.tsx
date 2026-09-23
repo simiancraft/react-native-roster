@@ -7,6 +7,8 @@ type MemberInspectorLayoutProps = {
   identityZone: ReactNode;
   /** Small facts about the member: hours, zone, days per week. */
   factsZone: ReactNode;
+  /** Inspector extent controls and its relationship to the roster focus date. */
+  navigationZone: ReactNode;
   /** What was pressed: an event, time off, an open slot, or a prompt. */
   selectionZone: ReactNode;
   /** The member's week as a Schedule; fills the remaining height. */
@@ -16,6 +18,7 @@ type MemberInspectorLayoutProps = {
 export function MemberInspectorLayout({
   identityZone,
   factsZone,
+  navigationZone,
   selectionZone,
   scheduleZone,
 }: MemberInspectorLayoutProps) {
@@ -26,6 +29,7 @@ export function MemberInspectorLayout({
         <>
           {identityZone}
           <View className="flex-row flex-wrap gap-2">{factsZone}</View>
+          {navigationZone}
           {selectionZone}
           <View className="flex-1 min-h-0">{scheduleZone}</View>
         </>

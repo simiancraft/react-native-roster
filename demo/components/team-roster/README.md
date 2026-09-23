@@ -23,9 +23,13 @@ now line when that instant is inside the inspector week. In general, omitted `no
 the line. A host that wants live time keeps `now` in state, updates it with its own interval, and
 clears that interval on cleanup. Consumers migrating from Schedule's former automatic clock must
 supply `now` and own its updates.
-Its lane is expanded separately for the full inspector week, including in day mode,
-and indexed by member id. Interval presses retain the member with no inspector detail;
-gap presses resolve time-off notes from source id suffixes (lunch or pto).
+Its lane is expanded separately for the inspector's own week, including in roster day mode, and
+indexed by member id. The roster and inspector share a focus date and timezone. Roster navigation
+moves the inspector while linked; inspector week navigation detaches without moving the roster.
+The dated Back to roster action and day-header activation re-link the views. A Schedule window band
+always marks the roster's absolute extent. Inspector cell presses select an open slot, and gap
+presses resolve time-off notes from source id suffixes (lunch or pto). Interval presses retain the
+member with no inspector detail, so the empty prompt promises only cell and gap actions.
 Gap presentation uses the complete source set: an exact singleton authored lunch rule is partial,
 and an exact singleton authored PTO date is whole-day. Unknown, absent, identity-mismatched, or
 mixed sources stay neutral in both the roster and Schedule; width only hides or shows the
@@ -37,7 +41,7 @@ start before deriving attendance.
 Generated lanes are retained by team identity, window bounds, and now; selection changes
 preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
-Inspector day header and cell presses set the roster anchor date in the view timezone.
+Inspector day-header presses set the shared focus date and re-link both views.
 
 ## Roster axis choices
 

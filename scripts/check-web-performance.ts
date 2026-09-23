@@ -573,6 +573,33 @@ async function profileStats() {
 async function assertShowcaseWeekAxes() {
   await page.setViewportSize({ width: 1100, height: 900 });
   await page.goto(`${server.url}showcase`, { waitUntil: 'networkidle' });
+  await page.getByText('Linked to roster · Jan 5', { exact: true }).waitFor();
+  assert(
+    (await page.getByTestId('schedule-window-band').count()) > 0,
+    'Linked inspector must draw the roster window band',
+  );
+  const rosterRange = page.getByText(/people · Chicago/);
+  const originalRange = await rosterRange.innerText();
+  await page.getByRole('button', { name: 'Next inspector week', exact: true }).click();
+  await page.getByText('Detached from roster', { exact: true }).waitFor();
+  assert.equal(
+    await rosterRange.innerText(),
+    originalRange,
+    'Inspector navigation must not move roster',
+  );
+  await page.getByRole('button', { name: 'Next day', exact: true }).click();
+  await page.getByRole('button', { name: 'Back to roster at Jan 6', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Back to roster at Jan 6', exact: true }).click();
+  await page.getByText('Linked to roster · Jan 6', { exact: true }).waitFor();
+  assert(
+    (await page.getByTestId('schedule-window-band').count()) > 0,
+    'Recentered inspector must draw the current roster window band',
+  );
+  await page.getByRole('button', { name: 'Next inspector week', exact: true }).click();
+  await page.getByRole('button', { name: 'Show Monday, Jan 12', exact: true }).click();
+  await page.getByText('Linked to roster · Jan 12', { exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Return to demo day', exact: true }).click();
+  await page.getByText('Linked to roster · Jan 5', { exact: true }).waitFor();
   await page.getByRole('radio', { name: 'Week', exact: true }).click();
   await settle(page);
 

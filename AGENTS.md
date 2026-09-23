@@ -139,13 +139,17 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   events. Skipped authored starts produce no event, repeated starts and ends use the earlier
   occurrence, skipped ends clamp to the first instant after the skipped span, and empty or
   negative results are omitted. This wall-time policy is local to the showcase. Union strips
-  preserve gaps, and the inspector expands its full week independently.
+  preserve gaps, and the inspector expands its own week independently.
   Time-off presentation uses the complete gap source set in both projections: an exact singleton
   lunch rule is partial, an exact singleton PTO date is whole-day, and unknown, absent,
   identity-mismatched, or mixed sources are neutral. Width controls label visibility only.
   Event attendance detail lives in the selection popover;
   the inspector retains member selection.
-  Inspector day header and cell presses set the roster anchor date in the view timezone.
+  The roster and inspector share a focus date and timezone, but own independent extents.
+  Linked roster navigation moves both extents. Inspector Previous and Next detach its week without
+  moving the roster; the dated Back to roster action and day-header activation re-link them.
+  The inspector band always marks the absolute roster window. Inspector cell and gap presses show
+  open-slot and time-off detail; prompts do not promise an inspector event action.
   Showcase span controls are explicitly `Day` and `Week`; their reset labels are `Demo day` and
   `Demo week`. Compact date labels use month names, and cross-year ranges name both years. Week
   mode alone offers `Detailed` and `Fitted`. Detailed keeps the scrollable 42-pixel-per-hour axis
@@ -592,6 +596,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     requires the exact singleton source set. unionOf supplies disjoint bottom strips;
     extentOf supplies the shared detail scale, retaining overhang. The inspector expands
     its own week lane in the hook and uses a Schedule interval without a horizontal strip.
+    Its extent follows the shared focus date while linked and retains its own anchor while
+    detached. The Schedule band projects the roster's absolute extent.
     Retain lanes by team identity, window bounds, and now across selection changes, and
     omit explicit versions so layer content controls geometry cache validity. Default
     component props through destructuring, including explicit undefined. Mount dispatched

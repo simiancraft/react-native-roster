@@ -7,6 +7,7 @@ import { expandRuleSet } from 'react-native-roster/rrule';
 import type { Member } from './members/member.types';
 import type {
   Density,
+  InspectorLink,
   Selection,
   SortKey,
   SpanKey,
@@ -48,15 +49,28 @@ export function useTeamRoster(input: { team?: Team } = {}) {
   const [generated] = useState(() => input.team ?? teamFor());
   const team = input.team ?? generated;
   const [now] = useState(seededNow);
-  const [windowSpec, setWindowSpec] = useState<ScheduleWindowSpec>(INITIAL);
+  const [focusDate, setFocusDate] = useState(INITIAL.anchorDate);
+  const [rosterSpan, setRosterSpan] = useState<ScheduleWindowSpec['span']>(INITIAL.span);
+  const [timezone, setTimezone] = useState(INITIAL.timezone);
+  const [inspectorAnchor, setInspectorAnchor] = useState(INITIAL.anchorDate);
+  const [inspectorLink, setInspectorLink] = useState<InspectorLink>('linked');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
   const [weekDensity, setWeekDensity] = useState<WeekDensity>('detailed');
   const [selectedId, setSelectedId] = useState(team.members[0]?.id ?? '');
   const [selection, setSelection] = useState<Selection | null>(null);
   const [contentWidth, setContentWidth] = useState(1280);
+  const windowSpec: ScheduleWindowSpec = {
+    span: rosterSpan,
+    anchorDate: focusDate,
+    timezone,
+  };
   const window = windowFor(windowSpec);
-  const weekWindowSpec: WeekWindowSpec = { ...windowSpec, span: 'week' };
+  const weekWindowSpec: WeekWindowSpec = {
+    span: 'week',
+    anchorDate: inspectorLink === 'linked' ? focusDate : inspectorAnchor,
+    timezone,
+  };
   const weekWindow = windowFor(weekWindowSpec);
   const [retained, setRetained] = useState(() => generatedLanes(team, window, weekWindow, now));
   let data = retained;
@@ -98,18 +112,29 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setSelection({ kind: 'none', member });
   }
   function selectDate(localDate: string) {
-    setWindowSpec((spec) => ({ ...spec, anchorDate: localDate }));
+    setFocusDate(localDate);
+    setInspectorLink('linked');
+  }
+  function navigateRoster(direction: 'previous' | 'next') {
+    const navigate = direction === 'previous' ? prev : next;
+    setFocusDate(bounded(navigate(windowSpec)).anchorDate);
+  }
+  function navigateInspector(direction: 'previous' | 'next') {
+    const navigate = direction === 'previous' ? prev : next;
+    setInspectorAnchor(bounded(navigate(weekWindowSpec)).anchorDate);
+    setInspectorLink('detached');
   }
   const common = {
     selectDate,
+    focusDate,
     now,
     organization: team.organization,
     members: team.members,
     lanes,
     window,
     windowSpec,
-    timezone: windowSpec.timezone,
-    span: windowSpec.span,
+    timezone,
+    span: rosterSpan,
     pxPerMinute,
     weekDensity,
     query,
@@ -122,11 +147,11 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     setQuery,
     setSort,
     setWeekDensity,
-    setSpan: (span: SpanKey) => setWindowSpec((spec) => ({ ...spec, span })),
-    goPrev: () => setWindowSpec((spec) => bounded(prev(spec))),
-    goNext: () => setWindowSpec((spec) => bounded(next(spec))),
-    goToday: () => setWindowSpec((spec) => ({ ...spec, anchorDate: INITIAL.anchorDate })),
-    setTimezone: (timezone: string) => setWindowSpec((spec) => ({ ...spec, timezone })),
+    setSpan: (span: SpanKey) => setRosterSpan(span),
+    goPrev: () => navigateRoster('previous'),
+    goNext: () => navigateRoster('next'),
+    goToday: () => setFocusDate(INITIAL.anchorDate),
+    setTimezone,
     selectMember: (id: string) => {
       setSelectedId(id);
       setSelection(null);
@@ -154,6 +179,10 @@ export function useTeamRoster(input: { team?: Team } = {}) {
     selectedLane,
     weekLane,
     weekWindowSpec,
+    inspectorLink,
+    goInspectorPrev: () => navigateInspector('previous'),
+    goInspectorNext: () => navigateInspector('next'),
+    linkInspector: () => setInspectorLink('linked'),
     selectedMember,
     selection: currentSelection,
   };

@@ -1,7 +1,8 @@
 import { createContext, useContext } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import type { ScheduleHoursInput } from 'react-native-roster';
-import type { DayColumn } from 'react-native-roster/core';
+import type { ScheduleDayHeaderInput, ScheduleHoursInput } from 'react-native-roster';
+import { ToolbarButton } from '../../parts/chips';
+import type { InspectorLink } from '../../team-roster.types';
 
 export function WeekGutter({ hours, pxPerHour }: ScheduleHoursInput) {
   return (
@@ -27,10 +28,9 @@ export function WeekGrid({ hours, pxPerHour }: ScheduleHoursInput) {
 
 export const WeekFocusDate = createContext<{
   focusDate: string;
-  selectDate: (localDate: string) => void;
 } | null>(null);
 
-export function WeekDayHeader({ day }: { day: DayColumn }) {
+export function WeekDayHeader({ day, onPress }: ScheduleDayHeaderInput) {
   const context = useContext(WeekFocusDate);
   if (!context) throw new Error('WeekDayHeader requires the inspector week');
   const selected = context.focusDate === day.localDate;
@@ -47,10 +47,46 @@ export function WeekDayHeader({ day }: { day: DayColumn }) {
       accessibilityRole="button"
       accessibilityLabel={`Show ${label}`}
       accessibilityState={{ selected }}
-      onPress={() => context.selectDate(day.localDate)}
+      onPress={onPress}
     >
       <Text className="text-[10px] font-medium text-foreground">{day.label.slice(0, 3)}</Text>
       <Text className="text-[9px] text-muted-foreground">{day.localDate.slice(8)}</Text>
     </Pressable>
+  );
+}
+
+export function WeekNavigation({
+  focusDate,
+  link,
+  onPrev,
+  onNext,
+  onLink,
+}: {
+  focusDate: string;
+  link: InspectorLink;
+  onPrev: () => void;
+  onNext: () => void;
+  onLink: () => void;
+}) {
+  const date = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(`${focusDate}T00:00:00Z`));
+  return (
+    <View className="flex-row flex-wrap items-center gap-2">
+      <Text className="text-xs text-muted-foreground">
+        {link === 'linked' ? `Linked to roster · ${date}` : 'Detached from roster'}
+      </Text>
+      <ToolbarButton label="‹" accessibilityLabel="Previous inspector week" onPress={onPrev} />
+      {link === 'detached' ? (
+        <ToolbarButton
+          label={`Back to roster · ${date}`}
+          accessibilityLabel={`Back to roster at ${date}`}
+          onPress={onLink}
+        />
+      ) : null}
+      <ToolbarButton label="›" accessibilityLabel="Next inspector week" onPress={onNext} />
+    </View>
   );
 }

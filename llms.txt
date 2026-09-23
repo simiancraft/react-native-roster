@@ -638,6 +638,12 @@ by the resolved week's actual elapsed minutes, so ordinary and DST weeks fit aft
 resizing. Day mode keeps its fixed axis and concise time-only cells. These controls,
 labels, and calculations belong to demo/components/team-roster; they do not add a
 library API or change Roster fitting semantics.
+The showcase roster and member inspector share one focus date and timezone while retaining
+independent extents. Roster navigation moves the inspector while linked. Inspector Previous and
+Next detach its week without moving the roster; the dated Back to roster action and a day-heading
+activation restore the link. The Schedule band marks the absolute roster window, including while
+detached. Inspector cell and gap presses show open-slot and time-off detail; no prompt promises an
+inspector event action.
 
 Every route exposes live counter functions on web window.__roster. Its identity
 stays stable until unmount; on-screen snapshots sample every 500 ms. The 200-lane
