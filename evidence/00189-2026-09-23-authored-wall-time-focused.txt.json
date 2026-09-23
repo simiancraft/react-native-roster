@@ -1,0 +1,10 @@
+{
+  "scope_tags": ["demo", "correctness", "test"],
+  "covered_paths": [
+    "demo/components/team-roster/utils/team.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "850013869d3a6a4c50ef037e0185cb2f459e3a98",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:befb5dbc7181e4613b1faf4a0b0e0019c9c5faa5f0937b333c46e981416ae179"
+}
