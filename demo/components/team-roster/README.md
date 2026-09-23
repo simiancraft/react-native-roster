@@ -14,6 +14,20 @@ The showcase. This feature is about a team roster; its children are members.
 
 Styled with the semantic tokens in `demo/global.css`; the route shell owns router contact.
 
+Shared demo visuals are direct file imports from `../ui`; there is no ui barrel. `Card` provides
+the `default`, `inset`, and `dashed` surface tones used by the screen, inspector, event detail,
+and selection states. `Eyebrow` provides `default` and `compact` caption typography. Variants use
+`cva` with literal, scanner-visible utility classes, while `cn` from `../ui/utils/classes` merges
+conditional and caller-supplied classes and resolves Tailwind conflicts.
+
+Controls follow their interaction semantics. Toolbar navigation and reset controls are ordinary
+buttons without selected or pressed state. Member selection and other independent persistent
+choices use `Toggle` in `pressed` mode. Span, timezone, sort, and week-density choices use
+`Toggle` in `radio` mode inside a `ChipGroup` with a programmatic `radiogroup` label and one
+checked choice. On web, pressed mode exposes a button with `aria-pressed`; on native, it exposes a
+`togglebutton` with checked accessibility state. Radio mode exposes radio and checked state on
+both platforms.
+
 The `TeamRosterSlots` type groups component slots with inputs using `ComponentType`
 and the `backZone` node. Stable interval,
 header-cell, and lane-label components read display settings from context.

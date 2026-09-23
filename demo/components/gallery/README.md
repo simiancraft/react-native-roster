@@ -15,6 +15,20 @@ Fixture records live in `test/fixtures`; each needs a thin route shell under
 [site footer](../site-footer/README.md); `FixtureLayout` takes the compact one
 through `footerZone`, below the counters.
 
+Gallery visuals import `Card`, `Toggle`, and `cn` directly from their files under `../ui`; the
+demo has no ui barrel. Home fixture links and the showcase link use `Card` tones without moving
+their link ownership. Variant definitions use `cva` with literal, scanner-visible utility
+classes, and `cn` composes conditional classes and resolves Tailwind conflicts. `Eyebrow` is the
+shared caption primitive available to demo features.
+
+Fixture controls distinguish actions from state. Navigation, presets, Apply, and performance
+controls are ordinary buttons without selected or pressed state. Independent persistent choices,
+including now and highlight, use `Toggle` in `pressed` mode. Span, minute step, scale, timezone,
+view, sort, and zone-style choices use `Toggle` in `radio` mode inside programmatically labeled
+`radiogroup` containers, with one checked choice. On web, pressed mode is a button with
+`aria-pressed`; on native, it is a `togglebutton` with checked accessibility state. Radio mode
+exposes radio and checked state on both platforms.
+
 The roster every-zone fixture offers a now-line toggle at the selected window
 midpoint. The record declares `showsNowToggle`; the chassis supplies `nowZone`
 to the controls. Its hook owns the control state and computes the selected window
