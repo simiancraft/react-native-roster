@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Rect, ScheduleWindowSpec, WindowSpec } from 'react-native-roster';
+import type { DayColumn, Rect, ScheduleWindowSpec, WindowSpec } from 'react-native-roster';
 import {
   clearCoverageCache,
   clearLayoutCache,
@@ -75,6 +75,12 @@ export function useScheduleFixture(fixtureId: ScheduleFixtureId) {
     navigate,
     setSpan: (span: 'day' | 'week') => setWindowSpec({ ...windowSpec, span }),
     setTimezone: (timezone: string) => setWindowSpec({ ...windowSpec, timezone }),
+    selectDay: (day: DayColumn) =>
+      setSelection((current) => {
+        const previous = current.match(/^Day (\S+) \((\d+) activations\)$/);
+        const count = previous?.[1] === day.localDate ? Number(previous[2]) + 1 : 1;
+        return `Day ${day.localDate} (${count} activations)`;
+      }),
     selectRect: (rect: Rect) => setSelection(JSON.stringify(rect.sources)),
     selectCell: (_lane: unknown, time: number) => setSelection(new Date(time).toISOString()),
   };

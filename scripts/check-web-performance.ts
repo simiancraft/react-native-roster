@@ -296,6 +296,17 @@ try {
     'Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.',
   );
   await assertShowcaseWeekAxes();
+  await page.goto(`${server.url}gallery/schedule-layers`, { waitUntil: 'networkidle' });
+  const dayHeader = page.getByRole('button', { name: '2024-01-01', exact: true });
+  await dayHeader.click();
+  await assertDayActivations(1);
+  await dayHeader.focus();
+  await page.keyboard.press('Enter');
+  await assertDayActivations(2);
+  await page.keyboard.press('Space');
+  await assertDayActivations(3);
+  assert.deepEqual(errors, [], 'Day header browser runtime errors');
+  console.log('Day header: pointer, Enter, and Space each activate the actual day exactly once.');
   await page.setViewportSize({ width: 1440, height: 1600 });
   root = resolve('demo/.cache/dev-dist');
   assert(
@@ -396,6 +407,14 @@ try {
 async function settle(target: Page) {
   // Let LegendList finish measurement, mounting, and scroll work, including the 500 ms display sampler.
   await target.waitForTimeout(850);
+}
+async function assertDayActivations(count: number) {
+  await page.waitForFunction(
+    (expected) =>
+      document.querySelector('[data-testid="roster-selection"]')?.textContent ===
+      `Day 2024-01-01 (${expected} activations)`,
+    count,
+  );
 }
 async function assertLaneLabelAlignment(index: number) {
   const label = page.getByTestId('roster-labels').locator(':scope > *').nth(index);
