@@ -1,0 +1,381 @@
+c7ada1de418803441a4d54af81965197b0f75ab0
+diff --git a/AGENTS.md b/AGENTS.md
+index beee7ab..61952ff 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -423,4 +423,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
+     pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
+     walk, filtering rects by column and keeping the original pointer for final bounds.
++    onDayPress receives the actual DayColumn for ordinary dates. ScheduleDayHeaderInput gives custom
++    dayHeaderComponent implementations that day and a bound optional onPress handler. The default
++    header renders an actionable button only when the handler exists; omission stays presentational,
++    and wholly skipped dates mount only skippedDateComponent with no day action.
+     Schedule now is controlled and defaults to null; omitted and null values hide the line.
+     Hosts that need a live line own now state, update it from their own interval, and clear that
+diff --git a/README.md b/README.md
+index 5aaf444..210e383 100644
+--- a/README.md
++++ b/README.md
+@@ -152,4 +152,5 @@ export function ScheduleExample() {
+       style={{ height: 480, flex: undefined }}
+       windowSpec={{ span: 'week', anchorDate: '2026-09-21', timezone: 'UTC' }}
++      onDayPress={(day) => console.log(day.localDate)}
+     />
+   );
+@@ -157,4 +158,11 @@ export function ScheduleExample() {
+ ```
+ 
++`onDayPress` makes each ordinary default day heading actionable with pointer, keyboard, and screen
++reader activation. Custom `dayHeaderComponent` implementations receive the root-exported
++`ScheduleDayHeaderInput`: the actual `day` and an optional bound `onPress` handler. When
++`onDayPress` is omitted, `onPress` is absent and the default heading stays presentational instead
++of rendering an inert button. A wholly skipped local date uses `skippedDateComponent`, not a day
++header, and has no day action.
++
+ `Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+ fixed instant, pass its epoch milliseconds. To keep the line live, the host owns the updates:
+diff --git a/docs/customization.md b/docs/customization.md
+index 0aeba0a..edb6afe 100644
+--- a/docs/customization.md
++++ b/docs/customization.md
+@@ -221,4 +221,5 @@ export function Week({ lane }: { lane: Lane }) {
+     style={{ height: 600, flex: undefined }}
+     windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
++    onDayPress={(day) => console.log(day.localDate)}
+     onIntervalPress={(rect) => console.log(rect.sources)} />;
+ }
+@@ -237,10 +238,17 @@ state as `<Schedule now={now} ... />`. Schedule previously created this timer au
+ migrating consumers must now supply and update `now` themselves.
+ 
++`onDayPress` receives the actual `DayColumn` when an ordinary day heading is activated. A custom
++`dayHeaderComponent` receives the root-exported `ScheduleDayHeaderInput`, containing `day` and an
++optional `onPress` already bound to that day. Mount the handler when present; when `onDayPress` is
++omitted, the handler is absent and the default heading stays presentational instead of becoming an
++inert button. Wholly skipped local dates mount `skippedDateComponent` directly, so they never
++receive or expose a day action.
++
+ | Slot | Component inputs or node | Default and behavior |
+ | --- | --- | --- |
+ | `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+ | `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+-| `dayHeaderComponent` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
+-| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
++| `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
++| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
+ | `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
+ | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+diff --git a/llms.txt b/llms.txt
+index 9072513..3bf7942 100644
+--- a/llms.txt
++++ b/llms.txt
+@@ -226,5 +226,5 @@ are clamped up to window.start and rejected at or beyond window.end.
+ Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
+ Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), now (epoch milliseconds or null), highlightSource,
+-onNavigate, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
++onNavigate, onDayPress, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
+ gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
+ className, headerClassName, gutterClassName, and daysClassName. No month/custom
+@@ -345,6 +345,6 @@ only after Escape.
+ | `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+ | `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+-| `dayHeaderComponent` | `day` | `ScheduleDayHeader`: weekday, localDate, and transition badge. |
+-| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
++| `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
++| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
+ | `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap components | `ScheduleColumn`: final rect bounds in layer order. |
+ | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+@@ -378,5 +378,10 @@ skipped empty region; negative means two half-height repeat regions. Rects split
+ at column edges, source changes, and every scale boundary. For repeat at T with
+ magnitude d, boundaries are T-d, T, and T+d. A wholly skipped date produces no
+-column; skippedDateComponent labels the header gap (Apia 2011-12-30).
++column; skippedDateComponent labels the header gap (Apia 2011-12-30) and receives no day action.
++onDayPress(day) makes each ordinary default heading actionable. ScheduleDayHeaderInput is
++root-exported for dayHeaderComponent implementations and contains the actual day plus an optional
++bound onPress handler. Without onDayPress, that handler is absent and ScheduleDayHeader remains a
++presentational heading rather than an inert button. Custom headers decide how to render the
++optional handler; skipped dates never mount them.
+ Each column spans the first instant of its date to the first instant of the next.
+ Skipped wall spans belong to the date they interrupt. Its transitions include a
+diff --git a/src/components/schedule/README.md b/src/components/schedule/README.md
+index f97fc3a..7a67a20 100644
+--- a/src/components/schedule/README.md
++++ b/src/components/schedule/README.md
+@@ -28,4 +28,10 @@ state, updates it from an interval, and clears that interval on cleanup. Consume
+ the former automatic line must supply `now` and own its updates.
+ 
++`onDayPress` receives the actual `DayColumn` for an ordinary activated heading. The root-exported
++`ScheduleDayHeaderInput` gives a custom `dayHeaderComponent` the `day` and an optional `onPress`
++already bound to it. The default `ScheduleDayHeader` renders an actionable button only when the
++handler exists; without `onDayPress`, it stays presentational and does not add an inert button.
++Wholly skipped local dates mount `skippedDateComponent` instead, with no synthetic day or action.
++
+ Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
+ Pass one stable `cacheIdentity` to multiple surfaces only when they render the same dataset and
+src/components/schedule/README.md-28-the former automatic line must supply `now` and own its updates.
+src/components/schedule/README.md-29-
+src/components/schedule/README.md:30:`onDayPress` receives the actual `DayColumn` for an ordinary activated heading. The root-exported
+src/components/schedule/README.md:31:`ScheduleDayHeaderInput` gives a custom `dayHeaderComponent` the `day` and an optional `onPress`
+src/components/schedule/README.md-32-already bound to it. The default `ScheduleDayHeader` renders an actionable button only when the
+src/components/schedule/README.md:33:handler exists; without `onDayPress`, it stays presentational and does not add an inert button.
+src/components/schedule/README.md:34:Wholly skipped local dates mount `skippedDateComponent` instead, with no synthetic day or action.
+src/components/schedule/README.md-35-
+src/components/schedule/README.md-36-Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
+--
+docs/customization.md-221-    style={{ height: 600, flex: undefined }}
+docs/customization.md-222-    windowSpec={{ span: 'week', anchorDate: '2024-01-01', timezone: 'UTC' }}
+docs/customization.md:223:    onDayPress={(day) => console.log(day.localDate)}
+docs/customization.md-224-    onIntervalPress={(rect) => console.log(rect.sources)} />;
+docs/customization.md-225-}
+--
+docs/customization.md-238-migrating consumers must now supply and update `now` themselves.
+docs/customization.md-239-
+docs/customization.md:240:`onDayPress` receives the actual `DayColumn` when an ordinary day heading is activated. A custom
+docs/customization.md:241:`dayHeaderComponent` receives the root-exported `ScheduleDayHeaderInput`, containing `day` and an
+docs/customization.md:242:optional `onPress` already bound to that day. Mount the handler when present; when `onDayPress` is
+docs/customization.md:243:omitted, the handler is absent and the default heading stays presentational instead of becoming an
+docs/customization.md:244:inert button. Wholly skipped local dates mount `skippedDateComponent` directly, so they never
+docs/customization.md:245:receive or expose a day action.
+docs/customization.md-246-
+docs/customization.md-247-| Slot | Component inputs or node | Default and behavior |
+--
+docs/customization.md-249-| `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+docs/customization.md-250-| `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+docs/customization.md:251:| `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
+docs/customization.md:252:| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
+docs/customization.md-253-| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
+docs/customization.md-254-| `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+--
+AGENTS.md-343-    dates before COUNT or cap admission. Drive the engine in UTC calendar space using
+AGENTS.md-344-    authored PlainDate and PlainTime fields for date-only or local-datetime DTSTART,
+AGENTS.md:345:    without resolving skipped dates or hours. Only explicit-offset DTSTART resolves
+AGENTS.md-346-    as an instant to wall fields and its own offset in the rule's zone. Interpret
+AGENTS.md-347-    those wall fields as UTC, so a wholly skipped date cannot become another weekday.
+--
+AGENTS.md-423-    pxPerHour defaults to 48 and must be a positive finite number. Presses resolve timeAtY and snapToStep before the shared hit-test
+AGENTS.md-424-    walk, filtering rects by column and keeping the original pointer for final bounds.
+AGENTS.md:425:    onDayPress receives the actual DayColumn for ordinary dates. ScheduleDayHeaderInput gives custom
+AGENTS.md-426-    dayHeaderComponent implementations that day and a bound optional onPress handler. The default
+AGENTS.md:427:    header renders an actionable button only when the handler exists; omission stays presentational,
+AGENTS.md:428:    and wholly skipped dates mount only skippedDateComponent with no day action.
+AGENTS.md-429-    Schedule now is controlled and defaults to null; omitted and null values hide the line.
+AGENTS.md-430-    Hosts that need a live line own now state, update it from their own interval, and clear that
+--
+AGENTS.md-490-    the first instant of the authored date and the first instant of the following
+AGENTS.md-491-    date. Compatible midnight resolution can overshoot a straddling skip.
+AGENTS.md:492:    Wholly skipped dates remain empty; explicit hours retain compatible resolution.
+AGENTS.md-493-
+AGENTS.md-494-33. **React Native Web renders object styles inline, so inline paint beats any class.**
+--
+README.md-152-      style={{ height: 480, flex: undefined }}
+README.md-153-      windowSpec={{ span: 'week', anchorDate: '2026-09-21', timezone: 'UTC' }}
+README.md:154:      onDayPress={(day) => console.log(day.localDate)}
+README.md-155-    />
+README.md-156-  );
+--
+README.md-158-```
+README.md-159-
+README.md:160:`onDayPress` makes each ordinary default day heading actionable with pointer, keyboard, and screen
+README.md-161-reader activation. Custom `dayHeaderComponent` implementations receive the root-exported
+README.md:162:`ScheduleDayHeaderInput`: the actual `day` and an optional bound `onPress` handler. When
+README.md:163:`onDayPress` is omitted, `onPress` is absent and the default heading stays presentational instead
+README.md:164:of rendering an inert button. A wholly skipped local date uses `skippedDateComponent`, not a day
+README.md:165:header, and has no day action.
+README.md-166-
+README.md-167-`Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+--
+llms.txt-226-Schedule required props: lane: Lane, windowSpec: WindowSpec & {span:'day'|'week'}.
+llms.txt-227-Optional: cacheIdentity (stable ScopedCacheIdentity), minuteStep (60), pxPerHour (48, positive finite), now (epoch milliseconds or null), highlightSource,
+llms.txt:228:onNavigate, onDayPress, onIntervalPress, onGapPress, onCellPress, style, headerStyle,
+llms.txt-229-gutterStyle, daysStyle, incompleteLabel, and zones below. Class twins are
+llms.txt-230-className, headerClassName, gutterClassName, and daysClassName. No month/custom
+--
+llms.txt-345-| `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
+llms.txt-346-| `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
+llms.txt:347:| `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
+llms.txt:348:| `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
+llms.txt-349-| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval/gap components | `ScheduleColumn`: final rect bounds in layer order. |
+llms.txt-350-| `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
+--
+llms.txt-378-at column edges, source changes, and every scale boundary. For repeat at T with
+llms.txt-379-magnitude d, boundaries are T-d, T, and T+d. A wholly skipped date produces no
+llms.txt:380:column; skippedDateComponent labels the header gap (Apia 2011-12-30) and receives no day action.
+llms.txt:381:onDayPress(day) makes each ordinary default heading actionable. ScheduleDayHeaderInput is
+llms.txt-382-root-exported for dayHeaderComponent implementations and contains the actual day plus an optional
+llms.txt:383:bound onPress handler. Without onDayPress, that handler is absent and ScheduleDayHeader remains a
+llms.txt:384:presentational heading rather than an inert button. Custom headers decide how to render the
+llms.txt:385:optional handler; skipped dates never mount them.
+llms.txt-386-Each column spans the first instant of its date to the first instant of the next.
+llms.txt-387-Skipped wall spans belong to the date they interrupt. Its transitions include a
+--
+llms.txt-490-RosterDate requires id, kind, date (local ISO date), and timezone; optional note
+llms.txt-491-becomes Source.label. Hours are both present for partial day, both absent for
+llms.txt:492:whole day. A wholly skipped local date has no occurrences for either kind, with
+llms.txt-493-or without hours. Hours satisfy 0<=hourstart<hourend<=24 and may be fractional.
+llms.txt-494-byhour contains unique integers from 0 through 23. With an explicit band, each
+--
+test/components/component-slots.test.tsx-9-  RosterIncompleteInput,
+test/components/component-slots.test.tsx-10-  RosterProps,
+test/components/component-slots.test.tsx:11:  ScheduleDayHeaderInput,
+test/components/component-slots.test.tsx-12-  ScheduleProps,
+test/components/component-slots.test.tsx-13-} from '../../src';
+--
+test/components/component-slots.test.tsx-83-}
+test/components/component-slots.test.tsx-84-
+test/components/component-slots.test.tsx:85:function StatefulDayHeader({ day, onPress }: ScheduleDayHeaderInput) {
+test/components/component-slots.test.tsx-86-  const [count, setCount] = useState(0);
+test/components/component-slots.test.tsx-87-  return (
+--
+test/components/component-slots.test.tsx-199-  });
+test/components/component-slots.test.tsx-200-
+test/components/component-slots.test.tsx:201:  it('mounts all Schedule classes, preserves hooks, and mounts skipped dates conditionally', () => {
+test/components/component-slots.test.tsx-202-    const windowSpec = scheduleFixtures['schedule-fall'].windowSpec;
+test/components/component-slots.test.tsx-203-    const base = scheduleLane('schedule-fall', windowSpec);
+--
+test/components/component-slots.test.tsx-212-      windowSpec,
+test/components/component-slots.test.tsx-213-      now: Date.parse('2024-11-03T07:30Z'),
+test/components/component-slots.test.tsx:214:      onDayPress: mock(),
+test/components/component-slots.test.tsx-215-    };
+test/components/component-slots.test.tsx-216-    const tree = render(<Schedule {...props} />);
+--
+test/components/component-slots.test.tsx-226-    const day = tree.root.findAllByType(scheduleSlots.dayHeaderComponent)[0]?.props.day;
+test/components/component-slots.test.tsx-227-    act(() => dayHeader?.props.onPress());
+test/components/component-slots.test.tsx:228:    expect(props.onDayPress).toHaveBeenCalledTimes(1);
+test/components/component-slots.test.tsx:229:    expect(props.onDayPress).toHaveBeenCalledWith(day);
+test/components/component-slots.test.tsx-230-    expect(dayHeader?.findByType(Text).props.children).toContain(1);
+test/components/component-slots.test.tsx-231-    const interval = tree.root.findAllByProps({ testID: 'stateful-interval' })[0];
+--
+src/components/schedule/days/parts/day-header.tsx-1-import { Pressable, Text, View } from 'react-native';
+src/components/schedule/days/parts/day-header.tsx:2:import type { ScheduleDayHeaderInput } from '../../schedule.types';
+src/components/schedule/days/parts/day-header.tsx-3-
+src/components/schedule/days/parts/day-header.tsx:4:export function ScheduleDayHeader({ day, onPress }: ScheduleDayHeaderInput) {
+src/components/schedule/days/parts/day-header.tsx-5-  const Container = onPress ? Pressable : View;
+src/components/schedule/days/parts/day-header.tsx-6-  return (
+src/components/schedule/days/parts/day-header.tsx-7-    <Container
+src/components/schedule/days/parts/day-header.tsx:8:      accessibilityRole={onPress ? 'button' : undefined}
+src/components/schedule/days/parts/day-header.tsx-9-      accessibilityLabel={onPress ? day.localDate : undefined}
+src/components/schedule/days/parts/day-header.tsx-10-      onPress={onPress}
+--
+src/components/schedule/index.tsx-50-    windowSpec,
+src/components/schedule/index.tsx-51-    highlightSource,
+src/components/schedule/index.tsx:52:    onDayPress,
+src/components/schedule/index.tsx-53-    gutterComponent: GutterComponent = ScheduleGutter,
+src/components/schedule/index.tsx-54-    dayHeaderComponent: DayHeaderComponent = ScheduleDayHeader,
+src/components/schedule/index.tsx:55:    skippedDateComponent: SkippedDateComponent = ScheduleSkippedDate,
+src/components/schedule/index.tsx-56-    columnComponent = ScheduleColumn,
+src/components/schedule/index.tsx-57-    gridComponent = ScheduleGrid,
+--
+src/components/schedule/index.tsx-74-      gutterZone={<GutterComponent hours={hours} pxPerHour={projection.pxPerHour} />}
+src/components/schedule/index.tsx-75-      dayHeaderZone={headerDates(windowSpec, days).map(({ localDate, day }) => {
+src/components/schedule/index.tsx:76:        if (!day) return <SkippedDateComponent key={localDate} localDate={localDate} />;
+src/components/schedule/index.tsx-77-        return (
+src/components/schedule/index.tsx-78-          <ScheduleDayHeaderLayout
+--
+src/components/schedule/index.tsx-82-              <DayHeaderComponent
+src/components/schedule/index.tsx-83-                day={day}
+src/components/schedule/index.tsx:84:                onPress={onDayPress ? () => onDayPress(day) : undefined}
+src/components/schedule/index.tsx-85-              />
+src/components/schedule/index.tsx-86-            }
+--
+test/components/schedule/render.test.ts-11-import type {
+test/components/schedule/render.test.ts-12-  ScheduleColumnInput,
+test/components/schedule/render.test.ts:13:  ScheduleDayHeaderInput,
+test/components/schedule/render.test.ts-14-  ScheduleProps,
+test/components/schedule/render.test.ts-15-} from '../../../src/components/schedule/schedule.types';
+--
+test/components/schedule/render.test.ts-211-  it('makes default day headers actionable without invoking body actions', () => {
+test/components/schedule/render.test.ts-212-    const props = propsFor('schedule-fall');
+test/components/schedule/render.test.ts:213:    const onDayPress = mock();
+test/components/schedule/render.test.ts-214-    const onIntervalPress = mock();
+test/components/schedule/render.test.ts-215-    const onGapPress = mock();
+--
+test/components/schedule/render.test.ts-218-      createElement(Schedule, {
+test/components/schedule/render.test.ts-219-        ...props,
+test/components/schedule/render.test.ts:220:        onDayPress,
+test/components/schedule/render.test.ts-221-        onIntervalPress,
+test/components/schedule/render.test.ts-222-        onGapPress,
+--
+test/components/schedule/render.test.ts-232-
+test/components/schedule/render.test.ts-233-    expect(header.props).toMatchObject({
+test/components/schedule/render.test.ts:234:      accessibilityRole: 'button',
+test/components/schedule/render.test.ts-235-      accessibilityLabel: '2024-11-03',
+test/components/schedule/render.test.ts-236-    });
+--
+test/components/schedule/render.test.ts-244-    ).toBe(true);
+test/components/schedule/render.test.ts-245-    act(() => header.props.onPress());
+test/components/schedule/render.test.ts:246:    expect(onDayPress).toHaveBeenCalledTimes(1);
+test/components/schedule/render.test.ts:247:    expect(onDayPress).toHaveBeenCalledWith(day);
+test/components/schedule/render.test.ts-248-    expect(onIntervalPress).not.toHaveBeenCalled();
+test/components/schedule/render.test.ts-249-    expect(onGapPress).not.toHaveBeenCalled();
+test/components/schedule/render.test.ts-250-    expect(onCellPress).not.toHaveBeenCalled();
+test/components/schedule/render.test.ts-251-  });
+test/components/schedule/render.test.ts:252:  it('keeps default day headers presentational when no day action is supplied', () => {
+test/components/schedule/render.test.ts-253-    const tree = render(createElement(Schedule, propsFor('schedule-fall')));
+test/components/schedule/render.test.ts-254-    const json = JSON.stringify(tree.toJSON());
+--
+test/components/schedule/render.test.ts-261-        .some(
+test/components/schedule/render.test.ts-262-          (node) =>
+test/components/schedule/render.test.ts:263:            node.props.accessibilityRole === 'button' &&
+test/components/schedule/render.test.ts-264-            node.props.accessibilityLabel?.includes('2024-11-03'),
+test/components/schedule/render.test.ts-265-        ),
+--
+test/components/schedule/render.test.ts-337-  it('shows six Apia columns and the header gap for December 30, including a wholly skipped day span', () => {
+test/components/schedule/render.test.ts-338-    const props = propsFor('schedule-apia');
+test/components/schedule/render.test.ts:339:    const onDayPress = mock();
+test/components/schedule/render.test.ts:340:    const tree = render(createElement(Schedule, { ...props, onDayPress }));
+test/components/schedule/render.test.ts-341-    expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(6);
+test/components/schedule/render.test.ts-342-    expect(tree.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(6 * 24);
+--
+test/components/schedule/render.test.ts-359-    );
+test/components/schedule/render.test.ts-360-    expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(0);
+test/components/schedule/render.test.ts:361:    expect(onDayPress).not.toHaveBeenCalled();
+test/components/schedule/render.test.ts-362-    expect(JSON.stringify(tree.toJSON())).toContain('Skipped local date 2011-12-30');
+test/components/schedule/render.test.ts-363-    const skippedDateComponent = mock(({ localDate }: { localDate: string }) =>
+--
+test/components/schedule/render.test.ts-375-    const firstAction = mock();
+test/components/schedule/render.test.ts-376-    const secondAction = mock();
+test/components/schedule/render.test.ts:377:    const dayHeaderComponent = mock(({ day, onPress }: ScheduleDayHeaderInput) =>
+test/components/schedule/render.test.ts-378-      createElement('custom-header', { day, onPress }),
+test/components/schedule/render.test.ts-379-    );
+test/components/schedule/render.test.ts-380-    const tree = render(
+test/components/schedule/render.test.ts:381:      createElement(Schedule, { ...props, dayHeaderComponent, onDayPress: firstAction }),
+test/components/schedule/render.test.ts-382-    );
+test/components/schedule/render.test.ts-383-    const firstHeader = tree.root.findAllByType('custom-header' as ElementType)[0];
+--
+test/components/schedule/render.test.ts-389-    act(() =>
+test/components/schedule/render.test.ts-390-      tree.update(
+test/components/schedule/render.test.ts:391:        createElement(Schedule, { ...props, dayHeaderComponent, onDayPress: secondAction }),
+test/components/schedule/render.test.ts-392-      ),
+test/components/schedule/render.test.ts-393-    );
+--
+test/components/schedule/render.test.ts-411-          windowSpec: apia,
+test/components/schedule/render.test.ts-412-          dayHeaderComponent,
+test/components/schedule/render.test.ts:413:          onDayPress: secondAction,
+test/components/schedule/render.test.ts-414-        }),
+test/components/schedule/render.test.ts-415-      ),
+--
+src/index.ts-51-export type {
+src/index.ts-52-  ScheduleColumnInput,
+src/index.ts:53:  ScheduleDayHeaderInput,
+src/index.ts-54-  ScheduleHoursInput,
+src/index.ts-55-  ScheduleInput,
+--
+src/components/schedule/schedule.types.ts-30-  onNavigate?: (next: WindowSpec) => void;
+src/components/schedule/schedule.types.ts-31-  /** Called when an ordinary day heading is activated. */
+src/components/schedule/schedule.types.ts:32:  onDayPress?: (day: DayColumn) => void;
+src/components/schedule/schedule.types.ts-33-  onIntervalPress?: (rect: Rect, lane: Lane) => void;
+src/components/schedule/schedule.types.ts-34-  onGapPress?: (rect: Rect, lane: Lane) => void;
+--
+src/components/schedule/schedule.types.ts-66-};
+src/components/schedule/schedule.types.ts-67-export type ScheduleHoursInput = { hours: number[]; pxPerHour: number };
+src/components/schedule/schedule.types.ts:68:export type ScheduleDayHeaderInput = {
+src/components/schedule/schedule.types.ts-69-  day: DayColumn;
+src/components/schedule/schedule.types.ts:70:  /** Activates this heading's day when the Schedule supplies onDayPress. */
+src/components/schedule/schedule.types.ts-71-  onPress?: () => void;
+src/components/schedule/schedule.types.ts-72-};
+--
+src/components/schedule/schedule.types.ts-98-    gridComponent?: ComponentType<ScheduleHoursInput>;
+src/components/schedule/schedule.types.ts-99-    /** Frozen day heading; ScheduleDayHeader shows weekday, localDate, and a transition badge. */
+src/components/schedule/schedule.types.ts:100:    dayHeaderComponent?: ComponentType<ScheduleDayHeaderInput>;
+src/components/schedule/schedule.types.ts:101:    /** Wholly skipped local date marker; ScheduleSkippedDate labels its zero-width header gap. */
+src/components/schedule/schedule.types.ts-102-    skippedDateComponent?: ComponentType<{ localDate: string }>;
+src/components/schedule/schedule.types.ts-103-    /** The day's covered and removed rects; ScheduleColumn draws final bounds in layer order. */
