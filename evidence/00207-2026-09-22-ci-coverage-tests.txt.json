@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["test", "coverage"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/window-controls.tsx",
+    "demo/components/team-roster/team-roster.types.ts",
+    "demo/components/team-roster/use-team-roster.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "9d00317093f1f6e095159330fd10e2adf239bb39",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:f6d1034b4ec528b4933a6bf93f01261ec4d3fdbc20b5a111c968bbe3fe11f2c9"
+}
