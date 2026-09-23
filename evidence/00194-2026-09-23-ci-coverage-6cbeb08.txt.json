@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["ci", "test", "coverage"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/team-roster/events/parts/attendance-interaction.ts",
+    "demo/components/team-roster/events/parts/attendance-interaction.types.ts",
+    "demo/components/team-roster/events/parts/attendance-interaction.web.ts",
+    "demo/components/team-roster/events/parts/attendances.tsx",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "43ad16ec4662822ddec92cc147cb1b98fea8a432",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:6cbeb08fdf9621bebc96e20302535a10f5ce655bf2263da1468787bbdc4ee4ef"
+}
