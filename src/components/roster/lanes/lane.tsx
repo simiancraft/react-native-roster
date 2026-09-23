@@ -1,7 +1,6 @@
-import { Fragment } from 'react';
 import { Pressable } from 'react-native';
 import type { Lane, LaneGeometry } from '../../../core';
-import { hasSource } from '../../../core';
+import { LayerStack } from '../../layers/layer-stack';
 import { pressPoint } from '../../primitives/press-point';
 import type { BodyInput } from '../roster.types';
 import { intervalHoverProps } from './interval-hover';
@@ -35,7 +34,6 @@ export function LaneRow({
   incompleteComponent: IncompleteComponent,
   incompleteLabel = 'Availability may be incomplete',
 }: LaneRowProps) {
-  const layers = [...lane.layers].sort((a, b) => a.z - b.z);
   return (
     <Pressable
       {...intervalHoverProps({ lane, geometry, onIntervalHover })}
@@ -48,45 +46,15 @@ export function LaneRow({
       style={{ width, height: rowHeight }}
     >
       <IncompleteComponent lane={lane} geometry={geometry} width={width} label={incompleteLabel} />
-      {layers.map((layer) => (
-        <Fragment key={layer.id}>
-          {geometry.rects
-            .filter((rect) => rect.layerId === layer.id)
-            .map((rect) => (
-              <Fragment key={`interval-${rect.x}:${rect.width}`}>
-                <IntervalComponent
-                  rect={rect}
-                  layer={layer}
-                  lane={lane}
-                  highlighted={hasSource(rect.sources, highlightSource)}
-                />
-              </Fragment>
-            ))}
-          {geometry.gapRects
-            .filter((rect) => rect.layerId === layer.id)
-            .map((rect) => (
-              <Pressable
-                key={`gap-${rect.x}:${rect.width}`}
-                accessibilityLabel={`${lane.label}: removed time`}
-                onPress={(input) => {
-                  input.stopPropagation();
-                  const point = pressPoint(input);
-                  press(lane, rect.x + point.x, rect.y + point.y);
-                }}
-                style={{
-                  position: 'absolute',
-                  left: rect.x,
-                  top: rect.y,
-                  width: rect.width,
-                  height: rect.height,
-                  zIndex: rect.z,
-                }}
-              >
-                <GapComponent rect={rect} layer={layer} lane={lane} />
-              </Pressable>
-            ))}
-        </Fragment>
-      ))}
+      <LayerStack
+        lane={lane}
+        rects={geometry.rects}
+        gapRects={geometry.gapRects}
+        press={(x, y) => press(lane, x, y)}
+        intervalComponent={IntervalComponent}
+        gapComponent={GapComponent}
+        highlightSource={highlightSource}
+      />
     </Pressable>
   );
 }
