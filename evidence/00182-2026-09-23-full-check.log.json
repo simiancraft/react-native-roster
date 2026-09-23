@@ -1,0 +1,18 @@
+{
+  "scope_tags": ["ci", "repository"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/components/layers/README.md",
+    "src/components/layers/utils/paint.ts",
+    "src/components/roster/parts/grid.tsx",
+    "src/components/roster/parts/now-line.tsx",
+    "src/components/schedule/days/parts/grid.tsx",
+    "src/components/schedule/days/parts/now-line.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "c3db6f45664299613dd7017ffa47ae3a63cff14c",
+  "capture_method": "CI=true FORCE_COLOR=0 NO_COLOR=1 bun run check",
+  "content_hash": "sha256:fbe7674159e112c2c4acbaefd9c909625d588c27655d87654c1474390e93a473"
+}

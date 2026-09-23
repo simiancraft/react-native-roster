@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["render", "tests", "component-slots"],
+  "covered_paths": [
+    "src/components/layers/utils/paint.ts",
+    "src/components/roster/parts/grid.tsx",
+    "src/components/roster/parts/now-line.tsx",
+    "src/components/schedule/days/parts/grid.tsx",
+    "src/components/schedule/days/parts/now-line.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/schedule/render.test.ts",
+    "test/components/component-slots.test.tsx"
+  ],
+  "capture_commit": "c3db6f45664299613dd7017ffa47ae3a63cff14c",
+  "capture_method": "bun test test/components/roster/render.test.ts test/components/schedule/render.test.ts test/components/component-slots.test.tsx && bun run typecheck:test",
+  "content_hash": "sha256:c5872cf9c2d3bfb969f0e33ddde282d08363dc7cd4953ae692c61619a7c1adc6"
+}
