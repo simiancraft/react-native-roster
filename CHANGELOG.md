@@ -1,3 +1,5 @@
+## [2.0.1](https://github.com/simiancraft/react-native-roster/compare/v2.0.0...v2.0.1) (2026-09-23)
+
 ## [2.0.0](https://github.com/simiancraft/react-native-roster/compare/v1.7.0...v2.0.0) (2026-09-23)
 
 ### ⚠ BREAKING CHANGES
