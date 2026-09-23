@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Eyebrow } from '../../ui/eyebrow';
+import { Toggle } from '../../ui/toggle';
 
 type ChipGroupProps = {
   label: string;
@@ -12,6 +13,7 @@ type ChipGroupProps = {
 export function ChipGroup({ label, chipsZone }: ChipGroupProps) {
   return (
     <View
+      accessibilityRole="radiogroup"
       accessibilityLabel={label}
       className="relative flex-row items-center gap-1 rounded-lg border border-border bg-card p-1"
     >
@@ -34,7 +36,7 @@ const CHIP = {
   },
 } as const;
 
-/** A toggle in a group; selected is this chip's own interaction state. */
+/** One exclusive choice within a chip group. */
 export function Chip({
   label,
   selected,
@@ -46,14 +48,9 @@ export function Chip({
 }) {
   const classes = CHIP[selected ? 'selected' : 'idle'];
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      className={classes.chip}
-    >
+    <Toggle mode="radio" checked={selected} onPress={onPress} className={classes.chip}>
       <Text className={classes.text}>{label}</Text>
-    </Pressable>
+    </Toggle>
   );
 }
 
