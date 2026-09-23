@@ -42,11 +42,12 @@ export function ScheduleFixtureScreen({ fixtureId }: { fixtureId: ScheduleFixtur
 }
 
 function subjectProps(model: ScheduleFixtureModel) {
-  const { windowSpec, minuteStep, navigate, selectRect, selectCell } = model;
+  const { windowSpec, minuteStep, navigate, selectDay, selectRect, selectCell } = model;
   return {
     windowSpec,
     minuteStep,
     onNavigate: navigate,
+    onDayPress: selectDay,
     onIntervalPress: selectRect,
     onGapPress: selectRect,
     onCellPress: selectCell,

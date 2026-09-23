@@ -208,6 +208,63 @@ describe('Schedule chassis and day zones', () => {
     act(() => tree.update(createElement(Schedule, propsFor('schedule-lord-howe'))));
     expect(tree.root.findByProps({ testID: 'schedule-repeat' }).props.style.top).toBe(1.75 * 48);
   });
+  it('makes default day headers actionable without invoking body actions', () => {
+    const props = propsFor('schedule-fall');
+    const onDayPress = mock();
+    const onIntervalPress = mock();
+    const onGapPress = mock();
+    const onCellPress = mock();
+    const tree = render(
+      createElement(Schedule, {
+        ...props,
+        onDayPress,
+        onIntervalPress,
+        onGapPress,
+        onCellPress,
+      }),
+    );
+    const header = tree.root
+      .findAllByType('Pressable' as ElementType)
+      .find((node) => node.props.accessibilityLabel?.includes('2024-11-03')) as ReactTestInstance;
+    const day = core
+      .dayColumnsFor(core.windowFor(props.windowSpec), props.windowSpec.timezone)
+      .find((candidate) => candidate.localDate === '2024-11-03');
+
+    expect(header.props).toMatchObject({
+      accessibilityRole: 'button',
+      accessibilityLabel: '2024-11-03',
+    });
+    expect(
+      header.findAllByType('Text' as ElementType).some((node) => node.children[0] === '2024-11-03'),
+    ).toBe(true);
+    expect(
+      header
+        .findAllByType('Text' as ElementType)
+        .some((node) => node.children[0] === 'Clock change'),
+    ).toBe(true);
+    act(() => header.props.onPress());
+    expect(onDayPress).toHaveBeenCalledTimes(1);
+    expect(onDayPress).toHaveBeenCalledWith(day);
+    expect(onIntervalPress).not.toHaveBeenCalled();
+    expect(onGapPress).not.toHaveBeenCalled();
+    expect(onCellPress).not.toHaveBeenCalled();
+  });
+  it('keeps default day headers presentational when no day action is supplied', () => {
+    const tree = render(createElement(Schedule, propsFor('schedule-fall')));
+    const json = JSON.stringify(tree.toJSON());
+
+    expect(json).toContain('2024-11-03');
+    expect(json).toContain('Clock change');
+    expect(
+      tree.root
+        .findAllByType('Pressable' as ElementType)
+        .some(
+          (node) =>
+            node.props.accessibilityRole === 'button' &&
+            node.props.accessibilityLabel?.includes('2024-11-03'),
+        ),
+    ).toBe(false);
+  });
   for (const [timezone, anchorDate, instant, dividerY] of [
     ['America/St_Johns', '2009-11-01', '2009-11-01T02:31Z', 1 / 61],
     ['America/Goose_Bay', '1988-10-30', '1988-10-30T02:01Z', 1 / 121],
@@ -279,13 +336,19 @@ describe('Schedule chassis and day zones', () => {
   }
   it('shows six Apia columns and the header gap for December 30, including a wholly skipped day span', () => {
     const props = propsFor('schedule-apia');
-    const tree = render(createElement(Schedule, props));
+    const onDayPress = mock();
+    const tree = render(createElement(Schedule, { ...props, onDayPress }));
     expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(6);
     expect(tree.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(6 * 24);
     expect(tree.root.findByProps({ testID: 'schedule-missing-2011-12-30' }).props.style.width).toBe(
       0,
     );
     expect(tree.root.findAllByProps({ testID: 'schedule-skip' })).toHaveLength(0);
+    expect(
+      tree.root
+        .findAllByType('Pressable' as ElementType)
+        .some((node) => node.props.accessibilityLabel?.includes('2011-12-30')),
+    ).toBe(false);
     act(() =>
       tree.update(
         createElement(Schedule, {
@@ -295,6 +358,7 @@ describe('Schedule chassis and day zones', () => {
       ),
     );
     expect(tree.root.findAllByType(ScheduleDayLayout)).toHaveLength(0);
+    expect(onDayPress).not.toHaveBeenCalled();
     expect(JSON.stringify(tree.toJSON())).toContain('Skipped local date 2011-12-30');
     const skippedDateComponent = mock(({ localDate }: { localDate: string }) =>
       createElement('custom-skipped-date', { localDate }),
