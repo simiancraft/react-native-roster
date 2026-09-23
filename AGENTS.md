@@ -136,7 +136,10 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
   events; the toolbar displays now, and present spans extend through now without
   exposing a future departure. Seeded arrival and departure facts stay immutable; late
   departures remain present after scheduled end. Member-local dates drive nonoverlapping
-  events, union strips preserve gaps, and the inspector expands its full week independently.
+  events. Skipped authored starts produce no event, repeated starts and ends use the earlier
+  occurrence, skipped ends clamp to the first instant after the skipped span, and empty or
+  negative results are omitted. This wall-time policy is local to the showcase. Union strips
+  preserve gaps, and the inspector expands its full week independently.
   Time-off presentation uses the complete gap source set in both projections: an exact singleton
   lunch rule is partial, an exact singleton PTO date is whole-day, and unknown, absent,
   identity-mismatched, or mixed sources are neutral. Width controls label visibility only.

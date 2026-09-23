@@ -36,6 +36,9 @@ that produced it; press a gap to get the sources that removed it.
 The showcase derives gap presentation from the complete source set: its authored lunch rules are
 partial, its authored PTO dates are whole-day, and unknown, absent, or mixed sources stay neutral.
 Width only controls whether the source-derived label is visible in either projection.
+Generated showcase events apply an authored wall-time policy: skipped starts are omitted, repeated
+starts and ends use the earlier occurrence, and skipped ends clamp to the first instant after the
+skipped span. Empty or negative results are omitted. This policy is local to the showcase.
 In the showcase toolbar, `Day` and `Week` name the spans, while `Demo day` and `Demo week` reset
 their respective windows. Compact dates use month names, and a range crossing New Year names both
 years. Week mode also offers `Detailed` and `Fitted`: Detailed keeps a scrollable 42-pixel-per-hour

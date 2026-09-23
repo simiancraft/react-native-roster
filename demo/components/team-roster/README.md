@@ -30,6 +30,10 @@ Gap presentation uses the complete source set: an exact singleton authored lunch
 and an exact singleton authored PTO date is whole-day. Unknown, absent, identity-mismatched, or
 mixed sources stay neutral in both the roster and Schedule; width only hides or shows the
 source-derived label.
+Generated events use a showcase-local authored wall-time policy. A skipped start produces no
+event, repeated starts and ends use the earlier occurrence, and a skipped end clamps to the first
+instant after the skipped span. The generator omits any result whose end is not strictly after its
+start before deriving attendance.
 Generated lanes are retained by team identity, window bounds, and now; selection changes
 preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
