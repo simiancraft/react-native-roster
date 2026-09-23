@@ -6,7 +6,7 @@ import type { LayerRole } from 'react-native-roster/core';
 import { actualWindows, barOffsets, eventFor } from '../events/utils/attendance';
 import { timeLabel } from '../utils/format';
 import { memberMeta } from '../utils/team';
-import { timeOffNote } from '../utils/time-off';
+import { timeOffPresentation } from '../utils/time-off';
 import { eventKindOf, KIND_CLASSES, TONE_CLASSES } from '../utils/tones';
 
 function bounds(rect: IntervalInput['rect']) {
@@ -106,27 +106,22 @@ export function TeamInterval(input: IntervalInput) {
   return <Component {...input} timezone={timezone} />;
 }
 
-const GAP = {
-  wholeDay: 'border border-dashed border-grid-strong bg-muted/60',
-  partial: 'bg-background/70',
-} as const;
-
 /** Removed time inside working hours: lunch and out-of-office days. */
 export function TimeOffGap({ rect }: GapInput) {
-  const source = rect.sources[0];
-  const wholeDay = rect.width >= 200;
-  const label = wholeDay ? (
-    <Text
-      numberOfLines={1}
-      className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
-    >
-      {timeOffNote(source) ?? 'Out of office'}
-    </Text>
-  ) : null;
+  const presentation = timeOffPresentation(rect.sources);
+  const label =
+    rect.width >= 200 && presentation.label ? (
+      <Text
+        numberOfLines={1}
+        className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+      >
+        {presentation.label}
+      </Text>
+    ) : null;
   return (
     <View
       pointerEvents="none"
-      className={`flex-1 items-center justify-center rounded-md ${GAP[wholeDay ? 'wholeDay' : 'partial']}`}
+      className={`flex-1 items-center justify-center rounded-md ${presentation.className}`}
     >
       {label}
     </View>

@@ -33,6 +33,9 @@ A staffing screen gets asked who is on right now, who is free at 3, and why
 nobody is on Wednesday. The third question needs the rule behind the rectangle,
 so every interval and gap keeps its sources. Press an interval to get the sources
 that produced it; press a gap to get the sources that removed it.
+The showcase derives gap presentation from the complete source set: its authored lunch rules are
+partial, its authored PTO dates are whole-day, and unknown, absent, or mixed sources stay neutral.
+Width only controls whether the source-derived label is visible in either projection.
 
 Give each person or resource a lane. `Roster` draws every lane on one time axis;
 `Schedule` draws any one of them as a week, days across and hours down. The same
