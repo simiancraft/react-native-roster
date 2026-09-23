@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["ci", "coverage", "tests"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src",
+    "test"
+  ],
+  "capture_commit": "ea490145430020af36e846ae33064bc67a17b2f0",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:ca7e41ae672866a22d27fccd4a5da5b6035b7488a1bacbb1e930903bd019ee15"
+}

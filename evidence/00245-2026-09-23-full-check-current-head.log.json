@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["repository", "package", "browser", "performance"],
+  "covered_paths": [
+    ".size-limit.json",
+    "AGENTS.md",
+    "README.md",
+    "docs/customization.md",
+    "llms.txt",
+    "package.json",
+    "src/components/schedule",
+    "test/components/schedule"
+  ],
+  "capture_commit": "ea490145430020af36e846ae33064bc67a17b2f0",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:131b31d26f922c4bb9dc9a44d6335d71049f09656fbcc8fac78f01b6961af222"
+}
