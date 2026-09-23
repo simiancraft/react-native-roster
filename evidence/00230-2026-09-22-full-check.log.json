@@ -1,0 +1,20 @@
+{
+  "scope_tags": ["code", "test", "docs", "ci-gate"],
+  "covered_paths": [
+    "AGENTS.md",
+    "docs/adapters.md",
+    "docs/recurrence.md",
+    "llms.txt",
+    "src/adapters/rrule/README.md",
+    "src/adapters/rrule/occurrences.ts",
+    "src/adapters/rrule/types.ts",
+    "src/adapters/rrule/validate.ts",
+    "test/adapters/rrule/expand.test.ts",
+    "package.json",
+    "bun.lock",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "af1d6355fe07bd1fe47a00183cf192b8bf3684fa",
+  "capture_method": "CI=1 FORCE_COLOR=0 bun run check",
+  "content_hash": "sha256:23af212d776912fbfdd3c38d73dbbbd1e6aa1b1c75c5506240d79a24adbf5a02"
+}
