@@ -474,13 +474,20 @@ timezone, then returns empty intervals and gaps, complete=true, and expanded=0.
 
 RuleSet is {rules:RosterRule[],dates:RosterDate[]}.
 RosterRule requires id, kind:'include'|'exclude', frequency:'DAILY'|'WEEKLY'|'MONTHLY'|'YEARLY',
-dtstart (ISO date/datetime), hourstart, hourend, and timezone (IANA).
-Optional: until, count, interval, wkst, byweekday, bymonth, bymonthday, bysetpos.
+dtstart (ISO date/datetime), and timezone (IANA).
+Optional: until, count, interval, wkst, byweekday, bymonth, bymonthday, bysetpos,
+byhour, and both hourstart and hourend together. A rule requires an explicit hour
+band or a nonempty byhour.
 RosterDate requires id, kind, date (local ISO date), and timezone; optional note
 becomes Source.label. Hours are both present for partial day, both absent for
 whole day. A wholly skipped local date has no occurrences for either kind, with
 or without hours. Hours satisfy 0<=hourstart<hourend<=24 and may be fractional.
-Unsupported fields: byyearday, byweekno, byhour, byminute, bysecond. Convert enums,
+byhour contains unique integers from 0 through 23. With an explicit band, each
+selected hour must be inside [hourstart,hourend); without one, selected hours derive
+the band. Contiguous hours emit one span, and omitted hours remain uncovered.
+COUNT counts dates, while occurrence caps count emitted spans. Skipped runs collapse,
+and omitting a repeated hour removes both repeats.
+Unsupported fields: byyearday, byweekno, byminute, bysecond. Convert enums,
 Date values, and nulls at the boundary; reject unsupported active semantics.
 
 Expansion uses one absolute envelope for every include, exclude, and date:

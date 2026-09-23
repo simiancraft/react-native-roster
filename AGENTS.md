@@ -376,6 +376,11 @@ Do not publish, tag, change repository settings, or push without task authorizat
     candidate periods terminate completely without an arbitrary cutoff. Only that
     exact engine limit error signals completed enumeration; other failures propagate.
     Replayed iterator passes stop before buffering positional candidates.
+    BYHOUR selects unique integer local hours from 0 through 23 and emits one span per
+    contiguous run. Explicit hour bounds contain every selected hour and clip the final
+    run; absent bounds derive the band. COUNT counts admitted dates, while occurrence caps
+    count emitted spans. Compatible boundary resolution drops skipped runs and omits both
+    repeats of an unselected repeated hour.
 
 19. **Provenance hover is web-only.** `roster/lanes/interval-hover.tsx` attaches nothing
     on native; `interval-hover.web.tsx` resolves row-relative pointer movement against
