@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["frontend", "semantics", "tests", "ci"],
+  "covered_paths": [
+    "demo/components/gallery/fixtures/parts/control.tsx",
+    "demo/components/gallery/fixtures/roster/parts/controls.tsx",
+    "demo/components/gallery/fixtures/schedule/parts/controls.tsx",
+    "demo/components/gallery/fixtures/schedule/parts/zone-examples.tsx",
+    "scripts/check-web-performance.ts",
+    "test/demo/demo-primitives.test.tsx",
+    "test/demo/fixture-controls.test.tsx",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "33096d378136a5fd3b7f613b43887e373c056fd7",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx test/demo/fixture-controls.test.tsx; bun run check",
+  "content_hash": "sha256:b81a58b0f4b063236c33af571273ac21083a208fbdc2f2a82c34b68627fad25b"
+}
