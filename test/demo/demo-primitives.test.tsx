@@ -4,7 +4,12 @@ import { afterEach, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { Pressable, Text, View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { Control, ToggleControl } from '../../demo/components/gallery/fixtures/parts/control';
+import {
+  Control,
+  RadioControl,
+  RadioGroup,
+  ToggleControl,
+} from '../../demo/components/gallery/fixtures/parts/control';
 import { HighlightControls } from '../../demo/components/gallery/fixtures/roster/parts/highlight-controls';
 import { ToolbarButton } from '../../demo/components/team-roster/parts/chips';
 import { MemberLabel } from '../../demo/components/team-roster/parts/member-label';
@@ -131,18 +136,29 @@ it('preserves disabled state and activation behavior', () => {
   expect(disabled.props.accessibilityState).toEqual({ checked: false, disabled: true });
 });
 
-it('keeps fixture actions ordinary while selected options retain their transitional state', () => {
+it('composes a programmatically named fixture radio group', () => {
+  testPlatform.OS = 'web';
+  const tree = render(
+    <RadioGroup label="Minute step">
+      <RadioControl label="15 min" checked onPress={() => {}} />
+      <RadioControl label="30 min" checked={false} onPress={() => {}} />
+    </RadioGroup>,
+  );
+  const group = tree.root.findByProps({ accessibilityRole: 'radiogroup' });
+  const choices = group.findAllByType(Pressable);
+
+  expect(group.props.accessibilityLabel).toBe('Minute step');
+  expect(choices.map((choice) => choice.props.accessibilityRole)).toEqual(['radio', 'radio']);
+  expect(choices.map((choice) => choice.props['aria-checked'])).toEqual([true, false]);
+});
+
+it('keeps fixture actions ordinary', () => {
   const action = render(<Control label="Next" onPress={() => {}} />).root.findByType(Pressable);
   expect(action.props.accessibilityRole).toBe('button');
   expect(action.props.accessibilityState).toBeUndefined();
   expect(action.props['aria-selected']).toBeUndefined();
   expect(action.props['aria-pressed']).toBeUndefined();
-
-  const option = render(<Control label="15 min" selected onPress={() => {}} />).root.findByType(
-    Pressable,
-  );
-  expect(option.props.accessibilityState).toEqual({ selected: true });
-  expect(option.props['aria-selected']).toBe(true);
+  expect(action.props['aria-checked']).toBeUndefined();
 });
 
 it('routes fixture now and highlight choices through pressed toggles', () => {

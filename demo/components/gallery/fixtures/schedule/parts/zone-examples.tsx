@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { today } from 'react-native-roster';
-import { Control } from '../../parts/control';
+import { Control, RadioControl, RadioGroup } from '../../parts/control';
 import type { useScheduleFixture } from '../use-schedule-fixture';
 
 type ZoneExamplesProps = Pick<
@@ -14,14 +14,16 @@ type ZoneExamplesProps = Pick<
 export function ZoneExamples({ zoneStyle, onZoneStyle, windowSpec, navigate }: ZoneExamplesProps) {
   return (
     <View className="flex-row flex-wrap gap-1.5">
-      {(['defaults', 'replacements'] as const).map((value) => (
-        <Control
-          key={value}
-          label={`Zones: ${value}`}
-          selected={zoneStyle === value}
-          onPress={() => onZoneStyle(value)}
-        />
-      ))}
+      <RadioGroup label="Zone style">
+        {(['defaults', 'replacements'] as const).map((value) => (
+          <RadioControl
+            key={value}
+            label={`Zones: ${value}`}
+            checked={zoneStyle === value}
+            onPress={() => onZoneStyle(value)}
+          />
+        ))}
+      </RadioGroup>
       <Control
         label="Apia skipped date"
         onPress={() =>
