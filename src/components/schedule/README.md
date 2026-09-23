@@ -10,8 +10,8 @@ This feature is about a schedule; its children are days.
 - `layout.tsx`: arranges header, gutter, and days regions only
 - `schedule.types.ts`: props, model, and every slot input type
 - `parts/`: collection-level parts (gutter, incomplete)
-- `days/`: `ScheduleDay`, the day and day-header layouts, and `ScheduleColumn`, which mounts
-  the shared LayerStack
+- `days/`: `ScheduleDay`, the day and day-header layouts, and `ScheduleColumn`; the day layout
+  mounts the shared PlotStack, and the column mounts the shared LayerStack
 - `utils/days.ts`: header dates, now position, and transition bounds
 - `utils/window-band.ts`: absolute-window clipping and scale-piece projection
 
@@ -22,8 +22,9 @@ in `../primitives`. Zone contracts and a complete example live in the
 `ScheduleColumn` and Roster's `LaneRow` use the same ordered interval and gap collection.
 
 The chassis binds default component types once; ScheduleDay mounts components
-with day data and passes nodes into ScheduleDayLayout. There is no black-box day
-list to split: days, transitions, and rects already map in their owning parts.
+with day data and passes nodes into ScheduleDayLayout. ScheduleDayLayout supplies its grid,
+column, and ordered window-band, transition, and now-line overlay to PlotStack. There is no
+black-box day list to split: days, transitions, and rects already map in their owning parts.
 Schedule has eleven input-bearing component slots and no zero-argument singleton slots.
 
 `now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
