@@ -1,0 +1,285 @@
+Capture commit: 50a4fc681b327a4d39d6c8b74ce403285f1feee8
+Remote branch head: 50a4fc681b327a4d39d6c8b74ce403285f1feee8	refs/heads/fix/readable-fitted-week-docs-187
+
+Changed paths against origin/main:
+AGENTS.md
+README.md
+demo/components/team-roster/README.md
+llms.txt
+
+Whitespace validation:
+git diff --check exit: 0
+
+Shipped labels and calculations:
+import { useColorScheme } from 'nativewind';
+import { TextInput } from 'react-native';
+import { type SortKey, type SpanKey, VIEW_TIMEZONES, type WeekDensity } from '../team-roster.types';
+import { zoneShort } from '../utils/format';
+import { MUTED_FOREGROUND_HEX } from '../utils/tones';
+import { Chip, ChipGroup, ToolbarButton } from './chips';
+
+const SPAN_LABELS: Record<SpanKey, string> = { day: 'Day', week: 'Week' };
+const WEEK_DENSITY_LABELS: Record<WeekDensity, string> = {
+  fitted: 'Fitted',
+  detailed: 'Detailed',
+};
+const SORT_LABELS: Record<SortKey, string> = {
+  name: 'Name',
+  availability: 'Most hours',
+  free: 'Most free',
+};
+
+export function SpanChips({
+  span,
+  onChange,
+}: {
+  span: SpanKey;
+  onChange: (span: SpanKey) => void;
+}) {
+  return (
+    <ChipGroup
+      label="View"
+      chipsZone={(Object.keys(SPAN_LABELS) as SpanKey[]).map((key) => (
+        <Chip
+          key={key}
+          label={SPAN_LABELS[key]}
+          selected={key === span}
+          onPress={() => onChange(key)}
+        />
+      ))}
+    />
+  );
+}
+
+export function WeekDensityChips({
+  density,
+  onChange,
+}: {
+  density: WeekDensity;
+  onChange: (density: WeekDensity) => void;
+}) {
+  return (
+    <ChipGroup
+      label="Density"
+      chipsZone={(Object.keys(WEEK_DENSITY_LABELS) as WeekDensity[]).map((key) => (
+        <Chip
+          key={key}
+          label={WEEK_DENSITY_LABELS[key]}
+          selected={key === density}
+          onPress={() => onChange(key)}
+        />
+      ))}
+    />
+  );
+}
+
+export function WindowNav({
+  span,
+};
+
+/** One header cell per tick kind: a time with week date context, or a dated day boundary. */
+const CELLS: Record<RosterTick['kind'], ComponentType<HeaderCellInput>> = {
+  time: function TimeCell({ tick, timezone, span }) {
+    const time = compactTimeLabel(tick.time, timezone);
+    const localDate = localDateFor(tick.time, timezone);
+    const dayStart = windowFor({ span: 'day', anchorDate: localDate, timezone }).start;
+    const showDate = span === 'week' && tick.time !== dayStart + HOUR;
+    return (
+      <View className="h-10 justify-end gap-0.5 pb-1 pl-1 border-l border-grid">
+        {showDate ? (
+          <Text numberOfLines={1} className="text-[9px] leading-none text-muted-foreground">
+            {conciseDate(tick.time, timezone)}
+          </Text>
+        ) : null}
+        <Text numberOfLines={1} className="text-[10px] tabular-nums text-muted-foreground">
+          {time}
+        </Text>
+      </View>
+    );
+  },
+  day: function DayCell({ tick, timezone, density }) {
+    return (
+      <View className="h-10 justify-start pt-1.5 pl-2 border-l-2 border-grid-strong">
+        <Text numberOfLines={1} className="text-xs font-semibold text-foreground">
+          {DAY_LABEL[density](tick.time, timezone)}
+        </Text>
+      </View>
+  const [weekDensity, setWeekDensity] = useState<WeekDensity>('detailed');
+  const [selectedId, setSelectedId] = useState(team.members[0]?.id ?? '');
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [contentWidth, setContentWidth] = useState(1280);
+  const window = windowFor(windowSpec);
+  const weekWindowSpec: WeekWindowSpec = { ...windowSpec, span: 'week' };
+  const weekWindow = windowFor(weekWindowSpec);
+  const [retained, setRetained] = useState(() => generatedLanes(team, window, weekWindow, now));
+  let data = retained;
+  if (
+    retained.team !== team ||
+    retained.now !== now ||
+    retained.start !== window.start ||
+    retained.end !== window.end ||
+    retained.weekStart !== weekWindow.start ||
+    retained.weekEnd !== weekWindow.end
+  ) {
+    data = generatedLanes(team, window, weekWindow, now);
+    setRetained(data);
+  }
+  const lanes = data.lanes.filter((lane) => {
+    const member = memberMeta(lane).member;
+    return `${member.name} ${member.role} ${member.team} ${member.timezone}`
+      .toLowerCase()
+      .includes(query.toLowerCase());
+  });
+  const density = densityFor(contentWidth);
+  const labelWidth = LABEL_WIDTH[density];
+  const elapsedMinutes = (window.end - window.start) / 60_000;
+  const fittedWeekPxPerMinute = (contentWidth - labelWidth) / elapsedMinutes;
+  const pxPerMinute =
+    windowSpec.span === 'day'
+      ? DAY_PX_PER_MINUTE
+      : weekDensity === 'detailed'
+        ? DETAILED_WEEK_PX_PER_MINUTE
+        : fittedWeekPxPerMinute;
+  function selectGap(rect: Rect, lane: Lane) {
+    const { member } = memberMeta(lane);
+    setSelectedId(member.id);
+    setSelection(selectionFor(member, rect));
+  }
+
+Documentation coverage:
+demo/components/team-roster/README.md-38-## Roster axis choices
+demo/components/team-roster/README.md-39-
+demo/components/team-roster/README.md:40:The toolbar labels the spans `Day` and `Week`. Its reset action says `Demo day` or `Demo week`,
+demo/components/team-roster/README.md-41-with matching `Return to demo day` or `Return to demo week` accessibility labels. Compact and
+demo/components/team-roster/README.md-42-avatar layouts use month-name dates such as `Jan 5`; same-year ranges name the year once, and a
+demo/components/team-roster/README.md:43:cross-year range names both years.
+demo/components/team-roster/README.md-44-
+demo/components/team-roster/README.md:45:Week mode adds `Detailed` and `Fitted` density choices. Detailed is the default and retains the
+demo/components/team-roster/README.md-46-scrollable 0.7-pixel-per-minute axis, or 42 pixels per hour. Its time cells repeat the compact date
+demo/components/team-roster/README.md-47-throughout the week at full, compact, and avatar people-column densities, so horizontal scrolling
+demo/components/team-roster/README.md:48:does not remove date context. The first time cell after a day boundary omits the repeated date to
+demo/components/team-roster/README.md-49-keep the boundary legible, including when a skipped hour makes that cell `2am`; later cells resume
+demo/components/team-roster/README.md:50:it. Fitted divides the measured plot width after the people column by the resolved window's actual
+demo/components/team-roster/README.md-51-elapsed minutes. It therefore refits on resize and fills ordinary, 167-hour spring-forward, and
+demo/components/team-roster/README.md-52-169-hour fall-back weeks without retaining the detailed strip width. Day mode retains its fixed
+--
+README.md-37-partial, its authored PTO dates are whole-day, and unknown, absent, or mixed sources stay neutral.
+README.md-38-Width only controls whether the source-derived label is visible in either projection.
+README.md:39:In the showcase toolbar, `Day` and `Week` name the spans, while `Demo day` and `Demo week` reset
+README.md-40-their respective windows. Compact dates use month names, and a range crossing New Year names both
+README.md:41:years. Week mode also offers `Detailed` and `Fitted`: Detailed keeps a scrollable 42-pixel-per-hour
+README.md:42:axis whose time ticks repeat compact date context after each day boundary's bare first neighbor.
+README.md:43:Fitted uses the measured plot width and the week's actual elapsed duration, including 167-hour and
+README.md-44-169-hour DST weeks. Day mode keeps its fixed axis. These are showcase choices, not additional
+README.md-45-`Roster` props or fitting behavior.
+--
+AGENTS.md-28-web, with layered intervals, coverage, provenance, and explicit daylight-saving handling.
+AGENTS.md-29-README.md is the consumer quick start; llms.txt starts with published-package setup.
+AGENTS.md:30:Detailed slot tables, selection lifecycle, and the consumer context recipe live in
+AGENTS.md-31-[customization](docs/customization.md); interval helpers live in the core README.
+AGENTS.md-32-The recurrence packages install as ordinary dependencies; only `/rrule` imports them.
+--
+AGENTS.md-145-  Inspector day header and cell presses set the roster anchor date in the view timezone.
+AGENTS.md-146-  Showcase span controls are explicitly `Day` and `Week`; their reset labels are `Demo day` and
+AGENTS.md:147:  `Demo week`. Compact date labels use month names, and cross-year ranges name both years. Week
+AGENTS.md:148:  mode alone offers `Detailed` and `Fitted`. Detailed keeps the scrollable 42-pixel-per-hour axis
+AGENTS.md:149:  and repeats compact date context after each day boundary's bare first time neighbor. Fitted uses
+AGENTS.md:150:  measured plot width after the people column divided by actual elapsed week minutes, including
+AGENTS.md-151-  167-hour and 169-hour DST weeks. Day mode retains its fixed, time-only axis. These are demo
+AGENTS.md-152-  choices and do not alter the library's `Roster` API or fitting semantics.
+--
+llms.txt-608-only controls whether a recognized source-derived label is visible.
+llms.txt-609-The showcase toolbar labels its spans Day and Week and its corresponding reset
+llms.txt:610:actions Demo day and Demo week. Compact dates use month names, and cross-year
+llms.txt:611:ranges name both years. Week mode alone adds Detailed and Fitted choices. Detailed
+llms.txt-612-keeps the scrollable 42-pixel-per-hour axis and repeats a compact date beside time
+llms.txt-613-ticks across the week, after leaving the first time neighbor of each day boundary
+llms.txt:614:bare for legibility. Fitted divides the measured plot width after the people column
+llms.txt:615:by the resolved week's actual elapsed minutes, so ordinary and DST weeks fit after
+llms.txt-616-resizing. Day mode keeps its fixed axis and concise time-only cells. These controls,
+llms.txt-617-labels, and calculations belong to demo/components/team-roster; they do not add a
+
+Focused showcase assertions:
+bun test v1.4.2 (744846f84)
+
+test/demo/showcase-attendance.test.tsx:
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+ 42 pass
+ 0 fail
+ 2811 expect() calls
+Ran 42 tests across 1 file. [1.77s]

@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["docs", "demo", "test"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/team-roster/parts/window-controls.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/use-team-roster.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "50a4fc681b327a4d39d6c8b74ce403285f1feee8",
+  "capture_method": "source and documentation audit followed by bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:e9b5fd22c6ab16cc6faddf4514aa1d00e72c1211bb586de6abe477e69445f07d"
+}

@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["docs", "demo", "ci-gate"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    "package.json",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "50a4fc681b327a4d39d6c8b74ce403285f1feee8",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:1fdb8c0bbbd43411ceda715f46cd41d9d9f3d6eb3c77e3d10cb78b3b1bdc2224"
+}
