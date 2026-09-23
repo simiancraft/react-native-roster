@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/simiancraft/react-native-roster/compare/v1.1.0...v1.1.1) (2026-09-23)
+
+### Bug Fixes
+
+* **demo:** offer fitted and detailed week densities ([b777b8a](https://github.com/simiancraft/react-native-roster/commit/b777b8a94fc4c59b655f8c6624e962cfc7210662))
+
 ## [1.1.0](https://github.com/simiancraft/react-native-roster/compare/v1.0.0...v1.1.0) (2026-09-23)
 
 ### Features
