@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { PlotStack } from '../../layers/plot-stack';
 
 type ScheduleDayLayoutProps = {
   width: number;
@@ -29,14 +29,20 @@ export function ScheduleDayLayout({
   nowLineZone,
 }: ScheduleDayLayoutProps) {
   return (
-    <View style={{ width, height, overflow: 'hidden' }}>
-      {gridZone}
-      {columnZone}
-      <View pointerEvents="none" style={{ position: 'absolute', width, height, zIndex: chromeZ }}>
-        {windowBandZone}
-        {transitionZone}
-        {nowLineZone}
-      </View>
-    </View>
+    <PlotStack
+      width={width}
+      height={height}
+      clip
+      overlayZ={chromeZ}
+      gridZone={gridZone}
+      marksZone={columnZone}
+      overlayZone={
+        <>
+          {windowBandZone}
+          {transitionZone}
+          {nowLineZone}
+        </>
+      }
+    />
   );
 }

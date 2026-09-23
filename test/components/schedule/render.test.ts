@@ -2,6 +2,7 @@ import '../../support/native-host';
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import { createElement, type ElementType, type ReactElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
+import { PlotStack } from '../../../src/components/layers/plot-stack';
 import { Roster } from '../../../src/components/roster';
 import { Schedule } from '../../../src/components/schedule';
 import { SCHEDULE_GUTTER_WIDTH } from '../../../src/components/schedule/constants';
@@ -57,6 +58,8 @@ describe('Schedule chassis and day zones', () => {
         nowLineZone: createElement('now-sentinel'),
       }),
     );
+    const plot = tree.root.findByType(PlotStack);
+    expect(plot.props).toMatchObject({ width: 120, height: 240, clip: true, overlayZ: 9 });
     const [container, overlay] = tree.root.findAllByType('View' as ElementType);
     expect(container?.props.style).toEqual({ width: 120, height: 240, overflow: 'hidden' });
     expect(
@@ -64,7 +67,14 @@ describe('Schedule chassis and day zones', () => {
     ).toEqual(['grid-sentinel', 'column-sentinel', 'View']);
     expect(overlay?.props).toMatchObject({
       pointerEvents: 'none',
-      style: { position: 'absolute', width: 120, height: 240, zIndex: 9 },
+      style: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 9,
+      },
     });
     expect(
       overlay?.children.map((child) => (typeof child === 'string' ? child : child.type)),
