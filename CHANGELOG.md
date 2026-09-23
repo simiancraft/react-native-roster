@@ -1,3 +1,13 @@
+## [2.0.0](https://github.com/simiancraft/react-native-roster/compare/v1.7.0...v2.0.0) (2026-09-23)
+
+### ⚠ BREAKING CHANGES
+
+* **rrule:** reject unsupported input fields
+
+### Bug Fixes
+
+* **rrule:** reject unsupported input fields ([3cf5a79](https://github.com/simiancraft/react-native-roster/commit/3cf5a79215a083a2c7791921c5cc4079af2645b3))
+
 ## [1.7.0](https://github.com/simiancraft/react-native-roster/compare/v1.6.2...v1.7.0) (2026-09-23)
 
 ### Features
