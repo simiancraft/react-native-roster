@@ -983,10 +983,16 @@ it('offers detailed and elapsed-time-fitted week densities while day density sta
   );
   expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60));
 
-  act(() => model.selectDate('2026-03-08'));
-  expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60 - 60));
-  act(() => model.selectDate('2026-11-01'));
-  expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60 + 60));
+  for (const [date, elapsedMinutes] of [
+    ['2026-01-05', 7 * 24 * 60],
+    ['2026-03-08', 7 * 24 * 60 - 60],
+    ['2026-11-01', 7 * 24 * 60 + 60],
+  ] as const) {
+    act(() => model.selectDate(date));
+    expect(model.pxPerMinute).toBe((1000 - 232) / elapsedMinutes);
+    expect(model.pxPerMinute * elapsedMinutes).toBeCloseTo(1000 - 232);
+    expect(model.pxPerMinute * elapsedMinutes).not.toBe(0.7 * elapsedMinutes);
+  }
 
   act(() => model.setSpan('day'));
   expect(model.pxPerMinute).toBe(0.8);
