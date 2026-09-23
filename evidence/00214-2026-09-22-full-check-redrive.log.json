@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "tests", "package", "browser", "performance"],
+  "covered_paths": [
+    "demo/",
+    "scripts/",
+    "src/",
+    "test/",
+    "package.json",
+    "bun.lock",
+    "biome.json",
+    "tsconfig.json"
+  ],
+  "capture_commit": "9a60f183a9ca800af2e4366289500e0e92d3feef",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:d13803e1c0bc95e7ec19747ee8b40a6c91e167fd5bf9854e512efda708d8f8dd"
+}
