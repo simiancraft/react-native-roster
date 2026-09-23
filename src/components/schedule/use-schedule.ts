@@ -4,6 +4,7 @@ import { dayColumnsFor, layoutLane, snapToStep, timeAtY, windowFor } from '../..
 import { hitTest } from '../../core/hit-test';
 import type { ScheduleInput, ScheduleModel, ScheduleProjection } from './schedule.types';
 import { ScheduleWidth } from './use-schedule-viewport';
+import { projectWindowBand } from './utils/window-band';
 
 export function useSchedule(input: ScheduleInput): ScheduleModel {
   const { lane, windowSpec, now = null, minuteStep = 60, pxPerHour = 48 } = input;
@@ -24,6 +25,9 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
     days,
   };
   const geometry = layoutLane(lane, window, projection, cacheIdentity);
+  const windowBandPieces = input.bandWindow
+    ? projectWindowBand(input.bandWindow, window, projection)
+    : [];
   const currentPress = { input, window, projection, geometry };
   const pressInput = useRef(currentPress);
   pressInput.current = currentPress;
@@ -66,6 +70,7 @@ export function useSchedule(input: ScheduleInput): ScheduleModel {
     projection,
     geometry,
     now: now !== null && now >= window.start && now < window.end ? now : null,
+    windowBandPieces,
     press,
     status: 'ready',
   };

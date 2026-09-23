@@ -10,6 +10,7 @@ import { ScheduleGrid } from './days/parts/grid';
 import { ScheduleNowLine } from './days/parts/now-line';
 import { ScheduleSkippedDate } from './days/parts/skipped-date';
 import { ScheduleTransition } from './days/parts/transition';
+import { ScheduleWindowBand } from './days/parts/window-band';
 import { ScheduleLayout } from './layout';
 import { ScheduleGutter } from './parts/gutter';
 import { ScheduleIncomplete } from './parts/incomplete';
@@ -44,7 +45,7 @@ export function Schedule(props: ScheduleProps) {
 }
 
 function ScheduleContent(props: ScheduleProps) {
-  const { days, projection, geometry, now, press } = useSchedule(props);
+  const { days, projection, geometry, now, windowBandPieces, press } = useSchedule(props);
   const {
     lane,
     windowSpec,
@@ -89,6 +90,9 @@ function ScheduleContent(props: ScheduleProps) {
       })}
       daysZone={days.map((day, column) => {
         const nowLine = position?.column === column ? <NowLineComponent {...position} /> : null;
+        const windowBand = windowBandPieces
+          .filter((piece) => piece.column === column)
+          .map((piece) => <ScheduleWindowBand key={`${piece.start}:${piece.end}`} {...piece} />);
         return (
           <ScheduleDay
             key={day.localDate}
@@ -105,6 +109,7 @@ function ScheduleContent(props: ScheduleProps) {
             transitionComponent={transitionComponent}
             intervalComponent={intervalComponent}
             gapComponent={gapComponent}
+            windowBandZone={windowBand}
             nowLineZone={nowLine}
           />
         );

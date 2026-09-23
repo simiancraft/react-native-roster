@@ -117,12 +117,22 @@ describe('useSchedule hook harness', () => {
     const input = inputFor('schedule-empty');
     const h = harness(input);
     expect(Object.keys(h.model).sort()).toEqual(
-      ['window', 'days', 'projection', 'geometry', 'now', 'press', 'status'].sort(),
+      [
+        'window',
+        'days',
+        'projection',
+        'geometry',
+        'now',
+        'windowBandPieces',
+        'press',
+        'status',
+      ].sort(),
     );
     expect(h.model.status).toBe('ready');
     expect(h.model.days).toHaveLength(7);
     expect(h.model.geometry.rects).toEqual([]);
     expect(h.model.now).toBeNull();
+    expect(h.model.windowBandPieces).toEqual([]);
     expect(h.model.projection.orientation).toBe('columns');
     h.update({ ...input, windowSpec: { ...input.windowSpec, span: 'day' } });
     expect(h.model.days).toHaveLength(1);
@@ -132,6 +142,56 @@ describe('useSchedule hook harness', () => {
     const custom: ScheduleWindowSpec = { span: 'custom', window: h.model.window, timezone: 'UTC' };
     expect(String(month.span)).toBe('month');
     expect(String(custom.span)).toBe('custom');
+  });
+  it('projects band changes without changing lane state, caches, extent, or press behavior', () => {
+    const input = inputFor('schedule-layers');
+    const cb = callbacks();
+    const h = harness({ ...input, ...cb });
+    const window = h.model.window;
+    const geometry = h.model.geometry;
+    const coverage = h.model.geometry.coverage;
+    const layers = input.lane.layers;
+    const sources = geometry.rects.map((rect) => rect.sources);
+    const press = h.model.press;
+    const before = { layout: layoutStats(), coverage: coverageStats() };
+
+    expect(h.model.windowBandPieces).toEqual([]);
+    h.update({
+      ...input,
+      ...cb,
+      bandWindow: { start: window.start + 60 * 60_000, end: window.start + 3 * 60 * 60_000 },
+    });
+    expect(h.model.windowBandPieces).toMatchObject([
+      { column: 0, start: window.start + 60 * 60_000, end: window.start + 3 * 60 * 60_000 },
+    ]);
+    expect(h.model.window).toEqual(window);
+    expect(h.model.geometry).toBe(geometry);
+    expect(h.model.geometry.coverage).toBe(coverage);
+    expect(input.lane.layers).toBe(layers);
+    expect(h.model.geometry.rects.map((rect) => rect.sources)).toEqual(sources);
+    expect(h.model.press).toBe(press);
+    expect(layoutStats().runs).toBe(before.layout.runs);
+    expect(coverageStats().runs).toBe(before.coverage.runs);
+
+    h.model.press(0, 5, 10.75 * 48);
+    expect(cb.onIntervalPress).toHaveBeenCalledTimes(1);
+    h.model.press(0, 0, 10.75 * 48);
+    expect(cb.onGapPress).toHaveBeenCalledTimes(1);
+    h.model.press(0, 1, 6 * 48);
+    expect(cb.onCellPress).toHaveBeenCalledTimes(1);
+
+    for (const bandWindow of [
+      { start: window.start, end: window.start },
+      { start: window.start + 1, end: window.start },
+      { start: window.end, end: window.end + 1 },
+    ]) {
+      h.update({ ...input, ...cb, bandWindow });
+      expect(h.model.windowBandPieces).toEqual([]);
+      expect(h.model.geometry).toBe(geometry);
+      expect(h.model.press).toBe(press);
+    }
+    expect(layoutStats().runs).toBe(before.layout.runs);
+    expect(coverageStats().runs).toBe(before.coverage.runs);
   });
   it('reports a 10:30 session at a 60-minute step, inset edges, and a full-day exclusion exactly once', () => {
     const input = inputFor('schedule-layers');
