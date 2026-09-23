@@ -33,11 +33,15 @@ export function expandRuleSet(
   );
   const rules = [...set.rules].sort(byId);
   const dates = [...set.dates].sort(byId);
-  const ordered = [...rules, ...dates];
-  for (const input of ordered) {
-    validateInput(input);
+  for (const input of rules) {
+    validateInput(input, 'rule');
     validateDates(input);
   }
+  for (const input of dates) {
+    validateInput(input, 'date');
+    validateDates(input);
+  }
+  const ordered = [...rules, ...dates];
   const stats: ExpandStats = {
     rules: set.rules.length,
     dates: set.dates.length,

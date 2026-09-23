@@ -1794,6 +1794,37 @@ describe('validation', () => {
     expect(() => expandRuleSet(set([rule({ dtstart: 'bad' })], []), window)).toThrow();
   });
 
+  it('rejects fields outside the declared rule and date inputs', () => {
+    for (const field of ['byminute', 'bysecond']) {
+      const input = { ...rule(), [field]: [30] } as RosterRule;
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(
+        `${field} is unsupported; use fractional hourstart and hourend for sub-hour bands`,
+      );
+    }
+
+    const ruleWithUnknown = { ...rule(), unknownRuleField: true } as RosterRule;
+    expect(() => expandRuleSet(set([ruleWithUnknown], []), window)).toThrow(
+      'unsupported rule field unknownRuleField',
+    );
+    const dateWithUnknown = { ...date(), unknownDateField: true } as RosterDate;
+    expect(() => expandRuleSet(set([], [dateWithUnknown]), window)).toThrow(
+      'unsupported date field unknownDateField',
+    );
+  });
+
+  it('explains why sub-daily frequencies are unsupported', () => {
+    for (const frequency of ['HOURLY', 'MINUTELY', 'SECONDLY']) {
+      const input = { ...rule(), frequency } as RosterRule;
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(
+        `${frequency} is unsupported; sub-daily repetition has no meaning for dated bands`,
+      );
+    }
+    const unknown = { ...rule(), frequency: 'INVALID' } as unknown as RosterRule;
+    expect(() => expandRuleSet(set([unknown], []), window)).toThrow(
+      'unsupported frequency INVALID',
+    );
+  });
+
   it('rejects year-day and week-number fields on non-yearly rules', () => {
     for (const frequency of ['DAILY', 'WEEKLY', 'MONTHLY'] as const) {
       for (const field of [{ byyearday: [1] }, { byweekno: [1] }]) {

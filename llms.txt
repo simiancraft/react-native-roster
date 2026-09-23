@@ -498,7 +498,9 @@ selected hour must be inside [hourstart,hourend); without one, selected hours de
 the band. Contiguous hours emit one span, and omitted hours remain uncovered.
 COUNT counts dates, while occurrence caps count emitted spans. Skipped runs collapse,
 and omitting a repeated hour removes both repeats.
-Unsupported fields: byminute, bysecond. Convert enums,
+Fields outside the declared rule and date inputs are rejected. Unsupported fields:
+byminute, bysecond. Use fractional hour bounds for sub-hour bands. Unsupported
+frequencies: HOURLY, MINUTELY, SECONDLY; occurrences are dated bands. Convert enums,
 Date values, and nulls at the boundary; reject unsupported active semantics.
 
 Expansion uses one absolute envelope for every include, exclude, and date:
