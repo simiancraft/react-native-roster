@@ -9,7 +9,7 @@ projections draw the same components, so they live above Roster and Schedule.
   and Schedule day layouts are its consumers
 - `layers.types.ts`: the component and collection input contracts both projections pass
 - `parts/interval.tsx`, `parts/gap.tsx`: the default components
-- `utils/styles.ts`: content-keyed style objects per layer
+- `utils/paint.ts`, `utils/styles.ts`: shared default plot paint and content-keyed layer styles
 
 Internal imports stay within layers and core; the components also import React Native. Tests: `test/components/layers`.
 
