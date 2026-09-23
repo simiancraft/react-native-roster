@@ -15,7 +15,14 @@ import { TeamInterval, TeamTimezone, TimeOffGap } from './parts/layer-fillers';
 import { TeamLegend } from './parts/legend';
 import { MemberLabel, type MemberLabelProps } from './parts/member-label';
 import { TeamTitle, WindowRange } from './parts/title';
-import { PeopleFilter, SortChips, SpanChips, WindowNav, ZoneChips } from './parts/window-controls';
+import {
+  PeopleFilter,
+  SortChips,
+  SpanChips,
+  WeekDensityChips,
+  WindowNav,
+  ZoneChips,
+} from './parts/window-controls';
 import { TeamRosterLayout } from './screen-layout';
 import type { Density, Team } from './team-roster.types';
 import { TeamToolbarLayout } from './toolbar-layout';
@@ -212,6 +219,9 @@ function DefaultActions(model: TeamRosterModel) {
   return (
     <>
       <SpanChips span={model.span} onChange={model.setSpan} />
+      {model.span === 'week' ? (
+        <WeekDensityChips density={model.weekDensity} onChange={model.setWeekDensity} />
+      ) : null}
       <WindowNav
         span={model.span}
         onPrev={model.goPrev}

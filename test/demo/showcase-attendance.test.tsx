@@ -942,6 +942,41 @@ it('retains lane identities on selection and expands the inspector week in day m
   expect(memberMeta(model.weekLane).events.some((event) => event.start >= window.end)).toBe(true);
 });
 
+it('offers detailed and elapsed-time-fitted week densities while day density stays fixed', () => {
+  let model!: TeamRosterModel;
+  function Probe() {
+    model = useTeamRoster({ team });
+    return null;
+  }
+  render(<Probe />);
+  expect(model.pxPerMinute).toBe(0.8);
+  act(() => model.setSpan('week'));
+  expect(model.weekDensity).toBe('detailed');
+  expect(model.pxPerMinute).toBe(0.7);
+  act(() =>
+    model.measureContent({
+      nativeEvent: { layout: { width: 1200, height: 800, x: 0, y: 0 } },
+    } as never),
+  );
+  expect(model.pxPerMinute).toBe(0.7);
+  act(() => model.setWeekDensity('fitted'));
+  expect(model.pxPerMinute).toBe((1200 - 232) / (7 * 24 * 60));
+  act(() =>
+    model.measureContent({
+      nativeEvent: { layout: { width: 1000, height: 800, x: 0, y: 0 } },
+    } as never),
+  );
+  expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60));
+
+  act(() => model.selectDate('2026-03-08'));
+  expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60 - 60));
+  act(() => model.selectDate('2026-11-01'));
+  expect(model.pxPerMinute).toBe((1000 - 232) / (7 * 24 * 60 + 60));
+
+  act(() => model.setSpan('day'));
+  expect(model.pxPerMinute).toBe(0.8);
+});
+
 it('navigates inspector days and defaults host slots, layouts, scheme colors, and filters', () => {
   // Isolate the additional TextInput host from the suite's already loaded native module.
   const hosts = readFileSync(new URL('../support/native-host.ts', import.meta.url), 'utf8').replace(
@@ -961,7 +996,7 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     const { TeamToolbarLayout } = await import('./demo/components/team-roster/toolbar-layout');
     const { Roster, Schedule } = await import('react-native-roster');
     const { WeekSchedule } = await import('./demo/components/team-roster/members/parts/week-schedule');
-    const { SpanChips, ZoneChips } = await import('./demo/components/team-roster/parts/window-controls');
+    const { SpanChips, WeekDensityChips, ZoneChips } = await import('./demo/components/team-roster/parts/window-controls');
     const { MUTED_FOREGROUND_HEX } = await import('./demo/components/team-roster/utils/tones');
     const team = teamFor();
     let tree;
@@ -1014,6 +1049,13 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     assert.equal(header('Show Thursday, Jan 8').props.accessibilityState.selected, true);
     assert.ok(header('Show Thursday, Jan 8').props.className.includes('bg-background'));
     act(() => tree.root.findByType(SpanChips).props.onChange('week'));
+    assert.equal(tree.root.findAllByType(WeekDensityChips).length, 1);
+    const densityChips = tree.root.findByType(WeekDensityChips);
+    assert.equal(densityChips.props.density, 'detailed');
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Fitted'));
+    assert.ok(JSON.stringify(tree.toJSON()).includes('Detailed'));
+    act(() => densityChips.props.onChange('fitted'));
+    assert.equal(tree.root.findByType(WeekDensityChips).props.density, 'fitted');
     const weekBounds = schedule().props.windowSpec;
     act(() => header('Show Friday, Jan 9').props.onPress());
     assert.deepEqual(roster().props.windowSpec, {
@@ -1027,6 +1069,8 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
       span: 'week', anchorDate: '2026-01-07', timezone: 'Asia/Tokyo',
     });
     assert.equal(tree.root.findByType(WeekSchedule).props.focusDate, '2026-01-07');
+    act(() => tree.root.findByType(SpanChips).props.onChange('day'));
+    assert.equal(tree.root.findAllByType(WeekDensityChips).length, 0);
     assert.equal(tree.root.findByType('TextInput').props.placeholderTextColor, MUTED_FOREGROUND_HEX.light);
     scheme = 'dark';
     act(() => tree.root.findByType('TextInput').props.onChangeText('a'));
