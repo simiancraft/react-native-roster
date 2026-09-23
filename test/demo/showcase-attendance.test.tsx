@@ -24,7 +24,6 @@ import {
   TimeOffSelection,
 } from '../../demo/components/team-roster/members/parts/selection';
 import { WeekSchedule } from '../../demo/components/team-roster/members/parts/week-schedule';
-import { WeekNowLine } from '../../demo/components/team-roster/members/parts/week-zones';
 import { DayHeaderCell } from '../../demo/components/team-roster/parts/header-cell';
 import {
   AvailabilityBand,
@@ -957,7 +956,7 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     const { strict: assert } = await import('node:assert');
     const { act, create } = await import('react-test-renderer');
     const { TeamRosterScreen } = await import('./demo/components/team-roster');
-    const { teamFor } = await import('./demo/components/team-roster/utils/team');
+    const { seededNow, teamFor } = await import('./demo/components/team-roster/utils/team');
     const { TeamRosterLayout } = await import('./demo/components/team-roster/screen-layout');
     const { TeamToolbarLayout } = await import('./demo/components/team-roster/toolbar-layout');
     const { Roster, Schedule } = await import('react-native-roster');
@@ -999,6 +998,8 @@ it('navigates inspector days and defaults host slots, layouts, scheme colors, an
     act(() => schedule().find(node => typeof node.props.onLayout === 'function').props.onLayout({
       nativeEvent: { layout: { width: 380, height: 600, x: 0, y: 0 } },
     }));
+    assert.equal(tree.root.findByType(WeekSchedule).props.now, seededNow());
+    assert.equal(schedule().props.now, seededNow());
     assert.equal(header('Show Monday, Jan 5').props.accessibilityRole, 'button');
     assert.equal(header('Show Monday, Jan 5').props.accessibilityState.selected, true);
     assert.ok(header('Show Monday, Jan 5').props.className.includes('bg-background'));
@@ -1049,6 +1050,7 @@ it('clears lunch detail from the inspector when working hours or an event is pre
     if (model.status !== 'ready') return null;
     return (
       <MemberInspector
+        now={model.now}
         lane={model.weekLane}
         member={model.selectedMember}
         selection={model.selection}
@@ -1261,6 +1263,7 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
     if (model.status !== 'ready') return null;
     return (
       <MemberInspector
+        now={model.now}
         lane={model.weekLane}
         member={model.selectedMember}
         selection={model.selection}
@@ -1288,7 +1291,7 @@ it('selects a cell for its member and renders the slot in the view timezone', ()
   expect(tree.root.findAllByType(SlotSelection)).toHaveLength(0);
 });
 
-it('suppresses the inspector now line without consulting the system clock', () => {
+it('passes the seeded now to the inspector and draws it only inside the week window', () => {
   const clock = spyOn(Date, 'now').mockReturnValue(now + 3600000);
   try {
     const lane = lanes[0];
@@ -1296,6 +1299,7 @@ it('suppresses the inspector now line without consulting the system clock', () =
     const spec = { span: 'week' as const, anchorDate: '2026-01-05', timezone: 'America/Chicago' };
     const tree = render(
       <WeekSchedule
+        now={now}
         lane={lane}
         windowSpec={spec}
         focusDate={spec.anchorDate}
@@ -1310,8 +1314,19 @@ it('suppresses the inspector now line without consulting the system clock', () =
         }),
     );
     expect(clock).not.toHaveBeenCalled();
-    expect(tree.root.findAllByType(WeekNowLine)).toHaveLength(0);
-    expect(JSON.stringify(tree.toJSON())).not.toContain('bg-rose-500');
+    expect(tree.root.findAllByProps({ testID: 'schedule-now-0' })).toHaveLength(1);
+    act(() =>
+      tree.update(
+        <WeekSchedule
+          now={now}
+          lane={lane}
+          windowSpec={{ ...spec, anchorDate: '2026-01-12' }}
+          focusDate="2026-01-12"
+          selectDate={() => {}}
+        />,
+      ),
+    );
+    expect(tree.root.findAllByProps({ testID: 'schedule-now-0' })).toHaveLength(0);
   } finally {
     clock.mockRestore();
   }

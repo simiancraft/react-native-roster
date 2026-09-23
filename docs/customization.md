@@ -229,6 +229,13 @@ reserves a 48 px gutter, and fits the day columns without horizontal scrolling.
 `pxPerHour` defaults to 48. Chrome takes `style`, `headerStyle`, `gutterStyle`,
 and `daysStyle`, each with a `className` twin.
 
+Schedule time is controlled. Omitted `now` and `now={null}` both hide the now line. Supply epoch
+milliseconds for a fixed line. A host that needs a live line owns a state value and timer, for
+example `const [now, setNow] = useState(() => Date.now())`, followed by an effect that calls
+`setInterval(() => setNow(Date.now()), 60_000)` and clears the interval during cleanup. Pass that
+state as `<Schedule now={now} ... />`. Schedule previously created this timer automatically;
+migrating consumers must now supply and update `now` themselves.
+
 | Slot | Component inputs or node | Default and behavior |
 | --- | --- | --- |
 | `gutterComponent` | `hours`, `pxPerHour` | `ScheduleGutter`: 24 frozen hour labels. |
@@ -237,6 +244,6 @@ and `daysStyle`, each with a `className` twin.
 | `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date. |
 | `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
 | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
-| `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line in the current day's column, updated each minute. |
+| `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line for the caller-supplied `now` in its containing day. |
 | `intervalComponent`, `gapComponent` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
 | `incompleteComponent` | `lane`, `label` | `ScheduleIncomplete`: notice above the grid when the lane is incomplete. |
