@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "types"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/window-controls.tsx",
+    "demo/components/team-roster/team-roster.types.ts",
+    "demo/components/team-roster/use-team-roster.ts",
+    "demo/tsconfig.json"
+  ],
+  "capture_commit": "f6790bab8539d551f15dec779fc1221322b109e9",
+  "capture_method": "bun run typecheck:demo",
+  "content_hash": "sha256:c613fbf87f9a94fcfd190c1218b9a2965b8744e4e4c245c741eb09b67c8bda75"
+}
