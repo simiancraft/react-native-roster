@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { defaultCurrentTimeColor } from '../../layers/utils/paint';
 import type { RosterNowLineInput } from '../roster.types';
 
 export function RosterNowLine({ x }: RosterNowLineInput) {
@@ -12,7 +13,7 @@ export function RosterNowLine({ x }: RosterNowLineInput) {
         top: 0,
         bottom: 0,
         width: 2,
-        backgroundColor: '#dc2626',
+        backgroundColor: defaultCurrentTimeColor,
       }}
     />
   );

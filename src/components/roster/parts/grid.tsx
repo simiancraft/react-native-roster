@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { defaultGridBorderColor } from '../../layers/utils/paint';
 import type { GridInput } from '../roster.types';
 
 export function RosterGrid({ ticks, contentWidth }: GridInput) {
@@ -17,7 +18,7 @@ export function RosterGrid({ ticks, contentWidth }: GridInput) {
             top: 0,
             bottom: 0,
             width: 1,
-            backgroundColor: '#e2e8f0',
+            backgroundColor: defaultGridBorderColor,
           }}
         />
       ))}
