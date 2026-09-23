@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["code", "render", "regression"],
+  "covered_paths": [
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "src/components/schedule/days/layout.tsx",
+    "test/components/layers/plot-stack.test.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/roster/selection-layout.test.tsx",
+    "test/components/schedule/render.test.ts"
+  ],
+  "capture_commit": "6ff5a21d1e7c2cf2b953fd01e0d7d41aea3efb8e",
+  "capture_method": "bun test test/components/layers/plot-stack.test.tsx test/components/roster/render.test.ts test/components/roster/selection-layout.test.tsx test/components/schedule/render.test.ts",
+  "content_hash": "sha256:4af7806b3bf166ca0d26e62766262269282305918006513d6005bd336580282d"
+}
