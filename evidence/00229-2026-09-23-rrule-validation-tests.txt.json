@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["adapter", "test", "ci-command"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "src/adapters/rrule/expand.ts",
+    "src/adapters/rrule/validate.ts",
+    "test/adapters/rrule/expand.test.ts"
+  ],
+  "capture_commit": "3db19ae18db93764855a86e3cff86980fe483537",
+  "capture_method": "bun test test/adapters/rrule/expand.test.ts -t 'rejects fields outside|explains why sub-daily'; bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:834dcc22882c455af0c19272a7df1c7ebfe14773b54f42c1a8590f75557c0db8"
+}
