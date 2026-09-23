@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { Card } from '../../../ui/card';
 import type { LinkComponent } from '../home.types';
 
 export type FixtureCardInput = { id: string; href: string; title: string; description?: string };
@@ -53,14 +54,17 @@ function FixtureCard({
     </Text>
   ) : null;
   const card = (
-    <View
+    <Card
       accessibilityRole="link"
       className="w-full gap-1 rounded-xl border border-border bg-card/60 p-4 sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] web:cursor-pointer web:transition-colors web:hover:border-grid-strong web:hover:bg-card"
-    >
-      <Text className="text-sm font-medium text-foreground">{title}</Text>
-      <Text className="font-mono text-[10px] text-muted-foreground">{href}</Text>
-      {detail}
-    </View>
+      contentZone={
+        <>
+          <Text className="text-sm font-medium text-foreground">{title}</Text>
+          <Text className="font-mono text-[10px] text-muted-foreground">{href}</Text>
+          {detail}
+        </>
+      }
+    />
   );
   const Link = linkComponent;
   return <Link href={href} cardZone={card} />;

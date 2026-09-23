@@ -1,4 +1,6 @@
 import { Text, View } from 'react-native';
+import { Card } from '../../../ui/card';
+import { cn } from '../../../ui/utils/classes';
 import type { LinkComponent } from '../home.types';
 
 export function GalleryHero({
@@ -12,30 +14,35 @@ export function GalleryHero({
   linkComponent: LinkComponent;
 }) {
   const card = (
-    <View
+    <Card
       accessibilityRole="link"
       className="gap-3 rounded-2xl border border-border bg-card p-5 web:cursor-pointer web:transition-colors web:hover:border-grid-strong"
-    >
-      <View className="flex-row items-center justify-between">
-        <Text className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
-          Showcase
-        </Text>
-        <Text className="text-xs text-muted-foreground">NativeWind · Faker · rrule adapter</Text>
-      </View>
-      <Text className="text-xl font-semibold text-foreground">Team availability</Text>
-      <Text className="text-sm leading-5 text-muted-foreground">
-        Twelve generated people across seven time zones, weekly working hours from recurrence rules,
-        lunch and out-of-office exclusions, and booked events. Press a person to open their week as
-        a Schedule.
-      </Text>
-      <View className="flex-row gap-1.5">
-        <Swatch className="bg-emerald-500/40" />
-        <Swatch className="bg-sky-500" />
-        <Swatch className="bg-violet-500" />
-        <Swatch className="bg-amber-500/40" />
-        <Swatch className="bg-rose-500/40" />
-      </View>
-    </View>
+      contentZone={
+        <>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+              Showcase
+            </Text>
+            <Text className="text-xs text-muted-foreground">
+              NativeWind · Faker · rrule adapter
+            </Text>
+          </View>
+          <Text className="text-xl font-semibold text-foreground">Team availability</Text>
+          <Text className="text-sm leading-5 text-muted-foreground">
+            Twelve generated people across seven time zones, weekly working hours from recurrence
+            rules, lunch and out-of-office exclusions, and booked events. Press a person to open
+            their week as a Schedule.
+          </Text>
+          <View className="flex-row gap-1.5">
+            <Swatch className="bg-emerald-500/40" />
+            <Swatch className="bg-sky-500" />
+            <Swatch className="bg-violet-500" />
+            <Swatch className="bg-amber-500/40" />
+            <Swatch className="bg-rose-500/40" />
+          </View>
+        </>
+      }
+    />
   );
   return (
     <View className="gap-6">
@@ -64,5 +71,5 @@ export function GalleryHero({
 }
 
 function Swatch({ className }: { className: string }) {
-  return <View className={`h-2 w-10 rounded-full ${className}`} />;
+  return <View className={cn('h-2 w-10 rounded-full', className)} />;
 }
