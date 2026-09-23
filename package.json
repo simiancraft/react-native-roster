@@ -1,6 +1,6 @@
 {
   "name": "react-native-roster",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Resource timeline and schedule components for React Native and web, with layered intervals, coverage, provenance, and explicit daylight-saving handling.",
   "keywords": [
     "react-native",
