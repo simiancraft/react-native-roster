@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["docs"],
+  "covered_paths": [
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md"
+  ],
+  "capture_commit": "d7a237d0e8795d27e96a582edd6cf236ed2d3778",
+  "capture_method": "git diff --check origin/main...HEAD; git diff --name-only origin/main...HEAD; git diff origin/main...HEAD -- README.md llms.txt AGENTS.md demo/components/team-roster/README.md",
+  "content_hash": "sha256:c4b22ce328823e189c52a98239a731795280f0a2e61c09091eed48b7c6af9da7"
+}

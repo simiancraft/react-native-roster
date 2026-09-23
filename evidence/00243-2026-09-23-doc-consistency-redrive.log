@@ -1,0 +1,97 @@
+Capture commit: d7a237d0e8795d27e96a582edd6cf236ed2d3778
+Command: git diff --check origin/main...HEAD
+Result: no whitespace errors
+
+Command: git diff --name-only origin/main...HEAD
+AGENTS.md
+README.md
+demo/components/team-roster/README.md
+llms.txt
+
+Command: git diff origin/main...HEAD -- README.md llms.txt AGENTS.md demo/components/team-roster/README.md
+diff --git a/AGENTS.md b/AGENTS.md
+index c91d65d..e651444 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -143,6 +143,13 @@ AGENTS.md                  # conventions; CLAUDE.md is a symlink here
+   Event attendance detail lives in the selection popover;
+   the inspector retains member selection.
+   Inspector day header and cell presses set the roster anchor date in the view timezone.
++  Showcase span controls are explicitly `Day` and `Week`; their reset labels are `Demo day` and
++  `Demo week`. Compact date labels use month names, and cross-year ranges name both years. Week
++  mode alone offers `Detailed` and `Fitted`. Detailed keeps the scrollable 42-pixel-per-hour axis
++  and repeats compact date context after each day boundary's bare first time neighbor. Fitted uses
++  measured plot width after the people column divided by actual elapsed week minutes, including
++  167-hour and 169-hour DST weeks. Day mode retains its fixed, time-only axis. These are demo
++  choices and do not alter the library's `Roster` API or fitting semantics.
+   Size gates and Playwright run in `check`; adapter recipes live in docs/adapters.md,
+   and shipping one follows docs/adding-an-adapter.md. Each area has a README landing
+   page naming its subpath, exports, boundary, and file map; keep them current:
+diff --git a/README.md b/README.md
+index 7083695..4dd4942 100644
+--- a/README.md
++++ b/README.md
+@@ -36,6 +36,13 @@ that produced it; press a gap to get the sources that removed it.
+ The showcase derives gap presentation from the complete source set: its authored lunch rules are
+ partial, its authored PTO dates are whole-day, and unknown, absent, or mixed sources stay neutral.
+ Width only controls whether the source-derived label is visible in either projection.
++In the showcase toolbar, `Day` and `Week` name the spans, while `Demo day` and `Demo week` reset
++their respective windows. Compact dates use month names, and a range crossing New Year names both
++years. Week mode also offers `Detailed` and `Fitted`: Detailed keeps a scrollable 42-pixel-per-hour
++axis whose time ticks repeat compact date context after each day boundary's bare first neighbor.
++Fitted uses the measured plot width and the week's actual elapsed duration, including 167-hour and
++169-hour DST weeks. Day mode keeps its fixed axis. These are showcase choices, not additional
++`Roster` props or fitting behavior.
+ 
+ Give each person or resource a lane. `Roster` draws every lane on one time axis;
+ `Schedule` draws any one of them as a week, days across and hours down. The same
+diff --git a/demo/components/team-roster/README.md b/demo/components/team-roster/README.md
+index f1fb989..1e4183d 100644
+--- a/demo/components/team-roster/README.md
++++ b/demo/components/team-roster/README.md
+@@ -35,6 +35,24 @@ preserve lane objects. Layer content supplies the structural cache version.
+ Explicit undefined component slots retain their defaults.
+ Inspector day header and cell presses set the roster anchor date in the view timezone.
+ 
++## Roster axis choices
++
++The toolbar labels the spans `Day` and `Week`. Its reset action says `Demo day` or `Demo week`,
++with matching `Return to demo day` or `Return to demo week` accessibility labels. Compact and
++avatar layouts use month-name dates such as `Jan 5`; same-year ranges name the year once, and a
++cross-year range names both years.
++
++Week mode adds `Detailed` and `Fitted` density choices. Detailed is the default and retains the
++scrollable 0.7-pixel-per-minute axis, or 42 pixels per hour. Its time cells repeat the compact date
++throughout the week at full, compact, and avatar people-column densities, so horizontal scrolling
++does not remove date context. The first time cell after a day boundary omits the repeated date to
++keep the boundary legible, including when a skipped hour makes that cell `2am`; later cells resume
++it. Fitted divides the measured plot width after the people column by the resolved window's actual
++elapsed minutes. It therefore refits on resize and fills ordinary, 167-hour spring-forward, and
++169-hour fall-back weeks without retaining the detailed strip width. Day mode retains its fixed
++0.8-pixel-per-minute axis and time-only cells. These choices are local to the showcase and do not
++change `Roster` props or library fitting semantics.
++
+ ## Event attendance
+ 
+ This feature is about an event; its children are attendances, one per expected
+diff --git a/llms.txt b/llms.txt
+index c69b9ae..a8597a2 100644
+--- a/llms.txt
++++ b/llms.txt
+@@ -606,6 +606,16 @@ The showcase classifies an exact singleton lunch rule source as partial time off
+ and an exact singleton PTO date source as whole-day time off in both projections.
+ Unknown, absent, identity-mismatched, or mixed source sets stay neutral; rect width
+ only controls whether a recognized source-derived label is visible.
++The showcase toolbar labels its spans Day and Week and its corresponding reset
++actions Demo day and Demo week. Compact dates use month names, and cross-year
++ranges name both years. Week mode alone adds Detailed and Fitted choices. Detailed
++keeps the scrollable 42-pixel-per-hour axis and repeats a compact date beside time
++ticks across the week, after leaving the first time neighbor of each day boundary
++bare for legibility. Fitted divides the measured plot width after the people column
++by the resolved week's actual elapsed minutes, so ordinary and DST weeks fit after
++resizing. Day mode keeps its fixed axis and concise time-only cells. These controls,
++labels, and calculations belong to demo/components/team-roster; they do not add a
++library API or change Roster fitting semantics.
+ 
+ Every route exposes live counter functions on web window.__roster. Its identity
+ stays stable until unmount; on-screen snapshots sample every 500 ms. The 200-lane
