@@ -27,6 +27,12 @@ milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host 
 state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
 the former automatic line must supply `now` and own its updates.
 
+`onDayPress` receives the actual `DayColumn` for an ordinary activated heading. The root-exported
+`ScheduleDayHeaderInput` gives a custom `dayHeaderComponent` the `day` and an optional `onPress`
+already bound to it. The default `ScheduleDayHeader` renders an actionable button only when the
+handler exists; without `onDayPress`, it stays presentational and does not add an inert button.
+Wholly skipped local dates mount `skippedDateComponent` instead, with no synthetic day or action.
+
 Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
 Pass one stable `cacheIdentity` to multiple surfaces only when they render the same dataset and
 should share target-warm geometry and coverage.
