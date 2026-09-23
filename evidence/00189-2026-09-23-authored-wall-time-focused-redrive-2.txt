@@ -1,0 +1,83 @@
+[0m[1mbun test [0m[2mv1.4.2 (744846f84)[0m
+[0m
+test/demo/showcase-attendance.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+
+[0m[32m 43 pass[0m
+[0m[2m 0 fail[0m
+ 2828 expect() calls
+Ran 43 tests across 1 file. [0m[2m[[1m2.25s[0m[2m][0m

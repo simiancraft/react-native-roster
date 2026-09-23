@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["demo", "correctness", "wall-time"],
+  "covered_paths": [
+    "demo/components/team-roster/utils/team.ts",
+    "test/demo/showcase-attendance.test.tsx",
+    "src/core/axis.ts",
+    "src/core/zone.ts"
+  ],
+  "capture_commit": "6b3097922e7a4a162784dc35b07739af483e0255",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx",
+  "content_hash": "sha256:0487fd4195d65b31d77a0e9a8b5e90348963ee23370c61cc8aef65ab346c3d5b"
+}
