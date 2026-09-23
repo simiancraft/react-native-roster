@@ -26,6 +26,9 @@ type ScheduleDayProps = ScheduleDayZones & {
   highlightSource: ScheduleProps['highlightSource'];
   hours: number[];
   press: (x: number, y: number) => void;
+  activateInterval: ScheduleModel['activateInterval'];
+  activateGap: ScheduleModel['activateGap'];
+  boundsFor: ScheduleModel['boundsFor'];
   /** Noninteractive absolute-window chrome projected into this day. */
   windowBandZone?: ReactNode;
   /** The current-time line when it falls on this day; otherwise nothing. */
@@ -42,6 +45,9 @@ export function ScheduleDay({
   highlightSource,
   hours,
   press,
+  activateInterval,
+  activateGap,
+  boundsFor,
   gridComponent: GridComponent,
   columnComponent: ColumnComponent,
   transitionComponent: TransitionComponent,
@@ -53,7 +59,8 @@ export function ScheduleDay({
   return (
     <Pressable
       testID={`schedule-day-${day.localDate}`}
-      accessibilityLabel={day.localDate}
+      accessible={false}
+      tabIndex={-1}
       onPress={(input) => {
         const point = pressPoint(input);
         press(point.x, point.y);
@@ -74,6 +81,10 @@ export function ScheduleDay({
             intervalComponent={intervalComponent}
             gapComponent={gapComponent}
             press={press}
+            activateInterval={activateInterval}
+            activateGap={activateGap}
+            boundsFor={boundsFor}
+            viewTimezone={projection.viewTimezone}
           />
         }
         windowBandZone={windowBandZone}

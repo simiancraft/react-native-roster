@@ -20,6 +20,10 @@ in `../primitives`. Zone contracts and a complete example live in the
 [customization guide](../../../docs/customization.md#schedule-zones) and `llms.txt`. Tests: `test/components/schedule`.
 
 `ScheduleColumn` and Roster's `LaneRow` use the same ordered interval and gap collection.
+The hook supplies each target's exact absolute column bounds, including both repeated-hour
+occurrences. Keyboard and screen-reader actions invoke the exact interval or gap callback and keep
+focus on the target because Schedule has no built-in detail surface. Pointer presses retain the
+day's coordinate hit-test path.
 
 The chassis binds default component types once; ScheduleDay mounts components
 with day data and passes nodes into ScheduleDayLayout. ScheduleDayLayout supplies its grid,

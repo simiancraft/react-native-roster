@@ -40,6 +40,7 @@
   "react-native": "./src/index.ts",
   "types": "./dist/src/index.d.ts",
   "browser": {
+    "./dist/src/components/layers/interval-target.js": "./dist/src/components/layers/interval-target.web.js",
     "./dist/src/components/primitives/press-point.js": "./dist/src/components/primitives/press-point.web.js",
     "./dist/src/components/roster/focus-safe-clip.js": "./dist/src/components/roster/focus-safe-clip.web.js",
     "./dist/src/components/roster/parts/label-wheel.js": "./dist/src/components/roster/parts/label-wheel.web.js",

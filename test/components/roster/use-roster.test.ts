@@ -530,6 +530,32 @@ it('switches between intervals in the same lane and between overlapping layers',
   h.close();
 });
 
+it('directly activates the exact lower overlapping rect and retains its focus target', () => {
+  const lane = rosterFixtures['two-layers'].lanes[0] as Lane;
+  const onIntervalPress = mock();
+  const onGapPress = mock();
+  const h = harness({
+    lanes: [lane],
+    windowSpec: rosterWindowSpec,
+    selectable: true,
+    onIntervalPress,
+    onGapPress,
+  });
+  const rects = h.model.geometryFor(lane).rects;
+  const lower = rects.find((rect) => rect.layerId === 'open') as Rect;
+  const target = { current: { nativeTag: 73 } };
+  act(() => h.model.activateInterval(lower, lane, target));
+  expect(onIntervalPress).toHaveBeenCalledWith(lower, lane);
+  expect(h.model.selection?.rect).toBe(lower);
+  expect(h.model.selection?.target).toBe(target);
+  const gapLane = rosterFixtures['full-day-gap'].lanes[0] as Lane;
+  const gap = h.model.geometryFor(gapLane).gapRects[0] as Rect;
+  act(() => h.model.activateGap(gap, gapLane));
+  expect(onGapPress).toHaveBeenCalledWith(gap, gapLane);
+  expect(h.model.selection).toBeNull();
+  h.close();
+});
+
 it('retains selection when a fitted resize introduces sub-millisecond projection roundoff', () => {
   const lane: Lane = {
     id: 'resize',

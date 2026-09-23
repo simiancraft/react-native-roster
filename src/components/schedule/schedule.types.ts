@@ -12,7 +12,7 @@ import type {
   Window,
   WindowSpec,
 } from '../../core';
-import type { GapInput, IntervalInput } from '../layers/layers.types';
+import type { GapInput, IntervalInput, RectActivation } from '../layers/layers.types';
 
 export type ScheduleWindowSpec = WindowSpec & { span: 'day' | 'week' };
 export type ScheduleProjection = Extract<Projection, { orientation: 'columns' }>;
@@ -63,6 +63,12 @@ export type ScheduleModel = {
   /** Visible pieces of bandWindow clipped and projected through the real day columns. */
   windowBandPieces: WindowBandInput[];
   press: (columnIndex: number, x: number, y: number) => void;
+  /** Directly activate one covered rect without coordinate hit-testing. */
+  activateInterval: RectActivation;
+  /** Directly activate one removed rect without coordinate hit-testing. */
+  activateGap: RectActivation;
+  /** Resolve one projected rect to its exact absolute bounds. */
+  boundsFor: (rect: Rect) => Window;
   status: 'ready';
 };
 export type ScheduleTransitionInput = {
@@ -81,6 +87,10 @@ export type ScheduleColumnInput = {
   lane: Lane;
   highlightSource?: Source;
   press: (x: number, y: number) => void;
+  boundsFor: (rect: Rect) => Window;
+  viewTimezone: string;
+  activateInterval: RectActivation;
+  activateGap: RectActivation;
   /** Covered rect filler shared with Roster; final bounds and stacking belong to the rect. */
   intervalComponent: ComponentType<IntervalInput>;
   /** Removed rect content shared with Roster; the column supplies its pressable bounds. */

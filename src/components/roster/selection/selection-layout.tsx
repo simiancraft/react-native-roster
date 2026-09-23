@@ -1,5 +1,5 @@
-import { type ReactNode, useEffect, useId, useState } from 'react';
-import { BackHandler, ScrollView, View } from 'react-native';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
+import { AccessibilityInfo, BackHandler, findNodeHandle, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Portal, PortalHost } from '../../primitives/portal';
 import type { SelectionLayoutProps } from './selection-layout.types';
@@ -12,6 +12,7 @@ export function RosterSelectionPopover({
   contentZone,
   targetBounds,
   open,
+  returnFocusTarget,
   onDismiss,
   portalHost,
   scroll,
@@ -19,6 +20,15 @@ export function RosterSelectionPopover({
   const name = useId();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [content, setContent] = useState({ width: 0, height: 0 });
+  const detailRef = useRef<View | null>(null);
+  const focusInput = useRef({ open });
+  focusInput.current = { open };
+  const [setDetailRef] = useState(() => (node: View | null) => {
+    detailRef.current = node;
+    if (node && focusInput.current.open) focusAccessibility(node);
+  });
+  const restoreRef = useRef<SelectionLayoutProps['returnFocusTarget']>(undefined);
+  const wasOpen = useRef(false);
   const maxWidth = Math.max(0, viewport.width - 8);
   const maxHeight = Math.max(0, viewport.height - 8);
   const size = { maxWidth, maxHeight, flexShrink: 1 };
@@ -40,13 +50,25 @@ export function RosterSelectionPopover({
     });
     return () => subscription.remove();
   }, [open, onDismiss]);
+  useEffect(() => {
+    if (open) {
+      restoreRef.current = returnFocusTarget;
+      focusAccessibility(detailRef.current);
+    } else if (wasOpen.current) {
+      focusAccessibility(restoreRef.current?.current);
+      restoreRef.current = undefined;
+    }
+    wasOpen.current = open;
+  }, [open, returnFocusTarget]);
   let detailZone: ReactNode = null;
   if (open && targetBounds && maxWidth > 0 && maxHeight > 0) {
     detailZone = (
       <Portal hostName={portalHost} name={name}>
         <Animated.View style={[{ position: 'absolute', maxWidth, maxHeight }, position]}>
           <View
+            ref={setDetailRef}
             accessibilityRole="summary"
+            accessibilityLabel="Interval details"
             onStartShouldSetResponder={() => true}
             style={size}
             onLayout={({ nativeEvent }) =>
@@ -87,4 +109,10 @@ export function RosterSelectionPopover({
       {detailZone}
     </View>
   );
+}
+
+function focusAccessibility(target: unknown): void {
+  if (target === null || target === undefined) return;
+  const handle = typeof target === 'number' ? target : findNodeHandle(target as View);
+  if (handle !== null) AccessibilityInfo.setAccessibilityFocus(handle);
 }

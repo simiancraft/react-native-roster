@@ -142,6 +142,14 @@ Add lanes for more people. Add layers and they stack by `z`. Roster lanes and Sc
 mount the same internal layer stack, so interval and gap ordering, highlighting, and slot behavior
 match in both projections.
 
+Every rendered interval and gap is a button for keyboard and screen-reader users. Its accessible
+name includes the lane, layer meaning, absolute range in the view timezone, UTC offset, and source
+labels or IDs. Enter, Space, and screen-reader activation address that exact rect, including a
+lower overlapping layer or either occurrence of a repeated hour. Pointer presses retain coordinate
+hit-testing. Roster details move native accessibility focus into the summary and restore the
+originating rect after dismissal; web restores the focused rect after Escape. Schedule has no
+built-in details, so activation invokes its callback and leaves focus on the rect.
+
 ### Schedule
 
 Hand `Schedule` that same `lane` and it draws days across and hours down. It

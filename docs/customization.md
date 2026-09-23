@@ -28,7 +28,13 @@ or press behavior. Pass `null` to a node slot to suppress its default.
 | `gridComponent` | `ticks`, `contentWidth` | `RosterGrid`: one hairline per tick behind every lane. |
 | `headerComponent` | `ticks`, `projection`, `scroll`, `contentWidth`, `headerCellComponent` | `RosterHeader`: frozen header following horizontal offset. |
 | `laneLabelColumnComponent` | `labels`, `projection`, `scroll`, `laneLabelComponent` | `RosterLaneLabelColumn`: frozen labels following vertical offset. |
-| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label and component, and rect components | `RosterBody`: virtualized lanes. |
+| `bodyComponent` | Ordered `lanes`, `window`, `geometryFor`, `projection`, `scroll`, `press`, `boundsFor`, direct rect activations, `ticks`, `viewport`, `contentWidth`, `nowLine`, `nowLineComponent`, highlight and hover, incomplete label and component, and rect components | `RosterBody`: virtualized lanes. |
+
+`LayerStack` owns the accessible button around each interval and gap. A custom
+`intervalComponent` or `gapComponent` supplies only the visual filler and does not need to add a
+second role or press handler. Names include the lane, layer meaning, absolute range with UTC
+offset, and source labels or IDs. Keyboard and screen-reader activation selects the exact rect;
+pointer presses continue through coordinate hit-testing.
 
 `RosterBody` composes `RosterBodyLayout`, which arranges `gridZone`, `listZone`, and optional `overlayZone`
 nodes with scroll wiring, and `RosterLaneList`, which owns LegendList and its
@@ -73,6 +79,10 @@ Removing the selected lane, layer, or interval bounds clears selection.
 Native has no intercepting dismissal overlay; body presses reach the hook, and the detail
 card captures its own presses. Web excludes the body wrapper from Radix outside
 dismissal, leaving body presses to the hook while preserving true outside presses and Escape.
+Native labels the summary `Interval details`, moves accessibility focus into it when it opens, and
+restores the originating rect after hardware-back or other dismissal if that rect remains mounted.
+Web restores the exact focused rect after Escape. `SelectionLayoutProps.returnFocusTarget` carries
+the optional native origin to custom layouts.
 The hook toggles the selected interval closed, switches to another interval, and dismisses
 on cell or gap presses while preserving their callbacks. The body restores horizontal
 and vertical offsets from shared values on remount when selectionLayout changes.
@@ -281,9 +291,13 @@ receive or expose a day action.
 | `gridComponent` | `hours`, `pxPerHour` | `ScheduleGrid`: 24 bordered hour bands behind each day's rects. |
 | `dayHeaderComponent` | `ScheduleDayHeaderInput` (`day`, bound optional `onPress`) | `ScheduleDayHeader`: actionable weekday, localDate, and transition badge when `onDayPress` is supplied; otherwise a presentational heading. |
 | `skippedDateComponent` | `localDate` | `ScheduleSkippedDate`: zero-width header marker for a wholly skipped date, with no day action. |
-| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
+| `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, `boundsFor`, `viewTimezone`, direct rect activations, and interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
 | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
 | `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line for the caller-supplied `now` in its containing day. |
 | `windowBandComponent` | `WindowBandInput` (`day`, `column`, `start`, `end`, `x`, `y`, `width`, `height`) | `ScheduleWindowBand`: translucent piece for `bandWindow`, mounted once per visible scale piece. |
 | `intervalComponent`, `gapComponent` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
 | `incompleteComponent` | `lane`, `label` | `ScheduleIncomplete`: notice above the grid when the lane is incomplete. |
+
+Schedule interval and gap buttons use the same names and exact activation rules as Roster.
+Schedule owns no detail surface, so keyboard and screen-reader activation invokes the applicable
+callback and keeps focus on the rect.

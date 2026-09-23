@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { RectTargetRef } from '../../layers/layers.types';
 import type { RosterScroll } from '../roster.types';
 
 /** Presentation-only contract shared by native, web, and consumer strategies. */
@@ -11,6 +12,8 @@ export type SelectionLayoutProps = {
   targetBounds: { x: number; y: number; width: number; height: number } | null;
   /** Whether the detail presentation is open. */
   open: boolean;
+  /** Native accessible target that opened the details, when one is still mounted. */
+  returnFocusTarget?: RectTargetRef;
   /** Report outside press, hardware back, Escape, or a presentation close action. */
   onDismiss: () => void;
   /** Unique native destination name owned by this selection layout. */

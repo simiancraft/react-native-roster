@@ -314,7 +314,7 @@ describe('Schedule chassis and day zones', () => {
     const gap = tree.root
       .findAllByType('Pressable' as ElementType)
       .find((node) =>
-        node.props.accessibilityLabel?.endsWith(': removed time'),
+        node.props.accessibilityLabel?.includes(': removed time,'),
       ) as ReactTestInstance;
     const stopPropagation = mock();
     gap.props.onPress({ stopPropagation, nativeEvent: { locationX: 1, locationY: 1 } });
@@ -327,7 +327,8 @@ describe('Schedule chassis and day zones', () => {
   });
   it('renders Schedule column rects through the shared layer stack', () => {
     const error = spyOn(console, 'error').mockImplementation(() => {});
-    const press = mock();
+    const activateInterval = mock();
+    const activateGap = mock();
     const source = { kind: 'rule', id: 'shared', label: 'Stored label' } as const;
     const below: core.Layer = {
       id: 'below',
@@ -369,7 +370,11 @@ describe('Schedule chassis and day zones', () => {
         lane,
         rects: [higher, split, otherSplit],
         gapRects: [gap],
-        press,
+        press: mock(),
+        boundsFor: () => ({ start: 0, end: 3_600_000 }),
+        viewTimezone: 'UTC',
+        activateInterval,
+        activateGap,
         highlightSource: { kind: 'rule', id: 'shared', label: 'Fresh label' },
         intervalComponent: (input) => createElement('interval-sentinel', input),
         gapComponent: (input) => createElement('gap-sentinel', input),
@@ -383,9 +388,10 @@ describe('Schedule chassis and day zones', () => {
     expect(intervals.map((node) => node.props.highlighted)).toEqual([true, true, false]);
     expect(error.mock.calls.some((call) => call.join(' ').includes('same key'))).toBe(false);
 
-    const wrapper = tree.root.findByType('Pressable' as ElementType);
+    const wrapper = tree.root
+      .findAllByType('Pressable' as ElementType)
+      .find((node) => node.props.accessibilityLabel?.includes('removed time')) as ReactTestInstance;
     expect(wrapper.props).toMatchObject({
-      accessibilityLabel: 'Lane: removed time',
       style: {
         position: 'absolute',
         left: 30,
@@ -395,10 +401,12 @@ describe('Schedule chassis and day zones', () => {
         zIndex: 7,
       },
     });
+    expect(wrapper.props.accessibilityRole).toBe('button');
+    expect(wrapper.props.accessibilityLabel).toContain('Lane: removed time');
     const stopPropagation = mock();
-    wrapper.props.onPress({ stopPropagation, nativeEvent: { locationX: 4, locationY: 5 } });
+    wrapper.props.onPress({ stopPropagation });
     expect(stopPropagation).toHaveBeenCalledTimes(1);
-    expect(press).toHaveBeenCalledWith(34, 45);
+    expect(activateGap.mock.calls[0]?.slice(0, 2)).toEqual([gap, lane]);
   });
   it('shows transition badges, the spring hatch, and the repeated region divider at both offset sizes', () => {
     const tree = render(createElement(Schedule, propsFor('schedule-spring')));

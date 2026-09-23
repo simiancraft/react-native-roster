@@ -45,7 +45,17 @@ export function Schedule(props: ScheduleProps) {
 }
 
 function ScheduleContent(props: ScheduleProps) {
-  const { days, projection, geometry, now, windowBandPieces, press } = useSchedule(props);
+  const {
+    days,
+    projection,
+    geometry,
+    now,
+    windowBandPieces,
+    press,
+    activateInterval,
+    activateGap,
+    boundsFor,
+  } = useSchedule(props);
   const {
     lane,
     windowSpec,
@@ -105,6 +115,9 @@ function ScheduleContent(props: ScheduleProps) {
             highlightSource={highlightSource}
             hours={hours}
             press={(x, y) => press(column, x, y)}
+            activateInterval={activateInterval}
+            activateGap={activateGap}
+            boundsFor={boundsFor}
             gridComponent={gridComponent}
             columnComponent={columnComponent}
             transitionComponent={transitionComponent}

@@ -3,9 +3,11 @@ import { createElement, type ReactNode, useRef } from 'react';
 
 export const backHandlers = new Set<() => boolean>();
 export const testPlatform = { OS: 'ios' };
+export const accessibilityFocus = mock((_handle: number) => {});
 
 // Native hosts are supplied by the app runtime, which Bun does not implement.
 mock.module('react-native', () => ({
+  AccessibilityInfo: { setAccessibilityFocus: accessibilityFocus },
   BackHandler: {
     addEventListener: (_name: string, handler: () => boolean) => {
       backHandlers.add(handler);
@@ -14,6 +16,7 @@ mock.module('react-native', () => ({
   },
   Linking: { openURL: async () => true },
   Platform: testPlatform,
+  findNodeHandle: (target: unknown) => (target as { nativeTag?: number } | null)?.nativeTag ?? null,
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',

@@ -1,7 +1,6 @@
 import { Fragment } from 'react';
-import { Pressable } from 'react-native';
 import { hasSource } from '../../core';
-import { pressPoint } from '../primitives/press-point';
+import { IntervalTarget } from './interval-target';
 import type { LayerStackInput } from './layers.types';
 
 function rectKey(kind: 'interval' | 'gap', rect: LayerStackInput['rects'][number], index: number) {
@@ -13,6 +12,10 @@ export function LayerStack({
   rects,
   gapRects,
   press,
+  boundsFor,
+  viewTimezone,
+  activateInterval,
+  activateGap,
   intervalComponent: IntervalComponent,
   gapComponent: GapComponent,
   highlightSource,
@@ -23,37 +26,41 @@ export function LayerStack({
       {rects
         .filter((rect) => rect.layerId === layer.id)
         .map((rect, index) => (
-          <Fragment key={rectKey('interval', rect, index)}>
+          <IntervalTarget
+            key={rectKey('interval', rect, index)}
+            kind="interval"
+            rect={rect}
+            layer={layer}
+            lane={lane}
+            bounds={boundsFor(rect)}
+            viewTimezone={viewTimezone}
+            onActivate={(target) => activateInterval(rect, lane, target)}
+            onPoint={press}
+          >
             <IntervalComponent
               rect={rect}
               layer={layer}
               lane={lane}
               highlighted={hasSource(rect.sources, highlightSource)}
             />
-          </Fragment>
+          </IntervalTarget>
         ))}
       {gapRects
         .filter((rect) => rect.layerId === layer.id)
         .map((rect, index) => (
-          <Pressable
+          <IntervalTarget
             key={rectKey('gap', rect, index)}
-            accessibilityLabel={`${lane.label}: removed time`}
-            onPress={(input) => {
-              input.stopPropagation();
-              const point = pressPoint(input);
-              press(rect.x + point.x, rect.y + point.y);
-            }}
-            style={{
-              position: 'absolute',
-              left: rect.x,
-              top: rect.y,
-              width: rect.width,
-              height: rect.height,
-              zIndex: rect.z,
-            }}
+            kind="gap"
+            rect={rect}
+            layer={layer}
+            lane={lane}
+            bounds={boundsFor(rect)}
+            viewTimezone={viewTimezone}
+            onActivate={(target) => activateGap(rect, lane, target)}
+            onPoint={press}
           >
             <GapComponent rect={rect} layer={layer} lane={lane} />
-          </Pressable>
+          </IntervalTarget>
         ))}
     </Fragment>
   ));

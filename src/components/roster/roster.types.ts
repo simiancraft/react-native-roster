@@ -22,7 +22,12 @@ import type {
   Window,
   WindowSpec,
 } from '../../core';
-import type { GapInput, IntervalInput } from '../layers/layers.types';
+import type {
+  GapInput,
+  IntervalInput,
+  RectActivation,
+  RectTargetRef,
+} from '../layers/layers.types';
 import type { SelectionLayoutProps } from './selection/selection-layout.types';
 
 /** A selected interval: the rect input plus its absolute bounds and the view zone for formatting. */
@@ -70,7 +75,9 @@ export type RosterInput = {
 };
 export type RosterModel = {
   /** Current interval with fresh lane, layer, and rect references and its absolute bounds, or null. */
-  selection: Omit<IntervalDetailInput, 'highlighted' | 'viewTimezone'> | null;
+  selection:
+    | (Omit<IntervalDetailInput, 'highlighted' | 'viewTimezone'> & { target?: RectTargetRef })
+    | null;
   /** Close the selected interval details. */
   dismissSelection: () => void;
   window: Window;
@@ -81,6 +88,12 @@ export type RosterModel = {
   geometryFor: (lane: Lane) => LaneGeometry;
   scroll: RosterScroll;
   press: (lane: Lane, x: number, y: number) => void;
+  /** Directly activate one covered rect without coordinate hit-testing. */
+  activateInterval: RectActivation;
+  /** Directly activate one removed rect without coordinate hit-testing. */
+  activateGap: RectActivation;
+  /** Resolve one projected rect to its exact absolute bounds. */
+  boundsFor: (rect: Rect) => Window;
   status: 'empty' | 'ready';
   ticks: RosterTick[];
   now: number | null;
@@ -118,7 +131,16 @@ export type LabelColumnInput = Pick<RosterModel, 'projection' | 'scroll'> & {
 };
 export type LaneListInput = Pick<
   RosterModel,
-  'geometryFor' | 'projection' | 'scroll' | 'press' | 'contentWidth' | 'viewport' | 'window'
+  | 'geometryFor'
+  | 'projection'
+  | 'scroll'
+  | 'press'
+  | 'activateInterval'
+  | 'activateGap'
+  | 'boundsFor'
+  | 'contentWidth'
+  | 'viewport'
+  | 'window'
 > & {
   lanes: Lane[];
   highlightSource?: Source;

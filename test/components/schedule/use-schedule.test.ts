@@ -125,6 +125,9 @@ describe('useSchedule hook harness', () => {
         'now',
         'windowBandPieces',
         'press',
+        'activateInterval',
+        'activateGap',
+        'boundsFor',
         'status',
       ].sort(),
     );
@@ -285,6 +288,28 @@ describe('useSchedule hook harness', () => {
     expect(cb.onGapPress).not.toHaveBeenCalled();
     h.model.press(6, 5, 3.5 * 48);
     expect(cb.onIntervalPress).toHaveBeenCalledTimes(1);
+  });
+  it('resolves repeated-hour rect bounds and directly activates one exact piece', () => {
+    const input = inputFor('schedule-fall');
+    const cb = callbacks();
+    const h = harness({ ...input, ...cb });
+    const repeated = h.model.geometry.rects
+      .filter(
+        (rect) => rect.column === 6 && rect.layerId === 'early' && rect.y >= 48 && rect.y < 96,
+      )
+      .sort((a, b) => a.y - b.y);
+    expect(repeated).toHaveLength(2);
+    expect(
+      repeated.map((rect) => {
+        const bounds = h.model.boundsFor(rect);
+        return [new Date(bounds.start).toISOString(), new Date(bounds.end).toISOString()];
+      }),
+    ).toEqual([
+      ['2024-11-03T06:00:00.000Z', '2024-11-03T07:00:00.000Z'],
+      ['2024-11-03T07:00:00.000Z', '2024-11-03T08:00:00.000Z'],
+    ]);
+    h.model.activateInterval(repeated[0] as Rect, input.lane);
+    expect(cb.onIntervalPress).toHaveBeenCalledWith(repeated[0], input.lane);
   });
   it('clamps a 60-minute floor to the second Lord Howe occurrence start', () => {
     const input = inputFor('schedule-lord-howe');

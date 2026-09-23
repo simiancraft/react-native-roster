@@ -1,7 +1,12 @@
 import { RosterLaneLabelColumn as RosterLaneLabelColumnComponent } from './components/roster/parts/lane-label-column';
 import { RosterLaneList as RosterLaneListComponent } from './components/roster/parts/lane-list';
 
-export type { GapInput, IntervalInput } from './components/layers/layers.types';
+export type {
+  GapInput,
+  IntervalInput,
+  RectActivation,
+  RectTargetRef,
+} from './components/layers/layers.types';
 export { RosterGap } from './components/layers/parts/gap';
 export { RosterInterval } from './components/layers/parts/interval';
 export { Portal, PortalHost } from './components/primitives/portal';

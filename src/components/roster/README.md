@@ -25,6 +25,9 @@ and `llms.txt` for integration details. Tests: `test/components/roster`.
 
 `LaneRow` keeps row hover and coordinate-cell presses outside `LayerStack`. It adapts
 the shared plot-coordinate press callback to Roster's lane-aware press contract.
+LayerStack adds one accessible button per interval and gap. Pointer presses retain hit-testing;
+keyboard and screen-reader actions call the hook's exact rect activations. The hook supplies
+absolute horizontal bounds and retains the originating target only while selection is valid.
 
 This feature is about a roster body; its children are lanes. `RosterBody` gates
 measurement and composes the body layout and lane list. `BodyInput` extends the
@@ -86,7 +89,7 @@ switches selection. Cell and gap presses dismiss selection while still firing
 `onCellPress` and `onGapPress`. These rules live in the hook and apply on native
 and web; web outside press and Escape still dismiss.
 On web, the layout captures document.activeElement before opening autofocus and
-recaptures the focused lane when targetBounds changes while open. It uses onCloseAutoFocus to return focus after Escape only, leaving outside pointer focus intact. The browser's focus-visible ring styling is left to the host page.
+recaptures the focused rect when targetBounds changes while open. It uses onCloseAutoFocus to return focus after Escape only, leaving outside pointer focus intact. Native labels details, transfers accessibility focus to them, and restores a still-mounted originating target after dismissal. The browser's focus-visible ring styling is left to the host page.
 `portalHost` defaults to a per-roster useId name. The interval-detail fixture switches
 to an inspector column with the same node contract. Schedule does not yet support selection.
 

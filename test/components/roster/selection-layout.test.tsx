@@ -10,7 +10,7 @@ import type { SelectionLayoutProps } from '../../../src/components/roster/select
 import { RosterSelectionPopover as WebPopover } from '../../../src/components/roster/selection/selection-layout.web';
 import { useRoster } from '../../../src/components/roster/use-roster';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
-import { backHandlers } from '../../support/native-host';
+import { accessibilityFocus, backHandlers } from '../../support/native-host';
 
 it('keeps native selection chrome outside the Roster plot stack', () => {
   const fixture = rosterFixtures['interval-detail'];
@@ -110,6 +110,50 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
   expect(tree.root.findAllByType('Pressable' as ElementType)).toHaveLength(0);
   act(() => tree.update(<Example />));
   expect(backHandlers.size).toBe(0);
+  act(() => tree.unmount());
+});
+
+it('labels native details, transfers accessibility focus, and safely restores the target', () => {
+  accessibilityFocus.mockClear();
+  const target = { current: { nativeTag: 73 } as unknown };
+  let tree!: ReactTestRenderer;
+  function Example({ open }: { open: boolean }) {
+    const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
+    return (
+      <RosterSelectionPopover
+        open={open}
+        targetBounds={{ x: 40, y: 50, width: 100, height: 48 }}
+        returnFocusTarget={target}
+        anchorZone="body"
+        contentZone="details"
+        portalHost="focus-test"
+        scroll={scroll}
+        onDismiss={() => {}}
+      />
+    );
+  }
+  let nativeTag = 100;
+  act(() => {
+    tree = create(<Example open />, {
+      createNodeMock: (element) => (element.type === 'View' ? { nativeTag: nativeTag++ } : null),
+    });
+  });
+  act(() =>
+    tree.root
+      .findAllByType('View' as ElementType)[0]
+      ?.props.onLayout({ nativeEvent: { layout: { width: 300, height: 300 } } }),
+  );
+  expect(tree.root.findByProps({ accessibilityRole: 'summary' }).props.accessibilityLabel).toBe(
+    'Interval details',
+  );
+  expect(accessibilityFocus.mock.calls.some(([handle]) => handle !== 73)).toBe(true);
+  act(() => tree.update(<Example open={false} />));
+  expect(accessibilityFocus).toHaveBeenLastCalledWith(73);
+  target.current = null;
+  const calls = accessibilityFocus.mock.calls.length;
+  act(() => tree.update(<Example open />));
+  act(() => tree.update(<Example open={false} />));
+  expect(accessibilityFocus).toHaveBeenCalledTimes(calls + 1);
   act(() => tree.unmount());
 });
 

@@ -234,6 +234,28 @@ try {
   await page.goto(`${server.url}gallery/interval-detail`, { waitUntil: 'networkidle' });
   const detailLane = page.getByTestId('roster-lane-one');
   await detailLane.waitFor();
+  const intervalActions = detailLane.getByRole('button', { name: /Open hours interval/ });
+  assert.equal(await intervalActions.count(), 2, 'Both interval pieces must be keyboard targets');
+  const firstIntervalAction = intervalActions.nth(0);
+  await firstIntervalAction.focus();
+  await page.keyboard.press('Enter');
+  await page.getByTestId('interval-detail').waitFor();
+  assert.match(await page.getByTestId('interval-detail').innerText(), /Lane one/);
+  await page.screenshot({ path: '.cache/web-performance/keyboard-interval-detail.png' });
+  await page.keyboard.press('Escape');
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
+  assert.equal(
+    await firstIntervalAction.evaluate((node) => document.activeElement === node),
+    true,
+    'Escape must restore the exact interval target',
+  );
+  const secondIntervalAction = intervalActions.nth(1);
+  await secondIntervalAction.focus();
+  await page.keyboard.press('Space');
+  await page.getByTestId('interval-detail').waitFor();
+  assert.match(await page.getByTestId('interval-detail').innerText(), /6:00 PM to .*8:00 PM/);
+  await page.keyboard.press('Escape');
+  await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
   let laneWidth = await detailLane.evaluate((node) => node.clientWidth);
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
@@ -269,8 +291,8 @@ try {
     0,
     'Escape must close selection while body presses are excluded from outside dismissal',
   );
-  await page.waitForFunction(
-    () => document.activeElement?.getAttribute('data-testid') === 'roster-lane-one',
+  await page.waitForFunction(() =>
+    document.activeElement?.getAttribute('aria-label')?.startsWith('Lane one:'),
   );
   await detailLane.click({ position: { x: (laneWidth * 10) / 24, y: 20 } });
   await page.getByTestId('interval-detail').waitFor();
@@ -281,8 +303,8 @@ try {
   );
   await page.keyboard.press('Escape');
   await page.getByTestId('interval-detail').waitFor({ state: 'hidden' });
-  await page.waitForFunction(
-    () => document.activeElement?.getAttribute('data-testid') === 'roster-lane-two',
+  await page.waitForFunction(() =>
+    document.activeElement?.getAttribute('aria-label')?.startsWith('Lane two:'),
   );
   await page.setViewportSize({ width: 600, height: 900 });
   await settle(page);
@@ -337,8 +359,26 @@ try {
   await assertDayActivations(2);
   await page.keyboard.press('Space');
   await assertDayActivations(3);
+  const scheduleInterval = page.getByRole('button', {
+    name: /Schedule: overlapping rules and three sessions: booking interval.*sources 1/,
+  });
+  await scheduleInterval.focus();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(
+    () =>
+      document.querySelector('[data-testid="roster-selection"]')?.textContent ===
+      '[{"kind":"session","id":"1"}]',
+  );
+  await page.keyboard.press('Space');
+  await page.waitForFunction(
+    () =>
+      document.querySelector('[data-testid="roster-selection"]')?.textContent ===
+      '[{"kind":"session","id":"1"}]',
+  );
   assert.deepEqual(errors, [], 'Day header browser runtime errors');
-  console.log('Day header: pointer, Enter, and Space each activate the actual day exactly once.');
+  console.log(
+    'Keyboard targets: Enter and Space activate exact Roster and Schedule rects; Escape restores interval focus.',
+  );
   await page.goto(`${server.url}gallery/every-zone`, { waitUntil: 'networkidle' });
   const nowToggle = page.getByRole('button', { name: 'Now at window midpoint', exact: true });
   assert.equal(await nowToggle.getAttribute('aria-pressed'), 'false', 'Now: unpressed control');

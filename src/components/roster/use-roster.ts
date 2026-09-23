@@ -79,7 +79,7 @@ export function useRoster(input: RosterInput): RosterModel {
   );
   // Discard invalid selection during reconciliation, before rendering any stale detail.
   if (selected && !selection) setSelected(null);
-  const press = useRosterPress(
+  const { press, activateInterval, activateGap } = useRosterPress(
     input,
     window,
     projection,
@@ -98,6 +98,12 @@ export function useRoster(input: RosterInput): RosterModel {
     laneState,
     geometryFor,
     press,
+    activateInterval,
+    activateGap,
+    boundsFor: (rect) => ({
+      start: timeAtX(projection, window, rect.x),
+      end: timeAtX(projection, window, rect.x + rect.width),
+    }),
     status: lanes.length === 0 ? 'empty' : 'ready',
     ticks: ticksFor(window, windowSpec, projection, minuteStep),
     now,
@@ -165,7 +171,15 @@ function reconcileSelection(
           rect = candidate;
         }
       }
-      if (rect) return { rect, layer, lane, start: selected.start, end: selected.end };
+      if (rect)
+        return {
+          rect,
+          layer,
+          lane,
+          start: selected.start,
+          end: selected.end,
+          target: selected.target,
+        };
     }
   }
   return null;

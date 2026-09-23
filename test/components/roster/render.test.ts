@@ -392,12 +392,27 @@ describe('Roster zones and rect primitives', () => {
       rowHeight: 48,
     });
     const press = mock();
+    const activateInterval = mock();
+    const activateGap = mock();
+    const projection = {
+      orientation: 'horizontal' as const,
+      viewTimezone: 'UTC',
+      pxPerMinute: 1,
+      rowHeight: 48,
+    };
     const props = {
       lane,
       geometry,
       width: 10080,
       rowHeight: 48,
       press,
+      activateInterval,
+      activateGap,
+      boundsFor: (rect: (typeof geometry.rects)[number]) => ({
+        start: windowFor(rosterWindowSpec).start + rect.x * 60_000,
+        end: windowFor(rosterWindowSpec).start + (rect.x + rect.width) * 60_000,
+      }),
+      projection,
       intervalComponent: RosterInterval,
       gapComponent: RosterGap,
       incompleteComponent: RosterIncomplete,
@@ -417,12 +432,22 @@ describe('Roster zones and rect primitives', () => {
     expect(views).toHaveLength(geometry.rects.length);
     expect(views.some((view) => view.props.style[0].backgroundColor === '#f59e0b')).toBe(true);
     const pressables = tree.root.findAllByType('Pressable' as ElementType);
-    expect(pressables).toHaveLength(1 + geometry.gapRects.length);
-    pressables[0]?.props.onPress({ nativeEvent: { locationX: 700, locationY: 12 } });
+    expect(pressables).toHaveLength(1 + geometry.rects.length + geometry.gapRects.length);
+    tree.root
+      .findByProps({ testID: `roster-lane-${lane.id}` })
+      .props.onPress({ nativeEvent: { locationX: 700, locationY: 12 } });
     expect(press).toHaveBeenLastCalledWith(lane, 700, 12);
     const stopPropagation = mock();
-    pressables[1]?.props.onPress({ stopPropagation, nativeEvent: { locationX: 30, locationY: 4 } });
+    const gapTarget = pressables.find((node) =>
+      node.props.accessibilityLabel?.includes('removed time'),
+    );
+    gapTarget?.props.onPress({ stopPropagation });
     expect(stopPropagation).toHaveBeenCalledTimes(1);
+    expect(activateGap.mock.calls[0]?.slice(0, 2)).toEqual([geometry.gapRects[0], lane]);
+    gapTarget?.props.onPress({
+      stopPropagation,
+      nativeEvent: { locationX: 30, locationY: 4 },
+    });
     expect(press).toHaveBeenLastCalledWith(lane, 30, 4);
     act(() => tree.update(createElement(LaneRow, { ...props, highlightSource: undefined })));
     expect(
@@ -447,6 +472,18 @@ describe('Roster zones and rect primitives', () => {
       width: 10080,
       rowHeight: 48,
       press: mock(),
+      activateInterval: mock(),
+      activateGap: mock(),
+      boundsFor: (rect: (typeof geometry.rects)[number]) => ({
+        start: windowFor(rosterWindowSpec).start + rect.x * 60_000,
+        end: windowFor(rosterWindowSpec).start + (rect.x + rect.width) * 60_000,
+      }),
+      projection: {
+        orientation: 'horizontal' as const,
+        viewTimezone: 'UTC',
+        pxPerMinute: 1,
+        rowHeight: 48,
+      },
       intervalComponent: RosterInterval,
       gapComponent: RosterGap,
       incompleteComponent: RosterIncomplete,

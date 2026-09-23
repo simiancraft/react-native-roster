@@ -608,3 +608,14 @@ Do not publish, tag, change repository settings, or push without task authorizat
     (pixels, lines, or pages) from the translated label column to the existing lane list;
     native behavior is unchanged. Only list scroll events update the shared label translation,
     never React state.
+37. **Every interval and gap has an accessible target.** LayerStack mounts the platform
+    IntervalTarget pair around visual fillers. Names include lane and layer meaning, absolute
+    bounds with UTC offsets in the view zone, and source labels with ID fallbacks. Roster and
+    Schedule hooks supply projection-specific bounds and stable direct activation callbacks.
+    Real pointer presses retain coordinate hit-testing; Enter, Space, and screen-reader actions
+    activate the exact rect, including lower overlapping layers and repeated-hour pieces.
+    Lane and day coordinate targets stay outside keyboard navigation. Targets use no per-rect
+    React state. Native Roster details receive accessibility focus and restore a still-mounted
+    origin after dismissal; web restores the exact target only after Escape. Schedule callback
+    activation leaves focus on its target because Schedule has no built-in detail surface. Keep
+    the interval-target browser remap, its shared types, and package.json together.

@@ -8,6 +8,9 @@ import { intervalHoverProps } from './interval-hover';
 export type LaneRowProps = Pick<
   BodyInput,
   | 'press'
+  | 'activateInterval'
+  | 'activateGap'
+  | 'boundsFor'
   | 'intervalComponent'
   | 'gapComponent'
   | 'highlightSource'
@@ -19,6 +22,7 @@ export type LaneRowProps = Pick<
   geometry: LaneGeometry;
   width: number;
   rowHeight: number;
+  projection: BodyInput['projection'];
 };
 
 export function LaneRow({
@@ -27,6 +31,10 @@ export function LaneRow({
   width,
   rowHeight,
   press,
+  activateInterval,
+  activateGap,
+  boundsFor,
+  projection,
   intervalComponent: IntervalComponent,
   gapComponent: GapComponent,
   highlightSource,
@@ -38,7 +46,8 @@ export function LaneRow({
     <Pressable
       {...intervalHoverProps({ lane, geometry, onIntervalHover })}
       testID={`roster-lane-${lane.id}`}
-      accessibilityLabel={lane.label}
+      accessible={false}
+      tabIndex={-1}
       onPress={(input) => {
         const point = pressPoint(input);
         press(lane, point.x, point.y);
@@ -51,6 +60,10 @@ export function LaneRow({
         rects={geometry.rects}
         gapRects={geometry.gapRects}
         press={(x, y) => press(lane, x, y)}
+        boundsFor={boundsFor}
+        viewTimezone={projection.viewTimezone}
+        activateInterval={activateInterval}
+        activateGap={activateGap}
         intervalComponent={IntervalComponent}
         gapComponent={GapComponent}
         highlightSource={highlightSource}

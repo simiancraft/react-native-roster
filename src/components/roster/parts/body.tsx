@@ -19,6 +19,9 @@ export function RosterBody(
     projection,
     scroll,
     press,
+    activateInterval,
+    activateGap,
+    boundsFor,
     contentWidth,
     viewport,
     window,
@@ -45,6 +48,9 @@ export function RosterBody(
           projection={projection}
           scroll={scroll}
           press={press}
+          activateInterval={activateInterval}
+          activateGap={activateGap}
+          boundsFor={boundsFor}
           contentWidth={contentWidth}
           viewport={viewport}
           window={window}

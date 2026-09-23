@@ -6,6 +6,10 @@ export function ScheduleColumn({
   rects,
   gapRects,
   press,
+  activateInterval,
+  activateGap,
+  boundsFor,
+  viewTimezone,
   intervalComponent: IntervalComponent,
   gapComponent: GapComponent,
   highlightSource,
@@ -16,6 +20,10 @@ export function ScheduleColumn({
       rects={rects}
       gapRects={gapRects}
       press={press}
+      boundsFor={boundsFor}
+      viewTimezone={viewTimezone}
+      activateInterval={activateInterval}
+      activateGap={activateGap}
       intervalComponent={IntervalComponent}
       gapComponent={GapComponent}
       highlightSource={highlightSource}

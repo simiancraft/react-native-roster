@@ -50,6 +50,13 @@ function render(input: Partial<LayerStackInput> = {}) {
     rects: [],
     gapRects: [],
     press: mock(),
+    boundsFor: () => ({
+      start: Date.parse('2024-11-03T05:30:00Z'),
+      end: Date.parse('2024-11-03T06:30:00Z'),
+    }),
+    viewTimezone: 'America/New_York',
+    activateInterval: mock(),
+    activateGap: mock(),
     intervalComponent: (props: IntervalInput) => createElement('interval-sentinel', props),
     gapComponent: (props: GapInput) => createElement('gap-sentinel', props),
     ...input,
@@ -107,13 +114,33 @@ describe('LayerStack', () => {
     expect(error.mock.calls.some((call) => call.join(' ').includes('same key'))).toBe(false);
   });
 
-  it('positions gaps, stops propagation, and translates local presses into plot coordinates', () => {
-    const press = mock();
+  it('names and directly activates exact intervals and gaps once', () => {
+    const activateInterval = mock();
+    const activateGap = mock();
+    const interval = rect({
+      layerId: 'above',
+      sources: [{ kind: 'rule', id: 'fallback-id', label: 'Named source' }],
+    });
     const gap = rect({ layerId: 'below', x: 30, y: 40, width: 50, height: 60, z: 7 });
-    const tree = render({ gapRects: [gap], press });
-    const wrapper = tree.root.findByType('Pressable' as ElementType);
-    expect(wrapper.props).toMatchObject({
-      accessibilityLabel: 'Lane: removed time',
+    const tree = render({
+      rects: [interval],
+      gapRects: [gap],
+      activateInterval,
+      activateGap,
+    });
+    const targets = tree.root.findAllByType('Pressable' as ElementType);
+    expect(targets).toHaveLength(2);
+    expect(targets.map((target) => target.props.accessibilityRole)).toEqual(['button', 'button']);
+    const intervalTarget = targets.find((target) =>
+      target.props.accessibilityLabel?.includes('booking interval'),
+    );
+    const gapTarget = targets.find((target) =>
+      target.props.accessibilityLabel?.includes('removed time'),
+    );
+    expect(intervalTarget?.props.accessibilityLabel).toContain(
+      'Lane: booking interval, Nov 3, 2024, 1:30 AM GMT-4 to Nov 3, 2024, 1:30 AM GMT-5, sources Named source',
+    );
+    expect(gapTarget?.props).toMatchObject({
       style: {
         position: 'absolute',
         left: 30,
@@ -123,14 +150,17 @@ describe('LayerStack', () => {
         zIndex: 7,
       },
     });
-    expect(wrapper.findByType('gap-sentinel' as ElementType).props).toMatchObject({
+    expect(gapTarget?.props.accessibilityLabel).toContain('Lane: removed time');
+    expect(tree.root.findByType('gap-sentinel' as ElementType).props).toMatchObject({
       rect: gap,
       layer: lane.layers[1],
       lane,
     });
     const stopPropagation = mock();
-    wrapper.props.onPress({ stopPropagation, nativeEvent: { locationX: 4, locationY: 5 } });
-    expect(stopPropagation).toHaveBeenCalledTimes(1);
-    expect(press).toHaveBeenCalledWith(34, 45);
+    intervalTarget?.props.onPress({ stopPropagation, nativeEvent: {} });
+    gapTarget?.props.onPress({ stopPropagation, nativeEvent: {} });
+    expect(stopPropagation).toHaveBeenCalledTimes(2);
+    expect(activateInterval.mock.calls[0]?.slice(0, 2)).toEqual([interval, lane]);
+    expect(activateGap.mock.calls[0]?.slice(0, 2)).toEqual([gap, lane]);
   });
 });

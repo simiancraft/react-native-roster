@@ -34,6 +34,9 @@ export function Roster(props: RosterProps) {
     projection,
     scroll,
     press,
+    activateInterval,
+    activateGap,
+    boundsFor,
     ticks,
     contentWidth,
     viewport,
@@ -73,9 +76,10 @@ export function Roster(props: RosterProps) {
   }
   let contentZone: ReactNode = null;
   if (selection && IntervalDetailComponent) {
+    const { target: _target, ...detail } = selection;
     contentZone = (
       <IntervalDetailComponent
-        {...selection}
+        {...detail}
         viewTimezone={projection.viewTimezone}
         highlighted={hasSource(selection.rect.sources, props.highlightSource)}
       />
@@ -131,6 +135,7 @@ export function Roster(props: RosterProps) {
             labelStyle: scroll.labelStyle,
           }}
           targetBounds={targetBounds}
+          returnFocusTarget={selection?.target}
           contentZone={contentZone}
           anchorZone={
             <BodyComponent
@@ -142,6 +147,9 @@ export function Roster(props: RosterProps) {
               projection={projection}
               scroll={scroll}
               press={press}
+              activateInterval={activateInterval}
+              activateGap={activateGap}
+              boundsFor={boundsFor}
               ticks={ticks}
               contentWidth={contentWidth}
               viewport={viewport}

@@ -10,6 +10,9 @@ export function RosterLaneList({
   projection,
   scroll,
   press,
+  activateInterval,
+  activateGap,
+  boundsFor,
   contentWidth,
   viewport,
   window,
@@ -59,6 +62,10 @@ export function RosterLaneList({
             width={contentWidth}
             rowHeight={projection.rowHeight}
             press={press}
+            activateInterval={activateInterval}
+            activateGap={activateGap}
+            boundsFor={boundsFor}
+            projection={projection}
             intervalComponent={intervalComponent}
             gapComponent={gapComponent}
             highlightSource={highlightSource}
