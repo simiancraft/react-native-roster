@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["code", "tests", "ci-command"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "scripts/",
+    "src/",
+    "test/",
+    "package.json",
+    "bun.lock"
+  ],
+  "capture_commit": "02475126c2e5420668da27e83275b5732eee24a6",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:df02f01acb4f1f5adfee360ba7ba4b2311860ed428fee0b473bd5963b4ce369c"
+}

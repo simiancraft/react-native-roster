@@ -1,0 +1,22 @@
+capture commit: 02475126c2e5420668da27e83275b5732eee24a6
+inspected commit: adf99759e47f8946cd6bafdfa813e2bf12a6a297
+message lines:
+01: feat(schedule)!: implement controlled-now library contract
+02: 
+03: Accept an explicit Schedule now value and default it to null.
+04: Remove Schedule-owned system-clock initialization and timer registration.
+05: Preserve end-exclusive admission and scale-piece positioning.
+06: Cover controlled rerenders, cache stability, press identity, and timer absence.
+07: 
+08: BREAKING CHANGE: omitted Schedule now no longer starts or updates a system clock.
+release type: major
+generated notes:
+## [2.0.0](https://github.com/simiancraft/react-native-roster/compare/v1.0.0...v2.0.0) (2026-09-23)
+
+### ⚠ BREAKING CHANGES
+
+* **schedule:** omitted Schedule now no longer starts or updates a system clock.
+
+### Features
+
+* **schedule:** implement controlled-now library contract ([adf9975](https://github.com/simiancraft/react-native-roster/commit/adf99759e47f8946cd6bafdfa813e2bf12a6a297))

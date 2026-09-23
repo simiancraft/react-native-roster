@@ -1,0 +1,10 @@
+{
+  "scope_tags": ["release", "commit-metadata"],
+  "covered_paths": [
+    ".releaserc.json",
+    "test/scripts/release-rules.test.ts"
+  ],
+  "capture_commit": "02475126c2e5420668da27e83275b5732eee24a6",
+  "capture_method": "inspect the rewritten commit message, then run @semantic-release/commit-analyzer and @semantic-release/release-notes-generator with the repository configuration",
+  "content_hash": "sha256:9ef77cb04991c3f241774b791b0176c85ff2e2e59d0dd8dcb1144115805c748d"
+}
