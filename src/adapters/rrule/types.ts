@@ -12,6 +12,8 @@ export type RosterRule = {
   byweekday?: Weekday[];
   bymonth?: number[];
   bymonthday?: number[];
+  byyearday?: number[];
+  byweekno?: number[];
   bysetpos?: number[];
   /** Local hours in timezone, end-exclusive; 24 means next local midnight. */
   hourstart: number;

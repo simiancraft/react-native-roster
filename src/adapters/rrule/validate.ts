@@ -46,7 +46,13 @@ export function validateInput(input: RosterRule | RosterDate): void {
     validateNumbers(input.byweekday, 'byweekday', 0, 6);
     validateNumbers(input.bymonth, 'bymonth', 1, 12);
     validateNumbers(input.bymonthday, 'bymonthday', -31, 31, true);
+    validateNumbers(input.byyearday, 'byyearday', -366, 366, true);
+    validateNumbers(input.byweekno, 'byweekno', -53, 53, true);
     validateNumbers(input.bysetpos, 'bysetpos', -366, 366, true);
+    for (const name of ['byyearday', 'byweekno'] as const) {
+      if (input[name] !== undefined && input.frequency !== 'YEARLY')
+        throw new RangeError(`${name} requires YEARLY frequency`);
+    }
   }
   if (
     hourstart !== undefined &&

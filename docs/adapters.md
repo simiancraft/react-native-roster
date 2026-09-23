@@ -114,19 +114,19 @@ complete mapping into a lane. `expandRuleSet(set, window, options?)` accepts:
 
 | Input | Required fields | Optional fields |
 | --- | --- | --- |
-| `RosterRule` | `id`, `kind`, `frequency`, `dtstart`, `hourstart`, `hourend`, `timezone` | `until`, `count`, `interval`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, `bysetpos` |
+| `RosterRule` | `id`, `kind`, `frequency`, `dtstart`, `hourstart`, `hourend`, `timezone` | `until`, `count`, `interval`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, `byyearday`, `byweekno`, `bysetpos` |
 | `RosterDate` | `id`, `kind`, `date`, `timezone` | `note`, and both `hourstart` and `hourend` together |
 | `RuleSet` | `rules: RosterRule[]`, `dates: RosterDate[]` | None |
 
-Kinds are `include` or `exclude`; frequencies are `DAILY`, `WEEKLY`, or `MONTHLY`.
+Kinds are `include` or `exclude`; frequencies are `DAILY`, `WEEKLY`, `MONTHLY`, or `YEARLY`.
 Weekdays are Monday = 0 through Sunday = 6. Rule `dtstart` is an ISO date or
 datetime; `date` is a local ISO date. Hours obey
 `0 <= hourstart < hourend <= 24`; fractional hours are supported. A dated override
 without either hour covers its whole local day. One hour alone is invalid.
 
 Convert enums to those exact values, `Date` values to appropriate ISO strings,
-and database `null` to omitted optional fields. Drop unsupported recurrence
-fields: `byyearday`, `byweekno`, `byhour`, `byminute`, and `bysecond`. Do not imply
+and database `null` to omitted optional fields. `byyearday` and `byweekno` are valid only on
+yearly rules. Drop unsupported recurrence fields: `byhour`, `byminute`, and `bysecond`. Do not imply
 that dropping a semantically active field preserves an arbitrary upstream rule;
 reject unsupported semantics or handle them in your own adapter. Source kinds
 emitted here are `rule` and `date`; a dated `note` becomes source label metadata.

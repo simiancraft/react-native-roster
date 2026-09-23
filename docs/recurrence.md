@@ -65,7 +65,9 @@ buffering positional candidates.
 
 Every rule and date is validated even for zero-duration windows. Numeric fields
 are bounded (`wkst` and `byweekday` 0 to 6, `bymonth` 1 to 12, `bymonthday` and
-`bysetpos` signed ranges, hours `0 <= hourstart < hourend <= 24`). `dtstart`,
+`bysetpos` signed ranges, `byyearday` plus or minus 1 to 366, `byweekno` plus or minus
+1 to 53, and hours `0 <= hourstart < hourend <= 24`). `byyearday` and `byweekno` are
+valid only on yearly rules. `dtstart`,
 `until`, and `date` must be strings of at most 64 characters; a full
 offset-and-zone form is under 50, and the bound keeps the offset regex linear on
 hostile input.
