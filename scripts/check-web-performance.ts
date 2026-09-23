@@ -295,6 +295,7 @@ try {
   console.log(
     'Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.',
   );
+  await assertShowcaseWeekAxes();
   await page.goto(`${server.url}gallery/schedule-layers`, { waitUntil: 'networkidle' });
   const dayHeader = page.getByRole('button', { name: '2024-01-01', exact: true });
   await dayHeader.click();
@@ -504,4 +505,83 @@ async function profileStats() {
     if (!profile) throw new Error('Missing development Profiler counters');
     return profile;
   });
+}
+
+async function assertShowcaseWeekAxes() {
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await page.goto(`${server.url}showcase`, { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: 'Week', exact: true }).click();
+  await settle(page);
+
+  for (const [density, width] of [
+    ['full', 1100],
+    ['compact', 800],
+    ['avatar', 500],
+  ] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await settle(page);
+    const horizontal = page.getByTestId('roster-horizontal-scroll');
+    const offset = await horizontal.evaluate((node) => {
+      node.scrollLeft = Math.floor((node.scrollWidth - node.clientWidth) / 2);
+      return node.scrollLeft;
+    });
+    await settle(page);
+    assert(offset > 0, `${density}: detailed week must scroll horizontally`);
+    const visibleLabels = await page.getByTestId('roster-header').evaluate((node) => {
+      const clip = node.parentElement?.getBoundingClientRect();
+      if (!clip) throw new Error('Missing roster header clip');
+      return [...node.querySelectorAll('*')]
+        .filter((child) => {
+          const bounds = child.getBoundingClientRect();
+          return bounds.width > 0 && bounds.right > clip.left && bounds.left < clip.right;
+        })
+        .map((child) => child.textContent?.trim() ?? '')
+        .filter(Boolean);
+    });
+    assert(
+      visibleLabels.some((label) =>
+        /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}\b/.test(label),
+      ),
+      `${density}: scrolled detailed week must retain visible date context: ${JSON.stringify(visibleLabels)}`,
+    );
+  }
+
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.getByRole('button', { name: 'Previous week', exact: true }).click();
+  await settle(page);
+  assert.match(
+    await page.getByText(/2025 to .*2026/).innerText(),
+    /2025 to .*2026/,
+    'Cross-year week must expose both years',
+  );
+  await page.getByRole('button', { name: 'Return to demo week', exact: true }).click();
+  await settle(page);
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await settle(page);
+
+  for (const [label, nextCount] of [
+    ['normal', 0],
+    ['spring-forward', 8],
+    ['fall-back', 34],
+  ] as const) {
+    for (let index = 0; index < nextCount; index += 1)
+      await page.getByRole('button', { name: 'Next week', exact: true }).click();
+    await settle(page);
+    const horizontal = page.getByTestId('roster-horizontal-scroll');
+    const detailed = await horizontal.evaluate((node) => node.scrollWidth);
+    await page.getByRole('button', { name: 'Fitted', exact: true }).click();
+    await settle(page);
+    const fitted = await horizontal.evaluate((node) => node.scrollWidth);
+    assert(
+      fitted < detailed,
+      `${label}: fitted week must not retain detailed width: ${fitted} versus ${detailed}`,
+    );
+    await page.getByRole('button', { name: 'Detailed', exact: true }).click();
+    await settle(page);
+  }
+  await page.screenshot({ path: '.cache/web-performance/showcase-week-axes.png' });
+  assert.deepEqual(errors, [], 'Showcase browser runtime errors');
+  console.log(
+    'Showcase week axes: scrolled full, compact, and avatar date context; cross-year years; normal, spring-forward, and fall-back fitted widths pass.',
+  );
 }
