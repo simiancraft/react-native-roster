@@ -1,0 +1,17 @@
+{
+  "scope_tags": ["demo", "test", "ci-gate"],
+  "covered_paths": [
+    "demo/components/team-roster/utils/time-off.ts",
+    "demo/components/team-roster/parts/layer-fillers.tsx",
+    "test/demo/showcase-attendance.test.tsx",
+    "README.md",
+    "llms.txt",
+    "AGENTS.md",
+    "demo/components/team-roster/README.md",
+    ".github/workflows/ci.yml",
+    "package.json"
+  ],
+  "capture_commit": "aedaf664ff7b0676b0b3d6be1e6dbfbb1a55794b",
+  "capture_method": "bun test test/demo/showcase-attendance.test.tsx && bun run check",
+  "content_hash": "sha256:c6760653bd1d373ff946760c4101ad8125580cb93a39a1c2ee2b6271b2509b87"
+}
