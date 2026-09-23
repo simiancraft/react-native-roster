@@ -307,7 +307,7 @@ try {
   await page.getByRole('button', { name: 'Show popover', exact: true }).click();
   await page.getByTestId('interval-detail').waitFor();
   await settle(page);
-  const target = await page.getByTestId('roster-selection-target').boundingBox();
+  const target = await page.getByTestId('selection-target').boundingBox();
   const laneBounds = await detailLane.boundingBox();
   assert(target && laneBounds);
   assert(

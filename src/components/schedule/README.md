@@ -7,6 +7,7 @@ This feature is about a schedule; its children are days.
 
 - `index.tsx`: the chassis; measures the viewport, calls `useSchedule`, composes zones
 - `use-schedule.ts`, `use-schedule-viewport.ts`: the hook and the width context
+- `constants.ts`: the internal 48 px gutter width shared by layout and viewport measurement
 - `layout.tsx`: arranges header, gutter, and days regions only
 - `schedule.types.ts`: props, model, and every slot input type
 - `parts/`: collection-level parts (gutter, incomplete)
@@ -25,6 +26,8 @@ The chassis binds default component types once; ScheduleDay mounts components
 with day data and passes nodes into ScheduleDayLayout. There is no black-box day
 list to split: days, transitions, and rects already map in their owning parts.
 Schedule has eleven input-bearing component slots and no zero-argument singleton slots.
+The heading indentation, rendered gutter, and measured grid width use the same internal
+`SCHEDULE_GUTTER_WIDTH`; it is not part of the public sizing API.
 
 `now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
 milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in

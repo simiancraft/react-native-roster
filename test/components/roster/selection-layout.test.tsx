@@ -5,10 +5,10 @@ import { View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { PlotStack } from '../../../src/components/layers/plot-stack';
 import { Roster } from '../../../src/components/roster';
-import { RosterSelectionPopover } from '../../../src/components/roster/selection/selection-layout';
-import type { SelectionLayoutProps } from '../../../src/components/roster/selection/selection-layout.types';
-import { RosterSelectionPopover as WebPopover } from '../../../src/components/roster/selection/selection-layout.web';
 import { useRoster } from '../../../src/components/roster/use-roster';
+import { SelectionSurface } from '../../../src/components/selection/selection-layout';
+import type { SelectionSurfaceProps } from '../../../src/components/selection/selection-layout.types';
+import { SelectionSurface as WebSurface } from '../../../src/components/selection/selection-layout.web';
 import { rosterFixtures, rosterWindowSpec } from '../../fixtures/roster';
 import { backHandlers } from '../../support/native-host';
 
@@ -46,18 +46,18 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
   function Example({
     open = false,
     targetBounds = { x: 40, y: 50, width: 100, height: 48 },
-  }: Partial<SelectionLayoutProps>) {
+  }: Partial<SelectionSurfaceProps>) {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     scroll.x.set(10);
     scroll.y.set(20);
     return (
-      <RosterSelectionPopover
+      <SelectionSurface
         open={open}
         targetBounds={targetBounds}
         anchorZone="body"
         contentZone="details"
         portalHost="layout-test"
-        scroll={scroll}
+        offsets={{ x: scroll.x, y: scroll.y }}
         onDismiss={onDismiss}
       />
     );
@@ -116,18 +116,18 @@ it('keeps a native host mounted, positions and flips details, and leaves the bod
 it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   let tree!: ReactTestRenderer;
   const onDismiss = mock();
-  function Example({ open = false, targetBounds = null }: Partial<SelectionLayoutProps>) {
+  function Example({ open = false, targetBounds = null }: Partial<SelectionSurfaceProps>) {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     scroll.x.set(12);
     scroll.y.set(24);
     return (
-      <WebPopover
+      <WebSurface
         open={open}
         targetBounds={targetBounds}
         anchorZone="body"
         contentZone={null}
         portalHost="unused"
-        scroll={scroll}
+        offsets={{ x: scroll.x, y: scroll.y }}
         onDismiss={onDismiss}
       />
     );
@@ -209,8 +209,7 @@ it('uses Radix dismissal and a noninteractive translated web anchor', () => {
   act(() => tree.update(<Example targetBounds={{ x: 30, y: 40, width: 100, height: 48 }} />));
   expect(tree.root.findAllByType('div')[1]?.props.style).toMatchObject({ left: 30, top: 88 });
   const overlays = tree.root.findAllByType('AnimatedView' as ElementType);
-  expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }]);
-  expect(overlays[1]?.props.style.transform).toEqual([{ translateY: -24 }]);
+  expect(overlays[0]?.props.style[1].transform).toEqual([{ translateX: -12 }, { translateY: -24 }]);
   act(() => tree.unmount());
 });
 
@@ -219,13 +218,13 @@ it('constrains oversized native details and scrolls them on both axes', () => {
   function Example() {
     const { scroll } = useRoster({ lanes: [], windowSpec: rosterWindowSpec });
     return (
-      <RosterSelectionPopover
+      <SelectionSurface
         open
         targetBounds={{ x: 290, y: 290, width: 100, height: 48 }}
         anchorZone="body"
         contentZone={<View style={{ width: 900, height: 800 }}>Large details</View>}
         portalHost="oversized-test"
-        scroll={scroll}
+        offsets={{ x: scroll.x, y: scroll.y }}
         onDismiss={() => {}}
       />
     );
@@ -265,13 +264,13 @@ it('waits for viewport measurement with an open selection and then places detail
     scroll.x.set(100);
     scroll.y.set(100);
     return (
-      <RosterSelectionPopover
+      <SelectionSurface
         open
         targetBounds={{ x: 0, y: 0, width: 100, height: 48 }}
         anchorZone="body"
         contentZone="details"
         portalHost="unmeasured-test"
-        scroll={scroll}
+        offsets={{ x: scroll.x, y: scroll.y }}
         onDismiss={() => {}}
       />
     );

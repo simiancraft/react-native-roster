@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import { regionStyle } from '../primitives/region-style';
+import { SCHEDULE_GUTTER_WIDTH } from './constants';
 import type { ScheduleStyleProps } from './schedule.types';
 
 type ScheduleLayoutProps = Pick<ScheduleStyleProps, 'headerStyle' | 'gutterStyle' | 'daysStyle'> & {
@@ -25,13 +26,21 @@ export function ScheduleLayout({
 }: ScheduleLayoutProps) {
   return (
     <View style={{ flex: 1, minHeight: 0 }}>
-      <View style={regionStyle({ marginLeft: 48, flexDirection: 'row' }, {}, headerStyle)}>
+      <View
+        style={regionStyle(
+          { marginLeft: SCHEDULE_GUTTER_WIDTH, flexDirection: 'row' },
+          {},
+          headerStyle,
+        )}
+      >
         {dayHeaderZone}
       </View>
       <View>{incompleteZone}</View>
       <ScrollView testID="schedule-vertical-scroll" horizontal={false} style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row' }}>
-          <View style={regionStyle({ width: 48 }, {}, gutterStyle)}>{gutterZone}</View>
+          <View style={regionStyle({ width: SCHEDULE_GUTTER_WIDTH }, {}, gutterStyle)}>
+            {gutterZone}
+          </View>
           <View style={regionStyle({ flex: 1, minWidth: 0, flexDirection: 'row' }, {}, daysStyle)}>
             {daysZone}
           </View>

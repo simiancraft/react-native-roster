@@ -135,6 +135,10 @@ content on both axes within a maximum size of the viewport minus 8 px on each ax
 Consumers wanting a different presentation supply `selectionLayout`.
 Native also dismisses on hardware back.
 
+The default popover is a compatibility adapter over an internal projection-neutral selection
+surface. The shared surface derives both translations from x and y offsets; custom Roster layouts
+continue to receive the existing `scroll` object, including `headerStyle` and `labelStyle`.
+
 `selectionLayout?: ComponentType<SelectionLayoutProps>` is the layout strategy
 naming exception to the `Component` suffix. The chassis mounts it with `anchorZone`
 (the body), `contentZone` (details or null), `targetBounds` (body-content bounds), `open`,

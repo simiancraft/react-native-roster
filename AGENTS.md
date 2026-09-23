@@ -43,8 +43,9 @@ src/
   nativewind/index.ts      # cssInterop registration; className twins for chrome style props
   components/
     roster/                # Roster chassis, hook, layout, and collection parts
-    roster/selection/      # native/web selection layouts and shared presentation contract
+    roster/selection/      # public Roster selection compatibility adapters and contract
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
+    selection/             # projection-neutral native/web selection presentation
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
     layers/                # shared LayerStack collection plus interval and gap components
@@ -523,6 +524,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     The chassis defaults selectionLayout once and passes mounted body and detail nodes.
     targetBounds names the selected bounds; anchorZone holds the mounted body.
     Layout scroll inputs contain only x, y, headerStyle, and labelStyle.
+    RosterSelectionPopover is a compatibility adapter that maps x and y to the internal
+    projection-neutral SelectionSurface. The shared surface owns both translation styles and
+    imports no Roster types.
     The default native layout owns PortalHost, named from the roster's useId unless
     portalHost overrides it; independent rosters must use different names. Do not mount
     duplicate hosts. Custom layouts targeting an ancestor host leave ownership there.
@@ -542,11 +546,13 @@ Do not publish, tag, change repository settings, or push without task authorizat
     A mount effect calls the horizontal ScrollView ref's scrollTo without animation;
     native also retains contentOffset. LegendList restores initialScrollOffset through
     its own web mount effect and native initial offset.
-    Keep selection out of the body content key. selection-layout.web.tsx imports Radix
+    Keep selection out of the body content key. The shared selection-layout.web.tsx imports Radix
     unconditionally. Its peer is optional for native and core-only imports, but required
     by web root and nativewind imports even with selection disabled. The layout uses
     a zero-size pointer-transparent anchor; preserve its package.json browser
-    remap and selection-layout.types.ts. Schedule selection is a later change.
+    remap and selection-layout.types.ts. Preserve the Roster adapter remap too. Schedule selection
+    is a later change. Schedule layout and viewport measurement share the internal 48 px
+    SCHEDULE_GUTTER_WIDTH constant; it is not public API.
 
     Root and core entry points bind aliases to the existing immutable function declarations,
     preserving identity while avoiding CommonJS re-export getter overhead. The web layout

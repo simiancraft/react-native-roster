@@ -332,6 +332,8 @@ incomplete notice, the grid, the now line, and the detail popover. Props ending 
 component type; props ending in `Zone` take a node. If you want your own layout
 entirely, `useRoster` and `useSchedule` return the same models the components
 render from. See [customization](https://github.com/simiancraft/react-native-roster/blob/main/docs/customization.md).
+The default detail popover uses projection-neutral presentation internally while preserving the
+public Roster selection layout contract for custom replacements.
 
 ## Size and support
 

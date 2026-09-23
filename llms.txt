@@ -315,8 +315,12 @@ the lane offset and interval inset; open is
 boolean; onDismiss is () => void; portalHost is string; scroll is Pick<RosterScroll, 'x' | 'y' | 'headerStyle' | 'labelStyle'>.
 Layouts receive no lane, layer, or rect. Render anchorZone once and arrange contentZone
 above or beside it. The interval-detail fixture demonstrates a runtime inspector toggle.
+RosterSelectionPopover is a compatibility adapter over the internal, projection-neutral
+SelectionSurface. The shared surface receives only the zones, targetBounds, open state,
+dismissal, portal host, and x/y offset pair; it derives translation styles itself and imports no
+Roster types. The public SelectionLayoutProps contract remains unchanged.
 
-Native selection-layout.tsx uses the root-exported PortalHost and Portal from
+The native shared selection-layout.tsx uses the root-exported PortalHost and Portal from
 components/primitives/portal.tsx, a module-level Map store with useSyncExternalStore.
 The default layout owns a host named from the roster's useId; portalHost overrides
 that name. Use distinct names for independent rosters and never mount the same host
