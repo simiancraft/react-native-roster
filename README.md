@@ -149,6 +149,25 @@ export function ScheduleExample() {
 }
 ```
 
+`Schedule` uses a controlled clock. Omitting `now` or passing `null` hides the now line. To show a
+fixed instant, pass its epoch milliseconds. To keep the line live, the host owns the updates:
+
+```tsx
+import { useEffect, useState } from 'react';
+
+function LiveSchedule() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+  return <Schedule lane={lane} now={now} windowSpec={windowSpec} />;
+}
+```
+
+Before the controlled clock contract, Schedule started and updated its own clock. Consumers
+migrating from that behavior must now supply `now` and update it when needed.
+
 ### Recurrence from rrule
 
 The `/rrule` adapter turns daily, weekly, monthly, and yearly rules into intervals and
