@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/simiancraft/react-native-roster/compare/v1.5.0...v1.6.0) (2026-09-23)
+
+### Features
+
+* **schedule:** document day header actions ([a27f5f1](https://github.com/simiancraft/react-native-roster/commit/a27f5f1148fed34937dfc8fc6a1ff8949f8c112a))
+
 ## [1.5.0](https://github.com/simiancraft/react-native-roster/compare/v1.4.0...v1.5.0) (2026-09-23)
 
 ### Features
