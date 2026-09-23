@@ -86,6 +86,39 @@ describe('Schedule chassis and day zones', () => {
       overlay?.children.map((child) => (typeof child === 'string' ? child : child.type)),
     ).toEqual(['transition-sentinel', 'now-sentinel']);
   });
+  it('renders projected translucent pieces and removes invalid or outside bands on rerender', () => {
+    const props = propsFor('schedule-empty');
+    const window = core.windowFor(props.windowSpec);
+    const tree = render(
+      createElement(Schedule, {
+        ...props,
+        bandWindow: {
+          start: window.start + 60 * 60_000,
+          end: window.start + 3 * 60 * 60_000,
+        },
+      }),
+    );
+    const band = tree.root.findByProps({ testID: 'schedule-window-band' });
+    expect(band.props.pointerEvents).toBe('none');
+    expect(band.props.style).toMatchObject({
+      position: 'absolute',
+      left: 0,
+      top: 48,
+      height: 96,
+      backgroundColor: 'rgba(37, 99, 235, 0.14)',
+    });
+    expect(band.props.style.width).toBe(40);
+
+    for (const bandWindow of [
+      undefined,
+      { start: window.start, end: window.start },
+      { start: window.start + 1, end: window.start },
+      { start: window.end, end: window.end + 1 },
+    ]) {
+      act(() => tree.update(createElement(Schedule, { ...props, bandWindow })));
+      expect(tree.root.findAllByProps({ testID: 'schedule-window-band' })).toHaveLength(0);
+    }
+  });
   it('uses the React 18 provider API and mounts both read surfaces', async () => {
     const source = await Bun.file(
       new URL('../../../src/components/schedule/index.tsx', import.meta.url),

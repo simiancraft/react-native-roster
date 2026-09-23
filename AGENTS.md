@@ -433,6 +433,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
     Schedule now is controlled and defaults to null; omitted and null values hide the line.
     Hosts that need a live line own now state, update it from their own interval, and clear that
     interval on cleanup. Consumers migrating from the former automatic clock must supply now.
+    bandWindow is an optional absolute Window projected as translucent scale pieces into real day
+    columns. It does not change the displayed window, lane geometry, coverage, layers, sources,
+    press identity, or press behavior. Omitted and invalid intersections draw nothing.
     Skipped dates have a zero-width header marker supplied by skippedDateComponent and
     ScheduleSkippedDate, never a fabricated day column.
     Schedule fixtures live in test/fixtures/schedule.ts; their routes reuse the counter
