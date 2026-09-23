@@ -1558,6 +1558,107 @@ describe('yearly recurrence', () => {
     ]);
     expect(output.complete).toBe(true);
   });
+
+  it('expands positive and negative year days across leap-year boundaries', () => {
+    const output = expandRuleSet(
+      set(
+        [
+          rule({
+            frequency: 'YEARLY',
+            dtstart: '2023-01-01',
+            byyearday: [60, -1],
+          }),
+        ],
+        [],
+      ),
+      { start: epoch('2023-01-01'), end: epoch('2025-01-01') },
+    );
+    expect(output.intervals).toEqual([
+      span('2023-03-01T09:00Z', '2023-03-01T17:00Z', 'rule', 'a'),
+      span('2023-12-31T09:00Z', '2023-12-31T17:00Z', 'rule', 'a'),
+      span('2024-02-29T09:00Z', '2024-02-29T17:00Z', 'rule', 'a'),
+      span('2024-12-31T09:00Z', '2024-12-31T17:00Z', 'rule', 'a'),
+    ]);
+    expect(output.complete).toBe(true);
+  });
+
+  it('expands weekdays in week one across year boundaries', () => {
+    const output = expandRuleSet(
+      set(
+        [
+          rule({
+            frequency: 'YEARLY',
+            dtstart: '2026-01-01',
+            byweekno: [1],
+            byweekday: [0, 1, 2, 3, 4],
+          }),
+        ],
+        [],
+      ),
+      { start: epoch('2025-12-28'), end: epoch('2027-01-11') },
+    );
+    expect(output.intervals).toEqual([
+      span('2026-01-01T09:00Z', '2026-01-01T17:00Z', 'rule', 'a'),
+      span('2026-01-02T09:00Z', '2026-01-02T17:00Z', 'rule', 'a'),
+      span('2027-01-04T09:00Z', '2027-01-04T17:00Z', 'rule', 'a'),
+      span('2027-01-05T09:00Z', '2027-01-05T17:00Z', 'rule', 'a'),
+      span('2027-01-06T09:00Z', '2027-01-06T17:00Z', 'rule', 'a'),
+      span('2027-01-07T09:00Z', '2027-01-07T17:00Z', 'rule', 'a'),
+      span('2027-01-08T09:00Z', '2027-01-08T17:00Z', 'rule', 'a'),
+    ]);
+    expect(output.complete).toBe(true);
+  });
+
+  it('uses WKST to place weekdays within a numbered week', () => {
+    for (const [wkst, start, end] of [
+      [0, '2021-01-10T09:00Z', '2021-01-10T17:00Z'],
+      [6, '2021-01-03T09:00Z', '2021-01-03T17:00Z'],
+    ] as const) {
+      const output = expandRuleSet(
+        set(
+          [
+            rule({
+              frequency: 'YEARLY',
+              dtstart: '2021-01-01',
+              byweekno: [1],
+              byweekday: [6],
+              wkst,
+            }),
+          ],
+          [],
+        ),
+        { start: epoch('2021-01-01'), end: epoch('2021-01-11') },
+      );
+      expect(output.intervals).toEqual([span(start, end, 'rule', 'a')]);
+    }
+  });
+
+  it('accepts week 53 only in years that have it and resolves the last week negatively', () => {
+    for (const [byweekno, starts] of [
+      [[53], ['2020-12-28T09:00Z']],
+      [[-1], ['2020-12-28T09:00Z', '2021-12-27T09:00Z']],
+    ] as const) {
+      const output = expandRuleSet(
+        set(
+          [
+            rule({
+              frequency: 'YEARLY',
+              dtstart: '2020-01-01',
+              byweekno: [...byweekno],
+              byweekday: [0],
+            }),
+          ],
+          [],
+        ),
+        { start: epoch('2020-01-01'), end: epoch('2022-01-02') },
+      );
+      expect(output.intervals).toEqual(
+        starts.map((start) => ({
+          ...span(start, start.replace('09:00Z', '17:00Z'), 'rule', 'a'),
+        })),
+      );
+    }
+  });
 });
 
 describe('validation', () => {
@@ -1677,6 +1778,12 @@ describe('validation', () => {
       { byweekday: [-1] },
       { bymonth: [13] },
       { bymonthday: [0] },
+      { frequency: 'YEARLY', byyearday: [0] },
+      { frequency: 'YEARLY', byyearday: [367] },
+      { frequency: 'YEARLY', byyearday: [1.5] },
+      { frequency: 'YEARLY', byweekno: [0] },
+      { frequency: 'YEARLY', byweekno: [54] },
+      { frequency: 'YEARLY', byweekno: [1.5] },
       { bysetpos: [367] },
       { bysetpos: [1.5] },
     ]) {
@@ -1685,6 +1792,16 @@ describe('validation', () => {
     expect(() => expandRuleSet(set([], [date({ timezone: 'Not/AZone' })]), window)).toThrow();
     expect(() => expandRuleSet(set([], [date({ date: '2024-02-30' })]), window)).toThrow();
     expect(() => expandRuleSet(set([rule({ dtstart: 'bad' })], []), window)).toThrow();
+  });
+
+  it('rejects year-day and week-number fields on non-yearly rules', () => {
+    for (const frequency of ['DAILY', 'WEEKLY', 'MONTHLY'] as const) {
+      for (const field of [{ byyearday: [1] }, { byweekno: [1] }]) {
+        expect(() => expandRuleSet(set([rule({ frequency, ...field })], []), window)).toThrow(
+          'requires YEARLY frequency',
+        );
+      }
+    }
   });
 });
 
