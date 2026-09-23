@@ -12,6 +12,7 @@ import type {
   ScheduleColumnInput,
   ScheduleDayHeaderInput,
   ScheduleProps,
+  WindowBandInput,
 } from '../../../src/components/schedule/schedule.types';
 import { ScheduleWidth } from '../../../src/components/schedule/use-schedule-viewport';
 import { transitionBounds } from '../../../src/components/schedule/utils/days';
@@ -118,6 +119,93 @@ describe('Schedule chassis and day zones', () => {
       act(() => tree.update(createElement(Schedule, { ...props, bandWindow })));
       expect(tree.root.findAllByProps({ testID: 'schedule-window-band' })).toHaveLength(0);
     }
+  });
+  it('passes exact clipped and repeated pieces to a function window-band replacement', () => {
+    const windowBandComponent = mock((input: WindowBandInput) =>
+      createElement('custom-band', input),
+    );
+    const ordinary = propsFor('schedule-empty');
+    const ordinaryWindow = core.windowFor(ordinary.windowSpec);
+    const ordinaryTree = render(
+      createElement(Schedule, {
+        ...ordinary,
+        bandWindow: {
+          start: ordinaryWindow.start - 60 * 60_000,
+          end: ordinaryWindow.start + 60 * 60_000,
+        },
+        windowBandComponent,
+      }),
+    );
+    const ordinaryDay = core.dayColumnsFor(ordinaryWindow, ordinary.windowSpec.timezone)[0];
+    if (!ordinaryDay) throw new Error('Expected ordinary day column');
+    expect(ordinaryTree.root.findByType('custom-band' as ElementType).props).toEqual({
+      day: ordinaryDay,
+      column: 0,
+      start: ordinaryWindow.start,
+      end: ordinaryWindow.start + 60 * 60_000,
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 48,
+    });
+
+    const fall = propsFor('schedule-fall');
+    const fallWindow = core.windowFor(fall.windowSpec);
+    const repeatedDay = core.dayColumnsFor(fallWindow, fall.windowSpec.timezone)[6];
+    if (!repeatedDay) throw new Error('Expected repeated day column');
+    const repeatedStart = Date.parse('2024-11-03T05:30Z');
+    const repeatedEnd = Date.parse('2024-11-03T09:30Z');
+    const repeatedTree = render(
+      createElement(Schedule, {
+        ...fall,
+        bandWindow: { start: repeatedStart, end: repeatedEnd },
+        windowBandComponent,
+      }),
+    );
+    expect(
+      repeatedTree.root.findAllByType('custom-band' as ElementType).map(({ props }) => props),
+    ).toEqual([
+      {
+        day: repeatedDay,
+        column: 6,
+        start: repeatedStart,
+        end: Date.parse('2024-11-03T06:00Z'),
+        x: 0,
+        y: 24,
+        width: 40,
+        height: 24,
+      },
+      {
+        day: repeatedDay,
+        column: 6,
+        start: Date.parse('2024-11-03T06:00Z'),
+        end: Date.parse('2024-11-03T07:00Z'),
+        x: 0,
+        y: 48,
+        width: 40,
+        height: 24,
+      },
+      {
+        day: repeatedDay,
+        column: 6,
+        start: Date.parse('2024-11-03T07:00Z'),
+        end: Date.parse('2024-11-03T08:00Z'),
+        x: 0,
+        y: 72,
+        width: 40,
+        height: 24,
+      },
+      {
+        day: repeatedDay,
+        column: 6,
+        start: Date.parse('2024-11-03T08:00Z'),
+        end: repeatedEnd,
+        x: 0,
+        y: 96,
+        width: 40,
+        height: 72,
+      },
+    ]);
   });
   it('uses the React 18 provider API and mounts both read surfaces', async () => {
     const source = await Bun.file(

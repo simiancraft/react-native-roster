@@ -24,7 +24,7 @@ in `../primitives`. Zone contracts and a complete example live in the
 The chassis binds default component types once; ScheduleDay mounts components
 with day data and passes nodes into ScheduleDayLayout. There is no black-box day
 list to split: days, transitions, and rects already map in their owning parts.
-Schedule has ten input-bearing component slots and no zero-argument singleton slots.
+Schedule has eleven input-bearing component slots and no zero-argument singleton slots.
 
 `now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
 milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in
@@ -34,7 +34,12 @@ the former automatic line must supply `now` and own its updates.
 `bandWindow` optionally projects an absolute `Window` as translucent pieces through the real day
 columns. Omitted, empty, reversed, and nonoverlapping values produce no pieces. Derivation stays
 outside lane layout and cache keys, so changing the band preserves the displayed window, geometry,
-coverage, layers, sources, and press behavior.
+coverage, layers, sources, and press behavior. `windowBandComponent` receives the root-exported
+`WindowBandInput` for every visible piece. The input contains the real `day`, zero-based `column`,
+clipped absolute `start` and `end`, and final `x`, `y`, `width`, and `height`.
+`ScheduleWindowBand` is the root-exported translucent default. A replacement is supplied as
+`<Schedule bandWindow={{ start, end }} windowBandComponent={FocusWindowBand} {...props} />`, with
+`FocusWindowBand` declared at module scope and typed with `WindowBandInput`.
 
 `onDayPress` receives the actual `DayColumn` for an ordinary activated heading. The root-exported
 `ScheduleDayHeaderInput` gives a custom `dayHeaderComponent` the `day` and an optional `onPress`

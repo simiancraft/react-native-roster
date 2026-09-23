@@ -46,6 +46,7 @@ export { ScheduleGrid } from './components/schedule/days/parts/grid';
 export { ScheduleNowLine } from './components/schedule/days/parts/now-line';
 export { ScheduleSkippedDate } from './components/schedule/days/parts/skipped-date';
 export { ScheduleTransition } from './components/schedule/days/parts/transition';
+export { ScheduleWindowBand } from './components/schedule/days/parts/window-band';
 export { ScheduleGutter } from './components/schedule/parts/gutter';
 export { ScheduleIncomplete } from './components/schedule/parts/incomplete';
 export type {
@@ -59,6 +60,7 @@ export type {
   ScheduleStyleProps,
   ScheduleTransitionInput,
   ScheduleWindowSpec,
+  WindowBandInput,
 } from './components/schedule/schedule.types';
 export { useSchedule } from './components/schedule/use-schedule';
 export type { ScopedCacheIdentity } from './core';

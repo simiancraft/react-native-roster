@@ -190,7 +190,31 @@ migrating from that behavior must now supply `now` and update it when needed.
 
 Pass `bandWindow={{ start, end }}` to mark an absolute window without changing the Schedule's own
 day or week extent. The default translucent band is clipped to the displayed window and its real
-day columns. Omitted, empty, reversed, and nonoverlapping windows draw no band.
+day columns. Omitted, empty, reversed, and nonoverlapping windows draw no band. Replace it with
+`windowBandComponent`; its root-exported `WindowBandInput` provides the containing `day`, zero-based
+`column`, clipped absolute `start` and `end`, and final `x`, `y`, `width`, and `height`. The
+root-exported `ScheduleWindowBand` is the default.
+
+```tsx
+import { Schedule, type WindowBandInput } from 'react-native-roster';
+import { View } from 'react-native';
+
+function FocusWindowBand({ x, y, width, height }: WindowBandInput) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', left: x, top: y, width, height, backgroundColor: '#2563eb33' }}
+    />
+  );
+}
+
+<Schedule
+  lane={lane}
+  windowSpec={windowSpec}
+  bandWindow={{ start, end }}
+  windowBandComponent={FocusWindowBand}
+/>;
+```
 
 ### Recurrence from rrule
 

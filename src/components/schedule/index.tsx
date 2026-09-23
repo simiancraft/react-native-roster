@@ -58,6 +58,7 @@ function ScheduleContent(props: ScheduleProps) {
     gridComponent = ScheduleGrid,
     transitionComponent = ScheduleTransition,
     nowLineComponent: NowLineComponent = ScheduleNowLine,
+    windowBandComponent: WindowBandComponent = ScheduleWindowBand,
     intervalComponent = RosterInterval,
     gapComponent = RosterGap,
     incompleteComponent: IncompleteComponent = ScheduleIncomplete,
@@ -92,7 +93,7 @@ function ScheduleContent(props: ScheduleProps) {
         const nowLine = position?.column === column ? <NowLineComponent {...position} /> : null;
         const windowBand = windowBandPieces
           .filter((piece) => piece.column === column)
-          .map((piece) => <ScheduleWindowBand key={`${piece.start}:${piece.end}`} {...piece} />);
+          .map((piece) => <WindowBandComponent key={`${piece.start}:${piece.end}`} {...piece} />);
         return (
           <ScheduleDay
             key={day.localDate}
