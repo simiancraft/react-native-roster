@@ -1,3 +1,18 @@
+## [1.0.0](https://github.com/simiancraft/react-native-roster/compare/v0.5.1...v1.0.0) (2026-09-23)
+
+### ⚠ BREAKING CHANGES
+
+* **schedule:** omitted Schedule now no longer starts or updates a system clock.
+
+### Features
+
+* **schedule:** implement controlled-now library contract ([adf9975](https://github.com/simiancraft/react-native-roster/commit/adf99759e47f8946cd6bafdfa813e2bf12a6a297))
+
+### Bug Fixes
+
+* **demo:** derive time-off presentation from provenance ([964c861](https://github.com/simiancraft/react-native-roster/commit/964c861a03acf18cb9c92e8bc44c0f2c49215dda))
+* **demo:** make short dates and reset labels explicit ([e1a7e0e](https://github.com/simiancraft/react-native-roster/commit/e1a7e0ee0f576c74260a3ed2863ef8650737ee36))
+
 ## [0.5.1](https://github.com/simiancraft/react-native-roster/compare/v0.5.0...v0.5.1) (2026-09-22)
 
 # [0.5.0](https://github.com/simiancraft/react-native-roster/compare/v0.4.17...v0.5.0) (2026-09-22)
