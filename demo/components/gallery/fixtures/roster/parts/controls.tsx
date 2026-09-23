@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { next, prev } from 'react-native-roster/core';
-import { Control } from '../../parts/control';
+import { Control, RadioControl, RadioGroup } from '../../parts/control';
 import type { useRosterFixture } from '../use-roster-fixture';
 
 type GalleryControlsProps = Pick<
@@ -57,40 +57,48 @@ export function GalleryControls({
         {nowZone}
         <Control label="Previous" onPress={() => setWindowSpec(prev(windowSpec))} />
         <Control label="Next" onPress={() => setWindowSpec(next(windowSpec))} />
-        {(['day', 'week', 'month'] as const).map((span) => (
-          <Control
-            key={span}
-            label={span}
-            selected={span === windowSpec.span}
-            onPress={() => setSpan(span)}
-          />
-        ))}
-        {([15, 30, 60] as const).map((step) => (
-          <Control
-            key={step}
-            label={`${step} min`}
-            selected={step === minuteStep}
-            onPress={() => setMinuteStep(step)}
-          />
-        ))}
-        {(['UTC', 'America/Chicago', 'Europe/London', 'Pacific/Auckland'] as const).map(
-          (timezone) => (
-            <Control
-              key={timezone}
-              label={timezone}
-              selected={timezone === windowSpec.timezone}
-              onPress={() => setTimezone(timezone)}
+        <RadioGroup label="Span">
+          {(['day', 'week', 'month'] as const).map((span) => (
+            <RadioControl
+              key={span}
+              label={span}
+              checked={span === windowSpec.span}
+              onPress={() => setSpan(span)}
             />
-          ),
-        )}
-        {(['label', 'availability', 'availabilityMinusBooking'] as const).map((measure) => (
-          <Control
-            key={measure}
-            label={`Sort: ${measure}`}
-            selected={measure === sort}
-            onPress={() => setSort(measure)}
-          />
-        ))}
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Minute step">
+          {([15, 30, 60] as const).map((step) => (
+            <RadioControl
+              key={step}
+              label={`${step} min`}
+              checked={step === minuteStep}
+              onPress={() => setMinuteStep(step)}
+            />
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Timezone">
+          {(['UTC', 'America/Chicago', 'Europe/London', 'Pacific/Auckland'] as const).map(
+            (timezone) => (
+              <RadioControl
+                key={timezone}
+                label={timezone}
+                checked={timezone === windowSpec.timezone}
+                onPress={() => setTimezone(timezone)}
+              />
+            ),
+          )}
+        </RadioGroup>
+        <RadioGroup label="Sort">
+          {(['label', 'availability', 'availabilityMinusBooking'] as const).map((measure) => (
+            <RadioControl
+              key={measure}
+              label={`Sort: ${measure}`}
+              checked={measure === sort}
+              onPress={() => setSort(measure)}
+            />
+          ))}
+        </RadioGroup>
       </View>
     </View>
   );
