@@ -35,6 +35,24 @@ preserve lane objects. Layer content supplies the structural cache version.
 Explicit undefined component slots retain their defaults.
 Inspector day header and cell presses set the roster anchor date in the view timezone.
 
+## Roster axis choices
+
+The toolbar labels the spans `Day` and `Week`. Its reset action says `Demo day` or `Demo week`,
+with matching `Return to demo day` or `Return to demo week` accessibility labels. Compact and
+avatar layouts use month-name dates such as `Jan 5`; same-year ranges name the year once, and a
+cross-year range names both years.
+
+Week mode adds `Detailed` and `Fitted` density choices. Detailed is the default and retains the
+scrollable 0.7-pixel-per-minute axis, or 42 pixels per hour. Its time cells repeat the compact date
+throughout the week at full, compact, and avatar people-column densities, so horizontal scrolling
+does not remove date context. The first time cell after a day boundary omits the repeated date to
+keep the boundary legible, including when a skipped hour makes that cell `2am`; later cells resume
+it. Fitted divides the measured plot width after the people column by the resolved window's actual
+elapsed minutes. It therefore refits on resize and fills ordinary, 167-hour spring-forward, and
+169-hour fall-back weeks without retaining the detailed strip width. Day mode retains its fixed
+0.8-pixel-per-minute axis and time-only cells. These choices are local to the showcase and do not
+change `Roster` props or library fitting semantics.
+
 ## Event attendance
 
 This feature is about an event; its children are attendances, one per expected
