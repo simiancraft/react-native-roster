@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/adapters/rrule/types.ts",
+    "src/adapters/rrule/validate.ts",
+    "src/adapters/rrule/occurrences.ts",
+    "test/adapters/rrule/expand.test.ts"
+  ],
+  "capture_commit": "2ff1f86e9df465883350c174045b26367cadacec",
+  "capture_method": "bun test test/adapters/rrule/expand.test.ts -t 'yearly recurrence|rejects year-day and week-number'",
+  "content_hash": "sha256:e3351210bfa822d76f433c160747bf2e4953869c6c8de068a476f844f890fe47"
+}

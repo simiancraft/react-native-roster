@@ -1,0 +1,17 @@
+Issue: 232
+Capture commit: 2ff1f86e9df465883350c174045b26367cadacec
+Captured: 2026-09-22
+
+Workflow source: .github/workflows/ci.yml, Test with coverage
+Command:
+bun test --coverage --coverage-reporter=lcov
+
+Observed output:
+bun test v1.4.2 (744846f84)
+
+ 2774 pass
+ 0 fail
+ 32565 expect() calls
+Ran 2774 tests across 38 files. [268.51s]
+
+Exit status: 0

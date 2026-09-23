@@ -1,0 +1,19 @@
+Issue: 232
+Capture commit: 2ff1f86e9df465883350c174045b26367cadacec
+Captured: 2026-09-22
+
+Command:
+bun test test/adapters/rrule/expand.test.ts -t 'yearly recurrence|rejects year-day and week-number'
+
+Observed output:
+bun test v1.4.2 (744846f84)
+
+ 9 pass
+ 2281 filtered out
+ 0 fail
+ 26 expect() calls
+Ran 9 tests across 1 file. [86.00ms]
+
+The selected cases cover signed year days across leap years, week one across year boundaries,
+WKST-dependent week placement, week 53, negative last-week selection, valid YEARLY inputs,
+invalid numeric ranges, and rejection on DAILY, WEEKLY, and MONTHLY rules.

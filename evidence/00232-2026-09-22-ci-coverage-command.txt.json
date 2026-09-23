@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["code", "test", "ci-command"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "src/adapters/rrule/types.ts",
+    "src/adapters/rrule/validate.ts",
+    "src/adapters/rrule/occurrences.ts",
+    "test/adapters/rrule/expand.test.ts"
+  ],
+  "capture_commit": "2ff1f86e9df465883350c174045b26367cadacec",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov",
+  "content_hash": "sha256:3cae9f5c1cedd4b099d68ceab97665229ea70f2cc0dd282e281d8cd8ee953080"
+}
