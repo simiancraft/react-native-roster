@@ -1,0 +1,13 @@
+{
+  "issue": 181,
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/components/layers/plot-stack.tsx",
+    "test/components/layers/plot-stack.test.tsx",
+    "src/components/layers/README.md",
+    ".github/workflows/ci.yml"
+  ],
+  "capture_commit": "68b1dcb70c43ccb2bd99971a5f73c28ce34e513b",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:89a8871025510fdee0a4c129520615af4b9614ac199d7fe07794e3af0d04fb3a"
+}

@@ -1,0 +1,11 @@
+{
+  "issue": 181,
+  "scope_tags": ["code", "test"],
+  "covered_paths": [
+    "src/components/layers/plot-stack.tsx",
+    "test/components/layers/plot-stack.test.tsx"
+  ],
+  "capture_commit": "68b1dcb70c43ccb2bd99971a5f73c28ce34e513b",
+  "capture_method": "bun test test/components/layers/plot-stack.test.tsx && bun run typecheck:test",
+  "content_hash": "sha256:d6c6c9143c91dfe1cf681aec90ca622cc24f304992ba2a4afda80b9dbcf8f40d"
+}
