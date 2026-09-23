@@ -114,7 +114,7 @@ complete mapping into a lane. `expandRuleSet(set, window, options?)` accepts:
 
 | Input | Required fields | Optional fields |
 | --- | --- | --- |
-| `RosterRule` | `id`, `kind`, `frequency`, `dtstart`, `hourstart`, `hourend`, `timezone` | `until`, `count`, `interval`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, `bysetpos` |
+| `RosterRule` | `id`, `kind`, `frequency`, `dtstart`, `timezone` | `until`, `count`, `interval`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, `bysetpos`, `byhour`, and both `hourstart` and `hourend` together |
 | `RosterDate` | `id`, `kind`, `date`, `timezone` | `note`, and both `hourstart` and `hourend` together |
 | `RuleSet` | `rules: RosterRule[]`, `dates: RosterDate[]` | None |
 
@@ -124,9 +124,15 @@ datetime; `date` is a local ISO date. Hours obey
 `0 <= hourstart < hourend <= 24`; fractional hours are supported. A dated override
 without either hour covers its whole local day. One hour alone is invalid.
 
+A rule requires either both hour bounds or a nonempty `byhour`. `byhour` contains
+unique integers from 0 through 23. With explicit bounds, every selected hour must
+be inside `[hourstart, hourend)`; without them, the selected hours derive the
+band. Contiguous selected hours emit one interval, while omitted hours remain
+uncovered. COUNT counts admitted dates, and occurrence caps count emitted spans.
+
 Convert enums to those exact values, `Date` values to appropriate ISO strings,
 and database `null` to omitted optional fields. Drop unsupported recurrence
-fields: `byyearday`, `byweekno`, `byhour`, `byminute`, and `bysecond`. Do not imply
+fields: `byyearday`, `byweekno`, `byminute`, and `bysecond`. Do not imply
 that dropping a semantically active field preserves an arbitrary upstream rule;
 reject unsupported semantics or handle them in your own adapter. Source kinds
 emitted here are `rule` and `date`; a dated `note` becomes source label metadata.
