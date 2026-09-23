@@ -45,10 +45,15 @@ export function WindowNav({
   onToday: () => void;
   onNext: () => void;
 }) {
+  const resetLabel = `Demo ${span}`;
   return (
     <>
       <ToolbarButton label="‹" accessibilityLabel={`Previous ${span}`} onPress={onPrev} />
-      <ToolbarButton label="Demo day" accessibilityLabel="Return to demo day" onPress={onToday} />
+      <ToolbarButton
+        label={resetLabel}
+        accessibilityLabel={`Return to demo ${span}`}
+        onPress={onToday}
+      />
       <ToolbarButton label="›" accessibilityLabel={`Next ${span}`} onPress={onNext} />
     </>
   );
