@@ -1,0 +1,24 @@
+Capture commit: a4dfe430225648f93e17bab07e273b2b5fba561d
+Command: bun run check
+Exit: 0
+Output below is filtered to pass summaries; pipefail propagated the command exit.
+
+Checked 284 files in 66ms. No fixes applied.
+Exported: dist
+All files | 100.00 | 100.00 |
+ 2808 pass
+ 0 fail
+ 32856 expect() calls
+Running publint v0.3.24 for react-native-roster...
+react-native-roster/core: 15.49 kB of 16 kB
+react-native-roster/rrule: 15.9 kB of 15.9 kB
+react-native-roster: 56.16 kB of 56.16 kB
+react-native-roster/nativewind: 52.05 kB of 52.05 kB
+Exported: .cache/dev-dist
+Web performance: all action budgets pass; 24-row viewport, 26 mounted lanes.
+Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.
+Showcase week axes: scrolled full, compact, and avatar date context; cross-year years; normal, spring-forward, and fall-back fitted widths pass.
+Day header: pointer, Enter, and Space each activate the actual day exactly once.
+Control semantics: fixture choices are named radios, persistent controls are pressed, and actions remain buttons.
+LaneRow profiler: 14 continuously mounted lanes, zero updates on the second scroll pass; mount and update controls pass.
+Selection profiler: zero mounted-row updates when opening details or dismissing on a cell.

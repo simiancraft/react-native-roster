@@ -1,0 +1,13 @@
+Capture commit: a4dfe430225648f93e17bab07e273b2b5fba561d
+Remote branch: origin/fix/migrate-gallery-cards-197
+Remote ancestry check: git merge-base --is-ancestor HEAD origin/fix/migrate-gallery-cards-197
+Remote ancestry result: exit 0
+
+Command: bun test test/demo/demo-primitives.test.tsx
+Exit: 0
+
+test/demo/demo-primitives.test.tsx:
+ 19 pass
+ 0 fail
+ 64 expect() calls
+Ran 19 tests across 1 file. [93.00ms]

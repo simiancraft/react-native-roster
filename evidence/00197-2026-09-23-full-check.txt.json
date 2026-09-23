@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "test", "build", "package", "browser"],
+  "covered_paths": [
+    "package.json",
+    "demo/components/gallery/home/parts/fixture-section.tsx",
+    "demo/components/gallery/home/parts/hero.tsx",
+    "test/demo/demo-primitives.test.tsx",
+    "scripts/check-web-performance.ts"
+  ],
+  "capture_commit": "a4dfe430225648f93e17bab07e273b2b5fba561d",
+  "capture_method": "bun run check; pass-summary filter with pipefail",
+  "content_hash": "sha256:3884f6248eab46b9d76eb69023ceed2980e36b395cf55f00350bc759d9c15242"
+}

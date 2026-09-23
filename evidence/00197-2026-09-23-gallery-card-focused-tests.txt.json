@@ -1,0 +1,15 @@
+{
+  "scope_tags": ["frontend", "test"],
+  "covered_paths": [
+    "demo/components/gallery/home/parts/fixture-section.tsx",
+    "demo/components/gallery/home/parts/hero.tsx",
+    "demo/components/gallery/home/home.types.ts",
+    "demo/components/ui/card.tsx",
+    "demo/components/ui/utils/classes.ts",
+    "test/demo/demo-primitives.test.tsx",
+    "test/support/native-host.ts"
+  ],
+  "capture_commit": "a4dfe430225648f93e17bab07e273b2b5fba561d",
+  "capture_method": "bun test test/demo/demo-primitives.test.tsx",
+  "content_hash": "sha256:b22ad4d65d01c602e03f660553dd966b7c486bc9ec811d39b198b7fcd7ad8976"
+}

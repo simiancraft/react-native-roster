@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["ci-command", "test", "coverage"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "demo/components/gallery/home/parts/fixture-section.tsx",
+    "demo/components/gallery/home/parts/hero.tsx",
+    "test/demo/demo-primitives.test.tsx"
+  ],
+  "capture_commit": "a4dfe430225648f93e17bab07e273b2b5fba561d",
+  "capture_method": "bun test --coverage --coverage-reporter=lcov; summary filter with pipefail",
+  "content_hash": "sha256:4cc4d9794004483dcbb2ead523994823faf08ffa7563b311b1b10dea28b97d87"
+}

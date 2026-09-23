@@ -1,0 +1,10 @@
+Capture commit: a4dfe430225648f93e17bab07e273b2b5fba561d
+CI source: .github/workflows/ci.yml
+Command: bun test --coverage --coverage-reporter=lcov
+Exit: 0
+Output below is filtered to the test summary; pipefail propagated the command exit.
+
+ 2808 pass
+ 0 fail
+ 32856 expect() calls
+Ran 2808 tests across 40 files. [274.42s]
