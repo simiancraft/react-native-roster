@@ -13,10 +13,27 @@ import type {
   WindowSpec,
 } from '../../core';
 import type { GapInput, IntervalInput } from '../layers/layers.types';
-import type { WindowBandPiece } from './utils/window-band';
 
 export type ScheduleWindowSpec = WindowSpec & { span: 'day' | 'week' };
 export type ScheduleProjection = Extract<Projection, { orientation: 'columns' }>;
+export type WindowBandInput = {
+  /** Real day column containing this clipped scale piece. */
+  day: DayColumn;
+  /** Zero-based index of day within the projected Schedule columns. */
+  column: number;
+  /** Clipped absolute start in epoch milliseconds. */
+  start: number;
+  /** Clipped absolute end in epoch milliseconds. */
+  end: number;
+  /** Final horizontal offset within the containing day column. */
+  x: number;
+  /** Final vertical offset within the containing day column. */
+  y: number;
+  /** Final piece width. */
+  width: number;
+  /** Final piece height. */
+  height: number;
+};
 export type ScheduleInput = {
   lane: Lane;
   windowSpec: ScheduleWindowSpec;
@@ -44,7 +61,7 @@ export type ScheduleModel = {
   geometry: LaneGeometry;
   now: number | null;
   /** Visible pieces of bandWindow clipped and projected through the real day columns. */
-  windowBandPieces: WindowBandPiece[];
+  windowBandPieces: WindowBandInput[];
   press: (columnIndex: number, x: number, y: number) => void;
   status: 'ready';
 };
@@ -111,6 +128,8 @@ export type ScheduleProps = ScheduleInput &
     transitionComponent?: ComponentType<ScheduleTransitionInput>;
     /** Current day's line at y; ScheduleNowLine spans the containing column. */
     nowLineComponent?: ComponentType<{ y: number; column: number }>;
+    /** Projected band piece; ScheduleWindowBand draws the default translucent band. */
+    windowBandComponent?: ComponentType<WindowBandInput>;
     /** Covered rect filler shared with Roster; position using rect bounds and use pointerEvents="none". */
     intervalComponent?: ComponentType<IntervalInput>;
     /** Removed rect content shared with Roster; ScheduleColumn supplies the invisible pressable. */

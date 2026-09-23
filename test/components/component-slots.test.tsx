@@ -10,6 +10,7 @@ import type {
   RosterProps,
   ScheduleDayHeaderInput,
   ScheduleProps,
+  WindowBandInput,
 } from '../../src';
 import {
   Roster,
@@ -28,6 +29,7 @@ import {
   ScheduleNowLine,
   ScheduleSkippedDate,
   ScheduleTransition,
+  ScheduleWindowBand,
 } from '../../src';
 import { RosterIncomplete } from '../../src/components/roster/lanes/parts/incomplete';
 import { rosterFixtures, rosterWindowSpec } from '../fixtures/roster';
@@ -99,6 +101,17 @@ function StatefulDayHeader({ day, onPress }: ScheduleDayHeaderInput) {
   );
 }
 
+function StatefulWindowBand({ day, start }: WindowBandInput) {
+  const [count, setCount] = useState(0);
+  return (
+    <Pressable testID={`stateful-window-band-${start}`} onPress={() => setCount(count + 1)}>
+      <Text>
+        {day.localDate}:{count}
+      </Text>
+    </Pressable>
+  );
+}
+
 const rosterSlots = {
   headerComponent: classSlot(RosterHeader),
   headerCellComponent: classSlot(RosterHeaderCell),
@@ -118,6 +131,7 @@ const scheduleSlots = {
   columnComponent: classSlot(ScheduleColumn),
   transitionComponent: classSlot(ScheduleTransition),
   nowLineComponent: classSlot(ScheduleNowLine),
+  windowBandComponent: classSlot(ScheduleWindowBand),
   intervalComponent: classSlot(StatefulInterval),
   gapComponent: classSlot(RosterGap),
   incompleteComponent: classSlot(ScheduleIncomplete),
@@ -211,6 +225,10 @@ describe('component slot mounting and identity', () => {
       lane,
       windowSpec,
       now: Date.parse('2024-11-03T07:30Z'),
+      bandWindow: {
+        start: Date.parse('2024-11-03T05:30Z'),
+        end: Date.parse('2024-11-03T09:30Z'),
+      },
       onDayPress: mock(),
     };
     const tree = render(<Schedule {...props} />);
@@ -245,6 +263,20 @@ describe('component slot mounting and identity', () => {
         )[0]
         ?.findByType(Text).props.children,
     ).toContain(1);
+    const windowBandInstance = tree.root.findAllByType(scheduleSlots.windowBandComponent)[0]
+      ?.instance;
+    expect(windowBandInstance).toBeDefined();
+    act(() => tree.update(<Schedule {...props} windowBandComponent={StatefulWindowBand} />));
+    expect(tree.root.findAllByType(scheduleSlots.windowBandComponent)).toHaveLength(0);
+    const windowBands = tree.root.findAll(
+      (node) =>
+        typeof node.props.testID === 'string' &&
+        node.props.testID.startsWith('stateful-window-band-'),
+    );
+    expect(windowBands).toHaveLength(4);
+    act(() => windowBands[0]?.props.onPress());
+    expect(windowBands[0]?.findByType(Text).props.children).toContain(1);
+    expect(windowBands[1]?.findByType(Text).props.children).toContain(0);
     const apia = { span: 'week', anchorDate: '2011-12-26', timezone: 'Pacific/Apia' } as const;
     act(() => tree.update(<Schedule {...props} windowSpec={apia} />));
     expect(tree.root.findAllByType(skippedDateComponent)).toHaveLength(1);

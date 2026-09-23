@@ -242,7 +242,31 @@ migrating consumers must now supply and update `now` themselves.
 `bandWindow={{ start, end }}` marks an absolute window with the default translucent band. Its pieces
 are clipped to the displayed window and real day columns, including clock-change scale pieces.
 Changing the band does not change the Schedule extent, lane geometry, coverage, layers, sources, or
-press behavior. Omitted, empty, reversed, and nonoverlapping values draw nothing.
+press behavior. Omitted, empty, reversed, and nonoverlapping values draw nothing. A
+`windowBandComponent` receives the root-exported `WindowBandInput` for every visible piece: the
+containing `day`, zero-based `column`, clipped absolute `start` and `end`, and final `x`, `y`,
+`width`, and `height`. `ScheduleWindowBand` is the root-exported default.
+
+```tsx
+import { Schedule, type WindowBandInput } from 'react-native-roster';
+import { View } from 'react-native';
+
+function FocusWindowBand({ x, y, width, height }: WindowBandInput) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', left: x, top: y, width, height, backgroundColor: '#2563eb33' }}
+    />
+  );
+}
+
+<Schedule
+  lane={lane}
+  windowSpec={windowSpec}
+  bandWindow={{ start, end }}
+  windowBandComponent={FocusWindowBand}
+/>;
+```
 
 `onDayPress` receives the actual `DayColumn` when an ordinary day heading is activated. A custom
 `dayHeaderComponent` receives the root-exported `ScheduleDayHeaderInput`, containing `day` and an
@@ -260,5 +284,6 @@ receive or expose a day action.
 | `columnComponent` | `day`, `rects`, `gapRects`, `lane`, `highlightSource`, `press`, interval and gap components | `ScheduleColumn`: final rect bounds in layer order. |
 | `transitionComponent` | `day`, `transition`, `y`, `dividerY`, `height`, `width` | `ScheduleTransition`: skipped-time hatch, or repeat divider and again label. |
 | `nowLineComponent` | `y`, `column` | `ScheduleNowLine`: line for the caller-supplied `now` in its containing day. |
+| `windowBandComponent` | `WindowBandInput` (`day`, `column`, `start`, `end`, `x`, `y`, `width`, `height`) | `ScheduleWindowBand`: translucent piece for `bandWindow`, mounted once per visible scale piece. |
 | `intervalComponent`, `gapComponent` | Same inputs as Roster | Shared `RosterInterval` and `RosterGap`. |
 | `incompleteComponent` | `lane`, `label` | `ScheduleIncomplete`: notice above the grid when the lane is incomplete. |
