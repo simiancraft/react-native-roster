@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["test", "ci-equivalent", "accessibility", "flow"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    ".size-limit.json",
+    "package.json",
+    "src/components/schedule/days/parts/day-header.tsx",
+    "test/components/schedule/render.test.ts",
+    "scripts/check-web-performance.ts",
+    "demo/components/gallery/fixtures/schedule/index.tsx",
+    "demo/components/gallery/fixtures/schedule/use-schedule-fixture.ts"
+  ],
+  "capture_commit": "5ad26caf605f702536da4793cabcc9dd8e18f9fd",
+  "capture_method": "bun install --frozen-lockfile; bun test test/components/schedule/render.test.ts; bun run check",
+  "content_hash": "sha256:3a4d7e5e01ed9ddd212fe5755f7f6ef0ca5c553584bdca7d8e4bfa033c087617"
+}
