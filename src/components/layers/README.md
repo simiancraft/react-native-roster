@@ -5,6 +5,8 @@ projections draw the same components, so they live above Roster and Schedule.
 
 - Root entry exports: `RosterInterval`, `RosterGap`, `IntervalInput`, `GapInput`
 - `layer-stack.tsx`: the shared ordered interval and gap rect collection
+- `plot-stack.tsx`: the shared node-only grid, marks, and optional overlay layout; Roster body
+  and Schedule day layouts are its consumers
 - `layers.types.ts`: the component and collection input contracts both projections pass
 - `parts/interval.tsx`, `parts/gap.tsx`: the default components
 - `utils/styles.ts`: content-keyed style objects per layer
