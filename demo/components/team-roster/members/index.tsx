@@ -10,6 +10,7 @@ import { WeekSchedule } from './parts/week-schedule';
 
 /** The selected member's card, selection detail, and week; a composer nested in the roster. */
 export function MemberInspector({
+  now,
   lane,
   member,
   selection,
@@ -17,6 +18,7 @@ export function MemberInspector({
   focusDate,
   selectDate,
 }: {
+  now: number;
   lane: Lane;
   member: Member;
   selection: Selection;
@@ -37,6 +39,7 @@ export function MemberInspector({
       selectionZone={<SelectionDetail selection={selection} timezone={windowSpec.timezone} />}
       scheduleZone={
         <WeekSchedule
+          now={now}
           lane={lane}
           windowSpec={windowSpec}
           focusDate={focusDate}

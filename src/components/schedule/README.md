@@ -22,6 +22,11 @@ with day data and passes nodes into ScheduleDayLayout. There is no black-box day
 list to split: days, transitions, and rects already map in their owning parts.
 Schedule has ten input-bearing component slots and no zero-argument singleton slots.
 
+`now` is controlled and defaults to null. Omitting it or passing null hides the line. Supply epoch
+milliseconds to show a fixed instant. Schedule owns no timer; a live-clock host keeps `now` in
+state, updates it from an interval, and clears that interval on cleanup. Consumers migrating from
+the former automatic line must supply `now` and own its updates.
+
 Each mounted `Schedule` or `useSchedule` surface owns an isolated `ScopedCacheIdentity` by default.
 Pass one stable `cacheIdentity` to multiple surfaces only when they render the same dataset and
 should share target-warm geometry and coverage.

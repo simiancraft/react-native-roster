@@ -54,8 +54,3 @@ export function WeekDayHeader({ day }: { day: DayColumn }) {
     </Pressable>
   );
 }
-
-/** Schedule has no controlled clock; omit its system-clock line in the seeded showcase. */
-export function WeekNowLine() {
-  return null;
-}
