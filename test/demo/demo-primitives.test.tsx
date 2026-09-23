@@ -12,6 +12,9 @@ import {
   ToggleControl,
 } from '../../demo/components/gallery/fixtures/parts/control';
 import { HighlightControls } from '../../demo/components/gallery/fixtures/roster/parts/highlight-controls';
+import type { LinkInput } from '../../demo/components/gallery/home/home.types';
+import { FixtureSection } from '../../demo/components/gallery/home/parts/fixture-section';
+import { GalleryHero } from '../../demo/components/gallery/home/parts/hero';
 import { Chip, ChipGroup, ToolbarButton } from '../../demo/components/team-roster/parts/chips';
 import { TeamCorner } from '../../demo/components/team-roster/parts/header-cell';
 import { MemberLabel } from '../../demo/components/team-roster/parts/member-label';
@@ -106,6 +109,61 @@ it('keeps every Card variant class scanner-visible', () => {
   expect(source).toContain("default: 'border-border bg-card'");
   expect(source).toContain("inset: 'border-border bg-background'");
   expect(source).toContain("dashed: 'border-dashed border-grid-strong bg-background'");
+});
+
+it('renders linked gallery fixtures through the muted Card tone', () => {
+  const tree = render(
+    <FixtureSection
+      title="Roster fixtures"
+      blurb="Fixture examples"
+      fixtures={[
+        {
+          id: 'coverage',
+          href: '/gallery/coverage',
+          title: 'Coverage',
+          description: 'Coverage fixture',
+        },
+      ]}
+      linkComponent={TestLink}
+    />,
+  );
+  const link = tree.root.findByProps({ testID: 'link:/gallery/coverage' });
+  const card = link.findByType(Card);
+
+  expect(card.props.accessibilityRole).toBe('link');
+  expect(card.props.className).toBe(
+    'w-full gap-1 rounded-xl border border-border bg-card/60 p-4 sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] web:cursor-pointer web:transition-colors web:hover:border-grid-strong web:hover:bg-card',
+  );
+  expect(card.findByType(View).props.className).toBe(card.props.className);
+  expect(card.findAllByType(Text).map((text) => text.props.children)).toEqual([
+    'Coverage',
+    '/gallery/coverage',
+    'Coverage fixture',
+  ]);
+});
+
+it('renders the linked showcase through the default Card tone and merges swatch classes', () => {
+  const tree = render(
+    <GalleryHero version="2.1.2" showcaseHref="/showcase" linkComponent={TestLink} />,
+  );
+  const link = tree.root.findByProps({ testID: 'link:/showcase' });
+  const card = link.findByType(Card);
+  const swatches = card.findAll(
+    (node) => node.type === View && node.props.className?.includes('h-2 w-10'),
+  );
+
+  expect(card.props.accessibilityRole).toBe('link');
+  expect(card.props.className).toBe(
+    'gap-3 rounded-2xl border border-border bg-card p-5 web:cursor-pointer web:transition-colors web:hover:border-grid-strong',
+  );
+  expect(card.findByType(View).props.className).toBe(card.props.className);
+  expect(swatches.map((swatch) => swatch.props.className)).toEqual([
+    'h-2 w-10 rounded-full bg-emerald-500/40',
+    'h-2 w-10 rounded-full bg-sky-500',
+    'h-2 w-10 rounded-full bg-violet-500',
+    'h-2 w-10 rounded-full bg-amber-500/40',
+    'h-2 w-10 rounded-full bg-rose-500/40',
+  ]);
 });
 
 for (const [size, expected] of [
@@ -400,4 +458,8 @@ function render(element: React.ReactElement) {
   });
   trees.push(tree);
   return tree;
+}
+
+function TestLink({ href, cardZone }: LinkInput) {
+  return <View testID={`link:${href}`}>{cardZone}</View>;
 }
