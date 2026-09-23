@@ -18,10 +18,11 @@ provenance per span.
 ## Supported input
 
 `RosterRule` covers DAILY, WEEKLY, MONTHLY, and YEARLY with `interval`, `count`,
-`until`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, and `bysetpos`, plus
-`hourstart`, `hourend`, and an IANA `timezone`. `RosterDate` is a single local
-date, whole day or with hours. Both are `include` or `exclude`. Unbounded strings
-are rejected by validation.
+`until`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, and `bysetpos`, plus signed
+`byyearday` and `byweekno` selectors on yearly rules. `hourstart`, `hourend`, and an
+IANA `timezone` complete each rule. `RosterDate` is a single local date, whole day
+or with hours. Both are `include` or `exclude`. Unbounded strings are rejected by
+validation.
 
 ## File map
 

@@ -342,6 +342,8 @@ Do not publish, tag, change repository settings, or push without task authorizat
     dates from the original anchor.
     Supply the implicit monthly day and yearly month and day explicitly to avoid a
     31st drifting through February or February 29 drifting through non-leap years.
+    Active yearly BYYEARDAY or BYWEEKNO selectors suppress those implicit constraints;
+    pass them through to the engine, which applies WKST to numbered weeks.
     Only interval-1 rules without COUNT and with an exactly local-midnight
     anchor may skip periods. Compute candidates in plain
     date space, retaining the weekly weekday, monthly day, or yearly month and day, and step back past

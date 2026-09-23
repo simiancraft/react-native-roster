@@ -152,7 +152,8 @@ export function ScheduleExample() {
 ### Recurrence from rrule
 
 The `/rrule` adapter turns daily, weekly, monthly, and yearly rules into intervals and
-gaps. Here is the Wednesday from the top of this page: weekdays 09:00 to 17:00
+gaps. Yearly rules accept signed `byyearday` and `byweekno` selectors. Here is the
+Wednesday from the top of this page: weekdays 09:00 to 17:00
 in New York, and a dentist appointment on the 23rd. Press the empty day and it
 names `dentist`.
 

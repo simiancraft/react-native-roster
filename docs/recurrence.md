@@ -27,7 +27,9 @@ Dates before DTSTART are rejected before COUNT and cap admission. DAILY weekday
 filters are applied by the adapter to the authored daily sequence because the
 engine otherwise re-anchors at the first matching date. The implicit monthly day
 and yearly month and day are supplied explicitly, so a 31st cannot drift through
-February, and February 29 cannot drift through non-leap years.
+February, and February 29 cannot drift through non-leap years. Active yearly
+`byyearday` or `byweekno` selectors suppress those implicit DTSTART constraints.
+Week numbers use `wkst` and can include dates across Gregorian year boundaries.
 
 ## UNTIL
 
@@ -65,7 +67,9 @@ buffering positional candidates.
 
 Every rule and date is validated even for zero-duration windows. Numeric fields
 are bounded (`wkst` and `byweekday` 0 to 6, `bymonth` 1 to 12, `bymonthday` and
-`bysetpos` signed ranges, hours `0 <= hourstart < hourend <= 24`). `dtstart`,
+`bysetpos` signed ranges, `byyearday` signed 1 to 366, `byweekno` signed 1 to 53,
+and hours `0 <= hourstart < hourend <= 24`). `byyearday` and `byweekno` require a
+yearly rule. `dtstart`,
 `until`, and `date` must be strings of at most 64 characters; a full
 offset-and-zone form is under 50, and the bound keeps the offset regex linear on
 hostile input.
