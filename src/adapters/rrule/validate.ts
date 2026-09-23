@@ -36,7 +36,8 @@ export function validateInput(input: RosterRule | RosterDate): void {
   if ('frequency' in input) {
     if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency))
       throw new RangeError('Unsupported frequency');
-    if (hourstart === undefined) throw new RangeError('Rules require hourstart and hourend');
+    if (hourstart === undefined && !input.byhour?.length)
+      throw new RangeError('Rules require hourstart and hourend or a nonempty byhour');
     for (const name of ['count', 'interval'] as const) {
       const value = input[name];
       if (value !== undefined && (!Number.isSafeInteger(value) || value <= 0))
@@ -47,6 +48,14 @@ export function validateInput(input: RosterRule | RosterDate): void {
     validateNumbers(input.bymonth, 'bymonth', 1, 12);
     validateNumbers(input.bymonthday, 'bymonthday', -31, 31, true);
     validateNumbers(input.bysetpos, 'bysetpos', -366, 366, true);
+    validateNumbers(input.byhour, 'byhour', 0, 23, false, true);
+    if (
+      hourstart !== undefined &&
+      hourend !== undefined &&
+      input.byhour?.some((hour) => hour < hourstart || hour >= hourend)
+    ) {
+      throw new RangeError(`${input.id}: byhour values must be within [hourstart, hourend)`);
+    }
   }
   if (
     hourstart !== undefined &&
@@ -67,10 +76,16 @@ function validateNumbers(
   min: number,
   max: number,
   nonzero = false,
+  unique = false,
 ): void {
   if (
     values?.some(
-      (value) => !Number.isInteger(value) || value < min || value > max || (nonzero && value === 0),
+      (value, index) =>
+        !Number.isInteger(value) ||
+        value < min ||
+        value > max ||
+        (nonzero && value === 0) ||
+        (unique && values.indexOf(value) !== index),
     )
   ) {
     throw new RangeError(`Invalid ${name}`);

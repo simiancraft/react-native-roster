@@ -18,8 +18,10 @@ provenance per span.
 ## Supported input
 
 `RosterRule` covers DAILY, WEEKLY, MONTHLY, and YEARLY with `interval`, `count`,
-`until`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, and `bysetpos`, plus
-`hourstart`, `hourend`, and an IANA `timezone`. `RosterDate` is a single local
+`until`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, `bysetpos`, and `byhour`, plus
+an optional `hourstart` and `hourend` band and an IANA `timezone`. `byhour` emits one
+interval per contiguous selected hour run; without an explicit band, its minimum
+and maximum selected hours define the bounds. `RosterDate` is a single local
 date, whole day or with hours. Both are `include` or `exclude`. Unbounded strings
 are rejected by validation.
 
