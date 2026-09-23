@@ -21,7 +21,11 @@ provenance per span.
 `until`, `wkst`, `byweekday`, `bymonth`, `bymonthday`, and `bysetpos`, plus
 `hourstart`, `hourend`, and an IANA `timezone`. `RosterDate` is a single local
 date, whole day or with hours. Both are `include` or `exclude`. Unbounded strings
-are rejected by validation.
+and fields outside these declared inputs are rejected by validation. `byminute`
+and `bysecond` are permanently unsupported because fractional `hourstart` and
+`hourend` express sub-hour bands. HOURLY, MINUTELY, and SECONDLY are permanently
+unsupported because an occurrence is a dated band. `byhour`, `byyearday`, and
+`byweekno` are unsupported until the adapter implements them.
 
 ## File map
 

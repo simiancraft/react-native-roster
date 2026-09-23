@@ -1563,6 +1563,38 @@ describe('validation', () => {
     expect(() => expandRuleSet(set([], [date({ date: '2024-02-30' })]), window)).toThrow();
     expect(() => expandRuleSet(set([rule({ dtstart: 'bad' })], []), window)).toThrow();
   });
+
+  it('rejects rule and date fields outside the adapter contract', () => {
+    for (const field of ['byhour', 'byminute', 'bysecond', 'byyearday', 'byweekno']) {
+      const input = rule({ [field]: [1] } as Partial<RosterRule>);
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(field);
+    }
+    const ruleWithNote = rule({ note: 'not a rule field' } as Partial<RosterRule>);
+    expect(() => expandRuleSet(set([ruleWithNote], []), window)).toThrow('note');
+
+    const dateWithDtstart = date({ dtstart: '2024-03-05' } as Partial<RosterDate>);
+    expect(() => expandRuleSet(set([], [dateWithDtstart]), window)).toThrow('dtstart');
+    expect(expandStats().expanded).toBe(0);
+  });
+
+  it('explains permanently unsupported recurrence inputs', () => {
+    for (const field of ['byminute', 'bysecond']) {
+      const input = rule({ [field]: [30] } as Partial<RosterRule>);
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(
+        'fractional hours express sub-hour bands',
+      );
+    }
+    for (const frequency of ['HOURLY', 'MINUTELY', 'SECONDLY']) {
+      const input = rule({ frequency } as unknown as Partial<RosterRule>);
+      expect(() => expandRuleSet(set([input], []), window)).toThrow(
+        'occurrences are dated bands, not sub-daily',
+      );
+    }
+    const invalidFrequency = rule({ frequency: 'DAILYISH' } as unknown as Partial<RosterRule>);
+    expect(() => expandRuleSet(set([invalidFrequency], []), window)).toThrow(
+      'Unsupported frequency: DAILYISH',
+    );
+  });
 });
 
 // Independent plain-date oracle: walk every date, filter, then select positions.

@@ -1,6 +1,21 @@
 import type { Window } from '../../core';
 import type { RosterDate, RosterRule } from './types';
 
+const commonFields = ['id', 'kind', 'timezone', 'hourstart', 'hourend'];
+const ruleFields = [
+  'frequency',
+  'dtstart',
+  'until',
+  'count',
+  'interval',
+  'wkst',
+  'byweekday',
+  'bymonth',
+  'bymonthday',
+  'bysetpos',
+];
+const dateFields = ['date', 'note'];
+
 export function validateWindow(window: Window): void {
   if (
     !Number.isSafeInteger(window.start) ||
@@ -17,7 +32,15 @@ export function nonnegativeInteger(value: number, name: string): number {
   return value;
 }
 
-export function validateInput(input: RosterRule | RosterDate): void {
+export function validateInput(input: RosterRule | RosterDate, inputType: 'rule' | 'date'): void {
+  const allowedFields = inputType === 'rule' ? ruleFields : dateFields;
+  for (const name of Object.keys(input)) {
+    if (commonFields.includes(name) || allowedFields.includes(name)) continue;
+    if (inputType === 'rule' && (name === 'byminute' || name === 'bysecond')) {
+      throw new RangeError(`${name} unsupported; fractional hours express sub-hour bands`);
+    }
+    throw new RangeError(`Unsupported field: ${name}`);
+  }
   if (!input.id || !['include', 'exclude'].includes(input.kind)) {
     throw new RangeError('Each rule or date needs an id and an include or exclude kind');
   }
@@ -34,8 +57,14 @@ export function validateInput(input: RosterRule | RosterDate): void {
     throw new RangeError(`${input.id}: hourstart and hourend must both be present or both absent`);
   }
   if ('frequency' in input) {
-    if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency))
-      throw new RangeError('Unsupported frequency');
+    if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(input.frequency)) {
+      if (['HOURLY', 'MINUTELY', 'SECONDLY'].includes(input.frequency)) {
+        throw new RangeError(
+          `${input.frequency} unsupported; occurrences are dated bands, not sub-daily`,
+        );
+      }
+      throw new RangeError(`Unsupported frequency: ${input.frequency}`);
+    }
     if (hourstart === undefined) throw new RangeError('Rules require hourstart and hourend');
     for (const name of ['count', 'interval'] as const) {
       const value = input[name];

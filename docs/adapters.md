@@ -125,11 +125,12 @@ datetime; `date` is a local ISO date. Hours obey
 without either hour covers its whole local day. One hour alone is invalid.
 
 Convert enums to those exact values, `Date` values to appropriate ISO strings,
-and database `null` to omitted optional fields. Drop unsupported recurrence
-fields: `byyearday`, `byweekno`, `byhour`, `byminute`, and `bysecond`. Do not imply
-that dropping a semantically active field preserves an arbitrary upstream rule;
-reject unsupported semantics or handle them in your own adapter. Source kinds
-emitted here are `rule` and `date`; a dated `note` becomes source label metadata.
+and database `null` to omitted optional fields. The adapter rejects undeclared
+fields, including `byyearday`, `byweekno`, `byhour`, `byminute`, and `bysecond`.
+Do not imply that dropping a semantically active field preserves an arbitrary
+upstream rule; reject unsupported semantics or handle them in your own adapter.
+Source kinds emitted here are `rule` and `date`; a dated `note` becomes source
+label metadata.
 
 The rule/date zone interprets local hours. Lane timezone is a display cue.
 The view timezone is not an expansion argument or cache-key field. Derive the
