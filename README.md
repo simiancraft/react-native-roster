@@ -138,7 +138,9 @@ export function RosterExample() {
 }
 ```
 
-Add lanes for more people. Add layers and they stack by `z`.
+Add lanes for more people. Add layers and they stack by `z`. Roster lanes and Schedule columns
+mount the same internal layer stack, so interval and gap ordering, highlighting, and slot behavior
+match in both projections.
 
 ### Schedule
 

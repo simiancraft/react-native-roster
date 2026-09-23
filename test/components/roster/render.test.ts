@@ -3,6 +3,7 @@ import { describe, expect, it, mock } from 'bun:test';
 import type { ElementType, ReactElement } from 'react';
 import { createElement, Profiler } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { LayerStack } from '../../../src/components/layers/layer-stack';
 import { RosterGap } from '../../../src/components/layers/parts/gap';
 import { RosterInterval } from '../../../src/components/layers/parts/interval';
 import { Roster } from '../../../src/components/roster';
@@ -369,7 +370,7 @@ describe('Roster zones and rect primitives', () => {
     expect(JSON.stringify(tree.toJSON())).toContain('Custom empty roster');
     close(tree);
   });
-  it('draws one absolute view per rect and one gap pressable, with shared source highlighting', () => {
+  it('renders lane rects through the shared layer stack', () => {
     const original = rosterFixtures['two-layers'].lanes[0] as Lane;
     const gapLayer = rosterFixtures['full-day-gap'].lanes[0]?.layers[0] as Layer;
     const lane = {
@@ -395,6 +396,15 @@ describe('Roster zones and rect primitives', () => {
       highlightSource: { kind: 'rule', id: 'one', label: 'Different display label' },
     };
     const tree = render(createElement(LaneRow, props));
+    const stack = tree.root.findByType(LayerStack);
+    expect(stack.props).toMatchObject({
+      lane,
+      rects: geometry.rects,
+      gapRects: geometry.gapRects,
+      intervalComponent: RosterInterval,
+      gapComponent: RosterGap,
+      highlightSource: props.highlightSource,
+    });
     const views = tree.root.findAllByType('View' as ElementType);
     expect(views).toHaveLength(geometry.rects.length);
     expect(views.some((view) => view.props.style[0].backgroundColor === '#f59e0b')).toBe(true);

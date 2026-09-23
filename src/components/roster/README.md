@@ -15,12 +15,16 @@ This feature is about a roster; its children are lanes.
 - `body-layout.tsx`: arranges grid, list, and optional absolute overlay nodes with horizontal scroll wiring
 - `parts/lane-list.tsx`: `RosterLaneList` owns LegendList and its lane render callback
 - `parts/`: collection-level parts (body, header, header cell, grid, now line, corner, label column, empty)
-- `lanes/`: `LaneRow`, the interval-hover platform pair, and lane-local parts
+- `lanes/`: `LaneRow`, which mounts the shared LayerStack beside its incomplete component,
+  the interval-hover platform pair, and lane-local parts
 - `utils/`: ticks and the body content key
 
 Interval and gap components live in `../layers`; press geometry and `regionStyle`
 in `../primitives`. See the [slot tables, selection contract, and context recipe](../../../docs/customization.md#roster-zones)
 and `llms.txt` for integration details. Tests: `test/components/roster`.
+
+`LaneRow` keeps row hover and coordinate-cell presses outside `LayerStack`. It adapts
+the shared plot-coordinate press callback to Roster's lane-aware press contract.
 
 This feature is about a roster body; its children are lanes. `RosterBody` gates
 measurement and composes the body layout and lane list. `BodyInput` extends the

@@ -255,6 +255,8 @@ geometryFor, and LaneRow mounting). BodyInput extends LaneListInput with ticks,
 gridComponent, nowLine, and nowLineComponent. The body picks lane-list props
 explicitly; the overlay wrapper mounts only when overlayZone is provided.
 Keep its viewport gate and measured estimatedListSize in custom compositions.
+LaneRow and ScheduleColumn mount the same internal LayerStack for ordered interval
+and gap rects. LaneRow retains its incomplete component, hover behavior, and row press.
 
 ## Roster zones
 

@@ -48,7 +48,9 @@ function LaneLabel({ lane }: LaneLabelInput) {
 
 A custom interval component positions at `rect.x/y`, uses `rect.width/height/z`,
 and sets `pointerEvents="none"` so the parent hit-test walk owns presses. Gap
-fillers are already inside positioned pressables. `useRoster` exposes ordered
+fillers are already inside positioned pressables. Roster lanes and Schedule columns
+mount these interval and gap components through the same internal layer stack.
+The Roster incomplete component remains beside that collection. `useRoster` exposes ordered
 lanes, coverage, lane state, ticks, `geometryFor`, shared scrolling, `press`,
 viewport measurement, navigation, and status for fully custom layouts.
 

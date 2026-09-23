@@ -47,7 +47,7 @@ src/
     roster/lanes/          # LaneRow, interval hover pair, and lane-local parts
     schedule/              # Schedule chassis, hook, layout, and collection parts
     schedule/days/         # ScheduleDay, day layouts, and day-local parts
-    layers/                # interval and gap components shared by both projections
+    layers/                # shared LayerStack collection plus interval and gap components
     primitives/            # portal store, press-point platform pair, and regionStyle
   core/*.ts                # pure layout, hit-test, provenance sweep, and Intl-only zone math
 scripts/
@@ -320,8 +320,9 @@ Do not publish, tag, change repository settings, or push without task authorizat
 14. **Press coordinates differ on web.** `components/primitives/press-point.tsx` reads
     native locationX/Y; `press-point.web.tsx` maps DOM clientX/Y relative to
     currentTarget. Keep the shared .types.ts and package.json browser remap together
-    when changing this pair. Both projections share it, as they share the interval and
-    gap components in `components/layers` and the pure `core/hit-test.ts` walk.
+    when changing this pair. Both projections share it, as they share the `LayerStack`, interval,
+    and gap components in `components/layers` and the pure `core/hit-test.ts` walk. `LaneRow`
+    retains its incomplete component, hover behavior, and row press outside `LayerStack`.
 
 15. **Ticks are content-cached arithmetic.** Derive wall steps from day starts and
     transitions, preserving skips and both repeat occurrences. On a cache miss, resolve
