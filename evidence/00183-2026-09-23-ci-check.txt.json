@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["code", "tests", "ci"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    ".size-limit.json",
+    "package.json",
+    "scripts/check-web-performance.ts",
+    "src/components/layers/plot-stack.tsx",
+    "src/components/roster/body-layout.tsx",
+    "test/components/roster/render.test.ts",
+    "test/components/roster/selection-layout.test.tsx"
+  ],
+  "capture_commit": "5d9296486dff10d5adae65e56398654aacf930a3",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:30322dd5a8a9c00a394c92120c5635ff8a616007ddea9f18ed38d3144acf7bbd"
+}
