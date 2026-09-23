@@ -1,0 +1,14 @@
+{
+  "scope_tags": ["ci", "build", "browser", "tests"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "src/",
+    "demo/",
+    "test/",
+    "scripts/"
+  ],
+  "capture_commit": "0941ef70d7a93521c8637c5328af3fafe55123a5",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:b4d74b44b20d93891baf44d2cb35274de211a050651d22317f6f8e9b4087e0f5"
+}
