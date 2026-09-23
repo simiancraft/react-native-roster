@@ -2,7 +2,7 @@ import { Roster } from 'react-native-roster';
 import type { RosterFixtureId } from '../../../../../test/fixtures/roster';
 import { SiteFooter } from '../../../site-footer';
 import { FixtureLayout } from '../layout';
-import { Control } from '../parts/control';
+import { Control, ToggleControl } from '../parts/control';
 import { GalleryCounters } from '../parts/counters';
 import { GalleryControls } from './parts/controls';
 import { HighlightControls } from './parts/highlight-controls';
@@ -45,7 +45,11 @@ export function RosterFixtureScreen({ fixtureId }: { fixtureId: RosterFixtureId 
     />
   ) : null;
   const nowZone = fixture.showsNowToggle ? (
-    <Control label="Now at window midpoint" selected={model.showNow} onPress={model.toggleNow} />
+    <ToggleControl
+      label="Now at window midpoint"
+      pressed={model.showNow}
+      onPress={model.toggleNow}
+    />
   ) : null;
   const performanceZone = fixture.workload ? (
     <PerformanceControls

@@ -1,10 +1,18 @@
 /// <reference types="nativewind/types" />
-import '../support/native-host';
+
 import { afterEach, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { Control, ToggleControl } from '../../demo/components/gallery/fixtures/parts/control';
+import { HighlightControls } from '../../demo/components/gallery/fixtures/roster/parts/highlight-controls';
+import { ToolbarButton } from '../../demo/components/team-roster/parts/chips';
+import { MemberLabel } from '../../demo/components/team-roster/parts/member-label';
+import { teamFor } from '../../demo/components/team-roster/utils/team';
 import { Card, type CardProps } from '../../demo/components/ui/card';
+import { Toggle } from '../../demo/components/ui/toggle';
+import type { Lane } from '../../src/core';
+import { testPlatform } from '../support/native-host';
 
 const trees: ReactTestRenderer[] = [];
 
@@ -25,6 +33,7 @@ function renderCard(props: Omit<CardProps, 'contentZone'> = {}) {
 
 afterEach(() => {
   for (const tree of trees.splice(0)) act(() => tree.unmount());
+  testPlatform.OS = 'ios';
 });
 
 for (const [tone, expected] of [
@@ -65,3 +74,136 @@ it('keeps every Card variant class scanner-visible', () => {
   expect(source).toContain("inset: 'border-border bg-background'");
   expect(source).toContain("dashed: 'border-dashed border-grid-strong bg-background'");
 });
+
+it('exposes pressed and unpressed Toggle state as a button on web', () => {
+  testPlatform.OS = 'web';
+  const tree = render(<Toggle mode="pressed" pressed={false} onPress={() => {}} />);
+  const toggle = tree.root.findByType(Pressable);
+
+  expect(toggle.props.accessibilityRole).toBe('button');
+  expect(toggle.props['aria-pressed']).toBe(false);
+  expect(toggle.props.accessibilityState).toBeUndefined();
+
+  act(() => tree.update(<Toggle mode="pressed" pressed={true} onPress={() => {}} />));
+  expect(tree.root.findByType(Pressable).props['aria-pressed']).toBe(true);
+});
+
+it('exposes checked Toggle state through the native togglebutton role', () => {
+  const toggle = render(
+    <Toggle mode="pressed" pressed={true} onPress={() => {}} />,
+  ).root.findByType(Pressable);
+
+  expect(toggle.props.accessibilityRole).toBe('togglebutton');
+  expect(toggle.props.accessibilityState).toEqual({ checked: true, disabled: undefined });
+  expect(toggle.props['aria-pressed']).toBeUndefined();
+});
+
+it('exposes radio state on web and native', () => {
+  testPlatform.OS = 'web';
+  const web = render(<Toggle mode="radio" checked={false} onPress={() => {}} />).root.findByType(
+    Pressable,
+  );
+  expect(web.props.accessibilityRole).toBe('radio');
+  expect(web.props['aria-checked']).toBe(false);
+  expect(web.props.accessibilityState).toBeUndefined();
+
+  testPlatform.OS = 'ios';
+  const native = render(<Toggle mode="radio" checked={true} onPress={() => {}} />).root.findByType(
+    Pressable,
+  );
+  expect(native.props.accessibilityRole).toBe('radio');
+  expect(native.props.accessibilityState).toEqual({ checked: true, disabled: undefined });
+  expect(native.props['aria-checked']).toBeUndefined();
+});
+
+it('preserves disabled state and activation behavior', () => {
+  let activations = 0;
+  const enabled = render(
+    <Toggle mode="pressed" pressed={false} onPress={() => activations++} />,
+  ).root.findByType(Pressable);
+  act(() => enabled.props.onPress());
+  expect(activations).toBe(1);
+
+  const disabled = render(
+    <Toggle mode="pressed" pressed={false} disabled onPress={() => activations++} />,
+  ).root.findByType(Pressable);
+  expect(disabled.props.disabled).toBe(true);
+  expect(disabled.props.accessibilityState).toEqual({ checked: false, disabled: true });
+});
+
+it('keeps fixture actions ordinary while selected options retain their transitional state', () => {
+  const action = render(<Control label="Next" onPress={() => {}} />).root.findByType(Pressable);
+  expect(action.props.accessibilityRole).toBe('button');
+  expect(action.props.accessibilityState).toBeUndefined();
+  expect(action.props['aria-selected']).toBeUndefined();
+  expect(action.props['aria-pressed']).toBeUndefined();
+
+  const option = render(<Control label="15 min" selected onPress={() => {}} />).root.findByType(
+    Pressable,
+  );
+  expect(option.props.accessibilityState).toEqual({ selected: true });
+  expect(option.props['aria-selected']).toBe(true);
+});
+
+it('routes fixture now and highlight choices through pressed toggles', () => {
+  testPlatform.OS = 'web';
+  let nowActivations = 0;
+  const now = render(
+    <ToggleControl
+      label="Now at window midpoint"
+      pressed={false}
+      onPress={() => nowActivations++}
+    />,
+  ).root.findByType(Pressable);
+  expect(now.props['aria-pressed']).toBe(false);
+  act(() => now.props.onPress());
+  expect(nowActivations).toBe(1);
+
+  const highlight = render(<HighlightControls active onHighlight={() => {}} onClear={() => {}} />);
+  const controls = highlight.root.findAllByType(Pressable);
+  expect(controls[0]?.props['aria-pressed']).toBe(true);
+  expect(controls[1]?.props['aria-pressed']).toBeUndefined();
+  expect(controls[1]?.props['aria-selected']).toBeUndefined();
+});
+
+it('uses pressed-toggle semantics for member selection and keeps toolbar actions ordinary', () => {
+  const member = teamFor(1318, 1).members[0];
+  if (!member) throw new Error('Expected one seeded member');
+  const lane: Lane = {
+    id: member.id,
+    label: member.name,
+    layers: [],
+    meta: { member, events: [], now: 0 },
+  };
+  const memberLabel = render(
+    <MemberLabel
+      lane={lane}
+      flag="none"
+      complete
+      viewTimezone="UTC"
+      incompleteLabel="Partial hours"
+      neverSetLabel="Never set"
+      density="avatar"
+      variant="selected"
+      onPress={() => {}}
+    />,
+  ).root.findByType(Pressable);
+  expect(memberLabel.props.accessibilityRole).toBe('togglebutton');
+  expect(memberLabel.props.accessibilityState).toEqual({ checked: true, disabled: undefined });
+
+  const toolbar = render(
+    <ToolbarButton label="Previous" accessibilityLabel="Previous day" onPress={() => {}} />,
+  ).root.findByType(Pressable);
+  expect(toolbar.props.accessibilityRole).toBe('button');
+  expect(toolbar.props.accessibilityState).toBeUndefined();
+  expect(toolbar.props['aria-pressed']).toBeUndefined();
+});
+
+function render(element: React.ReactElement) {
+  let tree!: ReactTestRenderer;
+  act(() => {
+    tree = create(element);
+  });
+  trees.push(tree);
+  return tree;
+}
