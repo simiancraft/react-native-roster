@@ -1,0 +1,19 @@
+{
+  "scope_tags": ["repository", "ci-gate", "test"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    ".size-limit.json",
+    "package.json",
+    "AGENTS.md",
+    "README.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/team-roster/utils/team.ts",
+    "llms.txt",
+    "src/components/schedule/days/parts/column.tsx",
+    "test/components/schedule/render.test.ts",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "0a377d3d9871660afd39739fdc3c106456f54986",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:41ff6a07389f3550cfdb420d5888d6687882b95d400dab93dcb3abdae1786cf0"
+}
