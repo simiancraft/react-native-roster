@@ -1,0 +1,16 @@
+{
+  "scope_tags": ["demo", "correctness", "repository-gate"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "README.md",
+    "demo/components/team-roster/README.md",
+    "demo/components/team-roster/utils/team.ts",
+    "llms.txt",
+    "package.json",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "6b3097922e7a4a162784dc35b07739af483e0255",
+  "capture_method": "bun run check",
+  "content_hash": "sha256:5c4564aa6d1d6feefbcc62f8c2c91d39bb96a5c1a182c4ba8cea7323301fb576"
+}

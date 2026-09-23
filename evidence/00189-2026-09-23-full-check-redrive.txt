@@ -1,0 +1,579 @@
+[0m[2m[35m$[0m [2m[1mbun run lint && bun run typecheck && bun run typecheck:test && bun run typecheck:demo && bun run check:react-compiler && bun run build:web && bun run test && bun run check:knip && bun run check:package && bun run check:size && bun run check:web[0m
+[0m[2m[35m$[0m [2m[1mbiome check[0m
+Checked 277 files in 58ms. No fixes applied.
+[0m[2m[35m$[0m [2m[1mtsgo --noEmit[0m
+[0m[2m[35m$[0m [2m[1mtsgo --noEmit -p tsconfig.test.json[0m
+[0m[2m[35m$[0m [2m[1mtsgo --noEmit -p demo/tsconfig.json[0m
+[0m[2m[35m$[0m [2m[1meslint 'src/components/**/*.{ts,tsx}' 'demo/components/**/*.{ts,tsx}' 'demo/app/**/*.tsx' --no-error-on-unmatched-pattern[0m
+[0m[2m[35m$[0m [2m[1mbun run build && cd demo && bunx expo export -p web[0m
+[0m[2m[35m$[0m [2m[1mbun run clean && tsgo -p tsconfig.build.json[0m
+[0m[2m[35m$[0m [2m[1mrm -rf dist[0m
+(node:360006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mReact Compiler enabled[39m
+[2mStarting Metro Bundler[22m
+Static rendering is enabled. [2mLearn more: [4mhttps://docs.expo.dev/router/reference/static-rendering/[24m[22m
+[32m[1mλ[22m Bundled [39m[2m1081ms[22m[0m[2m node_modules/expo-router/node/render.js (814 modules)[22m[0m
+[32m[1mWeb[22m Bundled [39m[2m1239ms[22m[0m[2m node_modules/expo-router/entry.js (1225 modules)[22m[0m
+
+[1m› web bundles (2):[22m
+_expo/static/css/web-6fe43defa8e9ed03f36b59ab32905bd4.css [90m(17.9 kB)[39m
+_expo/static/js/web/entry-51629e94a5f1d73ea7ea059a7b773f7e.js [90m(5.67 MB)[39m
+
+[1m› Static routes (44):[22m
+/[90m (index)[39m [90m(58.8 kB)[39m
+/showcase [90m(61.7 kB)[39m
+/_sitemap [90m(17.5 kB)[39m
+/+not-found [90m(17.5 kB)[39m
+/gallery/empty [90m(37.4 kB)[39m
+/gallery/day-15 [90m(67.2 kB)[39m
+/gallery/day-30 [90m(53.2 kB)[39m
+/gallery/day-60 [90m(46.3 kB)[39m
+/gallery/equal-z [90m(41.2 kB)[39m
+/gallery/week-15 [90m(41.4 kB)[39m
+/gallery/week-30 [90m(41.4 kB)[39m
+/gallery/week-60 [90m(41.4 kB)[39m
+/gallery/20-lanes [90m(48.8 kB)[39m
+/gallery/dst-week [90m(89.3 kB)[39m
+/gallery/month-15 [90m(48.6 kB)[39m
+/gallery/month-30 [90m(48.6 kB)[39m
+/gallery/month-60 [90m(48.6 kB)[39m
+/gallery/200-lanes [90m(123 kB)[39m
+/gallery/never-set [90m(42.3 kB)[39m
+/gallery/every-zone [90m(41.6 kB)[39m
+/gallery/two-layers [90m(41.3 kB)[39m
+/gallery/single-lane [90m(41.3 kB)[39m
+/gallery/adapter-caps [90m(44 kB)[39m
+/gallery/full-day-gap [90m(41.2 kB)[39m
+/gallery/default-zones [90m(41.8 kB)[39m
+/gallery/schedule-apia [90m(38.2 kB)[39m
+/gallery/schedule-fall [90m(38.2 kB)[39m
+/gallery/sort-coverage [90m(122 kB)[39m
+/gallery/adapter-weekly [90m(42.8 kB)[39m
+/gallery/booking-in-gap [90m(41.2 kB)[39m
+/gallery/highlight-rule [90m(49.5 kB)[39m
+/gallery/schedule-empty [90m(38.2 kB)[39m
+/gallery/interval-detail [90m(47 kB)[39m
+/gallery/mixed-timezones [90m(89.5 kB)[39m
+/gallery/schedule-layers [90m(38.3 kB)[39m
+/gallery/schedule-spring [90m(38.2 kB)[39m
+/gallery/adapter-overrides [90m(43.6 kB)[39m
+/gallery/schedule-excluded [90m(38.2 kB)[39m
+/gallery/schedule-midnight [90m(38.2 kB)[39m
+/gallery/schedule-lord-howe [90m(38.2 kB)[39m
+/gallery/schedule-every-zone [90m(39.9 kB)[39m
+/gallery/schedule-incomplete [90m(38.2 kB)[39m
+/gallery/incomplete-expansion [90m(41.3 kB)[39m
+/gallery/schedule-side-by-side [90m(42.2 kB)[39m
+
+[92mExported: dist[39m
+[0m[2m[35m$[0m [2m[1mbun test --coverage[0m
+[0m[1mbun test [0m[2mv1.4.2 (744846f84)[0m
+[0m
+test/components/component-slots.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/integration/provenance.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/integration/timezones.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/performance/workload.test.ts:
+Workload W density: 70 total rects per lane per week (63 interval rects and 7 gap rects).
+Workload W target-cold: layout 24 lanes 0.966 ms (baseline 2.195 ms); coverage 200 lanes 0.534 ms (baseline 1.412 ms); calibration 0.440x; 15-minute ticks.
+[0m
+test/demo/rule-set-draft.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/demo/demo-primitives.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/demo/showcase-attendance.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/demo/schedule-fixture.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+(node:364829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:364888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:365446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m
+test/components/primitives/portal.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/roster/render.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/roster/use-roster.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/roster/selection-layout.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/roster/label-scroll.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/schedule/use-schedule.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/schedule/render.test.ts:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m
+test/components/layers/layer-stack.test.tsx:
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[31mreact-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer[0m
+[0m[2m----------------------------------------------------------|---------|---------|-------------------[0m
+File                                                      [2m|[0m % Funcs [2m|[0m % Lines [2m|[0m Uncovered Line #s
+[0m[2m----------------------------------------------------------|---------|---------|-------------------[0m
+[0m[1m[32mAll files                                                [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m |[0m
+[0m[1m[32m scripts/lib/package-version.ts                          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/cache.ts                             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/envelope.ts                          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/expand.ts                            [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/hash.ts                              [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/index.ts                             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/net.ts                               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/occurrences.ts                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/adapters/rrule/validate.ts                          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/layers/layer-stack.tsx                   [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/layers/parts/gap.tsx                     [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/layers/parts/interval.tsx                [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/layers/utils/styles.ts                   [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/primitives/portal.tsx                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/primitives/press-point.tsx               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/primitives/press-point.web.tsx           [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/primitives/region-style.ts               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/body-layout.tsx                   [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/focus-safe-clip.ts                [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/index.tsx                         [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/lanes/interval-hover.tsx          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/lanes/interval-hover.web.tsx      [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/lanes/lane.tsx                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/lanes/parts/incomplete.tsx        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/lanes/parts/lane-label.tsx        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/layout.tsx                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/body.tsx                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/corner.tsx                  [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/empty.tsx                   [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/grid.tsx                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/header-cell.tsx             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/header.tsx                  [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/label-wheel.tsx             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/label-wheel.web.tsx         [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/lane-label-column.tsx       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/lane-list.tsx               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/parts/now-line.tsx                [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/selection/selection-layout.tsx    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/selection/selection-layout.web.tsx[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/use-roster-press.ts               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/use-roster.ts                     [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/utils/body-content-key.ts         [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/roster/utils/ticks.ts                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/day.tsx                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/header-layout.tsx          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/layout.tsx                 [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/column.tsx           [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/day-header.tsx       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/grid.tsx             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/now-line.tsx         [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/skipped-date.tsx     [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/days/parts/transition.tsx       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/index.tsx                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/layout.tsx                      [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/parts/gutter.tsx                [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/parts/incomplete.tsx            [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/use-schedule-viewport.ts        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/use-schedule.ts                 [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/utils/days.ts                   [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/components/schedule/utils/window-band.ts            [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/axis.ts                                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/cache.ts                                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/columns.ts                                     [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/coverage.ts                                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/flag.ts                                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/hash.ts                                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/hit-test.ts                                    [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/index.ts                                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/layout.ts                                      [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/lru.ts                                         [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/order.ts                                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/scale.ts                                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/snap.ts                                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/source.ts                                      [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/spans.ts                                       [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/core/zone.ts                                        [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/index.ts                                            [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m src/nativewind/index.ts                                 [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/adapters.ts                               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/performance-lanes.ts                      [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/provenance.ts                             [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/roster-zones.tsx                          [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/roster.ts                                 [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/schedule.ts                               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/timezones.ts                              [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[1m[32m test/fixtures/workload.ts                               [0m[2m | [0m[1m[32m 100.00[0m[2m | [0m[1m[32m 100.00[0m[2m | [0m
+[0m[2m----------------------------------------------------------|---------|---------|-------------------[0m
+
+[0m[32m 2783 pass[0m
+[0m[2m 0 fail[0m
+ 32638 expect() calls
+Ran 2783 tests across 38 files. [0m[2m[[1m249.93s[0m[2m][0m
+[0m[2m[35m$[0m [2m[1mknip[0m
+(node:468990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mpublint --strict[0m
+(node:469022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Running publint v0.3.24 for react-native-roster...
+Packing files with `bun pack`...
+Linting...
+Suggestions:
+1. pkg.browser with an object value can be refactored to use pkg.exports/pkg.imports and the "browser" condition to declare browser-specific exports. (This may be a breaking change)
+[0m[2m[35m$[0m [2m[1msize-limit[0m
+(node:469044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+- Adding to empty esbuild project
+✔ Adding to empty esbuild project
+  
+  [1mreact-native-roster/core[22m
+  Size limit: [32m[1m16 kB[22m[39m
+  Size:       [32m[1m15.49 kB[22m[39m [90mwith all dependencies and minified[39m
+  
+  [1mreact-native-roster/rrule[22m
+  [42m[30mPackage size is 8 B less than limit[39m[49m
+  Size limit: [32m[1m15.12 kB[22m[39m
+  Size:       [32m[1m15.11 kB[22m[39m [90mwith all dependencies and minified[39m
+  
+  [1mreact-native-roster[22m
+  Size limit: [32m[1m54.7 kB[22m[39m
+  Size:       [32m[1m54.7 kB[22m[39m [90mwith all dependencies and minified[39m
+  
+  [1mreact-native-roster/nativewind[22m
+  Size limit: [32m[1m50.72 kB[22m[39m
+  Size:       [32m[1m50.72 kB[22m[39m [90mwith all dependencies and minified[39m
+  
+[0m[2m[35m$[0m [2m[1mbun run build:web:dev && bun scripts/check-web-performance.ts[0m
+[0m[2m[35m$[0m [2m[1mcd demo && bunx expo export -p web --dev --output-dir .cache/dev-dist[0m
+(node:469080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mReact Compiler enabled[39m
+[2mStarting Metro Bundler[22m
+Static rendering is enabled. [2mLearn more: [4mhttps://docs.expo.dev/router/reference/static-rendering/[24m[22m
+[1mWeb[22m [0m[2mnode_modules/expo-router/[22m[0m[1mentry.js[22m [32m[42m▓▓▓▓▓[49m[39m[47m[37m░░░░░░░░░░░[39m[49m[1m 31.3% [22m[2m(230/411)[22m
+[1mλ[22m [0m[2mnode_modules/expo-router/node/[22m[0m[1mrender.js[22m [32m[42m▓▓▓▓▓▓▓▓▓▓▓▓▓▓[49m[39m[47m[37m░░[39m[49m[1m 89.5% [22m[2m(1161/1227)[22m
+[32m[1mλ[22m Bundled [39m[2m819ms[22m[0m[2m node_modules/expo-router/node/render.js (1227 modules)[22m[0m
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[1mλ [22m[7m[33m[1m WARN [22m[39m[27m Got a component with the name 'u' for the screen '__root'. React Components must start with an uppercase letter. If you're passing a regular function and not a component, pass it as children to 'Screen' instead. Otherwise capitalize your component's name. 
+[32m[1mWeb[22m Bundled [39m[2m1107ms[22m[0m[2m node_modules/expo-router/entry.js (1297 modules)[22m[0m
+
+[1m› web bundles (2):[22m
+_expo/static/css/web-6fe43defa8e9ed03f36b59ab32905bd4.css [90m(17.9 kB)[39m
+_expo/static/js/web/entry-d41d8cd98f00b204e9800998ecf8427e.js [90m(6.76 MB)[39m
+
+[1m› Static routes (44):[22m
+/[90m (index)[39m [90m(64.6 kB)[39m
+/showcase [90m(70.1 kB)[39m
+/_sitemap [90m(21.3 kB)[39m
+/+not-found [90m(21.3 kB)[39m
+/gallery/empty [90m(42 kB)[39m
+/gallery/day-15 [90m(77.7 kB)[39m
+/gallery/day-30 [90m(60.8 kB)[39m
+/gallery/day-60 [90m(52.4 kB)[39m
+/gallery/equal-z [90m(46.3 kB)[39m
+/gallery/week-15 [90m(46.5 kB)[39m
+/gallery/week-30 [90m(46.5 kB)[39m
+/gallery/week-60 [90m(46.5 kB)[39m
+/gallery/20-lanes [90m(55.2 kB)[39m
+/gallery/dst-week [90m(104 kB)[39m
+/gallery/month-15 [90m(55.2 kB)[39m
+/gallery/month-30 [90m(55.2 kB)[39m
+/gallery/month-60 [90m(55.2 kB)[39m
+/gallery/200-lanes [90m(142 kB)[39m
+/gallery/never-set [90m(47.6 kB)[39m
+/gallery/every-zone [90m(46.3 kB)[39m
+/gallery/two-layers [90m(46.4 kB)[39m
+/gallery/single-lane [90m(46.4 kB)[39m
+/gallery/adapter-caps [90m(49.2 kB)[39m
+/gallery/full-day-gap [90m(46.3 kB)[39m
+/gallery/default-zones [90m(47 kB)[39m
+/gallery/schedule-apia [90m(42.9 kB)[39m
+/gallery/schedule-fall [90m(42.9 kB)[39m
+/gallery/sort-coverage [90m(140 kB)[39m
+/gallery/adapter-weekly [90m(48 kB)[39m
+/gallery/booking-in-gap [90m(46.3 kB)[39m
+/gallery/highlight-rule [90m(55.9 kB)[39m
+/gallery/schedule-empty [90m(42.9 kB)[39m
+/gallery/interval-detail [90m(53.2 kB)[39m
+/gallery/mixed-timezones [90m(105 kB)[39m
+/gallery/schedule-layers [90m(42.9 kB)[39m
+/gallery/schedule-spring [90m(42.9 kB)[39m
+/gallery/adapter-overrides [90m(48.8 kB)[39m
+/gallery/schedule-excluded [90m(42.9 kB)[39m
+/gallery/schedule-midnight [90m(42.9 kB)[39m
+/gallery/schedule-lord-howe [90m(42.9 kB)[39m
+/gallery/schedule-every-zone [90m(44.8 kB)[39m
+/gallery/schedule-incomplete [90m(42.9 kB)[39m
+/gallery/incomplete-expansion [90m(46.4 kB)[39m
+/gallery/schedule-side-by-side [90m(47.4 kB)[39m
+
+[92mExported: .cache/dev-dist[39m
+[33mDetected 1 process preventing Expo from exiting, forcefully exiting now.[39m
+[33m  - /home/the-simian/.nvm/versions/node/v24.19.0/bin/node /home/the-simian/Simiancraft_Programming/Simiancraft/.react-native-roster-loop/issue-189/node_modules/nativewind/dist/metro/tailwind/v3/child.js[39m
+Focus offsets: labels 0px; header 0px.
+Label wheel: body-matching vertical scrolling, reverse scrolling, and aligned labels.
+Focus clipping: labels stay aligned before and after wheel scrolling; header offset stays zero.
+view-zone change: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+scroll (second pass): {"layout":{"runs":0,"cacheHits":28},"coverage":{"runs":0,"cacheHits":28},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+lane selection: {"layout":{"runs":0,"cacheHits":13},"coverage":{"runs":0,"cacheHits":13},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+highlight: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":26},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+sort: {"layout":{"runs":0,"cacheHits":0},"coverage":{"runs":0,"cacheHits":200},"expand":{"rules":0,"dates":0,"expanded":0,"cacheHits":0,"cacheMisses":0}}
+unrelated lane-zone change: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":226},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+rule body change: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":1,"cacheHits":1,"cacheMisses":1}}
+next week outside all retained envelopes: {"layout":{"runs":26,"cacheHits":0},"coverage":{"runs":200,"cacheHits":26},"expand":{"rules":1,"dates":1,"expanded":2,"cacheHits":0,"cacheMisses":2}}
+previous week inside retained envelope: {"layout":{"runs":0,"cacheHits":26},"coverage":{"runs":0,"cacheHits":226},"expand":{"rules":1,"dates":1,"expanded":0,"cacheHits":2,"cacheMisses":0}}
+Web performance: all action budgets pass; 24-row viewport, 26 mounted lanes.
+Selection: dismissal, keyboard focus return, outside pointer focus, and scroll alignment across layout switches pass.
+Showcase week axes: scrolled full, compact, and avatar date context; cross-year years; normal, spring-forward, and fall-back fitted widths pass.
+Day header: pointer, Enter, and Space each activate the actual day exactly once.
+LaneRow profiler: 14 continuously mounted lanes, zero updates on the second scroll pass; mount and update controls pass.
+Selection profiler: zero mounted-row updates when opening details or dismissing on a cell.
