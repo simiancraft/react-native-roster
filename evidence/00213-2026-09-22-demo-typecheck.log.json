@@ -1,0 +1,10 @@
+{
+  "scope_tags": ["frontend", "types"],
+  "covered_paths": [
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/tsconfig.json"
+  ],
+  "capture_commit": "36d21b4e9820b1b930ec6b50eb61d32268543ac7",
+  "capture_method": "FORCE_COLOR=0 bun run typecheck:demo",
+  "content_hash": "sha256:c613fbf87f9a94fcfd190c1218b9a2965b8744e4e4c245c741eb09b67c8bda75"
+}

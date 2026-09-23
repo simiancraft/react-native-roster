@@ -1,0 +1,13 @@
+{
+  "scope_tags": ["frontend", "visual", "flow"],
+  "covered_paths": [
+    "demo/components/team-roster/index.tsx",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "demo/components/team-roster/use-team-roster.ts",
+    "demo/components/team-roster/utils/format.ts",
+    "src/components/roster/utils/ticks.ts"
+  ],
+  "capture_commit": "36d21b4e9820b1b930ec6b50eb61d32268543ac7",
+  "capture_method": "Playwright against the production Expo web export: select Week, Detailed, and London; advance to Mar 23 to Mar 29, 2026; scroll to the Mar 29 boundary; assert bare 2am and dated 3am; capture with zero page errors",
+  "content_hash": "sha256:87ec300aed1487b6b2d9188253ed4a3f377be46b27a42dc5fe83ed226df47686"
+}

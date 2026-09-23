@@ -1,0 +1,12 @@
+{
+  "scope_tags": ["ci", "frontend", "test", "types"],
+  "covered_paths": [
+    ".github/workflows/ci.yml",
+    "demo/components/team-roster/parts/header-cell.tsx",
+    "package.json",
+    "test/demo/showcase-attendance.test.tsx"
+  ],
+  "capture_commit": "36d21b4e9820b1b930ec6b50eb61d32268543ac7",
+  "capture_method": "FORCE_COLOR=0 bun run check; this aggregate runs the repository lint, typecheck, React Compiler, build, production and development web export, coverage, package, size, and Playwright gates used by CI",
+  "content_hash": "sha256:85a4f7db6d756f28982cdcf9819beb18855903a0f1f15a8258c2f7fe174c4239"
+}
