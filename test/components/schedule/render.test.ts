@@ -664,6 +664,7 @@ describe('Schedule chassis and day zones', () => {
     expect(replaced.root.findByType('custom-gutter' as ElementType).props.hours).toHaveLength(24);
     expect(replaced.root.findAllByType('custom-grid' as ElementType)).toHaveLength(7);
     expect(replaced.root.findAllByProps({ testID: 'schedule-hour-band' })).toHaveLength(0);
+    expect(replaced.root.findAllByType('custom-now' as ElementType)).toHaveLength(1);
     const styles = replaced.root
       .findAllByType('View' as ElementType)
       .map((view) => JSON.stringify(view.props.style ?? null));
@@ -682,6 +683,9 @@ describe('Schedule chassis and day zones', () => {
   it('moves and removes the controlled now line across repeated-hour occurrences', () => {
     const props = propsFor('schedule-fall');
     const tree = render(createElement(Schedule, props));
+    const hourBands = tree.root.findAllByProps({ testID: 'schedule-hour-band' });
+    expect(hourBands.length).toBeGreaterThan(0);
+    expect(hourBands.every((band) => band.props.style.borderColor === '#e2e8f0')).toBe(true);
     expect(tree.root.findAllByProps({ testID: 'schedule-now-6' })).toHaveLength(0);
     act(() => tree.update(createElement(Schedule, { ...props, now: null })));
     expect(tree.root.findAllByProps({ testID: 'schedule-now-6' })).toHaveLength(0);
@@ -694,6 +698,7 @@ describe('Schedule chassis and day zones', () => {
     );
     const line = tree.root.findByProps({ testID: 'schedule-now-6' });
     expect(line.props.style.top).toBe(1.75 * 48);
+    expect(line.props.style.backgroundColor).toBe('#dc2626');
     expect(line.props.pointerEvents).toBe('none');
     const day = tree.root.findAllByType(ScheduleDayLayout)[6] as ReactTestInstance;
     expect(day.props.chromeZ).toBeGreaterThan(0);

@@ -501,6 +501,9 @@ describe('Roster zones and rect primitives', () => {
     expect(gridComponent.mock.calls[0]?.[0].contentWidth).toBe(5040);
     const grid = render(createElement(RosterGrid, gridComponent.mock.calls[0]?.[0] as GridInput));
     expect(grid.root.findByProps({ testID: 'roster-grid' }).children).toHaveLength(7);
+    expect(
+      grid.root.findAll((node) => node.props.style?.backgroundColor === '#e2e8f0'),
+    ).toHaveLength(7);
     close(grid);
     close(tree);
   });
